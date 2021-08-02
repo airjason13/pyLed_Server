@@ -6,7 +6,7 @@
 from c_mainwindow import MainUi
 import sys
 from PyQt5.QtWidgets import QApplication
-
+import jqlocalserver
 def print_hi(name):
     # Use a breakpoint in the code line below to debug your script.
     print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
@@ -18,6 +18,9 @@ if __name__ == '__main__':
     app = QApplication(sys.argv)
     gui = MainUi()
     gui.show()
+    server = jqlocalserver.Server()
+    server.dataReceived.connect(gui.parser_cmd_from_qlocalserver)
+
     sys.exit(app.exec_())
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/

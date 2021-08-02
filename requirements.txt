@@ -3,3 +3,4 @@ numpy
 pyqtgraph
 qdarkstyle
 requests
+netifaces

@@ -9,6 +9,12 @@ import pyqtgraph as pg
 import numpy as np
 import pyqtgraph.exporters as pe
 import qdarkstyle, requests, sys, time, random, json, datetime, re
+import socket
+from time import sleep
+from global_def import *
+from pyqt_worker import Worker
+import netifaces as ni
+import utils.net_utils as net_utils
 
 class MainUi(QMainWindow):
     def __init__(self):
@@ -32,6 +38,11 @@ class MainUi(QMainWindow):
 
         self.setWindowTitle("LED Server")
 
+
+        self.broadcast_thread = Worker(method=self.server_broadcast, data="ABCDE", port=server_broadcast_port)
+        self.client_alive_thread = Worker(method=self.client_alive_report_thread, port=alive_report_port)
+        self.broadcast_thread.start()
+        self.client_alive_thread.start()
 
     def init_ui(self):
         self.setFixedSize(960, 700)
@@ -175,10 +186,47 @@ class MainUi(QMainWindow):
 
     def func_testA(self):
         print("testA")
-
         self.right_layout.setCurrentIndex(2)
 
     def func_testB(self):
         print("testB")
 
         self.right_layout.setCurrentIndex(3)
+
+    """ handle the command from qlocalserver"""
+    def parser_cmd_from_qlocalserver(self, data):
+        print("data : ", data)
+
+
+    """ recv alive report """
+    def client_alive_report_thread(self, args):
+        port = args.get("port")
+        print("port : ", port)
+        print("client_alive_report_thread")
+        sleep(4)
+
+    """send broadcast on eth0"""
+    def server_broadcast(self, arg):
+        data = arg.get("data")
+        port = arg.get("port")
+        print("data :", data)
+        print("port :", port)
+        #ni.ifaddresses('enp8s0')
+        #ip = ni.ifaddresses('enp8s0')[ni.AF_INET][0]['addr']
+        if sys.platform in ('arm', 'arm64', 'aarch64'):
+            ifname = 'eth0'
+        else:
+            ifname = 'enp8s0'
+        ip = net_utils.get_ip_address(ifname)
+        print("ip : ", ip)
+        msg = data.encode()
+        if ip != "":
+            print(f'sending on {ip}')
+            sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)  # UDP
+            sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
+            sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
+            sock.bind((ip, 0))
+            sock.sendto(msg, ("255.255.255.255", port))
+            sock.close()
+
+        sleep(2)
