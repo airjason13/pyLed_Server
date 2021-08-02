@@ -8,7 +8,7 @@ class Worker(QThread):
     def __init__(self, parent=None, method=None, **kwargs):
         super(Worker, self).__init__(parent)
         self.method = method
-        print("kwargs:", kwargs)
+        #print("kwargs:", kwargs)
         self.kwargs = kwargs
         # self.count = 0
         #self.loop = loop(method= self.method)
@@ -16,7 +16,7 @@ class Worker(QThread):
     def run(self):
         while True:
             time.sleep(0.1)
-            print("self.kwargs:", self.kwargs)
+            #print("self.kwargs:", self.kwargs)
             self.method(self.kwargs)
 
 

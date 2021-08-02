@@ -1,7 +1,8 @@
 from PyQt5 import QtWidgets
 from PyQt5.QtWidgets import (QApplication, QMainWindow, QDesktopWidget, QStyleFactory, QWidget, QHBoxLayout, QVBoxLayout,
                             QGridLayout, QFrame,QHeaderView, QTableWidgetItem, QMessageBox, QFileDialog,
-                            QSlider, QLabel, QLineEdit, QPushButton, QTableWidget, QStackedLayout, QSplitter, QTreeWidget, QTreeWidgetItem)
+                            QSlider, QLabel, QLineEdit, QPushButton, QTableWidget, QStackedLayout, QSplitter, QTreeWidget, QTreeWidgetItem,
+                             QFileDialog)
 from PyQt5.QtGui import QPalette, QColor, QBrush
 from PyQt5.QtCore import Qt
 from pyqtgraph import GraphicsLayoutWidget
@@ -15,6 +16,7 @@ from global_def import *
 from pyqt_worker import Worker
 import netifaces as ni
 import utils.net_utils as net_utils
+import utils.update_utils as update_utils
 
 class MainUi(QMainWindow):
     def __init__(self):
@@ -187,6 +189,9 @@ class MainUi(QMainWindow):
     def func_testA(self):
         print("testA")
         self.right_layout.setCurrentIndex(2)
+        file = QFileDialog().getOpenFileName()
+        print("file_uri:", file[0])
+        update_utils.upload_client_image(file[0])
 
     def func_testB(self):
         print("testB")
@@ -201,16 +206,16 @@ class MainUi(QMainWindow):
     """ recv alive report """
     def client_alive_report_thread(self, args):
         port = args.get("port")
-        print("port : ", port)
-        print("client_alive_report_thread")
+        #print("port : ", port)
+        #print("client_alive_report_thread")
         sleep(4)
 
     """send broadcast on eth0"""
     def server_broadcast(self, arg):
         data = arg.get("data")
         port = arg.get("port")
-        print("data :", data)
-        print("port :", port)
+        #print("data :", data)
+        #print("port :", port)
         #ni.ifaddresses('enp8s0')
         #ip = ni.ifaddresses('enp8s0')[ni.AF_INET][0]['addr']
         if sys.platform in ('arm', 'arm64', 'aarch64'):
@@ -218,10 +223,10 @@ class MainUi(QMainWindow):
         else:
             ifname = 'enp8s0'
         ip = net_utils.get_ip_address(ifname)
-        print("ip : ", ip)
+        #print("ip : ", ip)
         msg = data.encode()
         if ip != "":
-            print(f'sending on {ip}')
+            #print(f'sending on {ip}')
             sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)  # UDP
             sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
             sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
