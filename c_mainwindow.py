@@ -62,11 +62,9 @@ class MainUi(QMainWindow):
 
         self.broadcast_thread = Worker(method=self.server_broadcast, data="ABCDE", port=server_broadcast_port)
         self.broadcast_thread.start()
-        self.refresh_clients_thread = Worker(method=self.refresh_clients_list, sleep_time=1)
+        self.refresh_clients_thread = Worker(method=self.refresh_clients_list, sleep_time=5)
         self.refresh_clients_thread.start()
 
-        """self.client_alive_thread = Worker(method=self.client_alive_report_thread, port=alive_report_port)
-        self.client_alive_thread.start()"""
         self.client_alive_report_thread = qthreads.c_alive_report_thread.alive_report_thread(ip=self.server_ip, port=alive_report_port)
         self.client_alive_report_thread.check_client.connect(self.check_client)
         self.client_alive_report_thread.start()
@@ -134,12 +132,12 @@ class MainUi(QMainWindow):
         self.right_layout.addWidget(client_widget)
 
         """add one client"""
-        row_position = self.client_table.rowCount()
+        """row_position = self.client_table.rowCount()
         self.client_table.insertRow(row_position)
         self.client_table.setItem(row_position, 0, QTableWidgetItem("192.168.0.77"))
         row_count = self.client_table.rowCount()
         print("row_count:", row_count)
-        print(self.client_table.itemAt(2, 0).text())
+        print(self.client_table.itemAt(2, 0).text())"""
 
         """row_count = self.client_table.rowCount()
         print("row_count:", row_count)
@@ -267,7 +265,7 @@ class MainUi(QMainWindow):
                     tmp_client = c
                     break
             """ no such client ip in clients list, new one and append"""
-            if is_found == False:
+            if is_found is False:
                 c = client(ip)
                 self.clients.append(c)
                 self.refresh_client_table()
@@ -312,6 +310,13 @@ class MainUi(QMainWindow):
             sock.close()
 
         sleep(2)
+    
+
+    def clients_lock(self):
+        self.clients_mutex.lock()
+
+    def clients_unlock(self):
+        self.clients_mutex.unlock()
 
     def refresh_clients_list(self, arg):
         #is_list_changed = False
@@ -336,8 +341,19 @@ class MainUi(QMainWindow):
         #   if
         sleep(sleep_time)
 
+    
+
     def refresh_client_table(self):
+        row_count = self.client_table.rowCount()
+        for i in range(row_count):
+            row_to_remove = self.client_table.rowAt(i)
+            self.client_table.removeRow(row_to_remove)
+
         for c in self.clients:
+            row_count = self.client_table.rowCount()
+            self.client_table.insertRow(row_count)
+            self.client_table.setItem(row_count, 0, QTableWidgetItem(c.client_ip))
+        """for c in self.clients:
             is_found_in_table = False
             for i in range(self.client_table.rowCount()):
                 if self.client_table.itemAt(i, 0).text() is not None:
@@ -345,25 +361,26 @@ class MainUi(QMainWindow):
                         is_found_in_table = True
                         break
             if is_found_in_table is False:
-                self.client_table.insertRow(self.client_table.rowCount())
-                self.client_table.setItem(self.client_table.rowCount(), 0, QTableWidgetItem(c.client_ip))
+                print("set new ip to table:", c.client_ip)
+                row_position = self.client_table.rowCount()
+                print("row_position:", row_position)
+                self.client_table.insertRow(row_position)
+                self.client_table.setItem(row_position, 0, QTableWidgetItem(c.client_ip))
 
 
+        print("self.client_table.rowCount()", self.client_table.rowCount())
         for i in range(self.client_table.rowCount()):
             is_found_in_clients = False
+            
             if self.client_table.itemAt(i, 0).text() is not None:
                 for c in self.clients:
                     if c.client_ip == self.client_table.itemAt(i, 0).text():
                         is_found_in_clients = True
                         break
             if is_found_in_clients is False:
-                self.client_table.removeRow(i)
+                row_to_remove = self.client_table.rowAt(i)
+                self.client_table.removeRow(row_to_remove)"""
 
 
 
-    def clients_lock(self):
-        self.clients_mutex.lock()
-
-    def clients_unlock(self):
-        self.clients_mutex.unlock()
 
