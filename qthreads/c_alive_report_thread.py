@@ -5,9 +5,7 @@ import socket
 
 
 class alive_report_thread(QThread):
-
     check_client = pyqtSignal(str)
-
     def __init__(self,ip=multicast_group, port=alive_report_port, **kwargs):
 
         super(alive_report_thread, self).__init__( **kwargs)
@@ -23,11 +21,13 @@ class alive_report_thread(QThread):
         self.recv_socket.bind(self.address)
         while True:
             self.num += 1
-            if(self.num == 5):
-                self.check_client.emit(str(self.num))
+            #if(self.num == 5):
+            self.check_client.emit("192.168.0.99")
             data, addr = self.recv_socket.recvfrom(2048)
             if data is not None:
                 print("recv from :", addr)
                 print("recv len:", len(data))
                 print("recv data:", data)
-            time.sleep(1)
+                if data == "alive":
+                    self.check_client.emit(addr)
+            time.sleep(0.001)

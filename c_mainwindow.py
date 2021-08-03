@@ -6,7 +6,7 @@ from PyQt5.QtWidgets import (QApplication, QMainWindow, QDesktopWidget, QStyleFa
                             QSlider, QLabel, QLineEdit, QPushButton, QTableWidget, QStackedLayout, QSplitter, QTreeWidget, QTreeWidgetItem,
                              QFileDialog)
 from PyQt5.QtGui import QPalette, QColor, QBrush
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QMutex
 from pyqtgraph import GraphicsLayoutWidget
 import pyqtgraph as pg
 import numpy as np
@@ -21,6 +21,7 @@ import utils.net_utils as net_utils
 import utils.update_utils as update_utils
 import platform
 import qthreads.c_alive_report_thread
+from g_defs.c_client import client
 
 class MainUi(QMainWindow):
     def __init__(self):
@@ -44,12 +45,29 @@ class MainUi(QMainWindow):
 
         self.setWindowTitle("LED Server")
 
+        #get eth0 ip and set it to server_ip
+        if platform.machine() in ('arm', 'arm64', 'aarch64'):
+            ifname = 'eth0'
+        else:
+            ifname = 'enp8s0'
+        self.server_ip = net_utils.get_ip_address(ifname)
+        self.clients = []
+        self.clients_mutex = QMutex()
+
+        """client_test = client("192.168.0.99")
+        self.clients.append(client_test)
+        for c in self.clients:
+            print(c.client_ip)"""
+
 
         self.broadcast_thread = Worker(method=self.server_broadcast, data="ABCDE", port=server_broadcast_port)
         self.broadcast_thread.start()
+        self.refresh_clients_thread = Worker(method=self.refresh_clients_list, sleep_time=1)
+        self.refresh_clients_thread.start()
+
         """self.client_alive_thread = Worker(method=self.client_alive_report_thread, port=alive_report_port)
         self.client_alive_thread.start()"""
-        self.client_alive_report_thread = qthreads.c_alive_report_thread.alive_report_thread(ip=multicast_group, port=alive_report_port)
+        self.client_alive_report_thread = qthreads.c_alive_report_thread.alive_report_thread(ip=self.server_ip, port=alive_report_port)
         self.client_alive_report_thread.check_client.connect(self.check_client)
         self.client_alive_report_thread.start()
 
@@ -210,8 +228,32 @@ class MainUi(QMainWindow):
     def parser_cmd_from_qlocalserver(self, data):
         print("data : ", data)
 
-    def check_client(self):
-        print("Enter function check_client")
+    def check_client(self, ip):
+        print("Enter function check_client, ip:", ip)
+        is_found = False
+        tmp_client = None
+        try:
+            self.clients_lock()
+            for c in self.clients:
+                if c.client_ip == ip:
+                    is_found = True
+                    tmp_client = c
+                    break
+            """ no such client ip in clients list, new one and append"""
+            if is_found == False:
+                c = client(ip)
+                self.clients.append(c)
+            else:
+                """ find this ip in clients list, set the alive report count"""
+                tmp_client.set_alive_count(5)
+        except Exception as e:
+            print(e)
+        finally:
+            self.clients_unlock()
+        for c in self.clients:
+            print("client.ip :", c.client_ip)
+            print("client.alive_val :", c.alive_val)
+
     """ recv alive report """
     """def client_alive_report_thread(self, args):
         port = args.get("port")
@@ -223,11 +265,8 @@ class MainUi(QMainWindow):
     def server_broadcast(self, arg):
         data = arg.get("data")
         port = arg.get("port")
-        #print("data :", data)
-        #print("port :", port)
-        #ni.ifaddresses('enp8s0')
-        #ip = ni.ifaddresses('enp8s0')[ni.AF_INET][0]['addr']
-        print("platform.machine :", platform.machine())
+
+        #print("platform.machine :", platform.machine())
         if platform.machine() in ('arm', 'arm64', 'aarch64'):
             ifname = 'eth0'
         else:
@@ -245,3 +284,28 @@ class MainUi(QMainWindow):
             sock.close()
 
         sleep(2)
+
+    def refresh_clients_list(self, arg):
+        try:
+            self.clients_lock()
+            sleep_time = arg.get("sleep_time")
+            for c in self.clients:
+                c.decrese_alive_count()
+                if c.get_alive_count() == 0:
+                    self.clients.remove(c)
+
+            for c in self.clients:
+                print("c.client_ip :", c.client_ip)
+        except Exception as e:
+            print(e)
+        finally:
+            self.clients_unlock()
+        sleep(sleep_time)
+
+    def clients_lock(self):
+        self.clients_mutex.lock()
+
+    def clients_unlock(self):
+        self.clients_mutex.unlock()
+
+    

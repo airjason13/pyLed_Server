@@ -20,6 +20,7 @@ class Worker(QThread):
             self.method(self.kwargs)
 
 
+
 class loop(object):
 
     def __init__(self, method=None):
