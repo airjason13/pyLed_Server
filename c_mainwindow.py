@@ -4,7 +4,7 @@ from PyQt5 import QtWidgets
 from PyQt5.QtWidgets import (QApplication, QMainWindow, QDesktopWidget, QStyleFactory, QWidget, QHBoxLayout, QVBoxLayout,
                             QGridLayout, QFrame,QHeaderView, QTableWidgetItem, QMessageBox, QFileDialog,
                             QSlider, QLabel, QLineEdit, QPushButton, QTableWidget, QStackedLayout, QSplitter, QTreeWidget, QTreeWidgetItem,
-                             QFileDialog)
+                             QFileDialog, QListWidget)
 from PyQt5.QtGui import QPalette, QColor, QBrush
 from PyQt5.QtCore import Qt, QMutex
 from pyqtgraph import GraphicsLayoutWidget
@@ -117,28 +117,55 @@ class MainUi(QMainWindow):
         # 右边显示为stack布局
         self.right_layout = QStackedLayout(right_frame)
 
+
+
+        """QTableWidget"""
+        self.client_table = QTableWidget(right_frame)
+        self.client_table.setEditTriggers(QtWidgets.QTableWidget.NoEditTriggers)
+        self.client_table.setColumnCount(3)
+        self.client_table.setRowCount(0)
+
+        self.client_table.setHorizontalHeaderLabels(['IP', 'ID', 'Status'])
+        self.client_table.setColumnWidth(0, 200) #IP Column width:200
+        client_widget = QWidget(right_frame)
+        client_layout = QVBoxLayout()
+        client_widget.setLayout(client_layout)
+        client_layout.addWidget(self.client_table)
+        self.right_layout.addWidget(client_widget)
+
+        """add one client"""
+        row_position = self.client_table.rowCount()
+        self.client_table.insertRow(row_position)
+        self.client_table.setItem(row_position, 0, QTableWidgetItem("192.168.0.77"))
+        row_count = self.client_table.rowCount()
+        print("row_count:", row_count)
+        print(self.client_table.itemAt(2, 0).text())
+
+        """row_count = self.client_table.rowCount()
+        print("row_count:", row_count)
+        row = self.client_table.rowAt(1)
+        self.client_table.removeRow(row)
+        row_count = self.client_table.rowCount()
+        print("row_count:", row_count)"""
+
+        """QTreeWidget"""
+        """
         #qt tree of clients
         self.client_tree = QTreeWidget(right_frame)
         self.client_tree.setColumnCount(3)
-
-        #self.client_tree.setColumnWidth(3,400)
-        #self.client_tree.setFixedWidth(500)
-        #self.client_tree.setFixedHeight(500)
-        #self.client_tree.setHeaderLabels(["ip, id, status"])
 
         self.client_tree.headerItem().setText(0, "IP")
         self.client_tree.setLineWidth(100)
         self.client_tree.headerItem().setText(1, "ID")
         self.client_tree.headerItem().setText(2, "Status")
-        #self.client_tree.setHeaderLabel()
-
+       
         #test add one client
         root = QTreeWidgetItem(self.client_tree)
 
         root.setText(0, "192.168.0.52")
         root.setText(1, "0")
         root.setText(2, "connect")
-        #child_test = QTreeWidgetItem(root)"""
+        
         self.client_tree.addTopLevelItem(root)
 
         # test add two client
@@ -149,13 +176,13 @@ class MainUi(QMainWindow):
         root1.setText(2, "connect")
         self.client_tree.addTopLevelItem(root1)
 
-        child_test = QTreeWidgetItem(root)
+        
 
         client_widget = QWidget(right_frame)
         client_layout = QVBoxLayout()
         client_widget.setLayout(client_layout)
         client_layout.addWidget(self.client_tree)
-        self.right_layout.addWidget(client_widget)
+        self.right_layout.addWidget(client_widget)"""
 
 
         # Test register
@@ -243,6 +270,7 @@ class MainUi(QMainWindow):
             if is_found == False:
                 c = client(ip)
                 self.clients.append(c)
+                self.refresh_client_table()
             else:
                 """ find this ip in clients list, set the alive report count"""
                 tmp_client.set_alive_count(5)
@@ -286,8 +314,10 @@ class MainUi(QMainWindow):
         sleep(2)
 
     def refresh_clients_list(self, arg):
+        #is_list_changed = False
         try:
             self.clients_lock()
+            ori_len = len(self.clients)
             sleep_time = arg.get("sleep_time")
             for c in self.clients:
                 c.decrese_alive_count()
@@ -299,8 +329,37 @@ class MainUi(QMainWindow):
         except Exception as e:
             print(e)
         finally:
+            if ori_len != len(self.clients):
+                self.refresh_client_table()
             self.clients_unlock()
+        #for i in range(self.client_table.rowCount()):
+        #   if
         sleep(sleep_time)
+
+    def refresh_client_table(self):
+        for c in self.clients:
+            is_found_in_table = False
+            for i in range(self.client_table.rowCount()):
+                if self.client_table.itemAt(i, 0).text() is not None:
+                    if c.client_ip == self.client_table.itemAt(i, 0).text():
+                        is_found_in_table = True
+                        break
+            if is_found_in_table is False:
+                self.client_table.insertRow(self.client_table.rowCount())
+                self.client_table.setItem(self.client_table.rowCount(), 0, QTableWidgetItem(c.client_ip))
+
+
+        for i in range(self.client_table.rowCount()):
+            is_found_in_clients = False
+            if self.client_table.itemAt(i, 0).text() is not None:
+                for c in self.clients:
+                    if c.client_ip == self.client_table.itemAt(i, 0).text():
+                        is_found_in_clients = True
+                        break
+            if is_found_in_clients is False:
+                self.client_table.removeRow(i)
+
+
 
     def clients_lock(self):
         self.clients_mutex.lock()
@@ -308,4 +367,3 @@ class MainUi(QMainWindow):
     def clients_unlock(self):
         self.clients_mutex.unlock()
 
-    

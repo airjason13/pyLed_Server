@@ -22,12 +22,12 @@ class alive_report_thread(QThread):
         while True:
             self.num += 1
             #if(self.num == 5):
-            self.check_client.emit("192.168.0.99")
+            #self.check_client.emit("192.168.0.99")
             data, addr = self.recv_socket.recvfrom(2048)
             if data is not None:
                 print("recv from :", addr)
                 print("recv len:", len(data))
                 print("recv data:", data)
                 if data == "alive":
-                    self.check_client.emit(addr)
+                    self.check_client.emit(addr[0])
             time.sleep(0.001)

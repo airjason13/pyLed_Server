@@ -4,6 +4,7 @@ class client(QObject):
     alive_val_def = 3
 
     def __init__(self, ip, **kwargs):
+        super(client, self).__init__(**kwargs)
         self.client_ip = ip
         self.alive_val = self.alive_val_def
 
