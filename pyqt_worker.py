@@ -16,7 +16,7 @@ class Worker(QThread):
     def run(self):
         while True:
             time.sleep(0.1)
-            #print("self.kwargs:", self.kwargs)
+
             self.method(self.kwargs)
 
 

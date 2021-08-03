@@ -20,4 +20,4 @@ def get_ip_address(ifname):
 def get_ip_address_by_nic(ifname):
     ni.ifaddresses(ifname)
     ip = ni.ifaddresses(ifname)[ni.AF_INET][0]['addr']
-    print(ip)  # should print "192.168.100.37"
+    print(ip)

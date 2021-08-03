@@ -1,3 +1,5 @@
+import platform
+
 from PyQt5 import QtWidgets
 from PyQt5.QtWidgets import (QApplication, QMainWindow, QDesktopWidget, QStyleFactory, QWidget, QHBoxLayout, QVBoxLayout,
                             QGridLayout, QFrame,QHeaderView, QTableWidgetItem, QMessageBox, QFileDialog,
@@ -17,6 +19,8 @@ from pyqt_worker import Worker
 import netifaces as ni
 import utils.net_utils as net_utils
 import utils.update_utils as update_utils
+import platform
+import qthreads.c_alive_report_thread
 
 class MainUi(QMainWindow):
     def __init__(self):
@@ -42,9 +46,13 @@ class MainUi(QMainWindow):
 
 
         self.broadcast_thread = Worker(method=self.server_broadcast, data="ABCDE", port=server_broadcast_port)
-        self.client_alive_thread = Worker(method=self.client_alive_report_thread, port=alive_report_port)
         self.broadcast_thread.start()
-        self.client_alive_thread.start()
+        """self.client_alive_thread = Worker(method=self.client_alive_report_thread, port=alive_report_port)
+        self.client_alive_thread.start()"""
+        self.client_alive_report_thread = qthreads.c_alive_report_thread.alive_report_thread(ip=multicast_group, port=alive_report_port)
+        self.client_alive_report_thread.check_client.connect(self.check_client)
+        self.client_alive_report_thread.start()
+
 
     def init_ui(self):
         self.setFixedSize(960, 700)
@@ -202,13 +210,14 @@ class MainUi(QMainWindow):
     def parser_cmd_from_qlocalserver(self, data):
         print("data : ", data)
 
-
+    def check_client(self):
+        print("Enter function check_client")
     """ recv alive report """
-    def client_alive_report_thread(self, args):
+    """def client_alive_report_thread(self, args):
         port = args.get("port")
         #print("port : ", port)
         #print("client_alive_report_thread")
-        sleep(4)
+        sleep(4)"""
 
     """send broadcast on eth0"""
     def server_broadcast(self, arg):
@@ -218,7 +227,8 @@ class MainUi(QMainWindow):
         #print("port :", port)
         #ni.ifaddresses('enp8s0')
         #ip = ni.ifaddresses('enp8s0')[ni.AF_INET][0]['addr']
-        if sys.platform in ('arm', 'arm64', 'aarch64'):
+        print("platform.machine :", platform.machine())
+        if platform.machine() in ('arm', 'arm64', 'aarch64'):
             ifname = 'eth0'
         else:
             ifname = 'enp8s0'
