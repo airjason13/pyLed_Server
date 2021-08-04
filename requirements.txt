@@ -4,3 +4,4 @@ pyqtgraph
 qdarkstyle
 requests
 netifaces
+colorlog

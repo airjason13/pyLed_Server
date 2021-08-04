@@ -1,6 +1,9 @@
 from PyQt5 import QtWidgets, QtGui, QtCore, QtNetwork
 from PyQt5.QtCore import QTimer, pyqtSignal, QObject, QThread
 import json
+import utils.log_utils
+
+log = utils.log_utils.logging_init()
 
 SERVER = "OrHCSZBAQz" #None
 def get_server_name():
@@ -16,14 +19,14 @@ class Server(QtNetwork.QLocalServer):
 
 
         if self.isListening():
-            print("listening")
+            log.info("listening")
         else:
-            print("not listening")
+            log.debug("not listening")
 
         if self.hasPendingConnections():
-            print("has Pending Connections")
+            log.info("has Pending Connections")
         else:
-            print("No Pending Connections")
+            log.debug("No Pending Connections")
 
         self.newConnection.connect(self.handleConnection)
 

@@ -2,6 +2,9 @@ import socket
 import fcntl
 import struct
 import netifaces as ni
+import utils.log_utils
+
+log = utils.log_utils.logging_init()
 
 def get_ip_address(ifname):
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -12,7 +15,7 @@ def get_ip_address(ifname):
             struct.pack('256s', ifname[:15].encode())
         )[20:24])
     except Exception as e:
-        print(e)
+        log.error(e)
         ip = ""
     finally:
         return ip

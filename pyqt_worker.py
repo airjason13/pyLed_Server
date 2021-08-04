@@ -3,6 +3,9 @@ from asyncore import loop
 from PyQt5.QtCore import QTimer, pyqtSignal, QObject, QThread
 from PyQt5 import QtWidgets, QtGui, QtCore, QtNetwork
 import time
+import utils.log_utils
+
+log = utils.log_utils.logging_init()
 
 class Worker(QThread):
     def __init__(self, parent=None, method=None, **kwargs):

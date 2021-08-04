@@ -7,6 +7,8 @@ from c_mainwindow import MainUi
 import sys
 from PyQt5.QtWidgets import QApplication
 import jqlocalserver
+import utils.log_utils
+
 def print_hi(name):
     # Use a breakpoint in the code line below to debug your script.
     print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
@@ -14,7 +16,9 @@ def print_hi(name):
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-    print_hi('PyCharm')
+    log = utils.log_utils.logging_init()
+    log.info('PyCharm')
+    log.error('PyCharm')
     app = QApplication(sys.argv)
     gui = MainUi()
     gui.show()

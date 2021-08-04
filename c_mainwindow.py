@@ -22,6 +22,9 @@ import utils.update_utils as update_utils
 import platform
 import qthreads.c_alive_report_thread
 from g_defs.c_client import client
+import utils.log_utils
+
+log = utils.log_utils.logging_init()
 
 class MainUi(QMainWindow):
     def __init__(self):
@@ -228,33 +231,33 @@ class MainUi(QMainWindow):
 
 
     def fun_connect_clients(self):
-        print("connect clients")
+        log.debug("connect clients")
 
         self.right_layout.setCurrentIndex(0)
 
     def func_file_contents(self):
-        print("file contents")
+        log.debug("file contents")
 
         self.right_layout.setCurrentIndex(1)
 
     def func_testA(self):
-        print("testA")
+        log.debug("testA")
         self.right_layout.setCurrentIndex(2)
         file = QFileDialog().getOpenFileName()
-        print("file_uri:", file[0])
+        log.debug("file_uri:", file[0])
         update_utils.upload_client_image(file[0])
 
     def func_testB(self):
-        print("testB")
+        log.debug("testB")
 
         self.right_layout.setCurrentIndex(3)
 
     """ handle the command from qlocalserver"""
     def parser_cmd_from_qlocalserver(self, data):
-        print("data : ", data)
+        log.debug("data : ", data)
 
     def check_client(self, ip):
-        print("Enter function check_client, ip:", ip)
+        log.debug("Enter function check_client, ip:", ip)
         is_found = False
         tmp_client = None
         try:
@@ -273,12 +276,12 @@ class MainUi(QMainWindow):
                 """ find this ip in clients list, set the alive report count"""
                 tmp_client.set_alive_count(5)
         except Exception as e:
-            print(e)
+            log.debug(e)
         finally:
             self.clients_unlock()
         for c in self.clients:
-            print("client.ip :", c.client_ip)
-            print("client.alive_val :", c.alive_val)
+            log.debug("client.ip :", c.client_ip)
+            log.debug("client.alive_val :", c.alive_val)
 
     """ recv alive report """
     """def client_alive_report_thread(self, args):
@@ -330,9 +333,9 @@ class MainUi(QMainWindow):
                     self.clients.remove(c)
 
             for c in self.clients:
-                print("c.client_ip :", c.client_ip)
+                log.debug("c.client_ip :", c.client_ip)
         except Exception as e:
-            print(e)
+            log.debug(e)
         finally:
             if ori_len != len(self.clients):
                 self.refresh_client_table()

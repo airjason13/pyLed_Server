@@ -1,4 +1,7 @@
 from PyQt5.QtCore import QThread, pyqtSignal, QDateTime, QObject
+import utils.log_utils
+
+log = utils.log_utils.logging_init()
 
 class client(QObject):
     alive_val_def = 3
@@ -9,7 +12,7 @@ class client(QObject):
         self.alive_val = self.alive_val_def
 
     def send_cmd(self, cmd, param):
-        print("client send_cmd")
+        log.debug("client send_cmd")
 
     def set_alive_count(self, val):
         self.alive_val = val

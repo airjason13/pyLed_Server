@@ -4,9 +4,11 @@ import json
 import atexit
 import os
 from jqlocalserver import get_server_name
-import jlog
+import utils.log_utils
 
-log = jlog.logging_init("qlocalmessage")
+log = utils.log_utils.logging_init()
+
+
 
 def send_message(**data):
     socket = QtNetwork.QLocalSocket()
