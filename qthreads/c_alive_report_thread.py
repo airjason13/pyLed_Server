@@ -4,7 +4,7 @@ from global_def import *
 import socket
 import utils.log_utils
 
-log = utils.log_utils.logging_init()
+log = utils.log_utils.logging_init('c_alive_report_thread')
 
 class alive_report_thread(QThread):
     check_client = pyqtSignal(str)

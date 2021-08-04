@@ -1,7 +1,7 @@
 import requests
 import utils.log_utils
 
-log = utils.log_utils.logging_init()
+log = utils.log_utils.logging_init('update_utils')
 
 def upload_client_image(cover_path):
     url = "http://239.11.11.11:8080/upload"

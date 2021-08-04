@@ -24,7 +24,7 @@ import qthreads.c_alive_report_thread
 from g_defs.c_client import client
 import utils.log_utils
 
-log = utils.log_utils.logging_init()
+log = utils.log_utils.logging_init('c_mainwindow')
 
 class MainUi(QMainWindow):
     def __init__(self):

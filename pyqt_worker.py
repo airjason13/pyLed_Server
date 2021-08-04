@@ -5,7 +5,7 @@ from PyQt5 import QtWidgets, QtGui, QtCore, QtNetwork
 import time
 import utils.log_utils
 
-log = utils.log_utils.logging_init()
+log = utils.log_utils.logging_init('pyqt_worker')
 
 class Worker(QThread):
     def __init__(self, parent=None, method=None, **kwargs):

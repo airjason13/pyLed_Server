@@ -4,7 +4,7 @@ import struct
 import netifaces as ni
 import utils.log_utils
 
-log = utils.log_utils.logging_init()
+log = utils.log_utils.logging_init('net_utils')
 
 def get_ip_address(ifname):
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)

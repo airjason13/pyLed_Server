@@ -6,7 +6,7 @@ import os
 from jqlocalserver import get_server_name
 import utils.log_utils
 
-log = utils.log_utils.logging_init()
+log = utils.log_utils.logging_init('qlocalmessage')
 
 
 

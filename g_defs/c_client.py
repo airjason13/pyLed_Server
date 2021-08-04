@@ -1,7 +1,7 @@
 from PyQt5.QtCore import QThread, pyqtSignal, QDateTime, QObject
 import utils.log_utils
 
-log = utils.log_utils.logging_init()
+log = utils.log_utils.logging_init('c_client')
 
 class client(QObject):
     alive_val_def = 3
