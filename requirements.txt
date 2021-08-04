@@ -5,3 +5,5 @@ qdarkstyle
 requests
 netifaces
 colorlog
+pyudev
+psutil

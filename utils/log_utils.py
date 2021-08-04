@@ -5,7 +5,7 @@ import os
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 
-log_level = logging.INFO
+log_level = logging.DEBUG
 
 import os
 import sys
@@ -25,10 +25,12 @@ def logging_init(s):
     file_handler.setFormatter(formatter)
     log.addHandler(file_handler)
 
+
     stream_handler = logging.StreamHandler()
-    stream_handler.setLevel(logging.INFO)
+    stream_handler.setLevel(log_level)
     stream_handler.setFormatter(formatter)
     log.addHandler(stream_handler)
+    log.setLevel(log_level)
     return log
 
 

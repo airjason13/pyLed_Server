@@ -1,12 +1,12 @@
 import platform
-
+import os
 from PyQt5 import QtWidgets
 from PyQt5.QtWidgets import (QApplication, QMainWindow, QDesktopWidget, QStyleFactory, QWidget, QHBoxLayout, QVBoxLayout,
                             QGridLayout, QFrame,QHeaderView, QTableWidgetItem, QMessageBox, QFileDialog,
                             QSlider, QLabel, QLineEdit, QPushButton, QTableWidget, QStackedLayout, QSplitter, QTreeWidget, QTreeWidgetItem,
-                             QFileDialog, QListWidget)
-from PyQt5.QtGui import QPalette, QColor, QBrush
-from PyQt5.QtCore import Qt, QMutex
+                             QFileDialog, QListWidget, QFileSystemModel, QTreeView, QMenu, QAction)
+from PyQt5.QtGui import QPalette, QColor, QBrush, QFont
+from PyQt5.QtCore import Qt, QMutex, pyqtSlot
 from pyqtgraph import GraphicsLayoutWidget
 import pyqtgraph as pg
 import numpy as np
@@ -22,6 +22,7 @@ import utils.update_utils as update_utils
 import platform
 import qthreads.c_alive_report_thread
 from g_defs.c_client import client
+import utils.file_utils
 import utils.log_utils
 
 log = utils.log_utils.logging_init('c_mainwindow')
@@ -134,60 +135,72 @@ class MainUi(QMainWindow):
         client_layout.addWidget(self.client_table)
         self.right_layout.addWidget(client_widget)
 
-        """add one client"""
-        """row_position = self.client_table.rowCount()
-        self.client_table.insertRow(row_position)
-        self.client_table.setItem(row_position, 0, QTableWidgetItem("192.168.0.77"))
-        row_count = self.client_table.rowCount()
-        print("row_count:", row_count)
-        print(self.client_table.itemAt(2, 0).text())"""
+        # QTreeWidgetFile Tree in Tab.2
+        self.file_tree = QTreeWidget(right_frame)
+        self.file_tree.setColumnCount(1)
+        self.file_tree.setColumnWidth(0, 300)
+        self.file_tree.headerItem().setText(0, "Media Files")
+        font = QFont()
+        font.setPointSize(24)
+        self.file_tree.setFont(font)
 
-        """row_count = self.client_table.rowCount()
-        print("row_count:", row_count)
-        row = self.client_table.rowAt(1)
-        self.client_table.removeRow(row)
-        row_count = self.client_table.rowCount()
-        print("row_count:", row_count)"""
+        #Add Internal Media Folder in tree root
+        self.internal_media_root = QTreeWidgetItem(self.file_tree)
+        self.internal_media_root.setText(0, "Internal Media")
+        self.internal_files_list = utils.file_utils.get_media_file_list(internal_media_folder)
+        log.debug("file_list = %s", self.internal_files_list)
+        for f in self.internal_files_list:
+            internal_file_item = QTreeWidgetItem()
+            internal_file_item.setText(0, os.path.basename(f))
+            filename = "/home/venom/Pictures/yellow-zeon.jpeg"
+            internal_file_item.setToolTip(0, '<b>Long long long text: show hint text, show pic B1</b><br><img src="%s">' % filename)
 
-        """QTreeWidget"""
-        """
-        #qt tree of clients
-        self.client_tree = QTreeWidget(right_frame)
-        self.client_tree.setColumnCount(3)
+            self.internal_media_root.addChild(internal_file_item)
 
-        self.client_tree.headerItem().setText(0, "IP")
-        self.client_tree.setLineWidth(100)
-        self.client_tree.headerItem().setText(1, "ID")
-        self.client_tree.headerItem().setText(2, "Status")
-       
-        #test add one client
-        root = QTreeWidgetItem(self.client_tree)
+        self.file_tree.addTopLevelItem(self.internal_media_root)
 
-        root.setText(0, "192.168.0.52")
-        root.setText(1, "0")
-        root.setText(2, "connect")
-        
-        self.client_tree.addTopLevelItem(root)
+        # Add External Media Folder in tree root
+        self.external_media_root_list = []
+        for mount_point in utils.file_utils.get_mount_points():
+            external_media_root = QTreeWidgetItem(self.file_tree)
+            external_media_root.setText(0, "External Media" + ":" + mount_point)
+            self.external_files_list = utils.file_utils.get_media_file_list(mount_point)
+            log.debug("file_list = %s", self.external_files_list)
+            for f in self.external_files_list:
+                external_file_item = QTreeWidgetItem()
+                external_file_item.setText(0, os.path.basename(f))
 
-        # test add two client
-        root1 = QTreeWidgetItem(self.client_tree)
-        self.client_tree.setColumnWidth(3, 400)
-        root1.setText(0, "192.168.0.53")
-        root1.setText(1, "0")
-        root1.setText(2, "connect")
-        self.client_tree.addTopLevelItem(root1)
+                external_media_root.addChild(external_file_item)
+            self.external_media_root_list.append(external_media_root)
+            self.file_tree.addTopLevelItem(external_media_root)
 
-        
+        #playlist file tree
+        self.media_play_list = QTreeWidgetItem(self.file_tree)
+        self.media_play_list.setText(0, "Playlist")
+        self.file_tree.addTopLevelItem(self.media_play_list)
+        self.file_tree.expandAll()
+        self.file_tree.itemClicked.connect(self.onFileTreeItemClicked)
 
-        client_widget = QWidget(right_frame)
-        client_layout = QVBoxLayout()
-        client_widget.setLayout(client_layout)
-        client_layout.addWidget(self.client_tree)
-        self.right_layout.addWidget(client_widget)"""
+        #Add right clicked function signal/slot
+        self.file_tree.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.file_tree.customContextMenuRequested.connect(self.menuContextTree)
 
+        log.debug("mount point : %s", utils.file_utils.get_mount_points())
+        #log.debug("%s", self.file_tree.indexOfTopLevelItem(internal_media_root))
+        #log.debug("%s", self.file_tree.itemAt( 0, 1).text(0))
+
+
+
+
+
+        file_tree_widget = QWidget(right_frame)
+        file_tree_layout = QVBoxLayout()
+        file_tree_widget.setLayout(file_tree_layout)
+        file_tree_layout.addWidget(self.file_tree)
+        self.right_layout.addWidget(file_tree_widget)
 
         # Test register
-        user_line = QLineEdit(right_frame)
+        """user_line = QLineEdit(right_frame)
         user_line.setPlaceholderText("输入账号：")
         user_line.setFixedWidth(400)
         password_line = QLineEdit(right_frame)
@@ -198,7 +211,8 @@ class MainUi(QMainWindow):
         login_widget.setLayout(login_layout)
         login_layout.addWidget(user_line)
         login_layout.addWidget(password_line)
-        self.right_layout.addWidget(login_widget)
+        self.right_layout.addWidget(login_widget)"""
+
 
 
 
@@ -323,6 +337,7 @@ class MainUi(QMainWindow):
 
     def refresh_clients_list(self, arg):
         #is_list_changed = False
+        ori_len = len(self.clients)
         try:
             self.clients_lock()
             ori_len = len(self.clients)
@@ -356,34 +371,34 @@ class MainUi(QMainWindow):
             row_count = self.client_table.rowCount()
             self.client_table.insertRow(row_count)
             self.client_table.setItem(row_count, 0, QTableWidgetItem(c.client_ip))
-        """for c in self.clients:
-            is_found_in_table = False
-            for i in range(self.client_table.rowCount()):
-                if self.client_table.itemAt(i, 0).text() is not None:
-                    if c.client_ip == self.client_table.itemAt(i, 0).text():
-                        is_found_in_table = True
-                        break
-            if is_found_in_table is False:
-                print("set new ip to table:", c.client_ip)
-                row_position = self.client_table.rowCount()
-                print("row_position:", row_position)
-                self.client_table.insertRow(row_position)
-                self.client_table.setItem(row_position, 0, QTableWidgetItem(c.client_ip))
 
+    @pyqtSlot(QtWidgets.QTreeWidgetItem, int)
+    def onFileTreeItemClicked(self, it, col):
+        log.debug("%s, %s, %s", it, col, it.text(col))
+        if it.parent() is not None:
+            log.debug("%s", it.parent().text(0))
+            # play the file
+            if it.parent().text(0) == 'Internal Media':
+                file_uri = internal_media_folder + "/" +it.text(col)
+            else:
+                if 'External Media' in it.parent().text(0):
+                    dir = it.parent().text(0).split(":")[1]
+                    file_uri = dir + "/" + it.text(col)
 
-        print("self.client_table.rowCount()", self.client_table.rowCount())
-        for i in range(self.client_table.rowCount()):
-            is_found_in_clients = False
-            
-            if self.client_table.itemAt(i, 0).text() is not None:
-                for c in self.clients:
-                    if c.client_ip == self.client_table.itemAt(i, 0).text():
-                        is_found_in_clients = True
-                        break
-            if is_found_in_clients is False:
-                row_to_remove = self.client_table.rowAt(i)
-                self.client_table.removeRow(row_to_remove)"""
+            log.debug("%s", file_uri)
 
+    #right clicked slot function
+    def menuContextTree(self, position):
+        widgetitem = self.file_tree.itemAt(position)
+        log.debug("%s", widgetitem.text(0))
+        if widgetitem.parent() is not None:
+            log.debug("client")
+        else:
+            log.debug("root")
+            return
+        
+        popMenu = QMenu()
+        creAct = QAction("Add to playlist", self)
+        popMenu.addAction(creAct)
 
-
-
+        popMenu.exec_(self.file_tree.mapToGlobal(position))
