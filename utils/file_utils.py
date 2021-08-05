@@ -6,7 +6,7 @@ import psutil
 
 from subprocess import check_output, CalledProcessError
 
-log = utils.log_utils.logging_init('c_alive_report_thread')
+log = utils.log_utils.logging_init('file_utils')
 
 def get_media_file_list(dir, with_path=False):
     log.error("dir : %s", dir)

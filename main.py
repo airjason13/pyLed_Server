@@ -18,7 +18,7 @@ def print_hi(name):
 if __name__ == '__main__':
     log = utils.log_utils.logging_init('main')
     log.info('PyCharm')
-    log.error('PyCharm')
+
     app = QApplication(sys.argv)
     gui = MainUi()
     gui.show()

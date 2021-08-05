@@ -7,3 +7,4 @@ netifaces
 colorlog
 pyudev
 psutil
+ffmpy

@@ -15,7 +15,7 @@ def get_ip_address(ifname):
             struct.pack('256s', ifname[:15].encode())
         )[20:24])
     except Exception as e:
-        log.error(e)
+        #log.error(e)
         ip = ""
     finally:
         return ip
