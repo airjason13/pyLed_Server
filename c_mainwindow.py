@@ -333,7 +333,7 @@ class MainUi(QMainWindow):
         log.debug("data : ", data)
 
     def check_client(self, ip):
-        log.debug("Enter function check_client, ip:", ip)
+        log.debug("Enter function check_client, ip: %s", ip)
         is_found = False
         tmp_client = None
         try:
@@ -356,8 +356,8 @@ class MainUi(QMainWindow):
         finally:
             self.clients_unlock()
         for c in self.clients:
-            log.debug("client.ip :", c.client_ip)
-            log.debug("client.alive_val :", c.alive_val)
+            log.debug("client.ip : %s", c.client_ip)
+            log.debug("client.alive_val : %s", c.alive_val)
 
     """ recv alive report """
     """def client_alive_report_thread(self, args):
@@ -410,7 +410,7 @@ class MainUi(QMainWindow):
                     self.clients.remove(c)
 
             for c in self.clients:
-                log.debug("c.client_ip :", c.client_ip)
+                log.debug("c.client_ip : %s ", c.client_ip)
         except Exception as e:
             log.debug(e)
         finally:
@@ -540,9 +540,8 @@ class MainUi(QMainWindow):
             log.debug("self.ff_process is Not alive")
 
     def repeat_option_trigger(self):
-
         if self.play_option_repeat >= repeat_option.repeat_option_max:
-            self.play_option_repeat = 0
+            self.play_option_repeat = repeat_option.repeat_none
         else:
             self.play_option_repeat += 1
 
@@ -555,3 +554,4 @@ class MainUi(QMainWindow):
         else:
             self.btn_repeat.setText("Repeat unknown")
         log.debug("self.play_option_repeat : %d", self.play_option_repeat)
+
