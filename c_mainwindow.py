@@ -518,6 +518,9 @@ class MainUi(QMainWindow):
             log.debug("send sigterm!")
             os.kill(self.ff_process.pid, signal.SIGTERM)
             self.ffmpy_running = play_status.stop
+        
+        if len(self.media_play_list) > 0:
+            self.btn_play_playlist.setDisabled(False)
 
     def pause_media_trigger(self):
         """check the popen subprocess is alive or not"""

@@ -2,18 +2,26 @@ import ffmpy
 from time import sleep
 import threading
 from global_def import *
+import platform
 import utils.log_utils
 log = utils.log_utils.logging_init('ffmpy_utils')
 
 def ffmpy_execute(QObject, video_path):
-    ff = ffmpy.FFmpeg(
-        # inputs={video_path:None},
-        inputs={video_path: ["-re"]},
-        # outputs={udp_sink:["-tune", "zerolatency", "-vcodec", "nvenc", "-f", "h264"]}
-        #outputs={udp_sink: ["-preset", "ultrafast", "-vcodec", "libx264", "-f", "h264", "-localaddr", "192.168.0.3"]}
-        outputs={udp_sink: ["-preset", "ultrafast", "-vcodec", "libx264", "-f", "h264"]}
-        # outputs={udp_sink: ["-vcodec", "copy", "-f", "h264"]}
-    )
+    if platform.machine() in ('arm', 'arm64', 'aarch64'):
+        ff = ffmpy.FFmpeg(
+            inputs={video_path: ["-re"]},
+            outputs={udp_sink: ["-preset", "ultrafast", "-vcodec", "libx264", "-f", "h264", "-localaddr", "192.168.0.3"]}
+            #outputs={udp_sink: ["-preset", "ultrafast", "-vcodec", "libx264", "-f", "h264"]}
+            # outputs={udp_sink: ["-vcodec", "copy", "-f", "h264"]}
+        )
+    else:
+        ff = ffmpy.FFmpeg(
+            inputs={video_path: ["-re"]},
+            #outputs={udp_sink: ["-preset", "ultrafast", "-vcodec", "libx264", "-f", "h264", "-localaddr", "192.168.0.3"]}
+            outputs={udp_sink: ["-preset", "ultrafast", "-vcodec", "libx264", "-f", "h264"]}
+            # outputs={udp_sink: ["-vcodec", "copy", "-f", "h264"]}
+        )
+
     log.debug("%s", ff.cmd)
     try:
         thread_1 = threading.Thread(target=ff.run)
