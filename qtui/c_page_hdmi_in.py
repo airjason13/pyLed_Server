@@ -283,7 +283,7 @@ class Hdmi_In_Page(QObject):
 
         self.tc358743 = TC358743()
         self.tc358743.signal_refresh_tc358743_param.connect(self.refresh_tc358743_param)
-
+        self.tc358743.get_tc358743_dv_timing()
         self.media_engine.media_processor.signal_play_hdmi_in_start_ret.connect(
             self.play_hdmi_in_start_ret)
         self.media_engine.media_processor.signal_play_hdmi_in_finish_ret.connect(
@@ -413,16 +413,25 @@ class Hdmi_In_Page(QObject):
                     log.debug("self.ffmpy_hdmi_in_cast_process is None")
 
     def refresh_tc358743_param(self, connected, width, height, fps):
+        log.debug("connected = %d", connected)
         if connected is True:
             self.hdmi_in_info_width_res_label.setText(str(width))
             self.hdmi_in_info_height_res_label.setText(str(height))
-            self.hdmi_in_info_fps_res_label_label.setText(str(height))
+            self.hdmi_in_info_fps_res_label.setText(str(fps))
             # hdmi in crop enable/disable
+            log.debug("self.b_hdmi_in_crop_enable : %d", self.b_hdmi_in_crop_enable)
             if self.b_hdmi_in_crop_enable is False:
+                log.debug("")
                 self.hdmi_in_crop_status_x_res_label.setText("0")
                 self.hdmi_in_crop_status_y_res_label.setText("0")
                 self.hdmi_in_crop_status_w_res_label.setText(str(width))
                 self.hdmi_in_crop_status_h_res_label.setText(str(height))
+                self.hdmi_in_crop_x_lineedit.setText("0")
+                self.hdmi_in_crop_y_lineedit.setText("0")
+                self.hdmi_in_crop_w_lineedit.setText(str(width))
+                self.hdmi_in_crop_h_lineedit.setText(str(height))
+
+                
         else:
             self.hdmi_in_info_width_res_label.setText("NA")
             self.hdmi_in_info_height_res_label.setText("NA")
