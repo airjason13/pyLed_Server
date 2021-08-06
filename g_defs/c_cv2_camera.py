@@ -54,7 +54,7 @@ class CV2Camera(QtCore.QThread):  # 繼承 QtCore.QThread 來建立 Camera 類�
                     if self.cam is None:
                         log.debug("C")
                         self.signal_cv2_read_fail.emit()
-                        time.sleep(1)
+                        time.sleep(2)
                         continue
 
                 if self.cam is None or not self.cam.isOpened():
@@ -83,7 +83,7 @@ class CV2Camera(QtCore.QThread):  # 繼承 QtCore.QThread 來建立 Camera 類�
                 self.hdmi_in_cast = False
                 self.cam.release()
                 self.cam = None
-                self.signal_cv2_read_fail.emit()t
+                self.signal_cv2_read_fail.emit()
             time.sleep(0.1)
         log.debug("stop to run")
 

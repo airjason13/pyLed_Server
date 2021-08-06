@@ -172,7 +172,7 @@ class Hdmi_In_Page(QObject):
 
     def start_hdmi_in_preview(self):
 
-        if self.ffmpy_hdmi_in_cast_pid is None:
+        if self.ffmpy_hdmi_in_cast_process is None:
             if self.hdmi_in_cast_type == "v4l2":
                 self.ffmpy_hdmi_in_cast_process = self.start_hdmi_in_cast_v4l2()
             else:
@@ -289,4 +289,6 @@ class Hdmi_In_Page(QObject):
                 self.start_hdmi_in_preview()
                 if self.ffmpy_hdmi_in_cast_process is not None:
                     self.cv2camera.set_hdmi_in_cast(True)
+                else:
+                    log.debug("self.ffmpy_hdmi_in_cast_process is None")
 
