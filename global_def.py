@@ -16,6 +16,8 @@ if platform.machine() in ('arm', 'arm64', 'aarch64'):
 else:
     internal_media_folder="/home/venom/Videos"
 
+ThumbnailFileFolder = "/.thumbnails/"
+
 class play_type(enum.IntEnum):
     play_none = 0
     play_single = 1

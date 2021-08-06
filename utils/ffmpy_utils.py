@@ -3,6 +3,7 @@ from time import sleep
 import threading
 from global_def import *
 import platform
+import os
 import utils.log_utils
 log = utils.log_utils.logging_init('ffmpy_utils')
 
@@ -83,3 +84,15 @@ def ffmpy_execute_list(QObject, video_path_list):
             return
 
 
+def gen_gif_from_video(file_folder, video):
+
+    thumbnail_path = file_folder + ThumbnailFileFolder + video.replace(".mp4", ".gif")
+    video_path = file_folder + "/" + video
+    if os.path.isfile(thumbnail_path) is False:
+
+        ff = ffmpy.FFmpeg(
+            inputs={video_path: ['-ss', '3', '-t', '3']},
+            outputs={thumbnail_path: ['-vf', 'scale=640:480']}
+        )
+        ff.run()
+    return thumbnail_path
