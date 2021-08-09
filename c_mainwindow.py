@@ -181,7 +181,7 @@ class MainUi(QMainWindow):
             #internal_file_item.setIcon(0, label)
             #internal_file_item.setToolTip(0, '<b>Long long long text: show hint text, show pic B1</b><br><img src="%s">' % filename)
             #internal_file_item.setToolTip(0, '<b>Thumbnail</b><br><img src="%s">' % filename)
-            utils.ffmpy_utils.gen_gif_from_video(internal_media_folder, os.path.basename(f))
+            utils.ffmpy_utils.gen_webp_from_video(internal_media_folder, os.path.basename(f))
             self.internal_media_root.addChild(internal_file_item)
 
         self.file_tree.addTopLevelItem(self.internal_media_root)
@@ -597,7 +597,8 @@ class MainUi(QMainWindow):
 
     def cmouseMove(self, event):
         log.debug("cmouseMove")
-
+        
+        log.debug("%s", QMovie.supportedFormats())
         if self.file_tree.itemAt(event.x(), event.y()) is None:
             if self.toolTipWidget.isVisible() is True:
                 self.toolTipWidget.hide()
@@ -613,7 +614,7 @@ class MainUi(QMainWindow):
             else:
                 self.toolTipWidget.setGeometry(self.file_tree.x() + event.x(), self.file_tree.y() + event.y(), 640, 480)
                 self.preview_file_name = self.file_tree.itemAt(event.x(), event.y()).text(0)
-                self.movie = QMovie("/home/venom/Videos/.thumbnails/" + self.file_tree.itemAt(event.x(), event.y()).text(0).replace(".mp4", ".gif"))
+                self.movie = QMovie("/home/venom/Videos/.thumbnails/" + self.file_tree.itemAt(event.x(), event.y()).text(0).replace(".mp4", ".webp"))
                 self.toolTipWidget.setMovie(self.movie)
                 self.movie.start()
                 self.toolTipWidget.show()

@@ -84,9 +84,9 @@ def ffmpy_execute_list(QObject, video_path_list):
             return
 
 
-def gen_gif_from_video(file_folder, video):
+def gen_webp_from_video(file_folder, video):
 
-    thumbnail_path = file_folder + ThumbnailFileFolder + video.replace(".mp4", ".gif")
+    thumbnail_path = file_folder + ThumbnailFileFolder + video.replace(".mp4", ".webp")
     video_path = file_folder + "/" + video
     if os.path.isfile(thumbnail_path) is False:
 
