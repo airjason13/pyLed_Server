@@ -32,19 +32,14 @@ log = utils.log_utils.logging_init(__file__)
 class MainUi(QMainWindow):
     def __init__(self):
         super().__init__()
-
-        #pg.setConfigOption('background', '#19232D')
-        #pg.setConfigOption('foreground', 'd')
-        #pg.setConfigOption('background', '#FD8612')
-        #pg.setConfigOption('foreground', '#FD8612')
         pg.setConfigOptions(antialias=True)
 
-        # 窗口居中显示
         self.center()
 
         self.setWindowOpacity(0.9)  # 设置窗口透明度
         self.setStyleSheet(qdarkstyle.load_stylesheet_pyqt5())
 
+        #initial streaming ffmpy status
         self.ffmpy_running = play_status.stop
         self.play_type = play_type.play_none
         self.ff_process = None
@@ -65,11 +60,6 @@ class MainUi(QMainWindow):
         self.server_ip = net_utils.get_ip_address(ifname)
         self.clients = []
         self.clients_mutex = QMutex()
-
-        """client_test = client("192.168.0.99")
-        self.clients.append(client_test)
-        for c in self.clients:
-            print(c.client_ip)"""
 
 
         self.broadcast_thread = Worker(method=self.server_broadcast, data="ABCDE", port=server_broadcast_port)
@@ -94,14 +84,17 @@ class MainUi(QMainWindow):
         # 　lef layout vertical
         button_layout = QVBoxLayout(top_left_frame)
         top_left_frame.setMouseTracking(True)
+
         btm_left_frame = QFrame(self)
         btm_left_frame.setMouseTracking(True)
+
+
         blank_label = QLabel(btm_left_frame)
         blank_label.setMouseTracking(True)
         blank_layout = QVBoxLayout(btm_left_frame)
 
         blank_label.setText("GIS LED")
-        blank_label.setFixedHeight(20)
+        blank_label.setFixedHeight(200)
         blank_layout.addWidget(blank_label)
 
         # btn for connect client
@@ -136,7 +129,42 @@ class MainUi(QMainWindow):
         # 右边显示为stack布局
         self.right_layout = QStackedLayout(self.right_frame)
 
+        """QTableWidget"""
+        self.initial_client_table_page()
 
+        # QTreeWidgetFile Tree in Tab.2
+        self.initial_media_file_page()
+
+
+        self.splitter1 = QSplitter(Qt.Vertical)
+        self.splitter1.setMouseTracking(True)
+        top_left_frame.setFixedHeight(250)
+        top_left_frame.setFixedWidth(250)
+        self.splitter1.addWidget(top_left_frame)
+        self.splitter1.addWidget(btm_left_frame)
+
+        self.splitter2 = QSplitter(Qt.Horizontal)
+        self.splitter2.addWidget(self.splitter1)
+        self.splitter2.setMouseTracking(True)
+        # 　add right layout frame
+        self.right_frame.setMouseTracking(True)
+        self.splitter2.addWidget(self.right_frame)
+        self.splitter2.setMouseTracking(True)
+        # 窗口部件添加布局
+        widget = QWidget()
+        pagelayout.addWidget(self.splitter2)
+        widget.setLayout(pagelayout)
+        widget.setMouseTracking(True)
+        self.setCentralWidget(widget)
+
+        media_previre_widget = QLabel()
+        media_previre_widget.setFrameShape(QFrame.StyledPanel)
+        media_previre_widget.setWindowFlags(Qt.ToolTip)
+        media_previre_widget.setAttribute(Qt.WA_TransparentForMouseEvents)
+        media_previre_widget.hide()
+        self.media_previre_widget = media_previre_widget
+
+    def initial_client_table_page(self):
 
         """QTableWidget"""
         self.client_table = QTableWidget(self.right_frame)
@@ -153,8 +181,8 @@ class MainUi(QMainWindow):
         client_layout.addWidget(self.client_table)
         self.right_layout.addWidget(client_widget)
 
+    def initial_media_file_page(self):
         # QTreeWidgetFile Tree in Tab.2
-        #self.file_tree = QTreeWidget(self.right_frame)
         self.file_tree = CTreeWidget(self.right_frame)
         self.file_tree.mouseMove.connect(self.cmouseMove)
         self.file_tree.setSelectionMode(QAbstractItemView.MultiSelection)
@@ -165,10 +193,8 @@ class MainUi(QMainWindow):
         font.setPointSize(24)
         self.file_tree.setFont(font)
 
-
-        #Add Internal Media Folder in tree root
+        # Add Internal Media Folder in tree root
         self.internal_media_root = QTreeWidgetItem(self.file_tree)
-
 
         self.internal_media_root.setText(0, "Internal Media")
         self.internal_files_list = utils.file_utils.get_media_file_list(internal_media_folder)
@@ -176,18 +202,12 @@ class MainUi(QMainWindow):
         for f in self.internal_files_list:
             internal_file_item = QTreeWidgetItem()
             internal_file_item.setText(0, os.path.basename(f))
-            #filename = "/home/venom/Videos/mouse.gif"
-            #label = QLabel('test')
-            #internal_file_item.setIcon(0, label)
-            #internal_file_item.setToolTip(0, '<b>Long long long text: show hint text, show pic B1</b><br><img src="%s">' % filename)
-            #internal_file_item.setToolTip(0, '<b>Thumbnail</b><br><img src="%s">' % filename)
             utils.ffmpy_utils.gen_webp_from_video(internal_media_folder, os.path.basename(f))
             self.internal_media_root.addChild(internal_file_item)
 
         self.file_tree.addTopLevelItem(self.internal_media_root)
         self.file_tree.parentWidget().setMouseTracking(True)
         self.file_tree.setMouseTracking(True)
-
 
         # Add External Media Folder in tree root
         self.external_media_root_list = []
@@ -199,31 +219,31 @@ class MainUi(QMainWindow):
             for f in self.external_files_list:
                 external_file_item = QTreeWidgetItem()
                 external_file_item.setText(0, os.path.basename(f))
-
+                utils.ffmpy_utils.gen_webp_from_video(mount_point, os.path.basename(f))
                 external_media_root.addChild(external_file_item)
             self.external_media_root_list.append(external_media_root)
             self.file_tree.addTopLevelItem(external_media_root)
 
-        #playlist file tree
+        # playlist file tree
         self.media_play_list = []
         self.load_playlist()
         self.qtw_media_play_list = QTreeWidgetItem(self.file_tree)
         self.qtw_media_play_list.setText(0, "Playlist")
         self.file_tree.addTopLevelItem(self.qtw_media_play_list)
         self.file_tree.expandAll()
-        self.file_tree.itemClicked.connect(self.onFileTreeItemClicked)
+        """self.file_tree.itemClicked.connect(self.onFileTreeItemClicked)
         self.file_tree.itemEntered.connect(self.itemEntered)
         self.file_tree.itemSelectionChanged.connect(self.itemSelectionChanged)
         self.file_tree.itemChanged.connect(self.itemChanged)
-        self.file_tree.viewportEntered.connect(self.file_tree_viewportEntered)
+        self.file_tree.viewportEntered.connect(self.file_tree_viewportEntered)"""
         self.file_tree.setMouseTracking(True)
-        #Add right clicked function signal/slot
+        # Add right clicked function signal/slot
         self.file_tree.setContextMenuPolicy(Qt.CustomContextMenu)
         self.file_tree.customContextMenuRequested.connect(self.menuContextTree)
 
         log.debug("mount point : %s", utils.file_utils.get_mount_points())
-        #log.debug("%s", self.file_tree.indexOfTopLevelItem(internal_media_root))
-        #log.debug("%s", self.file_tree.itemAt( 0, 1).text(0))
+        # log.debug("%s", self.file_tree.indexOfTopLevelItem(internal_media_root))
+        # log.debug("%s", self.file_tree.itemAt( 0, 1).text(0))
 
         """play singal file btn"""
         self.btn_play_select_file = QPushButton(self.right_frame)
@@ -263,7 +283,6 @@ class MainUi(QMainWindow):
         self.btn_repeat.setFixedWidth(110)
         self.btn_repeat.clicked.connect(self.repeat_option_trigger)
 
-
         self.play_option_widget = QWidget(self.right_frame)
         play_option_layout = QHBoxLayout()
         self.play_option_widget.setLayout(play_option_layout)
@@ -281,39 +300,9 @@ class MainUi(QMainWindow):
         file_tree_layout.addWidget(self.file_tree)
         file_tree_layout.addWidget(self.play_option_widget)
         self.file_tree_widget.setMouseTracking(True)
-        #file_tree_layout.addWidget(self.btn_play)
-        #file_tree_layout.addWidget(self.btn_stop)
+        # file_tree_layout.addWidget(self.btn_play)
+        # file_tree_layout.addWidget(self.btn_stop)
         self.right_layout.addWidget(self.file_tree_widget)
-
-
-        self.splitter1 = QSplitter(Qt.Vertical)
-        self.splitter1.setMouseTracking(True)
-        top_left_frame.setFixedHeight(250)
-        top_left_frame.setFixedWidth(250)
-        self.splitter1.addWidget(top_left_frame)
-        self.splitter1.addWidget(btm_left_frame)
-
-        self.splitter2 = QSplitter(Qt.Horizontal)
-        self.splitter2.addWidget(self.splitter1)
-        self.splitter2.setMouseTracking(True)
-        # 　add right layout frame
-        self.right_frame.setMouseTracking(True)
-        self.splitter2.addWidget(self.right_frame)
-        self.splitter2.setMouseTracking(True)
-        # 窗口部件添加布局
-        widget = QWidget()
-        pagelayout.addWidget(self.splitter2)
-        widget.setLayout(pagelayout)
-        widget.setMouseTracking(True)
-        self.setCentralWidget(widget)
-
-
-        toolTipWidget = QLabel()
-        toolTipWidget.setFrameShape(QFrame.StyledPanel)
-        toolTipWidget.setWindowFlags(Qt.ToolTip)
-        toolTipWidget.setAttribute(Qt.WA_TransparentForMouseEvents)
-        toolTipWidget.hide()
-        self.toolTipWidget = toolTipWidget
 
     def center(self):
         '''
@@ -343,7 +332,7 @@ class MainUi(QMainWindow):
 
     def func_testB(self):
         log.debug("testB")
-        self.toolTipWidget.show()
+        self.media_previre_widget.show()
 
 
         self.right_layout.setCurrentIndex(3)
@@ -379,12 +368,6 @@ class MainUi(QMainWindow):
             log.debug("client.ip : %s", c.client_ip)
             log.debug("client.alive_val : %s", c.alive_val)
 
-    """ recv alive report """
-    """def client_alive_report_thread(self, args):
-        port = args.get("port")
-        #print("port : ", port)
-        #print("client_alive_report_thread")
-        sleep(4)"""
 
     """send broadcast on eth0"""
     def server_broadcast(self, arg):
@@ -580,10 +563,11 @@ class MainUi(QMainWindow):
 
     def mouseMoveEvent(self, event):
         #log.debug("mouseMoveEvent")
-        if self.toolTipWidget.isVisible() is True:
-            self.toolTipWidget.hide()
+        if self.media_previre_widget.isVisible() is True:
+            self.media_previre_widget.hide()
+            self.preview_file_name = ""
 
-    def itemEntered(self ):
+    """def itemEntered(self ):
         log.debug("itemEntered")
 
     def itemSelectionChanged(self):
@@ -593,29 +577,32 @@ class MainUi(QMainWindow):
         log.debug("itemChanged")
 
     def file_tree_viewportEntered(self):
-        log.debug("file_tree_viewportEntered")
+        log.debug("file_tree_viewportEntered")"""
 
     def cmouseMove(self, event):
         #log.debug("cmouseMove")
         
-        log.debug("%s", QMovie.supportedFormats())
+        #log.debug("%s", QMovie.supportedFormats())
         if self.file_tree.itemAt(event.x(), event.y()) is None:
-            if self.toolTipWidget.isVisible() is True:
-                self.toolTipWidget.hide()
+            if self.media_previre_widget.isVisible() is True:
+                self.media_previre_widget.hide()
             return
-        log.debug("cmouseMove %s", self.file_tree.itemAt(event.x(), event.y()).text(0))
+        #log.debug("cmouseMove %s", self.file_tree.itemAt(event.x(), event.y()).text(0))
         if self.file_tree.itemAt(event.x(), event.y()).text(0) in  ["Internal Media", "External Media:", "Playlist"]:
             log.debug("None treewidgetitem")
-            if self.toolTipWidget.isVisible() is True:
-                self.toolTipWidget.hide()
+            if self.media_previre_widget.isVisible() is True:
+                self.media_previre_widget.hide()
+                self.preview_file_name = ""
         else:
             if self.file_tree.itemAt(event.x(), event.y()).text(0) == self.preview_file_name:
                 log.debug("The same movie")
                 log.debug("%s", self.preview_file_name)
             else:
-                self.toolTipWidget.setGeometry(self.file_tree.x() + event.x(), self.file_tree.y() + event.y(), 640, 480)
+                self.media_previre_widget.setGeometry(self.file_tree.x() + event.x(), self.file_tree.y() + event.y(), 640, 480)
                 self.preview_file_name = self.file_tree.itemAt(event.x(), event.y()).text(0)
                 self.movie = QMovie(internal_media_folder + ThumbnailFileFolder + self.preview_file_name.replace(".mp4", ".webp"))
-                self.toolTipWidget.setMovie(self.movie)
+                self.media_previre_widget.setMovie(self.movie)
                 self.movie.start()
-                self.toolTipWidget.show()
+                self.media_previre_widget.show()
+
+

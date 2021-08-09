@@ -9,7 +9,7 @@ log = utils.log_utils.logging_init(__file__)
 class CTreeWidget(QTreeWidget):
     mouseMove = pyqtSignal(QMouseEvent)
     def mouseMoveEvent(self, event):
-        log.debug("%d, %d", event.x(), event.y())
+        #log.debug("%d, %d", event.x(), event.y())
         #log.debug("%s", self.itemAt(event.x(), event.y()).text(0))
         self.mouseMove.emit(event)
 

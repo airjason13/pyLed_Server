@@ -86,10 +86,9 @@ def ffmpy_execute_list(QObject, video_path_list):
 
 def gen_webp_from_video(file_folder, video):
 
-    thumbnail_path = file_folder + ThumbnailFileFolder + video.replace(".mp4", ".webp")
+    thumbnail_path = internal_media_folder + ThumbnailFileFolder + video.replace(".mp4", ".webp")
     video_path = file_folder + "/" + video
     if os.path.isfile(thumbnail_path) is False:
-
         ff = ffmpy.FFmpeg(
             inputs={video_path: ['-ss', '3', '-t', '3']},
             outputs={thumbnail_path: ['-vf', 'scale=640:480']}
