@@ -579,7 +579,7 @@ class MainUi(QMainWindow):
         log.debug("self.play_option_repeat : %d", self.play_option_repeat)
 
     def mouseMoveEvent(self, event):
-        log.debug("mouseMoveEvent")
+        #log.debug("mouseMoveEvent")
         if self.toolTipWidget.isVisible() is True:
             self.toolTipWidget.hide()
 
@@ -596,7 +596,7 @@ class MainUi(QMainWindow):
         log.debug("file_tree_viewportEntered")
 
     def cmouseMove(self, event):
-        log.debug("cmouseMove")
+        #log.debug("cmouseMove")
         
         log.debug("%s", QMovie.supportedFormats())
         if self.file_tree.itemAt(event.x(), event.y()) is None:
@@ -611,10 +611,11 @@ class MainUi(QMainWindow):
         else:
             if self.file_tree.itemAt(event.x(), event.y()).text(0) == self.preview_file_name:
                 log.debug("The same movie")
+                log.debug("%s", self.preview_file_name)
             else:
                 self.toolTipWidget.setGeometry(self.file_tree.x() + event.x(), self.file_tree.y() + event.y(), 640, 480)
                 self.preview_file_name = self.file_tree.itemAt(event.x(), event.y()).text(0)
-                self.movie = QMovie("/home/venom/Videos/.thumbnails/" + self.file_tree.itemAt(event.x(), event.y()).text(0).replace(".mp4", ".webp"))
+                self.movie = QMovie(internal_media_folder + ThumbnailFileFolder + self.preview_file_name.replace(".mp4", ".webp"))
                 self.toolTipWidget.setMovie(self.movie)
                 self.movie.start()
                 self.toolTipWidget.show()
