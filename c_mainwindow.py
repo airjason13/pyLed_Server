@@ -342,7 +342,7 @@ class MainUi(QMainWindow):
         log.debug("data : ", data)
 
     def check_client(self, ip):
-        log.debug("Enter function check_client, ip: %s", ip)
+        #log.debug("Enter function check_client, ip: %s", ip)
         is_found = False
         tmp_client = None
         try:
@@ -364,9 +364,9 @@ class MainUi(QMainWindow):
             log.debug(e)
         finally:
             self.clients_unlock()
-        for c in self.clients:
+        """for c in self.clients:
             log.debug("client.ip : %s", c.client_ip)
-            log.debug("client.alive_val : %s", c.alive_val)
+            log.debug("client.alive_val : %s", c.alive_val)"""
 
 
     """send broadcast on eth0"""
@@ -412,16 +412,15 @@ class MainUi(QMainWindow):
                 if c.get_alive_count() == 0:
                     self.clients.remove(c)
 
-            for c in self.clients:
-                log.debug("c.client_ip : %s ", c.client_ip)
+            """for c in self.clients:
+                log.debug("c.client_ip : %s ", c.client_ip)"""
         except Exception as e:
             log.debug(e)
         finally:
             if ori_len != len(self.clients):
                 self.refresh_client_table()
             self.clients_unlock()
-        #for i in range(self.client_table.rowCount()):
-        #   if
+        
         sleep(sleep_time)
 
     

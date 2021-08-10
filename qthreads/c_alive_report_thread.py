@@ -30,6 +30,6 @@ class alive_report_thread(QThread):
                 #log.debug("recv from : %s", addr)
                 #log.debug("recv len: %s", len(data))
                 #log.debug("recv data: %s", data)
-                if data.decode() == "alive":
+                if "alive" in data.decode():
                     self.check_client.emit(addr[0])
             time.sleep(0.001)
