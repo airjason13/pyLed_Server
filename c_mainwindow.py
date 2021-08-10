@@ -457,7 +457,10 @@ class MainUi(QMainWindow):
     #client table right clicked slot function
     def clientsmenuContextTree(self, position):
         QTableWidgetItem = self.client_table.itemAt(position)
-        log.debug("%s", self.client_table.itemAt(position).text())
+        if QTableWidgetItem is None:
+            return
+        log.debug("client ip :%s", QTableWidgetItem.text())
+        self.right_click_select_client_ip = QTableWidgetItem.text()
 
         popMenu = QMenu()
         playAct = QAction("fw upgrade", self)
@@ -518,6 +521,12 @@ class MainUi(QMainWindow):
                 self.btn_play_playlist.setDisabled(False)
         elif q.text() == "fw upgrade":
             log.debug("fw upgrade")
+            upgrade_file_uri, upgrade_file_type = QFileDialog.getOpenFileUrl(self,"Select Upgrade File", self.cwd, "SWU File (*.swu)" )
+
+            if upgrade_file_uri == "":
+                log.debug("No select")
+                return
+            log.debug("upgrade_file_uri = %s", upgrade_file_uri)
 
 
     def load_playlist(self):
