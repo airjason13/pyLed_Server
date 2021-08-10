@@ -23,6 +23,7 @@ from g_defs.c_client import client
 from g_defs.c_mediafileparam import mediafileparam
 import utils.file_utils
 import utils.log_utils
+import utils.upload_utils
 
 import utils.ffmpy_utils
 from g_defs.c_TreeWidgetItemSP import CTreeWidget
@@ -531,7 +532,7 @@ class MainUi(QMainWindow):
             log.debug("upgrade_file_uri = %s", upgrade_file_uri[0])
             if upgrade_file_uri[0].endswith("swu"):
                 log.debug("Goto upgrade!")
-
+                utils.upload_utils.upload_upgrade_image(self.right_click_select_client_ip, upgrade_file_uri[0])
             else:
                 return
 

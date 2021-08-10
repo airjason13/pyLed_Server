@@ -8,3 +8,4 @@ colorlog
 pyudev
 psutil
 ffmpy
+requests
