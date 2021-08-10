@@ -521,12 +521,19 @@ class MainUi(QMainWindow):
                 self.btn_play_playlist.setDisabled(False)
         elif q.text() == "fw upgrade":
             log.debug("fw upgrade")
-            upgrade_file_uri, upgrade_file_type = QFileDialog.getOpenFileUrl(self,"Select Upgrade File", self.cwd, "SWU File (*.swu)" )
+            #upgrade_file_uri, upgrade_file_type = QFileDialog.getOpenFileUrl(self,"Select Upgrade File", "/home/root/", "SWU File (*.swu)" )
+            #upgrade_file_uri, upgrade_file_type = QFileDialog.getOpenFileUrl(None,"Select Upgrade File", "/home/root/", "All Files (*);;")
+            upgrade_file_uri = QFileDialog.getOpenFileName(None,"Select Upgrade File", "/home/root/")
 
             if upgrade_file_uri == "":
                 log.debug("No select")
                 return
-            log.debug("upgrade_file_uri = %s", upgrade_file_uri)
+            log.debug("upgrade_file_uri = %s", upgrade_file_uri[0])
+            if upgrade_file_uri[0].endswith("swu"):
+                log.debug("Goto upgrade!")
+
+            else:
+                return
 
 
     def load_playlist(self):
