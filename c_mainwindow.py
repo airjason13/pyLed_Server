@@ -179,6 +179,9 @@ class MainUi(QMainWindow):
         client_layout = QVBoxLayout()
         client_widget.setLayout(client_layout)
         client_layout.addWidget(self.client_table)
+        #right click menu
+        self.client_table.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.client_table.customContextMenuRequested.connect(self.clientsmenuContextTree)
         self.right_layout.addWidget(client_widget)
 
     def initial_media_file_page(self):
@@ -420,7 +423,7 @@ class MainUi(QMainWindow):
             if ori_len != len(self.clients):
                 self.refresh_client_table()
             self.clients_unlock()
-        
+
         sleep(sleep_time)
 
     
@@ -450,6 +453,21 @@ class MainUi(QMainWindow):
                     file_uri = dir + "/" + it.text(col)
 
             log.debug("%s", file_uri)
+
+    #client table right clicked slot function
+    def clientsmenuContextTree(self, position):
+        QTableWidgetItem = self.client_table.itemAt(position)
+        log.debug("%s", self.client_table.itemAt(position).text())
+
+        popMenu = QMenu()
+        playAct = QAction("fw upgrade", self)
+        popMenu.addAction(playAct)
+        popMenu.addSeparator()
+        addtoplaylistAct = QAction("Test", self)
+        popMenu.addAction(addtoplaylistAct)
+        popMenu.triggered[QAction].connect(self.popmenu_trigger_act)
+
+        popMenu.exec_(self.client_table.mapToGlobal(position))
 
     #right clicked slot function
     def menuContextTree(self, position):
@@ -498,6 +516,9 @@ class MainUi(QMainWindow):
             log.debug("Add file uri to playlist")
             if len(self.media_play_list) > 0:
                 self.btn_play_playlist.setDisabled(False)
+        elif q.text() == "fw upgrade":
+            log.debug("fw upgrade")
+
 
     def load_playlist(self):
         log.error("not Implement yet")
