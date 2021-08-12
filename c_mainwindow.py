@@ -23,7 +23,7 @@ from g_defs.c_client import client
 from g_defs.c_mediafileparam import mediafileparam
 import utils.file_utils
 import utils.log_utils
-import utils.upload_utils
+import utils.update_utils
 
 import utils.ffmpy_utils
 from g_defs.c_TreeWidgetItemSP import CTreeWidget
@@ -133,9 +133,11 @@ class MainUi(QMainWindow):
         """QTableWidget"""
         self.initial_client_table_page()
 
-        # QTreeWidgetFile Tree in Tab.2
+        """QTreeWidgetFile Tree in Tab.2"""
         self.initial_media_file_page()
 
+        """QTreeWidget for LED Setting"""
+        self.initial_led_layout_page()
 
         self.splitter1 = QSplitter(Qt.Vertical)
         self.splitter1.setMouseTracking(True)
@@ -184,6 +186,8 @@ class MainUi(QMainWindow):
         self.client_table.setContextMenuPolicy(Qt.CustomContextMenu)
         self.client_table.customContextMenuRequested.connect(self.clientsmenuContextTree)
         self.right_layout.addWidget(client_widget)
+
+
 
     def initial_media_file_page(self):
         # QTreeWidgetFile Tree in Tab.2
@@ -308,6 +312,15 @@ class MainUi(QMainWindow):
         # file_tree_layout.addWidget(self.btn_stop)
         self.right_layout.addWidget(self.file_tree_widget)
 
+    def initial_led_layout_page(self):
+        self.led_setting_cabnet = QWidget(self.right_frame)
+        self.led_setting = QWidget(self.right_frame)
+        led_setting_layout = QVBoxLayout()
+        self.led_setting.setLayout(led_setting_layout)
+        led_setting_layout.addWidget(self.led_setting_cabnet)
+        self.right_layout.addWidget(self.led_setting)
+
+
     def center(self):
         '''
         get the geomertry of the screen and set the postion in the center of screen
@@ -330,15 +343,19 @@ class MainUi(QMainWindow):
     def func_testA(self):
         log.debug("testA")
         self.right_layout.setCurrentIndex(2)
-        file = QFileDialog().getOpenFileName()
+        """file = QFileDialog().getOpenFileName()
         log.debug("file_uri:", file[0])
-        update_utils.upload_client_image(file[0])
+        update_utils.upload_client_image(file[0])"""
 
     def func_testB(self):
         log.debug("testB")
         self.media_previre_widget.show()
 
-
+        ips = []
+        ips.append("192.168.0.52")
+        utils.update_utils.upload_update_swu_to_client(ips,
+                                                       "/media/venom/XXX/sandbox/ledclient_updates_folder/rpi-ledclient_20210810_001.swu",
+                                                       update_utils.request_ret())
         self.right_layout.setCurrentIndex(3)
 
     """ handle the command from qlocalserver"""
@@ -427,7 +444,6 @@ class MainUi(QMainWindow):
 
         sleep(sleep_time)
 
-    
 
     def refresh_client_table(self):
         row_count = self.client_table.rowCount()
