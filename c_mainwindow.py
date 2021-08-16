@@ -574,7 +574,7 @@ class MainUi(QMainWindow):
             log.debug("upgrade_file_uri = %s", upgrade_file_uri[0])
             if upgrade_file_uri[0].endswith("swu"):
                 log.debug("Goto upgrade!")
-                utils.upload_utils.upload_upgrade_image(self.right_click_select_client_ip, upgrade_file_uri[0])
+                utils.update_utils.upload_update_swu_to_client(self.right_click_select_client_ip, upgrade_file_uri[0], utils.update_utils.update_client_callback)
             else:
                 return
 

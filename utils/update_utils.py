@@ -49,3 +49,8 @@ def request_ret(ip, ret):
     else:
         log.debug("%s request success", ip)
    
+def update_client_callback(ip, ret):
+    if ret is True:
+        log.info("%s update OK!", ip)
+    else:
+        log.info("%s update NG!", ip)
