@@ -256,13 +256,13 @@ class MainUi(QMainWindow):
         """play singal file btn"""
         self.btn_play_select_file = QPushButton(self.right_frame)
         self.btn_play_select_file.setText("Play Select File")
-        self.btn_play_select_file.setFixedWidth(110)
+        self.btn_play_select_file.setFixedWidth(media_btn_width)
         self.btn_play_select_file.setDisabled(True)
 
         """play playlist btn"""
         self.btn_play_playlist = QPushButton(self.right_frame)
         self.btn_play_playlist.setText("Play Playlist")
-        self.btn_play_playlist.setFixedWidth(110)
+        self.btn_play_playlist.setFixedWidth(media_btn_width)
         if len(self.media_play_list) == 0:
             self.btn_play_playlist.setDisabled(True)
         self.btn_play_playlist.clicked.connect(self.play_playlist_trigger)
@@ -270,12 +270,12 @@ class MainUi(QMainWindow):
         """stop btn"""
         self.btn_stop = QPushButton(self.right_frame)
         self.btn_stop.setText("Stop")
-        self.btn_stop.setFixedWidth(110)
+        self.btn_stop.setFixedWidth(media_btn_width)
         self.btn_stop.clicked.connect(self.stop_media_trigger)
 
         self.btn_pause = QPushButton(self.right_frame)
         self.btn_pause.setText("Pause")
-        self.btn_pause.setFixedWidth(110)
+        self.btn_pause.setFixedWidth(media_btn_width)
         self.btn_pause.clicked.connect(self.pause_media_trigger)
 
         self.btn_repeat = QPushButton(self.right_frame)
@@ -288,7 +288,7 @@ class MainUi(QMainWindow):
         else:
             self.btn_repeat.setText("Repeat unknown")
 
-        self.btn_repeat.setFixedWidth(110)
+        self.btn_repeat.setFixedWidth(media_btn_width)
         self.btn_repeat.clicked.connect(self.repeat_option_trigger)
 
         self.play_option_widget = QWidget(self.right_frame)
@@ -480,6 +480,16 @@ class MainUi(QMainWindow):
         self.right_click_select_client_ip = QTableWidgetItem.text()
 
         popMenu = QMenu()
+
+        popMenu.setStyleSheet(qdarkstyle.load_stylesheet_pyqt5() + \
+                              """
+                              QMenu{
+                                  button-layout : 2;
+                                  font: bold 16pt "Brutal Type";
+                                  border: 3px solid #FFA042;
+                                  border-radius: 8px;
+                                  }
+                              """)
         playAct = QAction("fw upgrade", self)
         popMenu.addAction(playAct)
         popMenu.addSeparator()
@@ -507,6 +517,21 @@ class MainUi(QMainWindow):
             return
         #self.right_click_select_file =
         popMenu = QMenu()
+
+        popMenu.setStyleSheet(qdarkstyle.load_stylesheet_pyqt5() + \
+                    """
+                    QMenu{
+                        button-layout : 2;
+                        font: bold 16pt "Brutal Type";
+                        border: 3px solid #FFA042;
+                        border-radius: 8px;
+                        }
+                    """)
+        #font = QFont('Microsoft Sans Serif', popmenu_font_size)
+        #popMenu.setFont(font)
+
+
+
         playAct = QAction("Play", self)
         popMenu.addAction(playAct)
         popMenu.addSeparator()
@@ -516,6 +541,7 @@ class MainUi(QMainWindow):
 
         popMenu.exec_(self.file_tree.mapToGlobal(position))
 
+    """All popmenu trigger act"""
     def popmenu_trigger_act(self, q):
         log.debug("%s", q.text())
         if q.text() == "Play":
@@ -540,7 +566,7 @@ class MainUi(QMainWindow):
             log.debug("fw upgrade")
             #upgrade_file_uri, upgrade_file_type = QFileDialog.getOpenFileUrl(self,"Select Upgrade File", "/home/root/", "SWU File (*.swu)" )
             #upgrade_file_uri, upgrade_file_type = QFileDialog.getOpenFileUrl(None,"Select Upgrade File", "/home/root/", "All Files (*);;")
-            upgrade_file_uri = QFileDialog.getOpenFileName(None,"Select Upgrade File", "/home/root/")
+            upgrade_file_uri = QFileDialog.getOpenFileName(None, "Select Upgrade File", "/home/root/")
 
             if upgrade_file_uri == "":
                 log.debug("No select")

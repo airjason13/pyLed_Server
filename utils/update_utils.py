@@ -48,42 +48,4 @@ def request_ret(ip, ret):
         log.error("%s request fail", ip)
     else:
         log.debug("%s request success", ip)
-    """loop = asyncio.get_event_loop()
-    tasks = []
-
-    for ip in ips:
-        task = loop.create_task(request_post_upload_file(ip, swu_file_url))
-        tasks.append(task)
-    
-    loop.run_until_complete(asyncio.wait(tasks))"""
-
-
-"""class Client_Update:
-
-    def __init__(self, ip, swu_file_url):
-        self.ip = ip
-        self.swu_file_url = swu_file_url
-        self.file = files = {
-            'file': (open(self.swu_file_url, 'rb',))
-        }
-        self.doRequest()
-
-    def doRequest(self):
-
-        url = "http://" + self.ip + ":8080/upload"
-        req = QtNetwork.QNetworkRequest(QtCore.QUrl(url))
-
-        self.nam = QtNetwork.QNetworkAccessManager()
-        self.nam.finished.connect(self.handleResponse)
-        #self.nam.get(req)
-        self.nam.post(req)
-
-    def handleResponse(self, reply):
-        er = reply.error()
-        if er == QtNetwork.QNetworkReply.NoError:
-            bytes_string = reply.readAll()
-            print(str(bytes_string, 'utf-8'))
-        else:
-            print("Error occured: ", er)
-            print(reply.errorString())"""
-
+   
