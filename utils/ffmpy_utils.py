@@ -7,19 +7,21 @@ import os
 import utils.log_utils
 log = utils.log_utils.logging_init('ffmpy_utils')
 
-def ffmpy_execute(QObject, video_path):
+def ffmpy_execute(QObject, video_path, width=720, height=480):
+    scale_params = "scale=" + str(width) + ":" + str(height)
     if platform.machine() in ('arm', 'arm64', 'aarch64'):
         ff = ffmpy.FFmpeg(
             inputs={video_path: ["-re"]},
             outputs={udp_sink: ["-preset", "ultrafast", "-vcodec", "libx264", "-f", "h264", "-localaddr", "192.168.0.3"]}
-            #outputs={udp_sink: ["-preset", "ultrafast", "-vcodec", "libx264", "-f", "h264"]}
-            # outputs={udp_sink: ["-vcodec", "copy", "-f", "h264"]}
+
         )
     else:
         ff = ffmpy.FFmpeg(
             inputs={video_path: ["-re"]},
-            #outputs={udp_sink: ["-preset", "ultrafast", "-vcodec", "libx264", "-f", "h264", "-localaddr", "192.168.0.3"]}
-            outputs={udp_sink: ["-preset", "ultrafast", "-vcodec", "libx264", "-f", "h264"]}
+            outputs={
+                udp_sink: ["-preset", "ultrafast", "-vcodec", "libx264", '-vf', scale_params, "-f", "h264", "-localaddr", "192.168.0.2"]}
+            #outputs={udp_sink: ["-preset", "ultrafast", "-vcodec", "libx264", "-f", "h264", "-localaddr", "192.168.0.2"]}
+            #outputs={udp_sink: ["-preset", "ultrafast", "-vcodec", "libx264", "-f", "h264"]}
             # outputs={udp_sink: ["-vcodec", "copy", "-f", "h264"]}
         )
 
@@ -88,6 +90,10 @@ def gen_webp_from_video(file_folder, video):
 
     thumbnail_path = internal_media_folder + ThumbnailFileFolder + video.replace(".mp4", ".webp")
     video_path = file_folder + "/" + video
+    thunbnail_folder_path = internal_media_folder + ThumbnailFileFolder
+    if not os.path.exists(thunbnail_folder_path):
+        os.makedirs(thunbnail_folder_path)
+
     if os.path.isfile(thumbnail_path) is False:
         ff = ffmpy.FFmpeg(
             inputs={video_path: ['-ss', '3', '-t', '3']},

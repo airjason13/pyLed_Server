@@ -7,7 +7,7 @@ import utils.log_utils
 log = utils.log_utils.logging_init('c_alive_report_thread')
 
 class alive_report_thread(QThread):
-    check_client = pyqtSignal(str)
+    check_client = pyqtSignal(str, str)
     def __init__(self,ip=multicast_group, port=alive_report_port, **kwargs):
 
         super(alive_report_thread, self).__init__( **kwargs)
@@ -31,5 +31,5 @@ class alive_report_thread(QThread):
                 #log.debug("recv len: %s", len(data))
                 #log.debug("recv data: %s", data)
                 if "alive" in data.decode():
-                    self.check_client.emit(addr[0])
+                    self.check_client.emit(addr[0], data.decode())
             time.sleep(0.001)

@@ -24,7 +24,7 @@ from g_defs.c_mediafileparam import mediafileparam
 import utils.file_utils
 import utils.log_utils
 import utils.update_utils
-
+from random import *
 import utils.ffmpy_utils
 from g_defs.c_TreeWidgetItemSP import CTreeWidget
 
@@ -54,16 +54,21 @@ class MainUi(QMainWindow):
         self.setWindowTitle("LED Server")
 
         #get eth0 ip and set it to server_ip
-        if platform.machine() in ('arm', 'arm64', 'aarch64'):
+        '''if platform.machine() in ('arm', 'arm64', 'aarch64'):
             ifname = 'eth0'
         else:
-            ifname = 'enp8s0'
-        self.server_ip = net_utils.get_ip_address(ifname)
+            ifname = 'enp8s0'''''
+        self.server_ip = net_utils.get_ip_address()
         self.clients = []
         self.clients_mutex = QMutex()
+        ''' for check cmd seq '''
+        self.cmd_send_seq_id = 0
+        self.cmd_seq_id_mutex = QMutex()
+
+        self.client_id_count = 0
 
 
-        self.broadcast_thread = Worker(method=self.server_broadcast, data="ABCDE", port=server_broadcast_port)
+        self.broadcast_thread = Worker(method=self.server_broadcast, data=server_broadcast_message, port=server_broadcast_port)
         self.broadcast_thread.start()
         self.refresh_clients_thread = Worker(method=self.refresh_clients_list, sleep_time=5)
         self.refresh_clients_thread.start()
@@ -73,6 +78,7 @@ class MainUi(QMainWindow):
         self.client_alive_report_thread.start()
 
         self.preview_file_name = ""
+
 
 
     def init_ui(self):
@@ -160,24 +166,26 @@ class MainUi(QMainWindow):
         widget.setMouseTracking(True)
         self.setCentralWidget(widget)
 
-        media_previre_widget = QLabel()
-        media_previre_widget.setFrameShape(QFrame.StyledPanel)
-        media_previre_widget.setWindowFlags(Qt.ToolTip)
-        media_previre_widget.setAttribute(Qt.WA_TransparentForMouseEvents)
-        media_previre_widget.hide()
-        self.media_previre_widget = media_previre_widget
+        media_preview_widget = QLabel()
+        media_preview_widget.setFrameShape(QFrame.StyledPanel)
+        media_preview_widget.setWindowFlags(Qt.ToolTip)
+        media_preview_widget.setAttribute(Qt.WA_TransparentForMouseEvents)
+        media_preview_widget.hide()
+        self.media_preview_widget = media_preview_widget
 
     def initial_client_table_page(self):
 
         """QTableWidget"""
         self.client_table = QTableWidget(self.right_frame)
         self.client_table.setEditTriggers(QtWidgets.QTableWidget.NoEditTriggers)
-        self.client_table.setColumnCount(3)
+        ''' ip, id, status, version'''
+        self.client_table.setColumnCount(4)
         self.client_table.setRowCount(0)
 
         self.client_table.setMouseTracking(True)
-        self.client_table.setHorizontalHeaderLabels(['IP', 'ID', 'Status'])
+        self.client_table.setHorizontalHeaderLabels(['IP', 'ID', 'Status', 'Version'])
         self.client_table.setColumnWidth(0, 200) #IP Column width:200
+        self.client_table.setColumnWidth(3, 200)  # Version Column width:200
         client_widget = QWidget(self.right_frame)
         client_layout = QVBoxLayout()
         client_widget.setLayout(client_layout)
@@ -349,23 +357,23 @@ class MainUi(QMainWindow):
 
     def func_testB(self):
         log.debug("testB")
-        self.media_previre_widget.show()
+        self.media_preview_widget.show()
+        self.test_cmd_thread = Worker(method=self.cmd_test, )
+        self.test_cmd_thread.start()
 
-        ips = []
-        ips.append("192.168.0.52")
-        utils.update_utils.upload_update_swu_to_client(ips,
-                                                       "/media/venom/XXX/sandbox/ledclient_updates_folder/rpi-ledclient_20210810_001.swu",
-                                                       update_utils.request_ret())
         self.right_layout.setCurrentIndex(3)
 
     """ handle the command from qlocalserver"""
     def parser_cmd_from_qlocalserver(self, data):
         log.debug("data : ", data)
 
-    def check_client(self, ip):
+    def check_client(self, ip, data):
         #log.debug("Enter function check_client, ip: %s", ip)
+        #log.debug("%s", data)
         is_found = False
         tmp_client = None
+        c_version = data.split(";")[1].split(":")[1]
+
         try:
             self.clients_lock()
             for c in self.clients:
@@ -375,7 +383,8 @@ class MainUi(QMainWindow):
                     break
             """ no such client ip in clients list, new one and append"""
             if is_found is False:
-                c = client(ip)
+                c = client(ip, net_utils.get_ip_address(), c_version, self.client_id_count)
+                self.client_id_count += 1
                 self.clients.append(c)
                 self.refresh_client_table()
             else:
@@ -396,11 +405,18 @@ class MainUi(QMainWindow):
         port = arg.get("port")
 
         #print("platform.machine :", platform.machine())
+
+        ip = net_utils.get_ip_address()
         if platform.machine() in ('arm', 'arm64', 'aarch64'):
-            ifname = 'eth0'
-        else:
-            ifname = 'enp8s0'
-        ip = net_utils.get_ip_address(ifname)
+            if ip == "":
+                log.info("ip = NULL")
+                if platform.machine() in ('arm', 'arm64', 'aarch64'):
+                    ifname = 'eth0'
+                else:
+                    ifname = 'enp8s0'
+                cmd = 'ifconfig' + ' ' + ifname + ' ' +  '192.168.0.3'
+                os.system(cmd)
+
         #print("ip : ", ip)
         msg = data.encode()
         if ip != "":
@@ -455,6 +471,8 @@ class MainUi(QMainWindow):
             row_count = self.client_table.rowCount()
             self.client_table.insertRow(row_count)
             self.client_table.setItem(row_count, 0, QTableWidgetItem(c.client_ip))
+            self.client_table.setItem(row_count, 1, QTableWidgetItem(str(c.client_id)))
+            self.client_table.setItem(row_count, 3, QTableWidgetItem(c.client_version))
 
     @pyqtSlot(QtWidgets.QTreeWidgetItem, int)
     def onFileTreeItemClicked(self, it, col):
@@ -490,11 +508,11 @@ class MainUi(QMainWindow):
                                   border-radius: 8px;
                                   }
                               """)
-        playAct = QAction("fw upgrade", self)
-        popMenu.addAction(playAct)
+        fw_upgrade_Act = QAction("fw upgrade", self)
+        popMenu.addAction(fw_upgrade_Act)
         popMenu.addSeparator()
-        addtoplaylistAct = QAction("Test", self)
-        popMenu.addAction(addtoplaylistAct)
+        test_Act = QAction("test", self)
+        popMenu.addAction(test_Act)
         popMenu.triggered[QAction].connect(self.popmenu_trigger_act)
 
         popMenu.exec_(self.client_table.mapToGlobal(position))
@@ -546,7 +564,7 @@ class MainUi(QMainWindow):
         log.debug("%s", q.text())
         if q.text() == "Play":
             """play single file"""
-            self.ff_process = utils.ffmpy_utils.ffmpy_execute(self, self.right_clicked_select_file_uri)
+            self.ff_process = utils.ffmpy_utils.ffmpy_execute(self, self.right_clicked_select_file_uri, width=160, height=96)
             self.play_type = play_type.play_single
         elif q.text() == "AddtoPlaylist":
             """Add this file_path to playlist"""
@@ -564,9 +582,12 @@ class MainUi(QMainWindow):
                 self.btn_play_playlist.setDisabled(False)
         elif q.text() == "fw upgrade":
             log.debug("fw upgrade")
-            #upgrade_file_uri, upgrade_file_type = QFileDialog.getOpenFileUrl(self,"Select Upgrade File", "/home/root/", "SWU File (*.swu)" )
-            #upgrade_file_uri, upgrade_file_type = QFileDialog.getOpenFileUrl(None,"Select Upgrade File", "/home/root/", "All Files (*);;")
-            upgrade_file_uri = QFileDialog.getOpenFileName(None, "Select Upgrade File", "/home/root/")
+            if platform.machine() in ('arm', 'arm64', 'aarch64'):
+                #upgrade_file_uri, upgrade_file_type = QFileDialog.getOpenFileUrl(self,"Select Upgrade File", "/home/root/", "SWU File (*.swu)" )
+                #upgrade_file_uri, upgrade_file_type = QFileDialog.getOpenFileUrl(None,"Select Upgrade File", "/home/root/", "All Files (*);;")
+                upgrade_file_uri = QFileDialog.getOpenFileName(None, "Select Upgrade File", "/home/root/")
+            else:
+                upgrade_file_uri = QFileDialog.getOpenFileName(None, "Select Upgrade File", "/home/venom/","SWU File (*.swu)")
 
             if upgrade_file_uri == "":
                 log.debug("No select")
@@ -580,6 +601,13 @@ class MainUi(QMainWindow):
                 utils.update_utils.upload_update_swu_to_client(ips, upgrade_file_uri[0], utils.update_utils.update_client_callback)
             else:
                 return
+        elif q.text() == "test":
+            for c in self.clients:
+                if c.client_ip == self.right_click_select_client_ip:
+                    log.debug("ready to send command")
+                    cmd = "get_version"
+                    param = "get_version"
+                    c.send_cmd( cmd=cmd, cmd_seq_id=self.cmd_seq_id_increase(), param=param)
 
 
     def load_playlist(self):
@@ -588,7 +616,7 @@ class MainUi(QMainWindow):
     def play_playlist_trigger(self):
         log.debug("")
         self.play_type = play_type.play_playlist
-        thread_1 = threading.Thread(target=utils.ffmpy_utils.ffmpy_execute_list, args=(self, self.media_play_list,))
+        thread_1 = threading.Thread(target=utils.ffmpy_utils.ffmpy_execute_list, args=(self, self.media_play_list, ))
         thread_1.start()
         #utils.ffmpy_utils.ffmpy_execute_list(self, self.media_play_list)
 
@@ -645,8 +673,8 @@ class MainUi(QMainWindow):
 
     def mouseMoveEvent(self, event):
         #log.debug("mouseMoveEvent")
-        if self.media_previre_widget.isVisible() is True:
-            self.media_previre_widget.hide()
+        if self.media_preview_widget.isVisible() is True:
+            self.media_preview_widget.hide()
             self.preview_file_name = ""
 
     """def itemEntered(self ):
@@ -666,25 +694,65 @@ class MainUi(QMainWindow):
         
         #log.debug("%s", QMovie.supportedFormats())
         if self.file_tree.itemAt(event.x(), event.y()) is None:
-            if self.media_previre_widget.isVisible() is True:
-                self.media_previre_widget.hide()
+            if self.media_preview_widget.isVisible() is True:
+                self.media_preview_widget.hide()
             return
         #log.debug("cmouseMove %s", self.file_tree.itemAt(event.x(), event.y()).text(0))
         if self.file_tree.itemAt(event.x(), event.y()).text(0) in  ["Internal Media", "External Media:", "Playlist"]:
-            log.debug("None treewidgetitem")
-            if self.media_previre_widget.isVisible() is True:
-                self.media_previre_widget.hide()
+            #log.debug("None treewidgetitem")
+            if self.media_preview_widget.isVisible() is True:
+                self.media_preview_widget.hide()
                 self.preview_file_name = ""
         else:
             if self.file_tree.itemAt(event.x(), event.y()).text(0) == self.preview_file_name:
-                log.debug("The same movie")
-                log.debug("%s", self.preview_file_name)
+                #log.debug("The same movie")
+                #log.debug("%s", self.preview_file_name)
+                pass
             else:
-                self.media_previre_widget.setGeometry(self.file_tree.x() + event.x(), self.file_tree.y() + event.y(), 640, 480)
+                self.media_preview_widget.setGeometry(self.file_tree.x() + event.x(), self.file_tree.y() + event.y(), 640, 480)
                 self.preview_file_name = self.file_tree.itemAt(event.x(), event.y()).text(0)
                 self.movie = QMovie(internal_media_folder + ThumbnailFileFolder + self.preview_file_name.replace(".mp4", ".webp"))
-                self.media_previre_widget.setMovie(self.movie)
+                self.media_preview_widget.setMovie(self.movie)
                 self.movie.start()
-                self.media_previre_widget.show()
+                self.media_preview_widget.show()
+
+    def cmd_seq_id_lock(self):
+        self.cmd_seq_id_mutex.lock()
+
+    def cmd_seq_id_unlock(self):
+        self.cmd_seq_id_mutex.unlock()
+
+    ''' cmd seqid increase method
+        cmd seqid range : 0~65534'''
+    def cmd_seq_id_increase(self):
+        self.cmd_seq_id_lock()
+        self.cmd_send_seq_id += 1
+        if self.cmd_send_seq_id >= 65535:
+            self.cmd_send_seq_id = 0
+        self.cmd_seq_id_unlock()
+        log.error("self.cmd_send_seq_id :%d", self.cmd_send_seq_id)
+        return self.cmd_send_seq_id
+
+    def cmd_reply_callback(self,  ret, recvData=None, client_ip=None, client_reply_port=None):
+        log.debug("ret :%s", ret)
 
 
+    """Just for Test random command trigger"""
+    def cmd_test(self, arg):
+        while True:
+            for c in self.clients:
+                i = randint(0, 4)
+                if i == 4:
+                    cmd = "spec_test"
+                elif i == 3:
+                    cmd = "set_cabinet_size"
+                elif i == 2:
+                    cmd = "set_led_size"
+                elif i == 1:
+                    cmd = "get_pico_num"
+                elif i == 0:
+                    cmd = "get_version"
+                param = "get_version"
+                c.send_cmd(cmd=cmd, cmd_seq_id=self.cmd_seq_id_increase(), param=param)
+
+            time.sleep(0.1)

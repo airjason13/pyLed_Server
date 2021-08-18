@@ -10,18 +10,14 @@ log = utils.log_utils.logging_init('update_utils')
 def request_post_upload_file(ip, swu_file_url, cb):
     log.debug("enter")
     url = "http://" + ip + ":8080/upload"
-    headers ={
-        #'Content-Type': 'application/octet-stream\r\n\r\n'
-    }
     r = None
     files = {
         'file': (open(swu_file_url, 'rb',))
     }
-
     try:
         r = requests.post(url=url, files=files, timeout=10 ).text
 
-        log.debug("r.status_code = %s", r.status_code)
+        #log.debug("r.status_code = %s", r.status_code)
         log.debug("r = %s", r)
         cb(ip, True)
         return True
