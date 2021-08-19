@@ -756,23 +756,38 @@ class MainUi(QMainWindow):
                     cmd = "get_version"
                 param = "get_version"
                 c.send_cmd(cmd=cmd, cmd_seq_id=self.cmd_seq_id_increase(), param=param)
+            time.sleep(1)
+            '''for i in range(4):
+                if i == 4:
+                    cmd = "spec_test"
+                elif i == 3:
+                    cmd = "set_cabinet_size"
+                elif i == 2:
+                    cmd = "set_led_size"
+                elif i == 1:
+                    cmd = "get_pico_num"
+                elif i == 0:
+                    cmd = "get_version"
+                param = "get_version"
+                c.send_cmd(cmd=cmd, cmd_seq_id=self.cmd_seq_id_increase(), param=param)
+                time.sleep(1)'''
 
-            time.sleep(0.1)
 
     def client_send_cmd_ret(self, ret, send_cmd, recvData=None, client_ip=None, client_reply_port=None):
-        log.fatal("client_ip : %s", client_ip)
+
 
         if ret is False:
+            log.fatal("client_ip : %s", client_ip)
             #self.send_cmd_fail_msg.hide()
             if self.send_cmd_fail_msg is not None:
-                self.send_cmd_fail_msg.hide()
-                self.send_cmd_fail_msg = QMessageBox()
+                #self.send_cmd_fail_msg.hide()
                 self.send_cmd_fail_msg.setIcon(QMessageBox.Critical)
                 self.send_cmd_fail_msg.setText("Error")
                 self.send_cmd_fail_msg.setInformativeText("Can not get response of " + send_cmd + " from " + client_ip)
                 self.send_cmd_fail_msg.setWindowTitle("Error")
                 self.send_cmd_fail_msg.setStyleSheet(qdarkstyle.load_stylesheet_pyqt5())
                 self.send_cmd_fail_msg.exec_()
+                
                 #self.send_cmd_fail_msg.show()
         else:
             pass

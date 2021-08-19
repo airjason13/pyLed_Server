@@ -41,12 +41,14 @@ def send_udp_cmd(*args, **kwargs):
     client_udp_cmd_port = kwargs.get('client_udp_cmd_port')
     param = kwargs.get('param')
     cb = kwargs.get('cb')
-    sock.bind((server_ip, 0))
-    cmd_str = 'cmd_seq_id:' + str(cmd_seq_id) + cmd_spliter + "cmd:" + cmd + cmd_spliter + "param:" + param
-    sendDataLen = sock.sendto(cmd_str.encode(), (client_ip, client_udp_cmd_port))
-    log.debug("send cmd len : %d", sendDataLen)
-    sock.settimeout(cmd_timeout)
     try:
+        sock.bind((server_ip, 0))
+        cmd_str = 'cmd_seq_id:' + str(cmd_seq_id) + cmd_spliter + "cmd:" + cmd + cmd_spliter + "param:" + param
+
+        sendDataLen = sock.sendto(cmd_str.encode(), (client_ip, client_udp_cmd_port))
+        log.debug("send cmd len : %d", sendDataLen)
+        sock.settimeout(cmd_timeout)
+
         revcData, (remoteHost, remotePort) = sock.recvfrom(1024)
         log.debug("recv from [%s:%s] " % (remoteHost, remotePort))
         recv_cmd_seq_id = revcData.decode().split(";")[0].split(":")[1]
@@ -55,7 +57,7 @@ def send_udp_cmd(*args, **kwargs):
             log.fatal("cmd_seq_id error")
             log.fatal("cmd_seq_id : %d", cmd_seq_id)
             log.fatal("int(recv_cmd_seq_id): %d", int(recv_cmd_seq_id))
-        cb( True, recvData=revcData.decode(), client_ip=remoteHost, client_reply_port=remotePort)
+        cb( True, cmd, recvData=revcData.decode(), client_ip=remoteHost, client_reply_port=remotePort)
     except Exception as e:
         log.fatal(e)
         cb(False, cmd )

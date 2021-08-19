@@ -5,6 +5,7 @@ import utils.log_utils
 import utils.net_utils
 from global_def import *
 import threading
+import asyncio
 
 log = utils.log_utils.logging_init('c_client')
 
@@ -23,6 +24,8 @@ class client(QObject):
 
         self.alive_val = self.alive_val_def
         self.id = -1
+        self.loop = asyncio.get_event_loop()
+
 
     def send_cmd(self,  cmd, cmd_seq_id, param):
         log.debug("client send_cmd")
@@ -32,7 +35,7 @@ class client(QObject):
                                               'server_ip': self.server_ip, 'cb': self.send_cmd_callback})
         thread_cmd.start()
         #utils.net_utils.send_udp_cmd( mainUI, cmd, cmd_seq_id, param, cb)
-        thread_cmd.join()
+        #thread_cmd.join()
     def set_alive_count(self, val):
         self.alive_val = val
 
