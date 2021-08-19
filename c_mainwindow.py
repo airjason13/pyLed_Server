@@ -384,6 +384,7 @@ class MainUi(QMainWindow):
             """ no such client ip in clients list, new one and append"""
             if is_found is False:
                 c = client(ip, net_utils.get_ip_address(), c_version, self.client_id_count)
+                c.send_cmd_ret.connect(self.client_send_cmd_ret)
                 self.client_id_count += 1
                 self.clients.append(c)
                 self.refresh_client_table()
@@ -756,3 +757,14 @@ class MainUi(QMainWindow):
                 c.send_cmd(cmd=cmd, cmd_seq_id=self.cmd_seq_id_increase(), param=param)
 
             time.sleep(0.1)
+
+    def client_send_cmd_ret(self, ret, recvData=None, client_ip=None, client_reply_port=None ):
+        log.fatal("")
+        if ret is False:
+            msg = QMessageBox()
+            msg.setIcon(QMessageBox.Critical)
+            msg.setText("Error")
+            msg.setInformativeText(recvData + "from " + client_ip)
+            msg.setWindowTitle("Error")
+            msg.setStyleSheet(qdarkstyle.load_stylesheet_pyqt5())
+            msg.exec_()
