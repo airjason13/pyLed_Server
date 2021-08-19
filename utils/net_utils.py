@@ -58,7 +58,7 @@ def send_udp_cmd(*args, **kwargs):
         cb( True, recvData=revcData.decode(), client_ip=remoteHost, client_reply_port=remotePort)
     except Exception as e:
         log.fatal(e)
-        cb(False)
+        cb(False, cmd )
     finally:
         sock.close()
 

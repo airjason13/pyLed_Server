@@ -10,8 +10,8 @@ log = utils.log_utils.logging_init('c_client')
 
 class client(QObject):
     alive_val_def = 3
-    ''' ret, recv_data, client_ip, client_reply_port '''
-    send_cmd_ret = pyqtSignal(bool, str, str, int)
+    ''' ret, send_cmd, recv_data, client_ip, client_reply_port '''
+    send_cmd_ret = pyqtSignal(bool, str, str, str, int)
     def __init__(self, client_ip, server_ip, client_version, client_id, **kwargs):
         super(client, self).__init__(**kwargs)
 
@@ -43,9 +43,9 @@ class client(QObject):
     def get_alive_count(self):
         return self.alive_val
 
-    def send_cmd_callback(self, ret, recvData=None, client_ip=None, client_reply_port=None ):
+    def send_cmd_callback(self, ret, send_cmd, recvData=None, client_ip=None, client_reply_port=None ):
         #self.cmd_cb(ret, recvData, client_ip, client_reply_port)
-        self.send_cmd_ret.emit(ret, recvData, client_ip, client_reply_port)
+        self.send_cmd_ret.emit(ret, send_cmd, recvData, self.client_ip, client_reply_port)
         '''if recvData is not None:
             log.debug("recvData : %s", recvData)
             log.debug("client_ip : %s", client_ip)

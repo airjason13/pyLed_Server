@@ -79,6 +79,7 @@ class MainUi(QMainWindow):
 
         self.preview_file_name = ""
 
+        self.send_cmd_fail_msg = QMessageBox()
 
 
     def init_ui(self):
@@ -758,13 +759,23 @@ class MainUi(QMainWindow):
 
             time.sleep(0.1)
 
-    def client_send_cmd_ret(self, ret, recvData=None, client_ip=None, client_reply_port=None ):
-        log.fatal("")
+    def client_send_cmd_ret(self, ret, send_cmd, recvData=None, client_ip=None, client_reply_port=None):
+        log.fatal("client_ip : %s", client_ip)
+
         if ret is False:
-            msg = QMessageBox()
-            msg.setIcon(QMessageBox.Critical)
-            msg.setText("Error")
-            msg.setInformativeText(recvData + "from " + client_ip)
-            msg.setWindowTitle("Error")
-            msg.setStyleSheet(qdarkstyle.load_stylesheet_pyqt5())
-            msg.exec_()
+            #self.send_cmd_fail_msg.hide()
+            if self.send_cmd_fail_msg is not None:
+                self.send_cmd_fail_msg.hide()
+                self.send_cmd_fail_msg = QMessageBox()
+                self.send_cmd_fail_msg.setIcon(QMessageBox.Critical)
+                self.send_cmd_fail_msg.setText("Error")
+                self.send_cmd_fail_msg.setInformativeText("Can not get response of " + send_cmd + " from " + client_ip)
+                self.send_cmd_fail_msg.setWindowTitle("Error")
+                self.send_cmd_fail_msg.setStyleSheet(qdarkstyle.load_stylesheet_pyqt5())
+                self.send_cmd_fail_msg.exec_()
+                #self.send_cmd_fail_msg.show()
+        else:
+            pass
+            '''if self.send_cmd_fail_msg is not None:
+                self.send_cmd_fail_msg.destroy()
+                self.send_cmd_fail_msg = None'''
