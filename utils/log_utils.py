@@ -6,6 +6,7 @@ import os
 dir_path = os.path.dirname(os.path.realpath(__file__))
 
 log_level = logging.DEBUG
+#log_level = logging.INFO
 #log_level = logging.ERROR
 
 import os
