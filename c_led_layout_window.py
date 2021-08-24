@@ -11,17 +11,19 @@ import utils.log_utils
 log = utils.log_utils.logging_init(__file__)
 
 class LedLayoutWindow(QWidget):
-    def __init__(self, led_wall_w, led_wall_h, margin):
+    def __init__(self, led_wall_w, led_wall_h, cabinet_w, cabinet_h, margin):
         super(LedLayoutWindow, self).__init__()
         self.setWindowTitle("LED Wall")
         self.resize(led_wall_w*2 + margin*2, led_wall_h*2 + margin*2)
         self.led_wall_w = led_wall_w
         self.led_wall_h = led_wall_h
+        self.cabinet_w = cabinet_w
+        self.cabinet_h = cabinet_h
         self.led_fake_label = QLabel(self)
         self.led_fake_pixmap = utils.qtui_utils.gen_led_layout_pixmap(led_wall_w, led_wall_h, margin, Qt.GlobalColor.black, Qt.GlobalColor.white)
         self.led_fake_label.setPixmap(self.led_fake_pixmap)
 
-        self.gen_single_cabinet_label(40, 24)
+        self.gen_single_cabinet_label(self.cabinet_w, self.cabinet_h)
         self.led_fake_label.setScaledContents(True)
 
 
@@ -38,7 +40,7 @@ class LedLayoutWindow(QWidget):
             self.resize(int(self.width() * 0.9), int(self.height() * 0.9))
         self.led_fake_label.resize(int(self.width()), int(self.height()))
 
-        self.single_cabinet_label.resize(int(self.width()*0.2), int(self.height()*0.2))
+        self.single_cabinet_label.resize((int(self.width())*(self.cabinet_w/self.led_wall_w)), int(self.height())*(self.cabinet_h/self.led_wall_h))
         log.debug("width : %d", self.width())
         log.debug("height : %d", self.height())
         a0.accept()

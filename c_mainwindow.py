@@ -44,7 +44,11 @@ class MainUi(QMainWindow):
 
         self.led_wall_width = default_led_wall_width
         self.led_wall_height = default_led_wall_height
-        self.led_layout_window = LedLayoutWindow(self.led_wall_width, self.led_wall_height, default_led_wall_margin)
+        self.led_cabinet_width = default_led_cabinet_width
+        self.led_cabinet_height = default_led_cabinet_height
+        self.led_layout_window = LedLayoutWindow(self.led_wall_width, self.led_wall_height,
+                                                 self.led_cabinet_width, self.led_cabinet_height,
+                                                 default_led_wall_margin)
         self.page_idx = 0
 
         #initial streaming ffmpy status

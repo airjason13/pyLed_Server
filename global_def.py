@@ -3,7 +3,7 @@ import platform
 """Software version"""
 
 """Network relative"""
-version="LS210817A01"
+version="LS210824A01"
 multicast_group="239.11.11.11"
 server_broadcast_port=11334
 server_broadcast_message="ABCDE;Server:192.168.0.3;Cmd_Port:11335;Alive_Port:11333"
@@ -49,4 +49,6 @@ cmd_spliter = ";"
 """default led params"""
 default_led_wall_width = 80
 default_led_wall_height = 96
+default_led_cabinet_width = 40
+default_led_cabinet_height = 24
 default_led_wall_margin = 10
