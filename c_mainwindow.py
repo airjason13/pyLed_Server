@@ -3,11 +3,11 @@ import os
 import signal
 import threading
 from PyQt5 import QtWidgets
-from PyQt5.QtWidgets import (QApplication, QMainWindow, QDesktopWidget, QStyleFactory, QWidget, QHBoxLayout, QVBoxLayout,
+from PyQt5.QtWidgets import (QApplication, QMainWindow, QDesktopWidget, QStyleFactory, QWidget, QHBoxLayout, QVBoxLayout, QFormLayout,
                             QGridLayout, QFrame,QHeaderView, QTableWidgetItem, QMessageBox, QFileDialog,
                             QSlider, QLabel, QLineEdit, QPushButton, QTableWidget, QStackedLayout, QSplitter, QTreeWidget, QTreeWidgetItem,
-                             QFileDialog, QListWidget, QFileSystemModel, QTreeView, QMenu, QAction, QAbstractItemView,)
-from PyQt5.QtGui import QPalette, QColor, QBrush, QFont, QMovie
+                             QFileDialog, QListWidget, QFileSystemModel, QTreeView, QMenu, QAction, QAbstractItemView)
+from PyQt5.QtGui import QPalette, QColor, QBrush, QFont, QMovie, QPixmap, QPainter
 from PyQt5.QtCore import Qt, QMutex, pyqtSlot
 import pyqtgraph as pg
 import qdarkstyle, requests, sys, time, random, json, datetime, re
@@ -24,8 +24,10 @@ from g_defs.c_mediafileparam import mediafileparam
 import utils.file_utils
 import utils.log_utils
 import utils.update_utils
+import utils.qtui_utils
 from random import *
 import utils.ffmpy_utils
+from c_led_layout_window import LedLayoutWindow
 from g_defs.c_TreeWidgetItemSP import CTreeWidget
 
 log = utils.log_utils.logging_init(__file__)
@@ -40,6 +42,11 @@ class MainUi(QMainWindow):
         self.setWindowOpacity(0.9)  # 设置窗口透明度
         self.setStyleSheet(qdarkstyle.load_stylesheet_pyqt5())
 
+        self.led_wall_width = default_led_wall_width
+        self.led_wall_height = default_led_wall_height
+        self.led_layout_window = LedLayoutWindow(self.led_wall_width, self.led_wall_height, default_led_wall_margin)
+        self.page_idx = 0
+
         #initial streaming ffmpy status
         self.ffmpy_running = play_status.stop
         self.play_type = play_type.play_none
@@ -48,8 +55,8 @@ class MainUi(QMainWindow):
 
         self.setMouseTracking(True)
         self.init_ui()
-        self.status = self.statusBar()
-        self.status.showMessage("Main Page")
+        self.page_status = self.statusBar()
+        self.page_status.showMessage("Client Page")
 
         self.setWindowTitle("LED Server")
 
@@ -82,6 +89,7 @@ class MainUi(QMainWindow):
         self.send_cmd_fail_msg = QMessageBox()
 
 
+
     def init_ui(self):
         self.setFixedSize(960, 700)
 
@@ -97,13 +105,19 @@ class MainUi(QMainWindow):
         btm_left_frame.setMouseTracking(True)
 
 
-        blank_label = QLabel(btm_left_frame)
-        blank_label.setMouseTracking(True)
+        version_label = QLabel(btm_left_frame)
+        version_label.setMouseTracking(True)
         blank_layout = QVBoxLayout(btm_left_frame)
 
-        blank_label.setText("GIS LED")
-        blank_label.setFixedHeight(200)
-        blank_layout.addWidget(blank_label)
+        version_label.setText("GIS LED\n" + "version:" + version)
+        version_label.setFixedHeight(200)
+
+        test_label = QLabel(btm_left_frame)
+        test_pixmap = utils.qtui_utils.gen_led_layout_type_pixmap(200, 100, 10, 1)
+        test_label.setPixmap(test_pixmap)
+        blank_layout.addWidget(test_label)
+
+        blank_layout.addWidget(version_label)
 
         # btn for connect client
         connect_btn = QPushButton(top_left_frame)
@@ -120,8 +134,8 @@ class MainUi(QMainWindow):
         button_layout.addWidget(content_btn)
 
         test_btn = QPushButton(top_left_frame)
-        test_btn.setFixedSize(200, 30), test_btn.setText("TestA")
-        test_btn.clicked.connect(self.func_testA)
+        test_btn.setFixedSize(200, 30), test_btn.setText("LED Setting")
+        test_btn.clicked.connect(self.func_led_setting)
         button_layout.addWidget(test_btn)
 
         test2_btn = QPushButton(top_left_frame)
@@ -248,11 +262,7 @@ class MainUi(QMainWindow):
         self.qtw_media_play_list.setText(0, "Playlist")
         self.file_tree.addTopLevelItem(self.qtw_media_play_list)
         self.file_tree.expandAll()
-        """self.file_tree.itemClicked.connect(self.onFileTreeItemClicked)
-        self.file_tree.itemEntered.connect(self.itemEntered)
-        self.file_tree.itemSelectionChanged.connect(self.itemSelectionChanged)
-        self.file_tree.itemChanged.connect(self.itemChanged)
-        self.file_tree.viewportEntered.connect(self.file_tree_viewportEntered)"""
+
         self.file_tree.setMouseTracking(True)
         # Add right clicked function signal/slot
         self.file_tree.setContextMenuPolicy(Qt.CustomContextMenu)
@@ -322,11 +332,38 @@ class MainUi(QMainWindow):
         self.right_layout.addWidget(self.file_tree_widget)
 
     def initial_led_layout_page(self):
-        self.led_setting_cabnet = QWidget(self.right_frame)
         self.led_setting = QWidget(self.right_frame)
-        led_setting_layout = QVBoxLayout()
-        self.led_setting.setLayout(led_setting_layout)
-        led_setting_layout.addWidget(self.led_setting_cabnet)
+        ''' led setting options'''
+        self.led_setting_width_textlabel = QLabel(self.right_frame)
+        self.led_setting_width_textlabel.setText('LED Wall Width:')
+        self.led_setting_width_editbox = QLineEdit(self.right_frame)
+        self.led_setting_width_editbox.setFixedWidth(120)
+        self.led_setting_width_editbox.setText(str(self.led_wall_width))
+        self.led_setting_height_textlabel = QLabel(self.right_frame)
+        self.led_setting_height_textlabel.setText('LED Wall Height:')
+        self.led_setting_height_editbox = QLineEdit(self.right_frame)
+        self.led_setting_height_editbox.setFixedWidth(120)
+        self.led_setting_height_editbox.setText(str(self.led_wall_height))
+        self.led_res_check_btn = QPushButton()
+        self.led_res_check_btn.clicked.connect(self.set_led_wall_size)
+        self.led_res_check_btn.setText("Confirm")
+
+
+        self.led_setting_layout = QGridLayout()
+
+        self.led_setting_layout.addWidget(self.led_setting_width_textlabel, 0, 1)
+        self.led_setting_layout.addWidget(self.led_setting_width_editbox, 0, 2)
+        self.led_setting_layout.addWidget(self.led_setting_height_textlabel, 0, 3)
+        self.led_setting_layout.addWidget(self.led_setting_height_editbox, 0, 4)
+        self.led_setting_layout.addWidget(self.led_res_check_btn, 0, 5)
+
+        self.led_setting.setLayout(self.led_setting_layout)
+
+        self.led_fake_label = QLabel(self.right_frame)
+        self.led_fake_pixmap = utils.qtui_utils.gen_led_layout_type_pixmap(400, 300, 30, 0)
+        self.led_fake_label.setPixmap(self.led_fake_pixmap)
+        self.led_setting_layout.addWidget(self.led_fake_label, 1, 0, 1, 5)
+        self.led_setting_layout.setRowStretch(1, 1)
         self.right_layout.addWidget(self.led_setting)
 
 
@@ -341,17 +378,22 @@ class MainUi(QMainWindow):
 
     def fun_connect_clients(self):
         log.debug("connect clients")
-
-        self.right_layout.setCurrentIndex(0)
+        self.page_idx = 0
+        self.right_layout.setCurrentIndex(self.page_idx)
+        self.page_status_change()
 
     def func_file_contents(self):
         log.debug("file contents")
+        self.page_idx = 1
+        self.right_layout.setCurrentIndex(self.page_idx)
+        self.page_status_change()
 
-        self.right_layout.setCurrentIndex(1)
-
-    def func_testA(self):
-        log.debug("testA")
-        self.right_layout.setCurrentIndex(2)
+    def func_led_setting(self):
+        log.debug("func_led_setting")
+        self.page_idx = 2
+        self.right_layout.setCurrentIndex(self.page_idx)
+        self.page_status_change()
+        self.led_layout_window.show()
         """file = QFileDialog().getOpenFileName()
         log.debug("file_uri:", file[0])
         update_utils.upload_client_image(file[0])"""
@@ -406,20 +448,9 @@ class MainUi(QMainWindow):
         data = arg.get("data")
         port = arg.get("port")
 
-        #print("platform.machine :", platform.machine())
-
         ip = net_utils.get_ip_address()
-        if platform.machine() in ('arm', 'arm64', 'aarch64'):
-            if ip == "":
-                log.info("ip = NULL")
-                if platform.machine() in ('arm', 'arm64', 'aarch64'):
-                    ifname = 'eth0'
-                else:
-                    ifname = 'enp8s0'
-                cmd = 'ifconfig' + ' ' + ifname + ' ' +  '192.168.0.3'
-                os.system(cmd)
+        utils.net_utils.force_set_eth_ip()
 
-        #print("ip : ", ip)
         msg = data.encode()
         if ip != "":
             #print(f'sending on {ip}')
@@ -547,10 +578,6 @@ class MainUi(QMainWindow):
                         border-radius: 8px;
                         }
                     """)
-        #font = QFont('Microsoft Sans Serif', popmenu_font_size)
-        #popMenu.setFont(font)
-
-
 
         playAct = QAction("Play", self)
         popMenu.addAction(playAct)
@@ -599,7 +626,6 @@ class MainUi(QMainWindow):
                 log.debug("Goto upgrade!")
                 ips = []
                 ips.append(self.right_click_select_client_ip)
-
                 utils.update_utils.upload_update_swu_to_client(ips, upgrade_file_uri[0], utils.update_utils.update_client_callback)
             else:
                 return
@@ -620,7 +646,7 @@ class MainUi(QMainWindow):
         self.play_type = play_type.play_playlist
         thread_1 = threading.Thread(target=utils.ffmpy_utils.ffmpy_execute_list, args=(self, self.media_play_list, ))
         thread_1.start()
-        #utils.ffmpy_utils.ffmpy_execute_list(self, self.media_play_list)
+
 
     def stop_media_trigger(self):
         log.debug("")
@@ -678,18 +704,6 @@ class MainUi(QMainWindow):
         if self.media_preview_widget.isVisible() is True:
             self.media_preview_widget.hide()
             self.preview_file_name = ""
-
-    """def itemEntered(self ):
-        log.debug("itemEntered")
-
-    def itemSelectionChanged(self):
-        log.debug("itemSelectionChanged")
-
-    def itemChanged(self):
-        log.debug("itemChanged")
-
-    def file_tree_viewportEntered(self):
-        log.debug("file_tree_viewportEntered")"""
 
     def cmouseMove(self, event):
         #log.debug("cmouseMove")
@@ -756,7 +770,7 @@ class MainUi(QMainWindow):
                     cmd = "get_version"
                 param = "get_version"
                 c.send_cmd(cmd=cmd, cmd_seq_id=self.cmd_seq_id_increase(), param=param)
-            time.sleep(1)'''
+            time.sleep(0.1)'''
             for c in self.clients:
                 for i in range(4):
                     if i == 4:
@@ -773,10 +787,7 @@ class MainUi(QMainWindow):
                     c.send_cmd(cmd=cmd, cmd_seq_id=self.cmd_seq_id_increase(), param=param)
                     time.sleep(0.1)
 
-
     def client_send_cmd_ret(self, ret, send_cmd, recvData=None, client_ip=None, client_reply_port=None):
-
-
         if ret is False:
             log.fatal("client_ip : %s", client_ip)
             #self.send_cmd_fail_msg.hide()
@@ -797,3 +808,25 @@ class MainUi(QMainWindow):
             '''if self.send_cmd_fail_msg is not None:
                 self.send_cmd_fail_msg.destroy()
                 self.send_cmd_fail_msg = None'''
+
+
+    def page_status_change(self):
+        if self.page_idx == 0:
+            self.page_status.showMessage("Client Page")
+        elif self.page_idx == 1:
+            self.page_status.showMessage("Meida Page")
+        elif self.page_idx == 2:
+            self.page_status.showMessage("LED Setting Page")
+
+        '''如果不是在led setting 頁面,把layout視窗關閉'''
+        if self.page_idx != 2:
+            if self.led_layout_window.isVisible() is True:
+                self.led_layout_window.hide()
+
+    
+    def set_led_wall_size(self):
+        self.led_wall_width = int(self.led_setting_width_editbox.text())
+        self.led_wall_height = int(self.led_setting_height_editbox.text())
+        log.debug("%d", self.led_wall_width)
+        log.debug("%d", self.led_wall_height)
+        self.led_layout_window.change_led_wall_res(self.led_wall_width,self.led_wall_height, default_led_wall_margin)

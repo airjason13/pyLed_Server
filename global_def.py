@@ -13,6 +13,7 @@ udp_sink = "udp://239.11.11.11:15000"
 cmd_timeout = 2
 g_client_udp_cmd_port=11335
 
+
 """Media folder"""
 if platform.machine() in ('arm', 'arm64', 'aarch64'):
     internal_media_folder="/home/root/Videos"
@@ -39,8 +40,13 @@ class repeat_option(enum.IntEnum):
 
 
 """ UI relative"""
-popmenu_font_size=15
-media_btn_width=110
+popmenu_font_size = 15
+media_btn_width = 110
 
 """ Cmd relative"""
 cmd_spliter = ";"
+
+"""default led params"""
+default_led_wall_width = 80
+default_led_wall_height = 96
+default_led_wall_margin = 10

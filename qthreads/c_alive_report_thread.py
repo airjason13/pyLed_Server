@@ -36,5 +36,6 @@ class alive_report_thread(QThread):
                         self.check_client.emit(addr[0], data.decode())
                 time.sleep(0.001)
             except Exception as e:
-                log.error(e)
+                pass
+                #log.error(e)
             time.sleep(0.001)

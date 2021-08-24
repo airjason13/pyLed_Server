@@ -4,6 +4,8 @@ import struct
 import netifaces as ni
 import utils.log_utils
 from global_def import *
+import platform
+import os
 
 log = utils.log_utils.logging_init('net_utils')
 
@@ -69,4 +71,14 @@ def send_udp_cmd(*args, **kwargs):
     finally:
         sock.close()
 
-
+def force_set_eth_ip():
+    ip = get_ip_address()
+    if platform.machine() in ('arm', 'arm64', 'aarch64'):
+        if ip == "":
+            log.info("ip = NULL")
+            if platform.machine() in ('arm', 'arm64', 'aarch64'):
+                ifname = 'eth0'
+            else:
+                ifname = 'enp8s0'
+            cmd = 'ifconfig' + ' ' + ifname + ' ' + '192.168.0.3'
+            os.system(cmd)

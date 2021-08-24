@@ -50,3 +50,4 @@ def update_client_callback(ip, ret):
         log.info("%s update OK!", ip)
     else:
         log.info("%s update NG!", ip)
+
