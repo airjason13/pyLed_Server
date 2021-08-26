@@ -58,69 +58,54 @@ def gen_led_layout_pixmap(led_w, led_h, margin, bg_color, point_color):
     log.debug("pixmap_led_layout height : %d", pixmap_led_layout.height())
     return pixmap_led_layout
 
-''' scale factor is 4'''
-''' not used now'''
-def gen_led_cabinet_pixmap_x2(led_w, led_h, margin, bg_color, point_color, alpha, layout_type):
-    log.debug('')
-    '''margin is 0 pixel, left/right/up/bottom is 0 pixel'''
-    arrow_width = 1
-    pixmap_led_layout_type = QPixmap(led_w*2 , led_h*2 )
-    pixmap_led_layout_type.fill(bg_color)
-    pixmap_paint = QPainter(pixmap_led_layout_type)
-    pixmap_paint.setPen(point_color)
-    if margin == 0:
-        max_line = led_h*4
-    else:
-        max_line = int(led_h*2 / margin) + 1
-    
-
-    if layout_type == 0:
-        for i in range( max_line ):
-            if i % 4 == 0 : #or i % 4 == 2:
-                pixmap_paint.drawLine(margin, margin + i , led_w*2 + margin, margin + i)
-            #elif i % 4 == 1:
-            #    pixmap_paint.drawLine(margin, margin + (i), margin, margin + (i + 2))
-            #elif i % 4 == 3:
-            #    pixmap_paint.drawLine(margin+ led_w*2-1, margin + (i), margin + led_w*2-1, margin + (i + 2))'''
 
 ''' scale factor is 4'''
-def gen_led_cabinet_pixmap(led_w, led_h, margin, bg_color, point_color, alpha, layout_type):
+def gen_led_cabinet_pixmap(led_w, led_h, client_id, port_num, margin=0, layout_type=0,
+                           bg_color=Qt.GlobalColor.transparent, line_color=Qt.GlobalColor.red, str_color=Qt.GlobalColor.yellow):
     '''margin is 0 pixel, left/right/up/bottom is 0 pixel'''
+    scale_factor = 4
     arrow_width = 1
-    pixmap_led_layout_type = QPixmap(led_w*4 , led_h*4 )
+    pixmap_led_layout_type = QPixmap(led_w*scale_factor , led_h*scale_factor )
     pixmap_led_layout_type.fill(bg_color)
     pixmap_paint = QPainter(pixmap_led_layout_type)
-    pixmap_paint.setPen(point_color)
+    pixmap_paint.setPen(line_color)
+    str_port_id = str(client_id) + "-" + str(port_num)
     if margin == 0:
-        max_line = led_h*4
+        max_line = led_h*scale_factor
     else:
         max_line = int(led_h*4 / margin) + 1
-    '''draw line'''
+
+
     h_drawed = 0
     if layout_type == 0:
         for i in range( max_line):
-            if i == max_line:
-                log.debug("max line")
-            if i == 0:
+            if i < 2:
                 continue
-            if i % 8 == 1 or i % 8 == 5:
-                pixmap_paint.drawLine(margin, margin + i , led_w*4 + margin, margin + i)
+            '''draw line'''
+            if i % 8 == 2 or i % 8 == 6:
+                pixmap_paint.drawLine(margin, margin + i, led_w * 4 + margin, margin + i)
+                ''' check line number'''
                 h_drawed += 1
                 if h_drawed >= led_h:
                     break
-            elif i % 8 == 0 or i % 8 == 6 or i % 8 == 7 :
-                pixmap_paint.drawLine(margin, margin + (i), margin, margin + (i + 1))
-            elif i % 8 == 2 or i % 8 == 3 or i % 8 == 4:
-                pixmap_paint.drawLine(margin + led_w * 4 , margin + (i), margin + led_w * 4 , margin + (i + 1))
-    elif layout_type == 1:
+            elif i % 8 == 7 : #or i % 8 == 7:
+                pixmap_paint.drawLine(margin, margin + (i), margin, margin + (i + 3))
+            elif i % 8 == 3: #or i % 8 == 3 or i % 8 == 6:  # or i % 8 == 4:
+                pixmap_paint.drawLine(margin + led_w * 4 - 1, margin + (i), margin + led_w * 4 - 1, margin + (i + 3))
+        '''draw arrow'''
+        pixmap_paint.drawLine(margin, margin, 2, 2)
+        pixmap_paint.drawLine(margin, 4, 2, 2)
+
+    '''elif layout_type == 1:
         for i in range(max_line):
             if i % 4 == 0 or i % 4 == 2:
                 pixmap_paint.drawLine(margin, margin + i, led_w * 2 + margin, margin + i)
             elif i % 4 == 1:
                 pixmap_paint.drawLine(margin + led_w * 2 - 1, margin + (i), margin + led_w * 2 - 1, margin + (i + 1))
             elif i % 4 == 3:
-                pixmap_paint.drawLine(margin, margin + (i), margin, margin + (i + 1))
+                pixmap_paint.drawLine(margin, margin + (i), margin, margin + (i + 1))'''
 
-
-
+    '''draw str_port_id'''
+    pixmap_paint.setPen(str_color)
+    pixmap_paint.drawText(led_w, led_h, str_port_id)
     return pixmap_led_layout_type

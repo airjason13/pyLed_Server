@@ -46,6 +46,8 @@ class MainUi(QMainWindow):
         self.led_wall_height = default_led_wall_height
         self.led_cabinet_width = default_led_cabinet_width
         self.led_cabinet_height = default_led_cabinet_height
+        self.led_wall_width = 40
+        self.led_wall_height = 24
         self.led_layout_window = LedLayoutWindow(self.led_wall_width, self.led_wall_height,
                                                  self.led_cabinet_width, self.led_cabinet_height,
                                                  default_led_wall_margin)
