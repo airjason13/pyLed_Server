@@ -1,5 +1,6 @@
 from PyQt5.QtCore import QThread, pyqtSignal, QDateTime, QObject
-from PyQt5.QtWidgets import QMessageBox
+from PyQt5.QtWidgets import QMessageBox, QFrame, QLabel
+from PyQt5.QtCore import Qt, QMutex, pyqtSlot
 import qdarkstyle
 import utils.log_utils
 import utils.net_utils
@@ -10,7 +11,7 @@ import asyncio
 log = utils.log_utils.logging_init('c_client')
 
 class client(QObject):
-    alive_val_def = 3
+    alive_val_def = 2
     ''' ret, send_cmd, recv_data, client_ip, client_reply_port '''
     send_cmd_ret = pyqtSignal(bool, str, str, str, int)
     def __init__(self, client_ip, server_ip, client_version, client_id, **kwargs):
@@ -25,6 +26,8 @@ class client(QObject):
         self.alive_val = self.alive_val_def
         self.id = -1
         self.loop = asyncio.get_event_loop()
+
+
 
 
     def send_cmd(self,  cmd, cmd_seq_id, param):
@@ -69,3 +72,7 @@ class client(QObject):
 
     def set_client_version(self, version):
         self.client_version = version
+
+    '''def show_port_layout_information_widget(self, str_port_id):
+        log.debug("")
+        self.port_layout_infomation_widget.show()'''

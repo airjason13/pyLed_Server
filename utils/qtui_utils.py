@@ -53,7 +53,6 @@ def gen_led_layout_pixmap(led_w, led_h, margin, bg_color, point_color):
                 continue
             if h%scale_factor != 0:
                 continue
-            log.debug("margin + h : %d", margin + h)
             pixmap_paint.drawPoint(margin + w, margin + 4 + h)  #why add 4???
     log.debug("pixmap_led_layout width : %d", pixmap_led_layout.width())
     log.debug("pixmap_led_layout height : %d", pixmap_led_layout.height())
@@ -85,10 +84,10 @@ def gen_led_cabinet_pixmap(led_w, led_h, client_id, port_num, margin=0, layout_t
                 ''' check line number'''
                 h_drawed += 1
             elif i % (scale_factor*2) == line_interval + scale_factor + 1:
-                log.debug("left line")
+                #log.debug("left line")
                 pixmap_paint.drawLine(margin, margin + (i), margin, margin + (i + (scale_factor)))
             elif i % (scale_factor * 2) == line_interval + 1:
-                log.debug("left line")
+                #log.debug("left line")
                 pixmap_paint.drawLine(((led_w - 1) * scale_factor )+ margin, margin + (i), ((led_w - 1) * scale_factor )+ margin, margin + (i + (scale_factor)))
             if h_drawed >= led_h:
                 break

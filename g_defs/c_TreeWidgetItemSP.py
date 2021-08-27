@@ -13,11 +13,3 @@ class CTreeWidget(QTreeWidget):
         #log.debug("%s", self.itemAt(event.x(), event.y()).text(0))
         self.mouseMove.emit(event)
 
-        """if QApplication.keyboardModifiers()&(Qt.ShiftModifier|Qt.ControlModifier):
-            log.debug("mouseMoveEvent")
-            QTreeWidget.mouseMoveEvent(self, event)"""
-
-    """def mousePressEvent(self, event):
-        if QApplication.keyboardModifiers()&(Qt.ShiftModifier|Qt.ControlModifier):
-            log.debug("mousePressEvent")
-            QTreeWidget.mousePressEvent(self, event)"""

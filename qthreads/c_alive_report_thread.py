@@ -29,7 +29,7 @@ class alive_report_thread(QThread):
                 #self.check_client.emit("192.168.0.99")
                 data, addr = self.recv_socket.recvfrom(2048)
                 if data is not None:
-                    log.debug("recv from : %s", addr)
+                    #log.debug("recv from : %s", addr)
                     #log.debug("recv len: %s", len(data))
                     #log.debug("recv data: %s", data)
                     if "alive" in data.decode():

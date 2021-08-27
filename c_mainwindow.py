@@ -42,15 +42,19 @@ class MainUi(QMainWindow):
         self.setWindowOpacity(0.9)  # 设置窗口透明度
         self.setStyleSheet(qdarkstyle.load_stylesheet_pyqt5())
 
+        ''' Set Led layout params'''
         self.led_wall_width = default_led_wall_width
         self.led_wall_height = default_led_wall_height
         self.led_cabinet_width = default_led_cabinet_width
         self.led_cabinet_height = default_led_cabinet_height
-        #self.led_wall_width = 40
-        #self.led_wall_height = 24
+
         self.led_layout_window = LedLayoutWindow(self.led_wall_width, self.led_wall_height,
                                                  self.led_cabinet_width, self.led_cabinet_height,
                                                  default_led_wall_margin)
+
+        self.client_led_layout = []
+
+        '''main ui right frame page index'''
         self.page_idx = 0
 
         #initial streaming ffmpy status
@@ -67,10 +71,6 @@ class MainUi(QMainWindow):
         self.setWindowTitle("LED Server")
 
         #get eth0 ip and set it to server_ip
-        '''if platform.machine() in ('arm', 'arm64', 'aarch64'):
-            ifname = 'eth0'
-        else:
-            ifname = 'enp8s0'''''
         self.server_ip = net_utils.get_ip_address()
         self.clients = []
         self.clients_mutex = QMutex()
@@ -221,7 +221,7 @@ class MainUi(QMainWindow):
     def initial_media_file_page(self):
         # QTreeWidgetFile Tree in Tab.2
         self.file_tree = CTreeWidget(self.right_frame)
-        self.file_tree.mouseMove.connect(self.cmouseMove)
+        self.file_tree.mouseMove.connect(self.media_page_mouseMove)
         self.file_tree.setSelectionMode(QAbstractItemView.MultiSelection)
         self.file_tree.setColumnCount(1)
         self.file_tree.setColumnWidth(0, 300)
@@ -275,8 +275,6 @@ class MainUi(QMainWindow):
         self.file_tree.customContextMenuRequested.connect(self.menuContextTree)
 
         log.debug("mount point : %s", utils.file_utils.get_mount_points())
-        # log.debug("%s", self.file_tree.indexOfTopLevelItem(internal_media_root))
-        # log.debug("%s", self.file_tree.itemAt( 0, 1).text(0))
 
         """play singal file btn"""
         self.btn_play_select_file = QPushButton(self.right_frame)
@@ -365,13 +363,34 @@ class MainUi(QMainWindow):
 
         self.led_setting.setLayout(self.led_setting_layout)
 
-        self.led_fake_label = QLabel(self.right_frame)
-        self.led_fake_pixmap = utils.qtui_utils.gen_led_layout_type_pixmap(400, 300, 30, 0)
-        self.led_fake_label.setPixmap(self.led_fake_pixmap)
-        self.led_setting_layout.addWidget(self.led_fake_label, 1, 0, 1, 5)
+
+        #self.led_setting_layout.addWidget(self.led_fake_label, 1, 0, 1, 5)
+        self.led_client_layout_tree = CTreeWidget(self.right_frame)
+        self.led_client_layout_tree.mouseMove.connect(self.led_client_layout_mouse_move)
+        self.led_client_layout_tree.setMouseTracking(True)
+        self.led_client_layout_tree.setSelectionMode(QAbstractItemView.MultiSelection)
+
+        self.led_client_layout_tree.setColumnCount(1)
+        self.led_client_layout_tree.setColumnWidth(0, 300)
+        self.led_client_layout_tree.headerItem().setText(0, "Client Layout")
+
+
+        font = QFont()
+        font.setPointSize(24)
+        self.led_client_layout_tree.setFont(font)
+
+
+        self.led_setting_layout.addWidget(self.led_client_layout_tree, 1, 0, 1, 6)
+
         self.led_setting_layout.setRowStretch(1, 1)
         self.right_layout.addWidget(self.led_setting)
 
+        port_layout_infomation_widget = QLabel()
+        port_layout_infomation_widget.setFrameShape(QFrame.StyledPanel)
+        port_layout_infomation_widget.setWindowFlags(Qt.ToolTip)
+        port_layout_infomation_widget.setAttribute(Qt.WA_TransparentForMouseEvents)
+        port_layout_infomation_widget.hide()
+        self.port_layout_infomation_widget = port_layout_infomation_widget
 
     def center(self):
         '''
@@ -444,9 +463,8 @@ class MainUi(QMainWindow):
             log.debug(e)
         finally:
             self.clients_unlock()
-        """for c in self.clients:
-            log.debug("client.ip : %s", c.client_ip)
-            log.debug("client.alive_val : %s", c.alive_val)"""
+
+
 
 
     """send broadcast on eth0"""
@@ -499,6 +517,21 @@ class MainUi(QMainWindow):
 
         sleep(sleep_time)
 
+        ''' led layout page treewidget show'''
+        if ori_len != len(self.clients):
+            self.client_led_layout.clear()
+            self.led_client_layout_tree.clear()
+
+            for c in self.clients:
+                client_led_layout = QTreeWidgetItem(self.led_client_layout_tree)
+                client_led_layout.setText(0, "id:" + str(c.client_id) + "(ip:" + c.client_ip + ")")
+                for i in range(8):
+                    port_layout = QTreeWidgetItem(client_led_layout)
+                    port_layout.setText(0, "port" + str(i) + ":")
+                self.client_led_layout.append(client_led_layout)
+
+            #self.led_client_layout_tree.
+
 
     def refresh_client_table(self):
         row_count = self.client_table.rowCount()
@@ -512,6 +545,9 @@ class MainUi(QMainWindow):
             self.client_table.setItem(row_count, 0, QTableWidgetItem(c.client_ip))
             self.client_table.setItem(row_count, 1, QTableWidgetItem(str(c.client_id)))
             self.client_table.setItem(row_count, 3, QTableWidgetItem(c.client_version))
+
+
+
 
     @pyqtSlot(QtWidgets.QTreeWidgetItem, int)
     def onFileTreeItemClicked(self, it, col):
@@ -618,8 +654,6 @@ class MainUi(QMainWindow):
         elif q.text() == "fw upgrade":
             log.debug("fw upgrade")
             if platform.machine() in ('arm', 'arm64', 'aarch64'):
-                #upgrade_file_uri, upgrade_file_type = QFileDialog.getOpenFileUrl(self,"Select Upgrade File", "/home/root/", "SWU File (*.swu)" )
-                #upgrade_file_uri, upgrade_file_type = QFileDialog.getOpenFileUrl(None,"Select Upgrade File", "/home/root/", "All Files (*);;")
                 upgrade_file_uri = QFileDialog.getOpenFileName(None, "Select Upgrade File", "/home/root/")
             else:
                 upgrade_file_uri = QFileDialog.getOpenFileName(None, "Select Upgrade File", "/home/venom/","SWU File (*.swu)")
@@ -710,17 +744,44 @@ class MainUi(QMainWindow):
         if self.media_preview_widget.isVisible() is True:
             self.media_preview_widget.hide()
             self.preview_file_name = ""
+        if self.port_layout_infomation_widget.isVisible() is True:
+            self.port_layout_infomation_widget.hide()
 
-    def cmouseMove(self, event):
-        #log.debug("cmouseMove")
+    '''media page mouse move slot'''
+    def led_client_layout_mouse_move(self, event):
+        if self.led_client_layout_tree.itemAt(event.x(), event.y()) is None:
+            if self.port_layout_infomation_widget.isVisible() is True:
+                self.port_layout_infomation_widget.hide()
+            return
+        if self.led_client_layout_tree.itemAt(event.x(), event.y()).text(0).startswith("id"):
+            if self.port_layout_infomation_widget.isVisible() is True:
+                self.port_layout_infomation_widget.hide()
+        else:
+
+            self.port_layout_infomation_widget.setText("port layout :\n" +
+                                                       "width :\n" +
+                                                       "height :\n" +
+                                                       "layout_type :\n" +
+                                                       "start_point :\n"
+                                                       )
+            self.port_layout_infomation_widget.setGeometry(self.x() + self.right_frame.x() + self.led_client_layout_tree.x() + event.x() + 200,
+                                                           self.y() + self.right_frame.y() + self.led_client_layout_tree.y() + event.y() + 100,
+                                                           320, 240)
+            self.port_layout_infomation_widget.show()
+
+
+
+    '''media page mouse move slot'''
+    def media_page_mouseMove(self, event):
+        log.debug("media_page_mouseMove")
         
         #log.debug("%s", QMovie.supportedFormats())
         if self.file_tree.itemAt(event.x(), event.y()) is None:
             if self.media_preview_widget.isVisible() is True:
                 self.media_preview_widget.hide()
             return
-        #log.debug("cmouseMove %s", self.file_tree.itemAt(event.x(), event.y()).text(0))
-        if self.file_tree.itemAt(event.x(), event.y()).text(0) in  ["Internal Media", "External Media:", "Playlist"]:
+        #log.debug("media_page_mouseMove %s", self.file_tree.itemAt(event.x(), event.y()).text(0))
+        if self.file_tree.itemAt(event.x(), event.y()).text(0) in ["Internal Media", "External Media:", "Playlist"]:
             #log.debug("None treewidgetitem")
             if self.media_preview_widget.isVisible() is True:
                 self.media_preview_widget.hide()
@@ -737,6 +798,7 @@ class MainUi(QMainWindow):
                 self.media_preview_widget.setMovie(self.movie)
                 self.movie.start()
                 self.media_preview_widget.show()
+
 
     def cmd_seq_id_lock(self):
         self.cmd_seq_id_mutex.lock()
