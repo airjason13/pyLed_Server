@@ -46,8 +46,8 @@ class MainUi(QMainWindow):
         self.led_wall_height = default_led_wall_height
         self.led_cabinet_width = default_led_cabinet_width
         self.led_cabinet_height = default_led_cabinet_height
-        self.led_wall_width = 40
-        self.led_wall_height = 24
+        #self.led_wall_width = 40
+        #self.led_wall_height = 24
         self.led_layout_window = LedLayoutWindow(self.led_wall_width, self.led_wall_height,
                                                  self.led_cabinet_width, self.led_cabinet_height,
                                                  default_led_wall_margin)
@@ -835,4 +835,6 @@ class MainUi(QMainWindow):
         self.led_wall_height = int(self.led_setting_height_editbox.text())
         log.debug("%d", self.led_wall_width)
         log.debug("%d", self.led_wall_height)
-        self.led_layout_window.change_led_wall_res(self.led_wall_width,self.led_wall_height, default_led_wall_margin)
+        self.led_layout_window.change_led_wall_res(self.led_wall_width,
+                                                   self.led_wall_height,
+                                                   default_led_wall_margin)

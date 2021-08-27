@@ -13,10 +13,10 @@ log = utils.log_utils.logging_init(__file__)
 class LedLayoutWindow(QWidget):
     def __init__(self, led_wall_w, led_wall_h, cabinet_w, cabinet_h, margin):
         super(LedLayoutWindow, self).__init__()
-        self.scale_factor = 4
+        self.scale_factor = 8 #need to set into drag and drop label
         self.led_wall_margin = margin
         self.setWindowTitle("LED Wall layout")
-        self.resize(led_wall_w*self.scale_factor + margin*2, led_wall_h*self.scale_factor + margin*2)
+
         self.led_wall_w = led_wall_w
         self.led_wall_h = led_wall_h
         self.cabinet_w = cabinet_w
@@ -42,6 +42,13 @@ class LedLayoutWindow(QWidget):
         self.single_cabinet_label.start_drag_signal.connect(self.start_drag)
         self.led_fake_label.label_drop_signal.connect(self.label_drop)
         self.single_cabinet_label.label_drop_signal.connect(self.label_drop_on_drag_label)
+        self.led_fake_label.move(0, 0)
+        log.debug("self.led_fake_label.width() :%d ", self.led_fake_label.width())
+        log.debug("self.led_fake_label.height() : %d ", self.led_fake_label.height())
+        log.debug("self.width() :%d ", self.width())
+        log.debug("self.height() : %d ", self.height())
+
+
 
     ''' slot function for start drag'''
     def start_drag(self, drag_label, start_offset):
@@ -59,36 +66,79 @@ class LedLayoutWindow(QWidget):
 
         drop_global_x = pos.x() + self.drag_label_ori_pos.x()
         drop_global_y = pos.y() + self.drag_label_ori_pos.y()
-        log.debug("drop_global_x() : %d", drop_global_x)
-        log.debug("drop_global_y : %d", drop_global_y)
-        final_pos_x = drop_global_x - self.drag_label_ori_offset.x() + self.drag_label_ori_pos.x()
-        final_pos_y = drop_global_y - self.drag_label_ori_offset.y() + self.drag_label_ori_pos.y()
-        log.debug("self.drag_label_ori_offset.x() : %d", self.drag_label_ori_offset.x())
-        log.debug("self.drag_label_ori_offset.y() : %d", self.drag_label_ori_offset.y())
-        log.debug("self.drag_label_ori_pos.x() : %d", self.drag_label_ori_pos.x())
-        log.debug("self.drag_label_ori_pos.y() : %d", self.drag_label_ori_pos.y())
+        final_pos_x_tmp = drop_global_x - self.drag_label_ori_offset.x() + self.drag_label_ori_pos.x()
+        final_pos_y_tmp = drop_global_y - self.drag_label_ori_offset.y() + self.drag_label_ori_pos.y()
+        final_pos_x = final_pos_x_tmp
+        final_pos_y = final_pos_y_tmp
+        log.debug("final_pos_x_tmp : %d", final_pos_x_tmp)
+        log.debug("final_pos_y_tmp : %d", final_pos_y_tmp)
+        '''re-match'''
+        '''x_pix_factor 為 對應的led_wall 的 x點數座標'''
+        '''y_pix_factor 為 對應的led_wall 的 y點數座標'''
+        x_pix_factor = int(final_pos_x/self.scale_factor)
+        y_pix_factor = int(final_pos_x / self.scale_factor)
+        if (final_pos_x_tmp - self.led_wall_margin ) % (self.scale_factor ) > (self.scale_factor/2):
+            x_pix_factor = int((final_pos_x_tmp - self.led_wall_margin ) / (self.scale_factor ))
+            final_pos_x = self.led_wall_margin + x_pix_factor*self.scale_factor
+        else:
+            x_pix_factor = int((final_pos_x_tmp - self.led_wall_margin) / (self.scale_factor))
+            final_pos_x = self.led_wall_margin + x_pix_factor * self.scale_factor
+
+        if (final_pos_y_tmp - self.led_wall_margin ) % (self.scale_factor ) > (self.scale_factor/2):
+            y_pix_factor = int((final_pos_y_tmp - self.led_wall_margin ) / (self.scale_factor ))
+            final_pos_y = self.led_wall_margin + y_pix_factor*self.scale_factor
+        else:
+            y_pix_factor = int((final_pos_y_tmp - self.led_wall_margin) / (self.scale_factor))
+            final_pos_y = self.led_wall_margin + y_pix_factor * self.scale_factor
+
         log.debug("final_pos_x : %d", final_pos_x)
         log.debug("final_pos_y : %d", final_pos_y)
+        log.debug("x_pix_factor : %d", x_pix_factor)
+        log.debug("y_pix_factor : %d", y_pix_factor)
         drop_label.move(final_pos_x, final_pos_y)
 
     ''' slot function for drop signal'''
     def label_drop(self, drop_label, pos):
         log.debug("label_drop")
-        final_pos_x = (pos.x() - self.drag_label_ori_offset.x()) + self.drag_label_ori_pos.x()
-        final_pos_y = (pos.y() - self.drag_label_ori_offset.y()) + self.drag_label_ori_pos.y()
+        final_pos_x_tmp = (pos.x() - self.drag_label_ori_offset.x()) + self.drag_label_ori_pos.x()
+        final_pos_y_tmp = (pos.y() - self.drag_label_ori_offset.y()) + self.drag_label_ori_pos.y()
+        final_pos_x = final_pos_x_tmp
+        final_pos_y = final_pos_y_tmp
+        log.debug("final_pos_x_tmp : %d", final_pos_x_tmp)
+        log.debug("final_pos_y_tmp : %d", final_pos_y_tmp)
+        '''re-match'''
+        '''x_pix_factor 為 對應的led_wall 的 x點數座標'''
+        '''y_pix_factor 為 對應的led_wall 的 y點數座標'''
+        x_pix_factor = int(final_pos_x / self.scale_factor)
+        y_pix_factor = int(final_pos_x / self.scale_factor)
+        if (final_pos_x_tmp - self.led_wall_margin) % (self.scale_factor) > (self.scale_factor / 2):
+            x_pix_factor = int((final_pos_x_tmp - self.led_wall_margin) / (self.scale_factor))
+            final_pos_x = self.led_wall_margin + x_pix_factor * self.scale_factor
+        else:
+            x_pix_factor = int((final_pos_x_tmp - self.led_wall_margin) / (self.scale_factor))
+            final_pos_x = self.led_wall_margin + x_pix_factor * self.scale_factor
 
-        log.debug("pos.x() : %d", pos.x())
-        log.debug("pos.y() : %d", pos.y())
-        log.debug("self.drag_label_ori_offset.x() : %d", self.drag_label_ori_offset.x())
-        log.debug("self.drag_label_ori_offset.y() : %d", self.drag_label_ori_offset.y())
-        log.debug("self.drag_label_ori_pos.x() : %d", self.drag_label_ori_pos.x())
-        log.debug("self.drag_label_ori_pos.y() : %d", self.drag_label_ori_pos.y())
+        if (final_pos_y_tmp - self.led_wall_margin) % (self.scale_factor) > (self.scale_factor / 2):
+            y_pix_factor = int((final_pos_y_tmp - self.led_wall_margin) / (self.scale_factor))
+            final_pos_y = self.led_wall_margin + y_pix_factor * self.scale_factor
+        else:
+            y_pix_factor = int((final_pos_y_tmp - self.led_wall_margin) / (self.scale_factor))
+            final_pos_y = self.led_wall_margin + y_pix_factor * self.scale_factor
+
         log.debug("final_pos_x : %d", final_pos_x)
         log.debug("final_pos_y : %d", final_pos_y)
+        log.debug("x_pix_factor : %d", x_pix_factor)
+        log.debug("y_pix_factor : %d", y_pix_factor)
+
         drop_label.move(final_pos_x, final_pos_y)
 
+        #drop_label.move(final_pos_x, final_pos_y)
+
     def resizeEvent(self, a0: QResizeEvent) -> None:
-        #a0.size().width()
+        log.debug("resizeEvent")
+        self.led_wall_pixel_pixmap.scaled(self.width(), self.height())
+        self.led_fake_label.setPixmap(self.led_wall_pixel_pixmap)
+
         #self.led_fake_label.resize(int(self.width()), int(self.height()))
         #self.led_fake_label.resize(int(self.width()), int(self.height()))
         a0.accept()
@@ -96,14 +146,15 @@ class LedLayoutWindow(QWidget):
     def wheelEvent(self, a0: QWheelEvent) -> None:
         #scale_factor = 1
         if a0.angleDelta().y() > 0:
-            scale_factor = 2
+            scale_factor = 1.2
         else :
             scale_factor = 0.8
         self.resize(int(self.width() * scale_factor), int(self.height() * scale_factor))
 
         self.single_cabinet_label.resize(int(self.single_cabinet_label.width() * scale_factor),
                                          int(self.single_cabinet_label.height() * scale_factor))
-        self.led_fake_label.resize(int(self.led_fake_label.width()), int(self.led_fake_label.height()))
+        self.led_fake_label.resize(int(self.led_fake_label.width() * scale_factor),
+                                   int(self.led_fake_label.height() * scale_factor))
         #self.led_fake_label.resize(int(self.width()), int(self.height()))
 
         log.debug("single_cabinet_label width : %d", self.single_cabinet_label.width())
@@ -114,7 +165,7 @@ class LedLayoutWindow(QWidget):
 
     def change_led_wall_res(self, led_wall_w, led_wall_h, margin):
         log.debug("")
-        self.resize(led_wall_w * 2 + margin * 2, led_wall_h * 2 + margin * 2)
+        self.resize(led_wall_w * self.scale_factor + margin * 2, led_wall_h * self.scale_factor + margin * 2)
         self.led_fake_pixmap = utils.qtui_utils.gen_led_layout_pixmap(led_wall_w, led_wall_h, margin,
                                                                       Qt.GlobalColor.black, Qt.GlobalColor.white)
         self.led_fake_label.setPixmap(self.led_fake_pixmap)
@@ -133,6 +184,7 @@ class Draggable_cabinet_label(QLabel):
     def __init__(self, parent, image, start_x, start_y):
         super(QLabel, self).__init__(parent)
         self.setPixmap(QPixmap(image))
+        self.resize(QPixmap(image).width(), QPixmap(image).height())
         self.setScaledContents(True)
         self.move(start_x, start_y)
         self.show()
@@ -188,6 +240,8 @@ class Droppable_led_label(QLabel):
         super().__init__( parent)
 
         self.setPixmap(QPixmap(image))
+        self.resize(QPixmap(image).width(), QPixmap(image).height())
+
         self.setScaledContents(True)
         self.setAcceptDrops(True)
 
