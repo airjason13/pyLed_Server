@@ -1,6 +1,3 @@
-import sys
-
-import pyqtgraph
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
@@ -90,7 +87,6 @@ class LedLayoutWindow(QWidget):
         else:
             y_pix_factor = int((final_pos_y_tmp - self.led_wall_margin) / (self.scale_factor))
             final_pos_y = self.led_wall_margin + y_pix_factor * self.scale_factor
-
         log.debug("final_pos_x : %d", final_pos_x)
         log.debug("final_pos_y : %d", final_pos_y)
         log.debug("x_pix_factor : %d", x_pix_factor)

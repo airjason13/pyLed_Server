@@ -4,6 +4,7 @@ from PyQt5.QtCore import Qt, QMutex, pyqtSlot
 import qdarkstyle
 import utils.log_utils
 import utils.net_utils
+from g_defs.c_cabinet_params import cabinet_params
 from global_def import *
 import threading
 import asyncio
@@ -26,6 +27,11 @@ class client(QObject):
         self.alive_val = self.alive_val_def
         self.id = -1
         self.loop = asyncio.get_event_loop()
+        self.num_of_cabinet = 8
+        self.cabinets_setting = []
+        for i in range(self.cabinets_setting):
+            cabinet_setting = cabinet_params(0, 0, 0, -1, 0, 0)
+            self.cabinets_setting.append(cabinet_setting)
 
 
 

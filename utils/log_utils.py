@@ -17,7 +17,12 @@ print("log_dir = ", log_dir)
 
 os.makedirs(log_dir, exist_ok=True)
 
+def set_logging_level(l):
+    global log_level
+    log_level = l
+
 def logging_init(s):
+    global log_level
     log = logging.getLogger(s)
     formatter = logging.Formatter('%(asctime)s %(levelname)-8s[%(filename)s:%(lineno)d(%(funcName)s)] %(message)s')
     file_handler = RotatingFileHandler(os.path.join(log_dir,  'ledserver.log'),

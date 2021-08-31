@@ -9,6 +9,7 @@ from PyQt5.QtWidgets import QApplication
 import jqlocalserver
 import utils.log_utils
 import signal, traceback
+import logging
 
 
 def sighandler(signum, frame):
@@ -22,7 +23,11 @@ def sighandler(signum, frame):
 if __name__ == '__main__':
     log = utils.log_utils.logging_init(__file__)
     log.info('Main')
-    
+
+
+    global_debug_level = logging.FATAL
+    utils.log_utils.set_logging_level(global_debug_level)
+
     '''Insert signal handler'''
     log.info("Insert signal")
     '''for sig in dir(signal):

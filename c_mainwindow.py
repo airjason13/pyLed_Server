@@ -8,7 +8,7 @@ from PyQt5.QtWidgets import (QApplication, QMainWindow, QDesktopWidget, QStyleFa
                             QSlider, QLabel, QLineEdit, QPushButton, QTableWidget, QStackedLayout, QSplitter, QTreeWidget, QTreeWidgetItem,
                              QFileDialog, QListWidget, QFileSystemModel, QTreeView, QMenu, QAction, QAbstractItemView)
 from PyQt5.QtGui import QPalette, QColor, QBrush, QFont, QMovie, QPixmap, QPainter
-from PyQt5.QtCore import Qt, QMutex, pyqtSlot
+from PyQt5.QtCore import Qt, QMutex, pyqtSlot, QModelIndex
 import pyqtgraph as pg
 import qdarkstyle, requests, sys, time, random, json, datetime, re
 import socket
@@ -28,6 +28,7 @@ import utils.qtui_utils
 from random import *
 import utils.ffmpy_utils
 from c_led_layout_window import LedLayoutWindow
+from c_cabinet_setting_window import CabinetSettingWindow
 from g_defs.c_TreeWidgetItemSP import CTreeWidget
 
 log = utils.log_utils.logging_init(__file__)
@@ -51,6 +52,8 @@ class MainUi(QMainWindow):
         self.led_layout_window = LedLayoutWindow(self.led_wall_width, self.led_wall_height,
                                                  self.led_cabinet_width, self.led_cabinet_height,
                                                  default_led_wall_margin)
+
+        self.cabinet_setting_window = CabinetSettingWindow(None)
 
         self.client_led_layout = []
 
@@ -222,6 +225,7 @@ class MainUi(QMainWindow):
         # QTreeWidgetFile Tree in Tab.2
         self.file_tree = CTreeWidget(self.right_frame)
         self.file_tree.mouseMove.connect(self.media_page_mouseMove)
+
         self.file_tree.setSelectionMode(QAbstractItemView.MultiSelection)
         self.file_tree.setColumnCount(1)
         self.file_tree.setColumnWidth(0, 300)
@@ -241,6 +245,9 @@ class MainUi(QMainWindow):
             internal_file_item.setText(0, os.path.basename(f))
             utils.ffmpy_utils.gen_webp_from_video(internal_media_folder, os.path.basename(f))
             self.internal_media_root.addChild(internal_file_item)
+
+        self.file_tree.doubleClicked.connect(self.test_clicked)
+
 
         self.file_tree.addTopLevelItem(self.internal_media_root)
         self.file_tree.parentWidget().setMouseTracking(True)
@@ -337,6 +344,7 @@ class MainUi(QMainWindow):
 
     def initial_led_layout_page(self):
         self.led_setting = QWidget(self.right_frame)
+
         ''' led setting options'''
         self.led_setting_width_textlabel = QLabel(self.right_frame)
         self.led_setting_width_textlabel.setText('LED Wall Width:')
@@ -773,7 +781,7 @@ class MainUi(QMainWindow):
 
     '''media page mouse move slot'''
     def media_page_mouseMove(self, event):
-        log.debug("media_page_mouseMove")
+        #log.debug("media_page_mouseMove")
         
         #log.debug("%s", QMovie.supportedFormats())
         if self.file_tree.itemAt(event.x(), event.y()) is None:
@@ -900,3 +908,10 @@ class MainUi(QMainWindow):
         self.led_layout_window.change_led_wall_res(self.led_wall_width,
                                                    self.led_wall_height,
                                                    default_led_wall_margin)
+
+    def test_clicked(self, a0: QModelIndex)-> None:
+        #print("a0.row :", a0.row())
+        #print("a0.column :", a0.column())
+        log.debug("%s : ", self.file_tree.itemFromIndex(a0).text(0))
+
+
