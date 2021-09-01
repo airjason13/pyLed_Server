@@ -59,7 +59,7 @@ def gen_led_layout_pixmap(led_w, led_h, margin, bg_color, point_color):
     return pixmap_led_layout
 
 ''' scale factor is 8'''
-def gen_led_cabinet_pixmap(led_w, led_h, client_id, port_num, margin=0, layout_type=0,
+def gen_led_cabinet_pixmap(c_ip, c_id, c_portid, led_w, led_h, client_id, port_num, margin=0, layout_type=0,
                            bg_color=Qt.GlobalColor.transparent, line_color=Qt.GlobalColor.red, str_color=Qt.GlobalColor.yellow):
     '''margin is 0 pixel, left/right/up/bottom is 0 pixel'''
     scale_factor = 8
@@ -68,8 +68,10 @@ def gen_led_cabinet_pixmap(led_w, led_h, client_id, port_num, margin=0, layout_t
     pixmap_led_layout_type = QPixmap(led_w*scale_factor, led_h*scale_factor)
     pixmap_led_layout_type.fill(bg_color)
     pixmap_paint = QPainter(pixmap_led_layout_type)
+
     pixmap_paint.setPen(line_color)
-    str_port_id = str(client_id) + "-" + str(port_num)
+
+    str_port_id = str(c_id) + "-" + str(c_portid)
     if margin == 0:
         max_line = led_h*scale_factor
     else:

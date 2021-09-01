@@ -15,6 +15,9 @@ class client(QObject):
     alive_val_def = 2
     ''' ret, send_cmd, recv_data, client_ip, client_reply_port '''
     send_cmd_ret = pyqtSignal(bool, str, str, str, int)
+
+
+    '''init'''
     def __init__(self, client_ip, server_ip, client_version, client_id, **kwargs):
         super(client, self).__init__(**kwargs)
 
@@ -31,7 +34,7 @@ class client(QObject):
         self.num_of_cabinet = 8
         self.cabinets_setting = []
         for i in range(self.num_of_cabinet):
-            cabinet_setting = cabinet_params(self.client_ip, i, 0, 0, -1, 0, 0)
+            cabinet_setting = cabinet_params(self.client_ip, -1, i, 0, 0, -1, 0, 0)
             self.cabinets_setting.append(cabinet_setting)
 
 

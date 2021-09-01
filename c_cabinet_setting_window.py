@@ -1,24 +1,31 @@
+import copy
+
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 import utils.qtui_utils
 from g_defs.c_cabinet_params import cabinet_params
+
 import utils.log_utils
 
 log = utils.log_utils.logging_init(__file__)
 
 class CabinetSettingWindow(QWidget):
     set_cabinet_params_signal = pyqtSignal(cabinet_params)
+    draw_temp_cabinet_signal = pyqtSignal(cabinet_params)
     def __init__(self,  c_params, **kwargs):
         super(CabinetSettingWindow, self).__init__()
         if c_params is None:
-            self.cabinet_params = cabinet_params("?", 0, 0, 0, -1, 0, 0)
+            self.cabinet_params = cabinet_params("?", -1, 0, 0, 0, -1, 0, 0)
+            self.cabinet_params_bak = cabinet_params("?", -1, 0, 0, 0, -1, 0, 0)
         self.setWindowTitle("cabinet setting")
         self.init_ui()
 
         '''signal/slot connect'''
         self.confirm_btn.clicked.connect(self.confirm_btn_clicked)
         self.cancel_btn.clicked.connect(self.cancel_btn_clicked)
+        self.cabinet_width_textedit.textChanged.connect(self.cabinet_width_textChanged)
+
 
     def init_ui(self):
         self.setFixedSize(400, 400)
@@ -118,6 +125,11 @@ class CabinetSettingWindow(QWidget):
 
     def set_params(self, c_params):
         self.cabinet_params = c_params
+        ''' repoduce a bak '''
+        self.cabinet_params_bak = cabinet_params(self.cabinet_params.client_ip, self.cabinet_params.client_id,
+                                                 self.cabinet_params.port_id, self.cabinet_params.cabinet_width,
+                                                 self.cabinet_params.cabinet_height, self.cabinet_params.layout_type,
+                                                 self.cabinet_params.start_x, self.cabinet_params.start_y)
         log.debug('port_id : %d', self.cabinet_params.port_id)
         self.client_ip_label.setText(self.cabinet_params.client_ip + ", port:" + str(self.cabinet_params.port_id))
         self.cabinet_width_textedit.setText(str(self.cabinet_params.cabinet_width))
@@ -137,6 +149,22 @@ class CabinetSettingWindow(QWidget):
     def cancel_btn_clicked(self):
         log.debug("")
         self.hide()
+
+    def cabinet_width_textChanged(self):
+        self.cabinet_params_bak.cabinet_width = int(self.cabinet_width_textedit.toPlainText())
+        self.draw_temp_cabinet_signal.emit(self.cabinet_params_bak)
+
+    def cabinet_height_textChanged(self):
+        self.cabinet_params_bak.cabinet_height = int(self.cabinet_height_textedit.toPlainText())
+        self.draw_temp_cabinet_signal.emit(self.cabinet_params_bak)
+
+    def cabinet_startx_textChanged(self):
+        self.cabinet_params_bak.start_x = int(self.cabinet_startx_textedit.toPlainText())
+        self.draw_temp_cabinet_signal.emit(self.cabinet_params_bak)
+
+    def cabinet_starty_textChanged(self):
+        self.cabinet_params_bak.start_y = int(self.cabinet_starty_textedit.toPlainText())
+        self.draw_temp_cabinet_signal.emit(self.cabinet_params_bak)
 
     def __del__(self):
         log.debug("")

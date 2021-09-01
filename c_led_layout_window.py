@@ -2,7 +2,8 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 import utils.qtui_utils
-
+from g_defs.c_cabinet_params import cabinet_params
+from global_def import *
 import utils.log_utils
 
 log = utils.log_utils.logging_init(__file__)
@@ -18,6 +19,7 @@ class LedLayoutWindow(QWidget):
         self.led_wall_h = led_wall_h
         self.cabinet_w = cabinet_w
         self.cabinet_h = cabinet_h
+        self.led_pinch = 8
 
 
         '''Gen led wall layout with scalable'''
@@ -27,18 +29,24 @@ class LedLayoutWindow(QWidget):
         print("led_fake_label label width", self.led_fake_label.width())
         print("led_fake_label label height", self.led_fake_label.height())
 
-        self.single_cabinet_label = self.gen_single_cabinet_label(self.cabinet_w, self.cabinet_h, 0, 0)
-        self.led_fake_label.set_drag_label(self.single_cabinet_label)
-        print("single_cabinet_label label width", self.single_cabinet_label.width())
-        print("single_cabinet_label label height", self.single_cabinet_label.height())
+        #tmp_cabinet_params = cabinet_params("?", -1, 0, 40, 24, -1, 1, 1)
+        #self.single_cabinet_label = self.gen_single_cabinet_label(tmp_cabinet_params,
+        #                                                          self.start_drag, self.label_drop_on_drag_label)
+        self.single_cabinet_labels = []
+
+        #self.led_fake_label.set_drag_label(self.single_cabinet_label)
+        #print("single_cabinet_label label width", self.single_cabinet_label.width())
+        #print("single_cabinet_label label height", self.single_cabinet_label.height())
 
         '''drag_label_ori_offset 為drag_label內之座標, 為QPoint'''
         self.drag_label_ori_offset = None
         self.drag_label_ori_pos = None
         self.drag_label = None
-        self.single_cabinet_label.start_drag_signal.connect(self.start_drag)
         self.led_fake_label.label_drop_signal.connect(self.label_drop)
-        self.single_cabinet_label.label_drop_signal.connect(self.label_drop_on_drag_label)
+
+        #self.single_cabinet_label.start_drag_signal.connect(self.start_drag)
+        #self.single_cabinet_label.label_drop_signal.connect(self.label_drop_on_drag_label)
+
         self.led_fake_label.move(0, 0)
         log.debug("self.led_fake_label.width() :%d ", self.led_fake_label.width())
         log.debug("self.led_fake_label.height() : %d ", self.led_fake_label.height())
@@ -94,7 +102,7 @@ class LedLayoutWindow(QWidget):
         drop_label.move(final_pos_x, final_pos_y)
 
     ''' slot function for drop signal'''
-    def label_drop(self, drop_label, pos):
+    def label_drop(self, pos):
         log.debug("label_drop")
         final_pos_x_tmp = (pos.x() - self.drag_label_ori_offset.x()) + self.drag_label_ori_pos.x()
         final_pos_y_tmp = (pos.y() - self.drag_label_ori_offset.y()) + self.drag_label_ori_pos.y()
@@ -126,7 +134,8 @@ class LedLayoutWindow(QWidget):
         log.debug("x_pix_factor : %d", x_pix_factor)
         log.debug("y_pix_factor : %d", y_pix_factor)
 
-        drop_label.move(final_pos_x, final_pos_y)
+        #drop_label.move(final_pos_x, final_pos_y)
+        self.drag_label.move(final_pos_x, final_pos_y)
 
         #drop_label.move(final_pos_x, final_pos_y)
 
@@ -167,34 +176,77 @@ class LedLayoutWindow(QWidget):
         self.led_fake_label.setPixmap(self.led_fake_pixmap)
         self.led_fake_label.resize(int(self.width()), int(self.height()))
 
-    def gen_single_cabinet_label(self, cabinet_w, cabinet_h, start_x, start_y):
-        self.single_cabinet_pixmap = utils.qtui_utils.gen_led_cabinet_pixmap(cabinet_w, cabinet_h, 0, 1, layout_type=0,
+    def gen_single_cabinet_label(self, c_params, start_drag_slot, label_drop_slot):
+        self.single_cabinet_pixmap = utils.qtui_utils.gen_led_cabinet_pixmap(c_params.client_ip, c_params.client_id, c_params.port_id,
+                                                                             c_params.cabinet_width, c_params.cabinet_height, 0, 1, layout_type=0,
                                                                              bg_color=Qt.GlobalColor.transparent, line_color=Qt.GlobalColor.red,
                                                                              str_color=Qt.GlobalColor.yellow)
-        return Draggable_cabinet_label(self, self.single_cabinet_pixmap, start_x, start_y)
+        return Draggable_cabinet_label(self, c_params.client_ip, c_params.client_id, c_params.port_id, self.single_cabinet_pixmap,
+                                       c_params.start_x, c_params.start_y, self.led_pinch, start_drag_slot, label_drop_slot)
 
+
+    def gen_single_cabinet_label_deprecated(self, c_ip, c_id, c_portid, cabinet_w, cabinet_h, start_x, start_y, start_drag_slot, label_drop_slot):
+        self.single_cabinet_pixmap = utils.qtui_utils.gen_led_cabinet_pixmap(c_ip, c_id, c_portid, cabinet_w, cabinet_h, 0, 1, layout_type=0,
+                                                                             bg_color=Qt.GlobalColor.transparent, line_color=Qt.GlobalColor.red,
+                                                                             str_color=Qt.GlobalColor.yellow)
+        return Draggable_cabinet_label(self, c_ip, c_id, c_portid,self.single_cabinet_pixmap, start_x, start_y, start_drag_slot, label_drop_slot)
+
+    def add_cabinet_label(self, c_params):
+        tmp_label = self.gen_single_cabinet_label(c_params, self.start_drag, self.label_drop_on_drag_label)
+        self.single_cabinet_labels.append(tmp_label)
+
+    def redraw_cabinet_label(self, c_params):
+        for cabinet_label in self.single_cabinet_labels:
+            if cabinet_label.client_ip is c_params.client_ip:
+                if cabinet_label.client_portid == c_params.port_id:
+                    log.debug('good')
+                    '''gen new pixmap'''
+                    paintEvent = QPaintEvent()
+                    cabinet_label.paintEvent(paintEvent)
+                    #image = utils.qtui_utils.gen_led_cabinet_pixmap(c_params.client_ip, c_params.client_id, c_params.port_id,
+                    #                                                         c_params.cabinet_width, c_params.cabinet_height, 0, 1, layout_type=0,
+                    #                                                         bg_color=Qt.GlobalColor.transparent, line_color=Qt.GlobalColor.red,
+                    #                                                         str_color=Qt.GlobalColor.yellow)
+                    #cabinet_label.setPixmap(QPixmap(image))
+                    #cabinet_label.resize(QPixmap(image).width(), QPixmap(image).height())
+                    #cabinet_label.move(((c_params.start_x - 1) * self.led_pinch) + default_led_wall_margin,
+                    #     ((c_params.start_y - 1) * self.led_pinch) + default_led_wall_margin)
 
 class Draggable_cabinet_label(QLabel):
     start_drag_signal = pyqtSignal(QLabel, QPoint)
     label_drop_signal = pyqtSignal(QLabel, QPoint)
-    def __init__(self, parent, image, start_x, start_y):
+    def __init__(self, parent, c_ip, c_id, c_portid, image, start_x, start_y, led_pinch, start_drag_slot, label_drop_slot):
         super(QLabel, self).__init__(parent)
         self.setPixmap(QPixmap(image))
+
+        self.client_ip = c_ip
+        self.id = c_id
+        self.client_portid = c_portid
         self.resize(QPixmap(image).width(), QPixmap(image).height())
         self.setScaledContents(True)
-        self.move(start_x, start_y)
+        self.move(((start_x -1)*led_pinch) + default_led_wall_margin, ((start_y-1)*led_pinch) + default_led_wall_margin)
         self.show()
         self.setAcceptDrops(True)
+        self.start_drag_signal.connect(start_drag_slot)
+        self.label_drop_signal.connect(label_drop_slot)
 
     def dragEnterEvent(self, event):
         log.debug('dragEnterEvent')
         if event.mimeData().hasImage():
             event.acceptProposedAction()
 
+
     def dropEvent(self, event):
         log.debug("dropEvent")
         pos = event.pos()
         self.label_drop_signal.emit(self, pos)
+
+    def paintEvent(self, a0: QPaintEvent) -> None:
+        image = utils.qtui_utils.gen_led_cabinet_pixmap("192.168.0.11", 0, 0,
+                                                        40, 24, 0, 1, layout_type=0,
+                                                        bg_color=Qt.GlobalColor.transparent, line_color=Qt.GlobalColor.red,
+                                                        str_color=Qt.GlobalColor.yellow)
+        self.resize(QPixmap(image).width(), QPixmap(image).height())
 
     def mouseReleaseEvent(self, QMouseEvent):
         log.debug('mousePressEvent')
@@ -231,7 +283,7 @@ class Draggable_cabinet_label(QLabel):
         drag.exec_(Qt.CopyAction | Qt.MoveAction)
 
 class Droppable_led_label(QLabel):
-    label_drop_signal = pyqtSignal(QLabel, QPoint)
+    label_drop_signal = pyqtSignal( QPoint)
     def __init__(self, image, parent):
         super().__init__( parent)
 
@@ -247,8 +299,8 @@ class Droppable_led_label(QLabel):
         if event.mimeData().hasImage():
             event.acceptProposedAction()
 
-    def set_drag_label(self, drag_label):
-        self.drag_label = drag_label
+    #def set_drag_label(self, drag_label):
+    #    self.drag_label = drag_label
 
     def dropEvent(self, event):
         log.debug("dropEvent")
@@ -256,5 +308,6 @@ class Droppable_led_label(QLabel):
         #改成用pyqtsignal處理可能比較好
         #self.drag_label.move(pos)
         #pyqtsignal
-        self.label_drop_signal.emit(self.drag_label, pos)
+        #self.label_drop_signal.emit(self.drag_label, pos)
+        self.label_drop_signal.emit(pos)
         event.acceptProposedAction()

@@ -55,6 +55,7 @@ class MainUi(QMainWindow):
 
         self.cabinet_setting_window = CabinetSettingWindow(None)
         self.cabinet_setting_window.set_cabinet_params_signal.connect(self.set_cabinet_params)
+        self.cabinet_setting_window.draw_temp_cabinet_signal.connect(self.draw_cabinet_label)
 
         self.client_led_layout = []
 
@@ -536,6 +537,9 @@ class MainUi(QMainWindow):
                 for i in range(8):
                     port_layout = QTreeWidgetItem(client_led_layout)
                     port_layout.setText(0, "port" + str(i) + ":")
+                    #gen cabinet label in led_wall_layout_window
+                    self.led_layout_window.add_cabinet_label(c.cabinets_setting[i])
+
                 self.client_led_layout.append(client_led_layout)
 
             #self.led_client_layout_tree.
@@ -832,21 +836,7 @@ class MainUi(QMainWindow):
     """Just for Test random command trigger"""
     def cmd_test(self, arg):
         while True:
-            '''for c in self.clients:
-                i = randint(0, 4)
-                if i == 4:
-                    cmd = "spec_test"
-                elif i == 3:
-                    cmd = "set_cabinet_size"
-                elif i == 2:
-                    cmd = "set_led_size"
-                elif i == 1:
-                    cmd = "get_pico_num"
-                elif i == 0:
-                    cmd = "get_version"
-                param = "get_version"
-                c.send_cmd(cmd=cmd, cmd_seq_id=self.cmd_seq_id_increase(), param=param)
-            time.sleep(0.1)'''
+
             for c in self.clients:
                 for i in range(4):
                     if i == 4:
@@ -920,13 +910,13 @@ class MainUi(QMainWindow):
                 try:
                     if self.cabinet_setting_window is not None:
                         self.cabinet_setting_window.set_params(c.cabinets_setting[a0.row()])
-                        #self.cabinet_setting_window.show()
+
                     else:
                         self.cabinet_setting_window = CabinetSettingWindow(c.cabinets_setting[a0.row()])
-                        self.cabinet_setting_window.show()
+                    self.cabinet_setting_window.show()
                 except Exception as e:
                     log.error(e)
-                #self.cabinet_setting_window.show()
+
                 break
 
     def set_cabinet_params(self, c_params):
@@ -947,3 +937,8 @@ class MainUi(QMainWindow):
                 log.debug("c.cabinets_setting[c_params.port_id].start_x = %d", c.cabinets_setting[c_params.port_id].start_x)
                 log.debug("c.cabinets_setting[c_params.port_id].start_y = %d", c.cabinets_setting[c_params.port_id].start_y)
 
+    def draw_cabinet_label(self, c_params):
+        log.debug('')
+        if self.led_layout_window is not None:
+            log.debug('')
+            self.led_layout_window.redraw_cabinet_label(c_params)
