@@ -4,8 +4,9 @@ import utils.log_utils
 log = utils.log_utils.logging_init('c_led_params')
 
 class cabinet_params(QObject):
-    def __init__(self, port_id,  cabinet_width, cabinet_height, layout_type, start_x, start_y, **kwargs):
+    def __init__(self, client_ip, port_id,  cabinet_width, cabinet_height, layout_type, start_x, start_y, **kwargs):
         super(cabinet_params, self).__init__(**kwargs)
+        self.client_ip = client_ip
         self.port_id = port_id
         self.cabinet_width = cabinet_width
         self.cabinet_height = cabinet_height

@@ -8,22 +8,37 @@ import utils.log_utils
 log = utils.log_utils.logging_init(__file__)
 
 class CabinetSettingWindow(QWidget):
+    set_cabinet_params_signal = pyqtSignal(cabinet_params)
     def __init__(self,  c_params, **kwargs):
         super(CabinetSettingWindow, self).__init__()
         if c_params is None:
-            self.cabinet_params = cabinet_params(0, 0, 0, -1, 0, 0)
-
-
-
+            self.cabinet_params = cabinet_params("?", 0, 0, 0, -1, 0, 0)
         self.setWindowTitle("cabinet setting")
         self.init_ui()
+
+        '''signal/slot connect'''
+        self.confirm_btn.clicked.connect(self.confirm_btn_clicked)
+        self.cancel_btn.clicked.connect(self.cancel_btn_clicked)
 
     def init_ui(self):
         self.setFixedSize(400, 400)
         ''' Total frame layout'''
         self.layout = QGridLayout(self)
+
+
+        '''set client id & ip label'''
+        c_ip_widget = QFrame()
+        c_ip_gridbox = QGridLayout()
+        c_ip_widget.setLayout(c_ip_gridbox)
+        self.client_ip_label = QLabel()
+        self.client_ip_label.setText(self.cabinet_params.client_ip)
+        self.client_ip_label.setFixedSize(200, 30)
+        c_ip_gridbox.addWidget(self.client_ip_label, 0, 0)
+        self.layout.addWidget(c_ip_widget)
+
+        ''' radio btn group of layout type'''
         self.radio_layout_type_groupbox = QGroupBox("Cabinet Layout Type:", checkable=False)
-        self.layout.addWidget(self.radio_layout_type_groupbox)
+        self.layout.addWidget(self.radio_layout_type_groupbox, 1, 0)
 
         self.radio_layout_type_groupbox_gridboxlayout = QGridLayout()
         self.radio_layout_type_groupbox.setLayout(self.radio_layout_type_groupbox_gridboxlayout, )
@@ -77,8 +92,8 @@ class CabinetSettingWindow(QWidget):
 
         self.confirm_btn = QPushButton()
         self.confirm_btn.setText("OK")
-        self.concel_btn = QPushButton()
-        self.concel_btn.setText("Cancel")
+        self.cancel_btn = QPushButton()
+        self.cancel_btn.setText("Cancel")
 
         testgridbox.addWidget(self.cabinet_width_label, 0, 0)
         testgridbox.addWidget(self.cabinet_width_textedit, 0, 1)
@@ -91,16 +106,38 @@ class CabinetSettingWindow(QWidget):
         testgridbox.addWidget(self.cabinet_starty_textedit, 3, 1)
 
         testgridbox.addWidget(self.confirm_btn, 3, 3)
-        testgridbox.addWidget(self.concel_btn, 3, 2)
+        testgridbox.addWidget(self.cancel_btn, 3, 2)
 
 
-        self.layout.addWidget(testwidget, 1, 0)
-
+        self.layout.addWidget(testwidget, 2, 0)
 
         self.layout.setColumnStretch(0, 5)
         self.layout.setRowStretch(0, 5)
 
+        #self.show()
 
+    def set_params(self, c_params):
+        self.cabinet_params = c_params
+        log.debug('port_id : %d', self.cabinet_params.port_id)
+        self.client_ip_label.setText(self.cabinet_params.client_ip + ", port:" + str(self.cabinet_params.port_id))
+        self.cabinet_width_textedit.setText(str(self.cabinet_params.cabinet_width))
+        self.cabinet_height_textedit.setText(str(self.cabinet_params.cabinet_height))
+        self.cabinet_startx_textedit.setText(str(self.cabinet_params.start_x))
+        self.cabinet_starty_textedit.setText(str(self.cabinet_params.start_y))
 
-        self.show()
+    def confirm_btn_clicked(self):
+        log.debug("")
+        self.cabinet_params.cabinet_width = int(self.cabinet_width_textedit.toPlainText())
+        self.cabinet_params.cabinet_height = int(self.cabinet_height_textedit.toPlainText())
+        self.cabinet_params.start_x = int(self.cabinet_startx_textedit.toPlainText())
+        self.cabinet_params.start_y = int(self.cabinet_starty_textedit.toPlainText())
+        self.set_cabinet_params_signal.emit(self.cabinet_params)
+        self.hide()
+
+    def cancel_btn_clicked(self):
+        log.debug("")
+        self.hide()
+
+    def __del__(self):
+        log.debug("")
 

@@ -54,6 +54,7 @@ class MainUi(QMainWindow):
                                                  default_led_wall_margin)
 
         self.cabinet_setting_window = CabinetSettingWindow(None)
+        self.cabinet_setting_window.set_cabinet_params_signal.connect(self.set_cabinet_params)
 
         self.client_led_layout = []
 
@@ -246,9 +247,6 @@ class MainUi(QMainWindow):
             utils.ffmpy_utils.gen_webp_from_video(internal_media_folder, os.path.basename(f))
             self.internal_media_root.addChild(internal_file_item)
 
-        self.file_tree.doubleClicked.connect(self.test_clicked)
-
-
         self.file_tree.addTopLevelItem(self.internal_media_root)
         self.file_tree.parentWidget().setMouseTracking(True)
         self.file_tree.setMouseTracking(True)
@@ -377,6 +375,8 @@ class MainUi(QMainWindow):
         self.led_client_layout_tree.mouseMove.connect(self.led_client_layout_mouse_move)
         self.led_client_layout_tree.setMouseTracking(True)
         self.led_client_layout_tree.setSelectionMode(QAbstractItemView.MultiSelection)
+
+        self.led_client_layout_tree.doubleClicked.connect(self.cabinet_setting_window_show)
 
         self.led_client_layout_tree.setColumnCount(1)
         self.led_client_layout_tree.setColumnWidth(0, 300)
@@ -909,9 +909,41 @@ class MainUi(QMainWindow):
                                                    self.led_wall_height,
                                                    default_led_wall_margin)
 
-    def test_clicked(self, a0: QModelIndex)-> None:
-        #print("a0.row :", a0.row())
-        #print("a0.column :", a0.column())
-        log.debug("%s : ", self.file_tree.itemFromIndex(a0).text(0))
+    '''pop-up cabinet_setting_window while client_layout_tree clicked'''
+    def cabinet_setting_window_show(self, a0: QModelIndex)-> None:
+        log.debug("%s", self.led_client_layout_tree.itemFromIndex(a0).text(0))
+        log.debug("%s", self.led_client_layout_tree.itemFromIndex(a0).parent().text(0))
+        client_ip_selected = self.led_client_layout_tree.itemFromIndex(a0).parent().text(0).split("ip:")[1].split(")")[0]
+        log.debug(a0.row())
+        for c in self.clients:
+            if c.client_ip ==client_ip_selected:
+                try:
+                    if self.cabinet_setting_window is not None:
+                        self.cabinet_setting_window.set_params(c.cabinets_setting[a0.row()])
+                        #self.cabinet_setting_window.show()
+                    else:
+                        self.cabinet_setting_window = CabinetSettingWindow(c.cabinets_setting[a0.row()])
+                        self.cabinet_setting_window.show()
+                except Exception as e:
+                    log.error(e)
+                #self.cabinet_setting_window.show()
+                break
 
+    def set_cabinet_params(self, c_params):
+
+        log.debug('c_params.client_ip : %s', c_params.client_ip )
+        log.debug('c_params.port_id : %d', c_params.port_id)
+        for c in self.clients:
+            if c.client_ip == c_params.client_ip:
+                log.debug('')
+                #c.cabinets_setting[c_params.port_id] = c_params
+                c.set_cabinets(c_params)
+
+        '''check'''
+        for c in self.clients:
+            if c.client_ip == c_params.client_ip:
+                log.debug("c.cabinets_setting[c_params.port_id].cabinet_width = %d", c.cabinets_setting[c_params.port_id].cabinet_width)
+                log.debug("c.cabinets_setting[c_params.port_id].cabinet_height = %d", c.cabinets_setting[c_params.port_id].cabinet_height)
+                log.debug("c.cabinets_setting[c_params.port_id].start_x = %d", c.cabinets_setting[c_params.port_id].start_x)
+                log.debug("c.cabinets_setting[c_params.port_id].start_y = %d", c.cabinets_setting[c_params.port_id].start_y)
 

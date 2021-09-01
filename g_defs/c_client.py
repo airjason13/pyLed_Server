@@ -27,10 +27,11 @@ class client(QObject):
         self.alive_val = self.alive_val_def
         self.id = -1
         self.loop = asyncio.get_event_loop()
+
         self.num_of_cabinet = 8
         self.cabinets_setting = []
-        for i in range(self.cabinets_setting):
-            cabinet_setting = cabinet_params(0, 0, 0, -1, 0, 0)
+        for i in range(self.num_of_cabinet):
+            cabinet_setting = cabinet_params(self.client_ip, i, 0, 0, -1, 0, 0)
             self.cabinets_setting.append(cabinet_setting)
 
 
@@ -79,6 +80,6 @@ class client(QObject):
     def set_client_version(self, version):
         self.client_version = version
 
-    '''def show_port_layout_information_widget(self, str_port_id):
-        log.debug("")
-        self.port_layout_infomation_widget.show()'''
+    def set_cabinets(self, c_params):
+        self.cabinets_setting[c_params.port_id].cabinet_width = c_params.cabinet_width
+        log.debug("self.cabinets_setting[c_params.port_id].cabinet_width = %d", self.cabinets_setting[c_params.port_id].cabinet_width)
