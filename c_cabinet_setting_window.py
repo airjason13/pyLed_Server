@@ -11,8 +11,10 @@ import utils.log_utils
 log = utils.log_utils.logging_init(__file__)
 
 class CabinetSettingWindow(QWidget):
-    set_cabinet_params_signal = pyqtSignal(cabinet_params)
-    draw_temp_cabinet_signal = pyqtSignal(cabinet_params)
+    signal_set_cabinet_params = pyqtSignal(cabinet_params)
+    signal_draw_temp_cabinet = pyqtSignal(cabinet_params, Qt.GlobalColor)
+    signal_set_default_cabinet_resolution = pyqtSignal(int, int)
+
     def __init__(self,  c_params, **kwargs):
         super(CabinetSettingWindow, self).__init__()
         if c_params is None:
@@ -24,6 +26,7 @@ class CabinetSettingWindow(QWidget):
         '''signal/slot connect'''
         self.confirm_btn.clicked.connect(self.confirm_btn_clicked)
         self.cancel_btn.clicked.connect(self.cancel_btn_clicked)
+        self.set_res_as_default_btn.clicked.connect(self.set_res_as_default_btn_clicked)
         self.cabinet_width_textedit.textChanged.connect(self.cabinet_width_textChanged)
         self.cabinet_height_textedit.textChanged.connect(self.cabinet_height_textChanged)
         self.cabinet_startx_textedit.textChanged.connect(self.cabinet_startx_textChanged)
@@ -51,18 +54,17 @@ class CabinetSettingWindow(QWidget):
         self.layout.addWidget(self.radio_layout_type_groupbox, 1, 0)
 
         self.radio_layout_type_groupbox_gridboxlayout = QGridLayout()
-        self.radio_layout_type_groupbox.setLayout(self.radio_layout_type_groupbox_gridboxlayout, )
+        self.radio_layout_type_groupbox.setLayout(self.radio_layout_type_groupbox_gridboxlayout)
 
         self.radio_layout_types = []
 
         for i in range(8):
             radio_layout_type = QRadioButton()
-            test_pixmap = utils.qtui_utils.gen_led_layout_type_pixmap(48, 48, 10, 1)
+            test_pixmap = utils.qtui_utils.gen_led_layout_type_pixmap(48, 48, 10, i)
             icon = QIcon(test_pixmap)
             radio_layout_type.setIcon(icon)
             radio_layout_type.setIconSize(QSize(172, 48))
             self.radio_layout_types.append(radio_layout_type)
-
 
         for i in range(8):
             if i < 4:
@@ -77,29 +79,32 @@ class CabinetSettingWindow(QWidget):
         self.cabinet_width_label = QLabel()
         self.cabinet_width_label.setText("Cabinet Width: ")
         self.cabinet_width_textedit = QTextEdit()
-        self.cabinet_width_textedit.setFixedSize(45, 30)
+        self.cabinet_width_textedit.setFixedSize(90, 30)
         self.cabinet_width_textedit.setText("40 ")
 
         self.cabinet_height_label = QLabel()
         self.cabinet_height_label.setText("Cabinet Height: ")
         self.cabinet_height_textedit = QTextEdit()
         self.cabinet_height_textedit.setText("24 ")
-        self.cabinet_height_textedit.setFixedSize(45, 30)
+        self.cabinet_height_textedit.setFixedSize(90, 30)
 
         ''' Start X'''
         self.cabinet_startx_label = QLabel()
         self.cabinet_startx_label.setText("Cabinet StartX: ")
         self.cabinet_startx_textedit = QTextEdit()
         self.cabinet_startx_textedit.setText("24 ")
-        self.cabinet_startx_textedit.setFixedSize(45, 30)
+        self.cabinet_startx_textedit.setFixedSize(90, 30)
 
         ''' Start Y'''
         self.cabinet_starty_label = QLabel()
         self.cabinet_starty_label.setText("Cabinet StartY: ")
         self.cabinet_starty_textedit = QTextEdit()
         self.cabinet_starty_textedit.setText("24 ")
-        self.cabinet_starty_textedit.setFixedSize(45, 30)
+        self.cabinet_starty_textedit.setFixedSize(90, 30)
 
+        self.set_res_as_default_btn = QPushButton()
+        self.set_res_as_default_btn.setText("set default")
+        self.set_res_as_default_btn.adjustSize()
         self.confirm_btn = QPushButton()
         self.confirm_btn.setText("OK")
         self.cancel_btn = QPushButton()
@@ -115,6 +120,7 @@ class CabinetSettingWindow(QWidget):
         testgridbox.addWidget(self.cabinet_starty_label, 3, 0)
         testgridbox.addWidget(self.cabinet_starty_textedit, 3, 1)
 
+        testgridbox.addWidget(self.set_res_as_default_btn, 1, 2)
         testgridbox.addWidget(self.confirm_btn, 3, 3)
         testgridbox.addWidget(self.cancel_btn, 3, 2)
 
@@ -134,7 +140,9 @@ class CabinetSettingWindow(QWidget):
                                                  self.cabinet_params.cabinet_height, self.cabinet_params.layout_type,
                                                  self.cabinet_params.start_x, self.cabinet_params.start_y)
         log.debug('port_id : %d', self.cabinet_params.port_id)
-        self.client_ip_label.setText(self.cabinet_params.client_ip + ", port:" + str(self.cabinet_params.port_id))
+        self.client_ip_label.setText(self.cabinet_params.client_ip
+                                     + ", id:" + str(self.cabinet_params.client_id)
+                                     + ", port:" + str(self.cabinet_params.port_id))
         self.cabinet_width_textedit.setText(str(self.cabinet_params.cabinet_width))
         self.cabinet_height_textedit.setText(str(self.cabinet_params.cabinet_height))
         self.cabinet_startx_textedit.setText(str(self.cabinet_params.start_x))
@@ -146,28 +154,36 @@ class CabinetSettingWindow(QWidget):
         self.cabinet_params.cabinet_height = int(self.cabinet_height_textedit.toPlainText())
         self.cabinet_params.start_x = int(self.cabinet_startx_textedit.toPlainText())
         self.cabinet_params.start_y = int(self.cabinet_starty_textedit.toPlainText())
-        self.set_cabinet_params_signal.emit(self.cabinet_params)
+        self.signal_set_cabinet_params.emit(self.cabinet_params)
+        self.signal_draw_temp_cabinet.emit(self.cabinet_params, Qt.GlobalColor.red)
         self.hide()
 
     def cancel_btn_clicked(self):
         log.debug("")
+        self.signal_draw_temp_cabinet.emit(self.cabinet_params, Qt.GlobalColor.red)
         self.hide()
+
+    def set_res_as_default_btn_clicked(self):
+        log.debug("")
+        self.signal_set_default_cabinet_resolution.emit(int(self.cabinet_width_textedit.toPlainText()),
+                                                        int(self.cabinet_height_textedit.toPlainText()))
+
 
     def cabinet_width_textChanged(self):
         self.cabinet_params_bak.cabinet_width = int(self.cabinet_width_textedit.toPlainText())
-        self.draw_temp_cabinet_signal.emit(self.cabinet_params_bak)
+        self.signal_draw_temp_cabinet.emit(self.cabinet_params_bak, Qt.GlobalColor.yellow)
 
     def cabinet_height_textChanged(self):
         self.cabinet_params_bak.cabinet_height = int(self.cabinet_height_textedit.toPlainText())
-        self.draw_temp_cabinet_signal.emit(self.cabinet_params_bak)
+        self.signal_draw_temp_cabinet.emit(self.cabinet_params_bak, Qt.GlobalColor.yellow)
 
     def cabinet_startx_textChanged(self):
         self.cabinet_params_bak.start_x = int(self.cabinet_startx_textedit.toPlainText())
-        self.draw_temp_cabinet_signal.emit(self.cabinet_params_bak)
+        self.signal_draw_temp_cabinet.emit(self.cabinet_params_bak, Qt.GlobalColor.yellow)
 
     def cabinet_starty_textChanged(self):
         self.cabinet_params_bak.start_y = int(self.cabinet_starty_textedit.toPlainText())
-        self.draw_temp_cabinet_signal.emit(self.cabinet_params_bak)
+        self.signal_draw_temp_cabinet.emit(self.cabinet_params_bak, Qt.GlobalColor.yellow)
 
     def __del__(self):
         log.debug("")

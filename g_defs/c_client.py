@@ -9,13 +9,14 @@ from global_def import *
 import threading
 import asyncio
 
+
 log = utils.log_utils.logging_init('c_client')
 
 class client(QObject):
     alive_val_def = 2
     ''' ret, send_cmd, recv_data, client_ip, client_reply_port '''
-    send_cmd_ret = pyqtSignal(bool, str, str, str, int)
-
+    signal_send_cmd_ret = pyqtSignal(bool, str, str, str, int)
+    signal_cabinet_params_changed = pyqtSignal(cabinet_params)
 
     '''init'''
     def __init__(self, client_ip, server_ip, client_version, client_id, **kwargs):
@@ -47,8 +48,7 @@ class client(QObject):
                                               'client_ip': self.client_ip, 'client_udp_cmd_port': self.client_udp_cmd_port,
                                               'server_ip': self.server_ip, 'cb': self.send_cmd_callback})
         thread_cmd.start()
-        #utils.net_utils.send_udp_cmd( mainUI, cmd, cmd_seq_id, param, cb)
-        #thread_cmd.join()
+
     def set_alive_count(self, val):
         self.alive_val = val
 
@@ -61,7 +61,7 @@ class client(QObject):
 
     def send_cmd_callback(self, ret, send_cmd, recvData=None, client_ip=None, client_reply_port=None ):
         #self.cmd_cb(ret, recvData, client_ip, client_reply_port)
-        self.send_cmd_ret.emit(ret, send_cmd, recvData, self.client_ip, client_reply_port)
+        self.signal_send_cmd_ret.emit(ret, send_cmd, recvData, self.client_ip, client_reply_port)
         '''if recvData is not None:
             log.debug("recvData : %s", recvData)
             log.debug("client_ip : %s", client_ip)
@@ -84,5 +84,12 @@ class client(QObject):
         self.client_version = version
 
     def set_cabinets(self, c_params):
+
         self.cabinets_setting[c_params.port_id].cabinet_width = c_params.cabinet_width
-        log.debug("self.cabinets_setting[c_params.port_id].cabinet_width = %d", self.cabinets_setting[c_params.port_id].cabinet_width)
+        self.cabinets_setting[c_params.port_id].cabinet_height = c_params.cabinet_height
+        self.cabinets_setting[c_params.port_id].start_x = c_params.start_x
+        self.cabinets_setting[c_params.port_id].start_y = c_params.start_y
+        self.cabinets_setting[c_params.port_id].layout_type = c_params.layout_type
+
+        '''test send cmd with signal_cabinet_params_changed signal/slot'''
+        self.signal_cabinet_params_changed.emit(self.cabinets_setting[c_params.port_id])

@@ -31,19 +31,18 @@ from c_led_layout_window import LedLayoutWindow
 from c_cabinet_setting_window import CabinetSettingWindow
 from g_defs.c_TreeWidgetItemSP import CTreeWidget
 from g_defs.c_cabinet_params import cabinet_params
-
+from commands_def import *
 log = utils.log_utils.logging_init(__file__)
 
 class MainUi(QMainWindow):
     signal_add_cabinet_label = pyqtSignal(cabinet_params)
-    signal_redraw_cabinet_label = pyqtSignal(cabinet_params)
+    signal_redraw_cabinet_label = pyqtSignal(cabinet_params, Qt.GlobalColor)
     def __init__(self):
         super().__init__()
         pg.setConfigOptions(antialias=True)
 
         self.center()
-
-        self.setWindowOpacity(0.9)  # 设置窗口透明度
+        self.setWindowOpacity(1.0)  # 设置窗口透明度
         self.setStyleSheet(qdarkstyle.load_stylesheet_pyqt5())
 
         ''' Set Led layout params'''
@@ -60,9 +59,9 @@ class MainUi(QMainWindow):
 
         self.cabinet_setting_window = CabinetSettingWindow(None)
         self.cabinet_setting_window.setStyleSheet(qdarkstyle.load_stylesheet_pyqt5())
-        self.cabinet_setting_window.set_cabinet_params_signal.connect(self.set_cabinet_params)
-        self.cabinet_setting_window.draw_temp_cabinet_signal.connect(self.draw_cabinet_label)
-
+        self.cabinet_setting_window.signal_set_cabinet_params.connect(self.set_cabinet_params)
+        self.cabinet_setting_window.signal_draw_temp_cabinet.connect(self.draw_cabinet_label)
+        self.cabinet_setting_window.signal_set_default_cabinet_resolution.connect(self.set_default_cabinet_resolution)
         self.client_led_layout = []
 
         '''main ui right frame page index'''
@@ -467,7 +466,9 @@ class MainUi(QMainWindow):
             """ no such client ip in clients list, new one and append"""
             if is_found is False:
                 c = client(ip, net_utils.get_ip_address(), c_version, self.client_id_count)
-                c.send_cmd_ret.connect(self.client_send_cmd_ret)
+                #connect signal/slot function
+                c.signal_send_cmd_ret.connect(self.client_send_cmd_ret)
+                c.signal_cabinet_params_changed.connect(self.send_cmd_set_cabinet_params)
                 self.client_id_count += 1
                 self.clients.append(c)
                 self.refresh_client_table()
@@ -533,7 +534,9 @@ class MainUi(QMainWindow):
         sleep(sleep_time)
 
         ''' led layout page treewidget show'''
-        if ori_len != len(self.clients):
+        #log.debug("self.led_client_layout_tree.topLevelItemCount() = %d",self.led_client_layout_tree.topLevelItemCount())
+        #log.debug("len(self.clients) = %d", len(self.clients))
+        if self.led_client_layout_tree.topLevelItemCount() != len(self.clients):
             self.client_led_layout.clear()
             self.led_client_layout_tree.clear()
 
@@ -543,13 +546,17 @@ class MainUi(QMainWindow):
                 for i in range(8):
                     port_layout = QTreeWidgetItem(client_led_layout)
                     port_layout.setText(0, "port" + str(i) + ":")
+
+                    '''cabinet params test start '''
+                    test_params = QTreeWidgetItem(port_layout)
+                    test_params.setText(0, 'test')
+                    '''cabinet params test end '''
+
                     #gen cabinet label in led_wall_layout_window
                     self.signal_add_cabinet_label.emit(c.cabinets_setting[i])
-                    #self.led_layout_window.add_cabinet_label( c.cabinets_setting[i])
 
                 self.client_led_layout.append(client_led_layout)
 
-            #self.led_client_layout_tree.
 
 
     def refresh_client_table(self):
@@ -866,21 +873,19 @@ class MainUi(QMainWindow):
             #self.send_cmd_fail_msg.hide()
             if self.send_cmd_fail_msg is not None:
                 try:
-                    #self.send_cmd_fail_msg.hide()
                     self.send_cmd_fail_msg.setIcon(QMessageBox.Critical)
                     self.send_cmd_fail_msg.setText("Error")
                     self.send_cmd_fail_msg.setInformativeText("Can not get response of " + send_cmd + " from " + client_ip)
                     self.send_cmd_fail_msg.setWindowTitle("Error")
                     self.send_cmd_fail_msg.setStyleSheet(qdarkstyle.load_stylesheet_pyqt5())
-                    #self.send_cmd_fail_msg.exec_()
                     self.send_cmd_fail_msg.show()
                 except Exception as e:
                     log.fatal(e)
         else:
+            log.debug('send_cmd : %s', send_cmd)
+            log.debug('recvData : %s', recvData)
             pass
-            '''if self.send_cmd_fail_msg is not None:
-                self.send_cmd_fail_msg.destroy()
-                self.send_cmd_fail_msg = None'''
+
 
 
     def page_status_change(self):
@@ -936,6 +941,7 @@ class MainUi(QMainWindow):
                 #c.cabinets_setting[c_params.port_id] = c_params
                 c.set_cabinets(c_params)
 
+
         '''check'''
         for c in self.clients:
             if c.client_ip == c_params.client_ip:
@@ -944,8 +950,31 @@ class MainUi(QMainWindow):
                 log.debug("c.cabinets_setting[c_params.port_id].start_x = %d", c.cabinets_setting[c_params.port_id].start_x)
                 log.debug("c.cabinets_setting[c_params.port_id].start_y = %d", c.cabinets_setting[c_params.port_id].start_y)
 
-    def draw_cabinet_label(self, c_params):
+    '''slot for signal_draw_temp_cabinet from cabinet_setting_window'''
+    def draw_cabinet_label(self, c_params, qt_line_color):
         if self.led_layout_window is not None:
             log.debug('')
-            self.signal_redraw_cabinet_label.emit(c_params)
+            '''send another signal to led_layout_window to draw the new cabinet layout'''
+            self.signal_redraw_cabinet_label.emit(c_params, qt_line_color)
             #self.led_layout_window.redraw_cabinet_label(c_params)
+
+    '''slot for signal_set_default_cabinet_resolution from cabinet_setting_window'''
+    def set_default_cabinet_resolution(self, width, height):
+        log.debug("")
+        for c in self.clients:
+            for c_param in c.cabinets_setting:
+                c_param.cabinet_width = width
+                c_param.cabinet_height = height
+
+    def send_cmd_set_cabinet_params(self, c_params):
+        '''select the client'''
+        for c in self.clients:
+            if c.client_ip is c_params.client_ip:
+                str_params = 'port_id:' + str(c_params.port_id) + ',cabinet_width:' + str(c_params.cabinet_width) + \
+                             ',cabinet_height:' + str(c_params.cabinet_height) + \
+                             ',start_x:' + str(c_params.start_x) + \
+                             ',start_y:' + str(c_params.start_y) + \
+                             ',layout_type:' + str(c_params.layout_type)
+
+                c.send_cmd(cmd=cmd_set_cabinet_params, cmd_seq_id=self.cmd_seq_id_increase(), param=str_params)
+                break

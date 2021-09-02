@@ -15,10 +15,12 @@ def gen_led_layout_type_pixmap( led_w, led_h, margin, layout_type):
     else:
         max_line = int(led_h / margin) + 1
     '''draw line'''
-    if layout_type == 0:
+    if layout_type == 0 or layout_type == 1:
         for i in range(max_line):
-
+            '''橫線'''
             pixmap_paint.drawLine(margin, margin*(i+1), led_w + margin , margin*(i+1))
+
+            '''直線'''
             if i % 2 == 0:
                 if i == (max_line - 1):
                     pass
@@ -26,9 +28,20 @@ def gen_led_layout_type_pixmap( led_w, led_h, margin, layout_type):
                     pixmap_paint.drawLine(margin + led_w, margin*(i+1), margin + led_w, margin*(i+2))
             else:
                  pixmap_paint.drawLine(margin, margin*(i+1), margin, margin*(i+2))
-    elif layout_type == 1:
+        '''draw arrow'''
+        if layout_type == 0:
+            pixmap_paint.drawLine(margin, int(margin * (0.5)), int(led_w/8) + margin, margin * (0 + 1))
+            pixmap_paint.drawLine(margin, int(margin * (1.5)), int(led_w/8) + margin, margin * (0 + 1))
+
+        elif layout_type == 1:
+            pixmap_paint.drawLine(margin + led_w, int(margin*(i+1) - margin*0.5 ), margin + led_w - int(led_w/8), margin*(i+1))
+            pixmap_paint.drawLine(margin + led_w, int(margin*(i+1) + margin*0.5 ), margin + led_w - int(led_w/8), margin*(i+1))
+
+    elif layout_type == 2 or layout_type == 3:
         for i in range(max_line):
+            '''橫線'''
             pixmap_paint.drawLine(margin, margin*(i+1), led_w + margin , margin*(i+1))
+            '''直線'''
             if i % 2 == 1:
                 pixmap_paint.drawLine(margin + led_w, margin*(i+1), margin + led_w, margin*(i+2))
             else:
@@ -36,7 +49,59 @@ def gen_led_layout_type_pixmap( led_w, led_h, margin, layout_type):
                     pass
                 else:
                     pixmap_paint.drawLine(margin, margin*(i+1), margin, margin*(i+2))
+        '''arrow'''
+        if layout_type == 2:
+            pixmap_paint.drawLine(margin + led_w, int(margin * (0.5)),
+                                  margin + led_w - int(led_w / 8), margin * (0 + 1))
+            pixmap_paint.drawLine(margin + led_w, int(margin * (1.5)),
+                                  margin + led_w - int(led_w / 8), margin * (0 + 1))
 
+        elif layout_type == 3:
+            pixmap_paint.drawLine(margin, int(margin*(i+1) - margin*0.5 ),
+                                  margin + int(led_w / 8), margin*(i+1))
+            pixmap_paint.drawLine(margin , int(margin*(i+1) + margin*0.5),
+                                  margin + int(led_w / 8),  margin*(i+1))
+    elif layout_type == 4 or layout_type == 5:
+        for i in range(max_line):
+            '''直線'''
+            pixmap_paint.drawLine(margin*(i+1), margin, margin*(i+1), margin + led_h)
+            '''橫線'''
+            if i % 2 == 1:
+                pixmap_paint.drawLine(margin*(i+1) , margin + led_h, margin*(i+2) , margin+ led_h)
+            else:
+                if i == (max_line - 1):
+                    pass
+                else:
+                    pixmap_paint.drawLine(margin * (i + 1), margin, margin * (i + 2), margin)
+        '''arrow'''
+        if layout_type == 4:
+            pixmap_paint.drawLine(margin*(i+1) - int(margin * (0.5)), margin, margin*(i+1), int(led_h / 8) + margin )
+            pixmap_paint.drawLine(margin*(i+1) + int(margin * (0.5)), margin, margin*(i+1), int(led_h / 8) + margin )
+        elif layout_type == 5:
+            pixmap_paint.drawLine(int(margin * (0.5)), margin + led_h, margin * (0 + 1),  margin + led_h - int(led_h / 8))
+            pixmap_paint.drawLine(int(margin * (1.5)), margin + led_h, margin * (0 + 1), margin + led_h - int(led_h / 8))
+            pass
+    elif layout_type == 6 or layout_type == 7:
+        for i in range(max_line):
+            '''直線'''
+            pixmap_paint.drawLine(margin * (i + 1), margin, margin * (i + 1), margin + led_h)
+            '''橫線'''
+            if i % 2 == 1:
+                pixmap_paint.drawLine(margin * (i + 1), margin, margin * (i + 2), margin)
+            else:
+                if i == (max_line - 1):
+                    pass
+                else:
+                    pixmap_paint.drawLine(margin * (i + 1), margin + led_h, margin * (i + 2), margin + led_h)
+        if layout_type == 6:
+            pixmap_paint.drawLine(margin * (i + 1) - int(margin * (0.5)), margin + led_h,
+                                  margin * (i + 1), margin + led_h - int(led_h / 8))
+            pixmap_paint.drawLine(margin * (i + 1) + int(margin * (0.5)), margin + led_h,
+                                  margin * (i + 1), margin + led_h - int(led_h / 8))
+            pass
+        elif layout_type == 7:
+            pixmap_paint.drawLine(int(margin * (0.5)), margin, margin * (0 + 1), int(led_h / 8) + margin)
+            pixmap_paint.drawLine(int(margin * (1.5)), margin, margin * (0 + 1), int(led_h / 8) + margin)
     return pixmap_led_layout_type
 
 def gen_led_layout_pixmap(led_w, led_h, margin, bg_color, point_color):

@@ -215,7 +215,7 @@ class LedLayoutWindow(QWidget):
         tmp_label.show()
 
     ''' 依照 c_params 選定label來更新'''
-    def redraw_cabinet_label(self, c_params):
+    def redraw_cabinet_label(self, c_params, line_color):
         log.debug('len of self.single_cabinet_labels :%d', len(self.single_cabinet_labels))
         for cabinet_label in self.single_cabinet_labels:
             if cabinet_label.c_params.client_ip is c_params.client_ip:
@@ -224,7 +224,7 @@ class LedLayoutWindow(QWidget):
                     image = utils.qtui_utils.gen_led_cabinet_pixmap(c_params.client_ip, c_params.client_id, c_params.port_id,
                                                                     c_params.cabinet_width, c_params.cabinet_height, 0, 1, layout_type=0,
                                                                     bg_color=Qt.GlobalColor.transparent,
-                                                                    line_color=Qt.GlobalColor.red,
+                                                                    line_color=line_color,
                                                                     str_color=Qt.GlobalColor.yellow)
                     cabinet_label.setPixmap(QPixmap(image))
                     cabinet_label.resize(QPixmap(image).width(), QPixmap(image).height())
