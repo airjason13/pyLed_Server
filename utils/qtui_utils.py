@@ -58,6 +58,51 @@ def gen_led_layout_pixmap(led_w, led_h, margin, bg_color, point_color):
     log.debug("pixmap_led_layout height : %d", pixmap_led_layout.height())
     return pixmap_led_layout
 
+
+''' scale factor is 8'''
+def gen_led_cabinet_pixmap_with_cabinet_params(c_params, margin=0,
+                           bg_color=Qt.GlobalColor.transparent, line_color=Qt.GlobalColor.red, str_color=Qt.GlobalColor.yellow):
+    '''margin is 0 pixel, left/right/up/bottom is 0 pixel'''
+    scale_factor = 8
+    line_interval = scale_factor/2
+    arrow_width = scale_factor/2
+    pixmap_led_layout_type = QPixmap(c_params.cabinet_width*scale_factor, c_params.cabinet_height*scale_factor)
+    pixmap_led_layout_type.fill(bg_color)
+    pixmap_paint = QPainter(pixmap_led_layout_type)
+
+    pixmap_paint.setPen(line_color)
+
+    str_port_id = str(c_params.client_id) + "-" + str(c_params.port_id)
+    if margin == 0:
+        max_line = c_params.cabinet_height*scale_factor
+    else:
+        max_line = int(c_params.cabinet_height*scale_factor / margin) + 1
+
+    h_drawed = 0
+    if c_params.layout_type == 0:
+        for i in range( max_line):
+            '''draw line'''
+            if i % (scale_factor) == line_interval:
+                pixmap_paint.drawLine(margin, margin + i, ((c_params.cabinet_width - 1) * scale_factor )+ margin , margin + i)
+                ''' check line number'''
+                h_drawed += 1
+            elif i % (scale_factor*2) == line_interval + scale_factor + 1:
+                #log.debug("left line")
+                pixmap_paint.drawLine(margin, margin + (i), margin, margin + (i + (scale_factor)))
+            elif i % (scale_factor * 2) == line_interval + 1:
+                #log.debug("left line")
+                pixmap_paint.drawLine(((c_params.cabinet_width - 1) * scale_factor )+ margin, margin + (i), ((c_params.cabinet_width - 1) * scale_factor )+ margin, margin + (i + (scale_factor)))
+            if h_drawed >= c_params.cabinet_height:
+                break
+        '''draw arrow'''
+        #pixmap_paint.drawLine(margin, margin, 2, 2)
+        #pixmap_paint.drawLine(margin, 4, 2, 2)
+
+    '''draw str_port_id'''
+    pixmap_paint.setPen(str_color)
+    pixmap_paint.drawText(c_params.cabinet_width, c_params.cabinet_height, str_port_id)
+    return pixmap_led_layout_type
+
 ''' scale factor is 8'''
 def gen_led_cabinet_pixmap(c_ip, c_id, c_portid, led_w, led_h, client_id, port_num, margin=0, layout_type=0,
                            bg_color=Qt.GlobalColor.transparent, line_color=Qt.GlobalColor.red, str_color=Qt.GlobalColor.yellow):

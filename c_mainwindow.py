@@ -8,7 +8,7 @@ from PyQt5.QtWidgets import (QApplication, QMainWindow, QDesktopWidget, QStyleFa
                             QSlider, QLabel, QLineEdit, QPushButton, QTableWidget, QStackedLayout, QSplitter, QTreeWidget, QTreeWidgetItem,
                              QFileDialog, QListWidget, QFileSystemModel, QTreeView, QMenu, QAction, QAbstractItemView)
 from PyQt5.QtGui import QPalette, QColor, QBrush, QFont, QMovie, QPixmap, QPainter
-from PyQt5.QtCore import Qt, QMutex, pyqtSlot, QModelIndex
+from PyQt5.QtCore import Qt, QMutex, pyqtSlot, QModelIndex, pyqtSignal
 import pyqtgraph as pg
 import qdarkstyle, requests, sys, time, random, json, datetime, re
 import socket
@@ -30,10 +30,13 @@ import utils.ffmpy_utils
 from c_led_layout_window import LedLayoutWindow
 from c_cabinet_setting_window import CabinetSettingWindow
 from g_defs.c_TreeWidgetItemSP import CTreeWidget
+from g_defs.c_cabinet_params import cabinet_params
 
 log = utils.log_utils.logging_init(__file__)
 
 class MainUi(QMainWindow):
+    signal_add_cabinet_label = pyqtSignal(cabinet_params)
+    signal_redraw_cabinet_label = pyqtSignal(cabinet_params)
     def __init__(self):
         super().__init__()
         pg.setConfigOptions(antialias=True)
@@ -52,8 +55,11 @@ class MainUi(QMainWindow):
         self.led_layout_window = LedLayoutWindow(self.led_wall_width, self.led_wall_height,
                                                  self.led_cabinet_width, self.led_cabinet_height,
                                                  default_led_wall_margin)
+        self.signal_add_cabinet_label.connect(self.led_layout_window.add_cabinet_label)
+        self.signal_redraw_cabinet_label.connect(self.led_layout_window.redraw_cabinet_label)
 
         self.cabinet_setting_window = CabinetSettingWindow(None)
+        self.cabinet_setting_window.setStyleSheet(qdarkstyle.load_stylesheet_pyqt5())
         self.cabinet_setting_window.set_cabinet_params_signal.connect(self.set_cabinet_params)
         self.cabinet_setting_window.draw_temp_cabinet_signal.connect(self.draw_cabinet_label)
 
@@ -538,7 +544,8 @@ class MainUi(QMainWindow):
                     port_layout = QTreeWidgetItem(client_led_layout)
                     port_layout.setText(0, "port" + str(i) + ":")
                     #gen cabinet label in led_wall_layout_window
-                    self.led_layout_window.add_cabinet_label(c.cabinets_setting[i])
+                    self.signal_add_cabinet_label.emit(c.cabinets_setting[i])
+                    #self.led_layout_window.add_cabinet_label( c.cabinets_setting[i])
 
                 self.client_led_layout.append(client_led_layout)
 
@@ -938,7 +945,7 @@ class MainUi(QMainWindow):
                 log.debug("c.cabinets_setting[c_params.port_id].start_y = %d", c.cabinets_setting[c_params.port_id].start_y)
 
     def draw_cabinet_label(self, c_params):
-        log.debug('')
         if self.led_layout_window is not None:
             log.debug('')
-            self.led_layout_window.redraw_cabinet_label(c_params)
+            self.signal_redraw_cabinet_label.emit(c_params)
+            #self.led_layout_window.redraw_cabinet_label(c_params)

@@ -33,6 +33,11 @@ class LedLayoutWindow(QWidget):
         #self.single_cabinet_label = self.gen_single_cabinet_label(tmp_cabinet_params,
         #                                                          self.start_drag, self.label_drop_on_drag_label)
         self.single_cabinet_labels = []
+        self.cabinet_pixmaps = []
+        #c_params = cabinet_params("?", -1, 0, 40, 24, 0, 1, 1)
+        #single_cabinet_label = Draggable_cabinet_label(self, c_params, self.led_pinch, self.start_drag, self.label_drop_on_drag_label)
+        #self.single_cabinet_labels.append(single_cabinet_label)
+
 
         #self.led_fake_label.set_drag_label(self.single_cabinet_label)
         #print("single_cabinet_label label width", self.single_cabinet_label.width())
@@ -177,6 +182,12 @@ class LedLayoutWindow(QWidget):
         self.led_fake_label.resize(int(self.width()), int(self.height()))
 
     def gen_single_cabinet_label(self, c_params, start_drag_slot, label_drop_slot):
+        log.debug("")
+        single_cabinet_label = Draggable_cabinet_label(self, c_params, self.led_pinch, start_drag_slot, label_drop_slot)
+        self.single_cabinet_labels.append(single_cabinet_label)
+        return single_cabinet_label
+
+    def gen_single_cabinet_label_deprecated(self, c_params, start_drag_slot, label_drop_slot):
         self.single_cabinet_pixmap = utils.qtui_utils.gen_led_cabinet_pixmap(c_params.client_ip, c_params.client_id, c_params.port_id,
                                                                              c_params.cabinet_width, c_params.cabinet_height, 0, 1, layout_type=0,
                                                                              bg_color=Qt.GlobalColor.transparent, line_color=Qt.GlobalColor.red,
@@ -185,37 +196,83 @@ class LedLayoutWindow(QWidget):
                                        c_params.start_x, c_params.start_y, self.led_pinch, start_drag_slot, label_drop_slot)
 
 
-    def gen_single_cabinet_label_deprecated(self, c_ip, c_id, c_portid, cabinet_w, cabinet_h, start_x, start_y, start_drag_slot, label_drop_slot):
-        self.single_cabinet_pixmap = utils.qtui_utils.gen_led_cabinet_pixmap(c_ip, c_id, c_portid, cabinet_w, cabinet_h, 0, 1, layout_type=0,
-                                                                             bg_color=Qt.GlobalColor.transparent, line_color=Qt.GlobalColor.red,
-                                                                             str_color=Qt.GlobalColor.yellow)
-        return Draggable_cabinet_label(self, c_ip, c_id, c_portid,self.single_cabinet_pixmap, start_x, start_y, start_drag_slot, label_drop_slot)
-
     def add_cabinet_label(self, c_params):
-        tmp_label = self.gen_single_cabinet_label(c_params, self.start_drag, self.label_drop_on_drag_label)
-        self.single_cabinet_labels.append(tmp_label)
 
+        #c_params_tmp = cabinet_params(c_params.client_ip, c_params.client_id, c_params.port_id, 40, 24, 0, 1, 1) #for test
+        tmp_label = self.gen_single_cabinet_label(c_params, self.start_drag, self.label_drop_on_drag_label)
+        tmp_cabinet_pixmap = utils.qtui_utils.gen_led_cabinet_pixmap_with_cabinet_params(tmp_label.c_params, margin=0,
+                                                                                                bg_color=Qt.GlobalColor.transparent,
+                                                                                                line_color=Qt.GlobalColor.red,
+                                                                                                str_color=Qt.GlobalColor.yellow)
+
+        tmp_label.setPixmap(QPixmap(tmp_cabinet_pixmap))
+
+        tmp_label.resize(QPixmap(tmp_cabinet_pixmap).width(), QPixmap(tmp_cabinet_pixmap).height())
+        tmp_label.setScaledContents(True)
+        tmp_label.move(((tmp_label.c_params.start_x - 1) * tmp_label.c_params.led_pinch) + default_led_wall_margin,
+                  ((tmp_label.c_params.start_y - 1) * tmp_label.c_params.led_pinch) + default_led_wall_margin)
+        self.single_cabinet_labels.append(tmp_label)
+        tmp_label.show()
+
+    ''' 依照 c_params 選定label來更新'''
     def redraw_cabinet_label(self, c_params):
+        log.debug('len of self.single_cabinet_labels :%d', len(self.single_cabinet_labels))
         for cabinet_label in self.single_cabinet_labels:
-            if cabinet_label.client_ip is c_params.client_ip:
-                if cabinet_label.client_portid == c_params.port_id:
-                    log.debug('good')
-                    '''gen new pixmap'''
-                    paintEvent = QPaintEvent()
-                    cabinet_label.paintEvent(paintEvent)
-                    #image = utils.qtui_utils.gen_led_cabinet_pixmap(c_params.client_ip, c_params.client_id, c_params.port_id,
-                    #                                                         c_params.cabinet_width, c_params.cabinet_height, 0, 1, layout_type=0,
-                    #                                                         bg_color=Qt.GlobalColor.transparent, line_color=Qt.GlobalColor.red,
-                    #                                                         str_color=Qt.GlobalColor.yellow)
-                    #cabinet_label.setPixmap(QPixmap(image))
-                    #cabinet_label.resize(QPixmap(image).width(), QPixmap(image).height())
-                    #cabinet_label.move(((c_params.start_x - 1) * self.led_pinch) + default_led_wall_margin,
-                    #     ((c_params.start_y - 1) * self.led_pinch) + default_led_wall_margin)
+            if cabinet_label.c_params.client_ip is c_params.client_ip:
+                if cabinet_label.c_params.port_id == c_params.port_id:
+                    log.debug('client ip & port id match')
+                    image = utils.qtui_utils.gen_led_cabinet_pixmap(c_params.client_ip, c_params.client_id, c_params.port_id,
+                                                                    c_params.cabinet_width, c_params.cabinet_height, 0, 1, layout_type=0,
+                                                                    bg_color=Qt.GlobalColor.transparent,
+                                                                    line_color=Qt.GlobalColor.red,
+                                                                    str_color=Qt.GlobalColor.yellow)
+                    cabinet_label.setPixmap(QPixmap(image))
+                    cabinet_label.resize(QPixmap(image).width(), QPixmap(image).height())
+                    cabinet_label.move(((c_params.start_x - 1) * c_params.led_pinch) + default_led_wall_margin,
+                              ((c_params.start_y - 1) * c_params.led_pinch) + default_led_wall_margin)
+
+
+                    cabinet_label.show()
+                    break
+
 
 class Draggable_cabinet_label(QLabel):
     start_drag_signal = pyqtSignal(QLabel, QPoint)
     label_drop_signal = pyqtSignal(QLabel, QPoint)
-    def __init__(self, parent, c_ip, c_id, c_portid, image, start_x, start_y, led_pinch, start_drag_slot, label_drop_slot):
+    def __init__(self, parent, c_params, led_pinch, start_drag_slot, label_drop_slot):
+        super(QLabel, self).__init__(parent)
+        self.c_params = c_params
+        self.setScaledContents(True)
+        self.setAcceptDrops(True)
+
+        '''test'''
+        '''self.cabinet_layout_image = utils.qtui_utils.gen_led_cabinet_pixmap_with_cabinet_params(self.c_params,margin=0,
+                                                                             bg_color=Qt.GlobalColor.transparent, line_color=Qt.GlobalColor.red,
+                                                                             str_color=Qt.GlobalColor.yellow)
+        self.setPixmap(QPixmap(self.cabinet_layout_image))
+        self.resize(QPixmap(self.cabinet_layout_image).width(), QPixmap(self.cabinet_layout_image).height())
+        self.move(((self.c_params.start_x - 1) * self.c_params.led_pinch) + default_led_wall_margin,
+                  ((self.c_params.start_y - 1) * self.c_params.led_pinch) + default_led_wall_margin)'''
+
+        self.start_drag_signal.connect(start_drag_slot)
+        self.label_drop_signal.connect(label_drop_slot)
+        #self.show()
+
+
+    '''def paintEvent(self, a0: QPaintEvent) -> None:
+        #log.debug('')
+        self.cabinet_layout_image = utils.qtui_utils.gen_led_cabinet_pixmap_with_cabinet_params(self.c_params, margin=0,
+                                                                                                bg_color=Qt.GlobalColor.transparent,
+                                                                                                line_color=Qt.GlobalColor.red,
+                                                                                                str_color=Qt.GlobalColor.yellow)
+        self.setPixmap(QPixmap(self.cabinet_layout_image))
+        self.resize(QPixmap(self.cabinet_layout_image).width(), QPixmap(self.cabinet_layout_image).height())
+        log.debug('QPixmap(self.cabinet_layout_image).width() : %d', QPixmap(self.cabinet_layout_image).width())
+        log.debug('QPixmap(self.cabinet_layout_image).height() : %d', QPixmap(self.cabinet_layout_image).height())
+        self.move(((self.c_params.start_x - 1) * self.c_params.led_pinch) + default_led_wall_margin,
+                  ((self.c_params.start_y - 1) * self.c_params.led_pinch) + default_led_wall_margin)'''
+
+    '''def __init__(self, parent, c_ip, c_id, c_portid, image, start_x, start_y, led_pinch, start_drag_slot, label_drop_slot):
         super(QLabel, self).__init__(parent)
         self.setPixmap(QPixmap(image))
 
@@ -228,7 +285,20 @@ class Draggable_cabinet_label(QLabel):
         self.show()
         self.setAcceptDrops(True)
         self.start_drag_signal.connect(start_drag_slot)
-        self.label_drop_signal.connect(label_drop_slot)
+        self.label_drop_signal.connect(label_drop_slot)'''
+    def set_c_params(self, c_params):
+        log.debug('')
+        self.c_params = c_params
+
+    '''def redraw(self):
+        self.cabinet_layout_image = utils.qtui_utils.gen_led_cabinet_pixmap_with_cabinet_params(self.c_params, margin=0,
+                                                                                                bg_color=Qt.GlobalColor.transparent,
+                                                                                                line_color=Qt.GlobalColor.red,
+                                                                                                str_color=Qt.GlobalColor.yellow)
+        self.setPixmap(QPixmap(self.cabinet_layout_image))
+        self.resize(QPixmap(self.cabinet_layout_image).width(), QPixmap(self.cabinet_layout_image).height())
+        self.move(((self.c_params.start_x - 1) * self.c_params.led_pinch) + default_led_wall_margin,
+                  ((self.c_params.start_y - 1) * self.c_params.led_pinch) + default_led_wall_margin)'''
 
     def dragEnterEvent(self, event):
         log.debug('dragEnterEvent')
@@ -241,12 +311,12 @@ class Draggable_cabinet_label(QLabel):
         pos = event.pos()
         self.label_drop_signal.emit(self, pos)
 
-    def paintEvent(self, a0: QPaintEvent) -> None:
+    '''def paintEvent(self, a0: QPaintEvent) -> None:
         image = utils.qtui_utils.gen_led_cabinet_pixmap("192.168.0.11", 0, 0,
                                                         40, 24, 0, 1, layout_type=0,
                                                         bg_color=Qt.GlobalColor.transparent, line_color=Qt.GlobalColor.red,
                                                         str_color=Qt.GlobalColor.yellow)
-        self.resize(QPixmap(image).width(), QPixmap(image).height())
+        self.resize(QPixmap(image).width(), QPixmap(image).height())'''
 
     def mouseReleaseEvent(self, QMouseEvent):
         log.debug('mousePressEvent')
@@ -305,9 +375,13 @@ class Droppable_led_label(QLabel):
     def dropEvent(self, event):
         log.debug("dropEvent")
         pos = event.pos()
-        #改成用pyqtsignal處理可能比較好
-        #self.drag_label.move(pos)
-        #pyqtsignal
-        #self.label_drop_signal.emit(self.drag_label, pos)
         self.label_drop_signal.emit(pos)
         event.acceptProposedAction()
+
+class cabinet_pixmap(QObject):
+    def __init__(self, c_params, **kwargs):
+        self.c_params = c_params
+        self.qpixmap_image = utils.qtui_utils.gen_led_cabinet_pixmap_with_cabinet_params(self.c_params, margin=0,
+                                                                                                bg_color=Qt.GlobalColor.transparent,
+                                                                                                line_color=Qt.GlobalColor.red,
+                                                                                                str_color=Qt.GlobalColor.yellow)

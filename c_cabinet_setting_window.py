@@ -16,8 +16,8 @@ class CabinetSettingWindow(QWidget):
     def __init__(self,  c_params, **kwargs):
         super(CabinetSettingWindow, self).__init__()
         if c_params is None:
-            self.cabinet_params = cabinet_params("?", -1, 0, 0, 0, -1, 0, 0)
-            self.cabinet_params_bak = cabinet_params("?", -1, 0, 0, 0, -1, 0, 0)
+            self.cabinet_params = cabinet_params("?", -1, 0, 0, 0, 0, 0, 0)
+            self.cabinet_params_bak = cabinet_params("?", -1, 0, 0, 0, 0, 0, 0)
         self.setWindowTitle("cabinet setting")
         self.init_ui()
 
@@ -25,6 +25,9 @@ class CabinetSettingWindow(QWidget):
         self.confirm_btn.clicked.connect(self.confirm_btn_clicked)
         self.cancel_btn.clicked.connect(self.cancel_btn_clicked)
         self.cabinet_width_textedit.textChanged.connect(self.cabinet_width_textChanged)
+        self.cabinet_height_textedit.textChanged.connect(self.cabinet_height_textChanged)
+        self.cabinet_startx_textedit.textChanged.connect(self.cabinet_startx_textChanged)
+        self.cabinet_starty_textedit.textChanged.connect(self.cabinet_starty_textChanged)
 
 
     def init_ui(self):
