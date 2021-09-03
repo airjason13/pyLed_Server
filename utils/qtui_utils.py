@@ -118,7 +118,7 @@ def gen_led_layout_pixmap(led_w, led_h, margin, bg_color, point_color):
                 continue
             if h%scale_factor != 0:
                 continue
-            pixmap_paint.drawPoint(margin + w, margin + 4 + h)  #why add 4???
+            pixmap_paint.drawPoint(margin + w, margin + h)  #why add 4???
     log.debug("pixmap_led_layout width : %d", pixmap_led_layout.width())
     log.debug("pixmap_led_layout height : %d", pixmap_led_layout.height())
     return pixmap_led_layout
@@ -220,7 +220,7 @@ def gen_led_cabinet_pixmap_with_cabinet_params(c_params, margin=0,
                                       margin + int(c_params.cabinet_width / scale_factor), margin + i)
                 pixmap_paint.drawLine( margin, margin + i + (line_interval),
                                        + margin + int(c_params.cabinet_width / scale_factor), margin + i)
-    elif c_params.layout_type == 4 or c_params.layout_type == 5:
+    elif c_params.layout_type == 4 or c_params.layout_type == 7:
         for i in range(max_line):
             '''直線'''
             if i % (scale_factor) == line_interval:
@@ -228,24 +228,43 @@ def gen_led_cabinet_pixmap_with_cabinet_params(c_params, margin=0,
                                       margin + ((c_params.cabinet_height - 1) * scale_factor))
                 ''' check line number'''
                 w_drawed += 1
-            # 下方直線
+            # 上方直線
             elif i % (scale_factor * 2) == line_interval + scale_factor + 1:
                 pixmap_paint.drawLine(margin + (i), margin,
                                       margin + (i + (scale_factor)), margin)
 
-            # 上方直線
+            # 下方直線
             elif i % (scale_factor * 2) == line_interval + 1:
                 pixmap_paint.drawLine(margin + (i), margin + ((c_params.cabinet_height - 1) * scale_factor),
-                                      margin + (i + (scale_factor)),
-                                      margin + ((c_params.cabinet_height - 1) * scale_factor))
+                                      margin + (i + (scale_factor)),  margin + ((c_params.cabinet_height - 1) * scale_factor))
 
 
             if w_drawed >= c_params.cabinet_width:
                 break
         '''draw arrow'''
-        
-        pass
-    elif c_params.layout_type == 6 or c_params.layout_type == 7:
+        if c_params.layout_type == 4:
+            '''pixmap_paint.drawLine(margin + i - line_interval, margin,
+                                  margin + i, margin + int(c_params.cabinet_width / scale_factor))
+            pixmap_paint.drawLine(margin + i + line_interval, margin,
+                                  margin + i, margin + int(c_params.cabinet_width / scale_factor))'''
+            if c_params.cabinet_width % 2 == 0:
+                pixmap_paint.drawLine(margin + i -line_interval , margin ,
+                                      margin + i , margin  + int(c_params.cabinet_width/scale_factor))
+                pixmap_paint.drawLine(margin + i + line_interval, margin ,
+                                      margin +i , margin + int(c_params.cabinet_width / scale_factor))
+            elif c_params.cabinet_width % 2 == 1:
+                pixmap_paint.drawLine(margin + i - line_interval, margin + ((c_params.cabinet_height - 1) * scale_factor) ,
+                                      margin + i , margin + ((c_params.cabinet_height - 1) * scale_factor) - line_interval )
+                pixmap_paint.drawLine(margin + i + line_interval, margin + ((c_params.cabinet_height - 1) * scale_factor),
+                                      margin + i , margin + ((c_params.cabinet_height - 1) * scale_factor) - line_interval)
+
+        elif c_params.layout_type == 7:
+            pixmap_paint.drawLine(margin , margin ,
+                                  margin + line_interval, margin + int(c_params.cabinet_width / scale_factor))
+            pixmap_paint.drawLine(margin + (2*line_interval) , margin ,
+                                  margin + line_interval, margin + int(c_params.cabinet_width / scale_factor))
+            pass
+    elif c_params.layout_type == 5 or c_params.layout_type == 6:
         for i in range( max_line):
             '''直線'''
             if i % (scale_factor) == line_interval:
@@ -266,6 +285,22 @@ def gen_led_cabinet_pixmap_with_cabinet_params(c_params, margin=0,
             if w_drawed >= c_params.cabinet_width:
                 break
         '''draw arrow'''
+        if c_params.layout_type == 5:
+            pixmap_paint.drawLine(margin , margin + ((c_params.cabinet_height - 1) * scale_factor),
+                                  margin + line_interval, margin + ((c_params.cabinet_height - 1) * scale_factor) - int(c_params.cabinet_width/scale_factor))
+            pixmap_paint.drawLine(margin + (2*line_interval), margin + ((c_params.cabinet_height - 1) * scale_factor) ,
+                                  margin + line_interval, margin + ((c_params.cabinet_height - 1) * scale_factor) - int(c_params.cabinet_width / scale_factor))
+        elif c_params.layout_type == 6:
+            if c_params.cabinet_width % 2 == 1:
+                pixmap_paint.drawLine(margin + i -line_interval , margin ,
+                                      margin + i , margin  + int(c_params.cabinet_width/scale_factor))
+                pixmap_paint.drawLine(margin + i + line_interval, margin ,
+                                      margin +i , margin + int(c_params.cabinet_width / scale_factor))
+            elif c_params.cabinet_width % 2 == 0:
+                pixmap_paint.drawLine(margin + i - line_interval, margin + ((c_params.cabinet_height - 1) * scale_factor) ,
+                                      margin + i , margin + ((c_params.cabinet_height - 1) * scale_factor) - line_interval )
+                pixmap_paint.drawLine(margin + i + line_interval, margin + ((c_params.cabinet_height - 1) * scale_factor),
+                                      margin + i , margin + ((c_params.cabinet_height - 1) * scale_factor) - line_interval)
     '''draw str_port_id'''
     pixmap_paint.setPen(str_color)
     pixmap_paint.drawText(c_params.cabinet_width, c_params.cabinet_height, str_port_id)

@@ -65,7 +65,7 @@ class LedLayoutWindow(QWidget):
         log.debug('start_drag')
         self.drag_label = drag_label
         self.drag_label_ori_pos = self.drag_label.pos()
-        ##self.drag_label.move(start_offset)
+
         log.debug(self.drag_label_ori_pos)
         self.drag_label_ori_offset = start_offset
         log.debug(start_offset)
@@ -104,7 +104,8 @@ class LedLayoutWindow(QWidget):
         log.debug("final_pos_y : %d", final_pos_y)
         log.debug("x_pix_factor : %d", x_pix_factor)
         log.debug("y_pix_factor : %d", y_pix_factor)
-        drop_label.move(final_pos_x, final_pos_y)
+        x_compensation, y_compensation = self.get_coordinate_compensation(drop_label.c_params)
+        drop_label.move(final_pos_x + x_compensation, final_pos_y + y_compensation)
 
     ''' slot function for drop signal'''
     def label_drop(self, pos):
@@ -139,10 +140,10 @@ class LedLayoutWindow(QWidget):
         log.debug("x_pix_factor : %d", x_pix_factor)
         log.debug("y_pix_factor : %d", y_pix_factor)
 
-        #drop_label.move(final_pos_x, final_pos_y)
-        self.drag_label.move(final_pos_x, final_pos_y)
+        x_compensation, y_compensation = self.get_coordinate_compensation(self.drag_label.c_params)
+        self.drag_label.move(final_pos_x + x_compensation, final_pos_y + y_compensation)
 
-        #drop_label.move(final_pos_x, final_pos_y)
+
 
     def resizeEvent(self, a0: QResizeEvent) -> None:
         log.debug("resizeEvent")
@@ -209,8 +210,9 @@ class LedLayoutWindow(QWidget):
 
         tmp_label.resize(QPixmap(tmp_cabinet_pixmap).width(), QPixmap(tmp_cabinet_pixmap).height())
         tmp_label.setScaledContents(True)
-        tmp_label.move(((tmp_label.c_params.start_x - 1) * tmp_label.c_params.led_pinch) + default_led_wall_margin,
-                  ((tmp_label.c_params.start_y - 1) * tmp_label.c_params.led_pinch) + default_led_wall_margin)
+        x_compensation, y_compensation = self.get_coordinate_compensation(c_params)
+        tmp_label.move(((tmp_label.c_params.start_x - 1) * tmp_label.c_params.led_pinch) + default_led_wall_margin + x_compensation,
+                  ((tmp_label.c_params.start_y - 1) * tmp_label.c_params.led_pinch) + default_led_wall_margin + y_compensation)
         self.single_cabinet_labels.append(tmp_label)
         tmp_label.show()
 
@@ -227,13 +229,26 @@ class LedLayoutWindow(QWidget):
                                                                     str_color=Qt.GlobalColor.yellow)
                     cabinet_label.setPixmap(QPixmap(image))
                     cabinet_label.resize(QPixmap(image).width(), QPixmap(image).height())
-                    cabinet_label.move(((c_params.start_x - 1) * c_params.led_pinch) + default_led_wall_margin,
-                              ((c_params.start_y - 1) * c_params.led_pinch) + default_led_wall_margin)
+                    x_compensation, y_compensation = self.get_coordinate_compensation(c_params)
+                    log.debug("x_compensation = %d", x_compensation)
+                    log.debug("y_compensation = %d", y_compensation)
+                    cabinet_label.move(((c_params.start_x - 1) * c_params.led_pinch) + default_led_wall_margin + x_compensation,
+                              ((c_params.start_y - 1) * c_params.led_pinch) + default_led_wall_margin + y_compensation)
 
 
                     cabinet_label.show()
                     break
 
+    def get_coordinate_compensation(self, c_params):
+        x = 0
+        y = 0
+        log.debug("c_params.layout_type : %d", c_params.layout_type)
+        if c_params.layout_type > 3:
+            x = -4
+            #y = -4
+        else :
+            y = -4
+        return x, y
 
 class Draggable_cabinet_label(QLabel):
     start_drag_signal = pyqtSignal(QLabel, QPoint)
@@ -244,14 +259,7 @@ class Draggable_cabinet_label(QLabel):
         self.setScaledContents(True)
         self.setAcceptDrops(True)
 
-        '''test'''
-        '''self.cabinet_layout_image = utils.qtui_utils.gen_led_cabinet_pixmap_with_cabinet_params(self.c_params,margin=0,
-                                                                             bg_color=Qt.GlobalColor.transparent, line_color=Qt.GlobalColor.red,
-                                                                             str_color=Qt.GlobalColor.yellow)
-        self.setPixmap(QPixmap(self.cabinet_layout_image))
-        self.resize(QPixmap(self.cabinet_layout_image).width(), QPixmap(self.cabinet_layout_image).height())
-        self.move(((self.c_params.start_x - 1) * self.c_params.led_pinch) + default_led_wall_margin,
-                  ((self.c_params.start_y - 1) * self.c_params.led_pinch) + default_led_wall_margin)'''
+
 
         self.start_drag_signal.connect(start_drag_slot)
         self.label_drop_signal.connect(label_drop_slot)
@@ -289,7 +297,7 @@ class Draggable_cabinet_label(QLabel):
 
 
     def mouseMoveEvent(self, event):
-        log.debug('mouseMoveEvent')
+
         log.debug(event.pos())
         if not (event.buttons() & Qt.LeftButton):
             return
