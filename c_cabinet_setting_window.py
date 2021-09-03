@@ -65,12 +65,13 @@ class CabinetSettingWindow(QWidget):
             radio_layout_type.setIcon(icon)
             radio_layout_type.setIconSize(QSize(172, 48))
             self.radio_layout_types.append(radio_layout_type)
-
+            self.radio_layout_types[i].toggled.connect(self.radio_layout_types_toggled)
         for i in range(8):
             if i < 4:
                 self.radio_layout_type_groupbox_gridboxlayout.addWidget(self.radio_layout_types[i], 0, i%4)
             else:
                 self.radio_layout_type_groupbox_gridboxlayout.addWidget(self.radio_layout_types[i], 1, i % 4)
+
 
         ''' '''
         testwidget = QFrame()
@@ -147,6 +148,7 @@ class CabinetSettingWindow(QWidget):
         self.cabinet_height_textedit.setText(str(self.cabinet_params.cabinet_height))
         self.cabinet_startx_textedit.setText(str(self.cabinet_params.start_x))
         self.cabinet_starty_textedit.setText(str(self.cabinet_params.start_y))
+        self.radio_layout_types[c_params.layout_type].setChecked(True)
 
     def confirm_btn_clicked(self):
         log.debug("")
@@ -154,6 +156,10 @@ class CabinetSettingWindow(QWidget):
         self.cabinet_params.cabinet_height = int(self.cabinet_height_textedit.toPlainText())
         self.cabinet_params.start_x = int(self.cabinet_startx_textedit.toPlainText())
         self.cabinet_params.start_y = int(self.cabinet_starty_textedit.toPlainText())
+        for i in range(len(self.radio_layout_types)):
+            if self.radio_layout_types[i].isChecked():
+                log.debug('self.radio_layout_types is %d', i)
+                self.cabinet_params.layout_type = i
         self.signal_set_cabinet_params.emit(self.cabinet_params)
         self.signal_draw_temp_cabinet.emit(self.cabinet_params, Qt.GlobalColor.red)
         self.hide()
@@ -184,6 +190,22 @@ class CabinetSettingWindow(QWidget):
     def cabinet_starty_textChanged(self):
         self.cabinet_params_bak.start_y = int(self.cabinet_starty_textedit.toPlainText())
         self.signal_draw_temp_cabinet.emit(self.cabinet_params_bak, Qt.GlobalColor.yellow)
+
+    def radio_layout_types_toggled(self, is_selected):
+        log.debug('')
+        if is_selected is False:
+            return
+        radiobtn = self.sender()
+
+        i = 0
+        for radio_layout_type in self.radio_layout_types:
+            if radio_layout_type == radiobtn:
+                log.debug('radio_layout_type : %d', i)
+                self.cabinet_params_bak.layout_type = i
+                self.signal_draw_temp_cabinet.emit(self.cabinet_params_bak, Qt.GlobalColor.yellow)
+                break
+            i += 1
+
 
     def __del__(self):
         log.debug("")
