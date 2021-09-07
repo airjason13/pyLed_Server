@@ -8,7 +8,7 @@ from g_defs.c_cabinet_params import cabinet_params
 from global_def import *
 import threading
 import asyncio
-
+from commands_def import *
 
 log = utils.log_utils.logging_init('c_client')
 
@@ -93,3 +93,41 @@ class client(QObject):
 
         '''test send cmd with signal_cabinet_params_changed signal/slot'''
         self.signal_cabinet_params_changed.emit(self.cabinets_setting[c_params.port_id])
+
+    def parse_get_cmd_reply_get_cabinet_params(self, cmd, recv_data):
+        try:
+            data = recv_data.split(";")[2].split(":")[1]
+            print(data)
+            str_params = data.split(",")
+            for s in str_params:
+                if s.startswith("port_id"):
+                    port_id = int(s.split("port_id=")[1])
+                elif s.startswith("cabinet_width"):
+                    cabinet_width = int(s.split("cabinet_width=")[1])
+                elif s.startswith("cabinet_height"):
+                    cabinet_height = int(s.split("cabinet_height=")[1])
+                elif s.startswith("start_x"):
+                    start_x = int(s.split("start_x=")[1])
+                elif s.startswith("start_y"):
+                    start_y = int(s.split("start_y=")[1])
+                elif s.startswith("layout_type"):
+                    layout_type = int(s.split("layout_type=")[1])
+            log.debug("port_id: %d", port_id)
+            log.debug("cabinet_width: %d", cabinet_width)
+            log.debug("cabinet_height: %d", cabinet_height)
+            log.debug("start_x: %d", start_x)
+            log.debug("start_y: %d", start_y)
+            log.debug("layout_type: %d", layout_type)
+            self.cabinets_setting[port_id].cabinet_width = cabinet_width
+            self.cabinets_setting[port_id].cabinet_height = cabinet_height
+            self.cabinets_setting[port_id].start_x = start_x
+            self.cabinets_setting[port_id].start_y = start_y
+            self.cabinets_setting[port_id].layout_type = layout_type
+
+        except Exception as e:
+            log.fatal(e)
+
+    def parse_get_cmd_reply(self, cmd, recv_data):
+        if cmd == cmd_get_cabinet_params:
+            self.parse_get_cmd_reply_get_cabinet_params(cmd, recv_data)
+

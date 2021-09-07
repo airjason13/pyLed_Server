@@ -63,7 +63,7 @@ def send_udp_cmd(*args, **kwargs):
         else:    
             cb( True, cmd, recvData=revcData.decode(), client_ip=remoteHost, client_reply_port=remotePort)
     except Exception as e:
-        log.fatal("cmd_seq_id error")
+        #log.fatal("cmd_seq_id error")
         log.fatal("cmd_seq_id : %d", cmd_seq_id)
         #log.fatal("int(recv_cmd_seq_id): %d", int(recv_cmd_seq_id))
         log.fatal(e)

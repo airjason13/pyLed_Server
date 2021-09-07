@@ -469,8 +469,12 @@ class MainUi(QMainWindow):
                 #connect signal/slot function
                 c.signal_send_cmd_ret.connect(self.client_send_cmd_ret)
                 c.signal_cabinet_params_changed.connect(self.send_cmd_set_cabinet_params)
+
                 self.client_id_count += 1
                 self.clients.append(c)
+
+                self.sync_client_cabinet_params(c.client_ip, False)
+
                 self.refresh_client_table()
             else:
                 """ find this ip in clients list, set the alive report count"""
@@ -863,7 +867,7 @@ class MainUi(QMainWindow):
                         cmd = "get_pico_num"
                     elif i == 0:
                         cmd = "get_version"
-                    param = "get_version"
+                    param = "abcde"
                     c.send_cmd(cmd=cmd, cmd_seq_id=self.cmd_seq_id_increase(), param=param)
                     time.sleep(0.1)
 
@@ -882,6 +886,11 @@ class MainUi(QMainWindow):
                 except Exception as e:
                     log.fatal(e)
         else:
+            if send_cmd.startswith("get") :
+                if client_ip is not None:
+                    for c in self.clients:
+                        if c.client_ip == client_ip:
+                            c.parse_get_cmd_reply(send_cmd, recvData)
             log.debug('send_cmd : %s', send_cmd)
             log.debug('recvData : %s', recvData)
             pass
@@ -922,7 +931,6 @@ class MainUi(QMainWindow):
                 try:
                     if self.cabinet_setting_window is not None:
                         self.cabinet_setting_window.set_params(c.cabinets_setting[a0.row()])
-
                     else:
                         self.cabinet_setting_window = CabinetSettingWindow(c.cabinets_setting[a0.row()])
                     self.cabinet_setting_window.show()
@@ -932,7 +940,6 @@ class MainUi(QMainWindow):
                 break
 
     def set_cabinet_params(self, c_params):
-
         log.debug('c_params.client_ip : %s', c_params.client_ip )
         log.debug('c_params.port_id : %d', c_params.port_id)
         for c in self.clients:
@@ -978,3 +985,11 @@ class MainUi(QMainWindow):
 
                 c.send_cmd(cmd=cmd_set_cabinet_params, cmd_seq_id=self.cmd_seq_id_increase(), param=str_params)
                 break
+
+    def sync_client_cabinet_params(self, ip, force_or_not):
+        ip = "192.168.0.10" #test
+        for c in self.clients:
+            if c.client_ip == ip:
+                for i in range(c.num_of_cabinet):
+                    param_str = "port_id:" + str(i)
+                    c.send_cmd(cmd=cmd_get_cabinet_params, cmd_seq_id=self.cmd_seq_id_increase(), param=param_str)

@@ -183,7 +183,7 @@ class LedLayoutWindow(QWidget):
         self.led_fake_label.resize(int(self.width()), int(self.height()))
 
     def gen_single_cabinet_label(self, c_params, start_drag_slot, label_drop_slot):
-        log.debug("")
+
         single_cabinet_label = Draggable_cabinet_label(self, c_params, self.led_pinch, start_drag_slot, label_drop_slot)
         self.single_cabinet_labels.append(single_cabinet_label)
         return single_cabinet_label
@@ -211,8 +211,12 @@ class LedLayoutWindow(QWidget):
         tmp_label.resize(QPixmap(tmp_cabinet_pixmap).width(), QPixmap(tmp_cabinet_pixmap).height())
         tmp_label.setScaledContents(True)
         x_compensation, y_compensation = self.get_coordinate_compensation(c_params)
-        tmp_label.move(((tmp_label.c_params.start_x - 1) * tmp_label.c_params.led_pinch) + default_led_wall_margin + x_compensation,
-                  ((tmp_label.c_params.start_y - 1) * tmp_label.c_params.led_pinch) + default_led_wall_margin + y_compensation)
+        label_start_x, label_start_y = self.get_label_start_pos_with_layout_type(c_params)
+        tmp_label.move(
+            (label_start_x * c_params.led_pinch) + default_led_wall_margin + x_compensation,
+            (label_start_y * c_params.led_pinch) + default_led_wall_margin + y_compensation)
+        #tmp_label.move(((tmp_label.c_params.start_x - 1) * tmp_label.c_params.led_pinch) + default_led_wall_margin + x_compensation,
+        #          ((tmp_label.c_params.start_y - 1) * tmp_label.c_params.led_pinch) + default_led_wall_margin + y_compensation)
         self.single_cabinet_labels.append(tmp_label)
         tmp_label.show()
 
@@ -229,20 +233,49 @@ class LedLayoutWindow(QWidget):
                                                                     str_color=Qt.GlobalColor.yellow)
                     cabinet_label.setPixmap(QPixmap(image))
                     cabinet_label.resize(QPixmap(image).width(), QPixmap(image).height())
+
+                    label_start_x, label_start_y = self.get_label_start_pos_with_layout_type(c_params)
+
                     x_compensation, y_compensation = self.get_coordinate_compensation(c_params)
+
+                    log.debug("label_start_x = %d", label_start_x)
+                    log.debug("label_start_y = %d", label_start_y)
                     log.debug("x_compensation = %d", x_compensation)
                     log.debug("y_compensation = %d", y_compensation)
-                    cabinet_label.move(((c_params.start_x - 1) * c_params.led_pinch) + default_led_wall_margin + x_compensation,
-                              ((c_params.start_y - 1) * c_params.led_pinch) + default_led_wall_margin + y_compensation)
+                    cabinet_label.move(
+                        (label_start_x * c_params.led_pinch) + default_led_wall_margin + x_compensation,
+                        (label_start_y * c_params.led_pinch) + default_led_wall_margin + y_compensation)
+                    #cabinet_label.move(((c_params.start_x - 1) * c_params.led_pinch) + default_led_wall_margin + x_compensation,
+                    #          ((c_params.start_y - 1) * c_params.led_pinch) + default_led_wall_margin + y_compensation)
 
 
                     cabinet_label.show()
                     break
 
+    def get_label_start_pos_with_layout_type(self, c_params):
+        x = c_params.start_x
+        y = c_params.start_y
+        if c_params.layout_type == 0:
+            x = c_params.start_x - 1
+            y = c_params.start_y - 1
+        if c_params.layout_type == 1:
+            x = c_params.start_x - 1
+            y = c_params.start_y - 1- c_params.cabinet_height
+        elif c_params.layout_type == 2:
+            x = c_params.start_x - 1 - c_params.cabinet_width
+            y = c_params.start_y - 1
+        elif c_params.layout_type == 3:
+            x = c_params.start_x - 1 - c_params.cabinet_width
+            y = c_params.start_y - 1 - c_params.cabinet_height
+
+        return x, y
+
+
+    ''' for line interval compensation'''
     def get_coordinate_compensation(self, c_params):
         x = 0
         y = 0
-        log.debug("c_params.layout_type : %d", c_params.layout_type)
+
         if c_params.layout_type > 3:
             x = -4
             #y = -4

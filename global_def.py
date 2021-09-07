@@ -3,7 +3,7 @@ import platform
 """Software version"""
 
 """Network relative"""
-version="LS210824A01"
+version="LS210907A01"
 multicast_group="239.11.11.11"
 server_broadcast_port=11334
 server_broadcast_message="ABCDE;Server:192.168.0.3;Cmd_Port:11335;Alive_Port:11333"

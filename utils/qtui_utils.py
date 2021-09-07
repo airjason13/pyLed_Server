@@ -1,5 +1,5 @@
 from PyQt5.QtGui import QPixmap, QPainter
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QPoint
 import utils.log_utils
 
 log = utils.log_utils.logging_init(__file__)
@@ -15,11 +15,10 @@ def gen_led_layout_type_pixmap( led_w, led_h, margin, layout_type):
     else:
         max_line = int(led_h / margin) + 1
     '''draw line'''
-    if layout_type == 0 or layout_type == 1:
+    if layout_type == 0 or layout_type == 3:
         for i in range(max_line):
             '''橫線'''
             pixmap_paint.drawLine(margin, margin*(i+1), led_w + margin , margin*(i+1))
-
             '''直線'''
             if i % 2 == 0:
                 if i == (max_line - 1):
@@ -33,11 +32,11 @@ def gen_led_layout_type_pixmap( led_w, led_h, margin, layout_type):
             pixmap_paint.drawLine(margin, int(margin * (0.5)), int(led_w/8) + margin, margin * (0 + 1))
             pixmap_paint.drawLine(margin, int(margin * (1.5)), int(led_w/8) + margin, margin * (0 + 1))
 
-        elif layout_type == 1:
+        elif layout_type == 3:
             pixmap_paint.drawLine(margin + led_w, int(margin*(i+1) - margin*0.5 ), margin + led_w - int(led_w/8), margin*(i+1))
             pixmap_paint.drawLine(margin + led_w, int(margin*(i+1) + margin*0.5 ), margin + led_w - int(led_w/8), margin*(i+1))
 
-    elif layout_type == 2 or layout_type == 3:
+    elif layout_type == 2 or layout_type == 1:
         for i in range(max_line):
             '''橫線'''
             pixmap_paint.drawLine(margin, margin*(i+1), led_w + margin , margin*(i+1))
@@ -56,7 +55,7 @@ def gen_led_layout_type_pixmap( led_w, led_h, margin, layout_type):
             pixmap_paint.drawLine(margin + led_w, int(margin * (1.5)),
                                   margin + led_w - int(led_w / 8), margin * (0 + 1))
 
-        elif layout_type == 3:
+        elif layout_type == 1:
             pixmap_paint.drawLine(margin, int(margin*(i+1) - margin*0.5 ),
                                   margin + int(led_w / 8), margin*(i+1))
             pixmap_paint.drawLine(margin , int(margin*(i+1) + margin*0.5),
@@ -125,6 +124,111 @@ def gen_led_layout_pixmap(led_w, led_h, margin, bg_color, point_color):
 
 
 ''' scale factor is 8'''
+
+
+def gen_led_cabinet_pixmap_with_cabinet_params_test(c_params, margin=0,
+                                               bg_color=Qt.GlobalColor.transparent, line_color=Qt.GlobalColor.red,
+                                               str_color=Qt.GlobalColor.yellow):
+    '''margin is 0 pixel, left/right/up/bottom is 0 pixel'''
+    log.debug('')
+    scale_factor = 8
+    line_interval = scale_factor / 2
+    arrow_width = scale_factor / 2
+    pixmap_led_layout_type = QPixmap(c_params.cabinet_width * scale_factor, c_params.cabinet_height * scale_factor)
+    pixmap_led_layout_type.fill(bg_color)
+    pixmap_paint = QPainter(pixmap_led_layout_type)
+
+    pixmap_paint.setPen(line_color)
+
+    str_port_id = str(c_params.client_id) + "-" + str(c_params.port_id)
+    if c_params.layout_type < 4:
+        if margin == 0:
+            max_line = c_params.cabinet_height * scale_factor
+        else:
+            max_line = int(c_params.cabinet_height * scale_factor / margin) + 1
+    else:
+        if margin == 0:
+            max_line = c_params.cabinet_width * scale_factor
+        else:
+            max_line = int(c_params.cabinet_width * scale_factor / margin) + 1
+    w_drawed = 0
+    h_drawed = 0
+    #if c_params.layout_type == 0 or c_params.layout_type == 1:
+    if c_params.layout_type == 0:
+        for i in range(max_line):
+            start_point = QPoint(c_params.start_x - 1 , c_params.start_y - 1 + line_interval)
+            start_point_bak = QPoint(c_params.start_x - 1 , c_params.start_y - 1 + line_interval)
+            print(start_point)
+            pixel_num = c_params.cabinet_width * c_params.cabinet_height
+            reverse = 0
+            for p in range(pixel_num -1 ):
+                if reverse == 0:
+                    if start_point_bak.x() < (c_params.cabinet_width - 1) * scale_factor:
+                        next_point = start_point_bak + (scale_factor * QPoint(1, 0))
+                    else:
+                        next_point = start_point_bak + (scale_factor * QPoint(0, 1))
+                        if reverse == 0:
+                            reverse = 1
+                        else:
+                            reverse = 0
+                else:
+                    if start_point_bak.x() > start_point.x():
+                        next_point = start_point_bak - (scale_factor * QPoint(1, 0))
+                    else:
+                        next_point = start_point_bak + (scale_factor * QPoint(0, 1))
+                        if reverse == 1:
+                            reverse = 0
+                        else:
+                            reverse = 1
+
+                pixmap_paint.drawLine(start_point_bak, next_point)
+                start_point_bak = next_point
+        '''draw arrow'''
+        if c_params.layout_type == 0:
+            pixmap_paint.drawLine(margin, margin,
+                                  margin + int(c_params.cabinet_width / scale_factor), margin + line_interval)
+            pixmap_paint.drawLine(margin, margin + (2 * line_interval),
+                                  margin + int(c_params.cabinet_width / scale_factor), margin + line_interval)
+        elif c_params.layout_type == 1:
+            if c_params.cabinet_height % 2 == 0:
+                pixmap_paint.drawLine(margin, margin + i - line_interval,
+                                      margin + int(c_params.cabinet_width / scale_factor), margin + i)
+                pixmap_paint.drawLine(margin, margin + i + (line_interval),
+                                      margin + int(c_params.cabinet_width / scale_factor), margin + i)
+            elif c_params.cabinet_height % 2 == 1:
+                pixmap_paint.drawLine(margin + ((c_params.cabinet_width - 1) * scale_factor),
+                                      margin + i - line_interval,
+                                      margin + ((c_params.cabinet_width - 1) * scale_factor) - int(
+                                          c_params.cabinet_width / scale_factor), margin + i)
+                pixmap_paint.drawLine(margin + ((c_params.cabinet_width - 1) * scale_factor),
+                                      margin + i + (line_interval),
+                                      margin + ((c_params.cabinet_width - 1) * scale_factor) - int(
+                                          c_params.cabinet_width / scale_factor), margin + i)
+
+    elif c_params.layout_type == 1:
+
+        start_point = scale_factor*QPoint(c_params.start_x - 1 , c_params.start_y - 1 ) + QPoint(0, line_interval)
+        start_point_bak = scale_factor*QPoint(c_params.start_x - 1 , c_params.start_y - 1 ) + QPoint(0, line_interval)
+
+        pixel_num = c_params.cabinet_width * c_params.cabinet_height
+        reverse = 1
+        for p in range(pixel_num - 1):
+            next_point = start_point_bak - (scale_factor*QPoint(1, 0))
+            print(next_point)
+
+            pixmap_paint.drawLine(start_point_bak, next_point)
+            start_point_bak = next_point
+
+    '''draw str_port_id'''
+    pixmap_paint.setPen(str_color)
+    pixmap_paint.drawText(c_params.cabinet_width, c_params.cabinet_height, str_port_id)
+
+
+
+
+    return pixmap_led_layout_type
+
+''' scale factor is 8'''
 def gen_led_cabinet_pixmap_with_cabinet_params(c_params, margin=0,
                            bg_color=Qt.GlobalColor.transparent, line_color=Qt.GlobalColor.red, str_color=Qt.GlobalColor.yellow):
     '''margin is 0 pixel, left/right/up/bottom is 0 pixel'''
@@ -153,10 +257,53 @@ def gen_led_cabinet_pixmap_with_cabinet_params(c_params, margin=0,
     h_drawed = 0
     if c_params.layout_type == 0 or c_params.layout_type == 1:
         for i in range( max_line):
+            start_point = QPoint(c_params.start_x - 1, c_params.start_y -1)
+            '''start_point_bak = QPoint(c_params.start_x - 1, c_params.start_y -1)
+            print(start_point)
+            pixel_num = c_params.cabinet_width * c_params.cabinet_height
+            reverse = 0
+            for p in range(pixel_num -1):
+                if reverse == 0:
+                    if start_point_bak.x() < (c_params.cabinet_width - 1)*scale_factor:
+                        next_point = start_point_bak + (scale_factor*QPoint(1, 0))
+                    else:
+                        next_point = start_point_bak + (scale_factor * QPoint(0, 1))
+                        if reverse == 0:
+                            reverse = 1
+                        else:
+                            reverse = 0
+                else:
+                    if start_point_bak.x() > 1:
+                        next_point = start_point_bak - (scale_factor * QPoint(1, 0))
+                    else:
+                        next_point = start_point_bak + (scale_factor * QPoint(0, 1))
+                        if reverse == 1:
+                            reverse = 0
+                        else:
+                            reverse = 1
+
+                pixmap_paint.drawLine(start_point_bak, next_point)
+                start_point_bak = next_point'''
+
+            '''for y in range(c_params.cabinet_height - 1):
+                for x in range(c_params.cabinet_width - 1):
+                    pixmap_paint.drawLine(margin + start_point.x() + (x*scale_factor), margin + start_point.y() + (y*scale_factor),
+                                          margin + start_point.x() + ((x+1)*scale_factor), margin + start_point.y() + ((y)*scale_factor))
+                if y % 2 == 0:
+                    pixmap_paint.drawLine(margin + start_point.x() + ((c_params.cabinet_width - 1 )* scale_factor),
+                                          margin + start_point.y() + (y * scale_factor),
+                                          margin + start_point.x() + ((c_params.cabinet_width -1 )* scale_factor),
+                                          margin + start_point.y() + ((y + 1) * scale_factor))
+                else:
+                    pixmap_paint.drawLine(margin + start_point.x() ,
+                                          margin + start_point.y() + (y * scale_factor),
+                                          margin + start_point.x()  ,
+                                          margin + start_point.y() + ((y + 1) * scale_factor))'''
+
             '''橫線'''
             if i % (scale_factor) == line_interval:
                 pixmap_paint.drawLine(margin, margin + i, ((c_params.cabinet_width - 1) * scale_factor )+ margin , margin + i)
-                ''' check line number'''
+                
                 h_drawed += 1
             #左邊直線
             elif i % (scale_factor*2) == line_interval + scale_factor + 1:
