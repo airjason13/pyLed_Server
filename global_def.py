@@ -49,6 +49,7 @@ cmd_spliter = ";"
 """default led params"""
 default_led_wall_width = 80
 default_led_wall_height = 96
+default_led_wall_brightness = 100
 default_led_cabinet_width = 40
 default_led_cabinet_height = 24
 default_led_wall_margin = 10

@@ -207,7 +207,6 @@ class LedLayoutWindow(QWidget):
                                                                                                 str_color=Qt.GlobalColor.yellow)
 
         tmp_label.setPixmap(QPixmap(tmp_cabinet_pixmap))
-
         tmp_label.resize(QPixmap(tmp_cabinet_pixmap).width(), QPixmap(tmp_cabinet_pixmap).height())
         tmp_label.setScaledContents(True)
         x_compensation, y_compensation = self.get_coordinate_compensation(c_params)
@@ -256,17 +255,17 @@ class LedLayoutWindow(QWidget):
         x = c_params.start_x
         y = c_params.start_y
         if c_params.layout_type == 0:
-            x = c_params.start_x - 1
-            y = c_params.start_y - 1
+            x = c_params.start_x
+            y = c_params.start_y
         if c_params.layout_type == 1:
-            x = c_params.start_x - 1
-            y = c_params.start_y - 1- c_params.cabinet_height
+            x = c_params.start_x
+            y = c_params.start_y - c_params.cabinet_height + 1
         elif c_params.layout_type == 2:
-            x = c_params.start_x - 1 - c_params.cabinet_width
-            y = c_params.start_y - 1
+            x = c_params.start_x - c_params.cabinet_width + 1
+            y = c_params.start_y
         elif c_params.layout_type == 3:
-            x = c_params.start_x - 1 - c_params.cabinet_width
-            y = c_params.start_y - 1 - c_params.cabinet_height
+            x = c_params.start_x - c_params.cabinet_width + 1
+            y = c_params.start_y - c_params.cabinet_height + 1
 
         return x, y
 

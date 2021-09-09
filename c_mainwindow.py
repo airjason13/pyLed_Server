@@ -48,6 +48,7 @@ class MainUi(QMainWindow):
         ''' Set Led layout params'''
         self.led_wall_width = default_led_wall_width
         self.led_wall_height = default_led_wall_height
+        self.led_wall_brightness = default_led_wall_brightness
         self.led_cabinet_width = default_led_cabinet_width
         self.led_cabinet_height = default_led_cabinet_height
 
@@ -350,6 +351,7 @@ class MainUi(QMainWindow):
         self.led_setting = QWidget(self.right_frame)
 
         ''' led setting options'''
+        ''' led resolution setting'''
         self.led_setting_width_textlabel = QLabel(self.right_frame)
         self.led_setting_width_textlabel.setText('LED Wall Width:')
         self.led_setting_width_editbox = QLineEdit(self.right_frame)
@@ -364,6 +366,17 @@ class MainUi(QMainWindow):
         self.led_res_check_btn.clicked.connect(self.set_led_wall_size)
         self.led_res_check_btn.setText("Confirm")
 
+        ''' led brightness setting'''
+        self.led_brightness_textlabel = QLabel(self.right_frame)
+        self.led_brightness_textlabel.setText('LED Brightness:')
+        self.led_brightness_editbox = QLineEdit(self.right_frame)
+        self.led_brightness_editbox.setFixedWidth(120)
+        self.led_brightness_editbox.setText(str(self.led_wall_brightness))
+        self.led_brightness_check_btn = QPushButton()
+        self.led_brightness_check_btn.clicked.connect(self.set_led_wall_brightness)
+        self.led_brightness_check_btn.setText("Confirm")
+
+
 
         self.led_setting_layout = QGridLayout()
 
@@ -372,6 +385,10 @@ class MainUi(QMainWindow):
         self.led_setting_layout.addWidget(self.led_setting_height_textlabel, 0, 3)
         self.led_setting_layout.addWidget(self.led_setting_height_editbox, 0, 4)
         self.led_setting_layout.addWidget(self.led_res_check_btn, 0, 5)
+
+        self.led_setting_layout.addWidget(self.led_brightness_textlabel, 1, 3)
+        self.led_setting_layout.addWidget(self.led_brightness_editbox, 1, 4)
+        self.led_setting_layout.addWidget(self.led_brightness_check_btn, 1, 5)
 
         self.led_setting.setLayout(self.led_setting_layout)
 
@@ -394,9 +411,9 @@ class MainUi(QMainWindow):
         self.led_client_layout_tree.setFont(font)
 
 
-        self.led_setting_layout.addWidget(self.led_client_layout_tree, 1, 0, 1, 6)
+        self.led_setting_layout.addWidget(self.led_client_layout_tree, 2, 0, 1, 6)
 
-        self.led_setting_layout.setRowStretch(1, 1)
+        self.led_setting_layout.setRowStretch(2, 1)
         self.right_layout.addWidget(self.led_setting)
 
         port_layout_infomation_widget = QLabel()
@@ -665,7 +682,7 @@ class MainUi(QMainWindow):
         log.debug("%s", q.text())
         if q.text() == "Play":
             """play single file"""
-            self.ff_process = utils.ffmpy_utils.ffmpy_execute(self, self.right_clicked_select_file_uri, width=160, height=96)
+            self.ff_process = utils.ffmpy_utils.ffmpy_execute(self, self.right_clicked_select_file_uri, width=80, height=96)
             self.play_type = play_type.play_single
         elif q.text() == "AddtoPlaylist":
             """Add this file_path to playlist"""
@@ -920,10 +937,19 @@ class MainUi(QMainWindow):
                                                    self.led_wall_height,
                                                    default_led_wall_margin)
 
+    def set_led_wall_brightness(self):
+        self.led_wall_brightness = int(self.led_brightness_editbox.text())
+        #cmd_params_str = "led_wall_brightness=" + str(self.led_wall_brightness)
+        #for c in self.clients:
+        #    c.send_cmd(cmd=cmd_set_led_brightness, cmd_seq_id=self.cmd_seq_id_increase(), param=cmd_params_str)
+
     '''pop-up cabinet_setting_window while client_layout_tree clicked'''
     def cabinet_setting_window_show(self, a0: QModelIndex)-> None:
+        if self.led_client_layout_tree.itemFromIndex(a0).parent().text(0) is None:
+            return
         log.debug("%s", self.led_client_layout_tree.itemFromIndex(a0).text(0))
         log.debug("%s", self.led_client_layout_tree.itemFromIndex(a0).parent().text(0))
+
         client_ip_selected = self.led_client_layout_tree.itemFromIndex(a0).parent().text(0).split("ip:")[1].split(")")[0]
         log.debug(a0.row())
         for c in self.clients:
@@ -947,6 +973,10 @@ class MainUi(QMainWindow):
                 log.debug('')
                 #c.cabinets_setting[c_params.port_id] = c_params
                 c.set_cabinets(c_params)
+                params_str = c.cabinets_setting[c_params.port_id].params_to_string()
+                log.debug("params_str : %s", params_str)
+                '''send params to client'''
+                c.send_cmd(cmd=cmd_set_cabinet_params, cmd_seq_id=self.cmd_seq_id_increase(), param=params_str)
 
 
         '''check'''
@@ -977,11 +1007,11 @@ class MainUi(QMainWindow):
         '''select the client'''
         for c in self.clients:
             if c.client_ip is c_params.client_ip:
-                str_params = 'port_id:' + str(c_params.port_id) + ',cabinet_width:' + str(c_params.cabinet_width) + \
-                             ',cabinet_height:' + str(c_params.cabinet_height) + \
-                             ',start_x:' + str(c_params.start_x) + \
-                             ',start_y:' + str(c_params.start_y) + \
-                             ',layout_type:' + str(c_params.layout_type)
+                str_params = 'port_id=' + str(c_params.port_id) + ',cabinet_width=' + str(c_params.cabinet_width) + \
+                             ',cabinet_height=' + str(c_params.cabinet_height) + \
+                             ',start_x=' + str(c_params.start_x) + \
+                             ',start_y=' + str(c_params.start_y) + \
+                             ',layout_type=' + str(c_params.layout_type)
 
                 c.send_cmd(cmd=cmd_set_cabinet_params, cmd_seq_id=self.cmd_seq_id_increase(), param=str_params)
                 break
