@@ -5,10 +5,10 @@ import threading
 from PyQt5 import QtWidgets
 from PyQt5.QtWidgets import (QApplication, QMainWindow, QDesktopWidget, QStyleFactory, QWidget, QHBoxLayout, QVBoxLayout, QFormLayout,
                             QGridLayout, QFrame,QHeaderView, QTableWidgetItem, QMessageBox, QFileDialog,
-                            QSlider, QLabel, QLineEdit, QPushButton, QTableWidget, QStackedLayout, QSplitter, QTreeWidget, QTreeWidgetItem,
-                             QFileDialog, QListWidget, QFileSystemModel, QTreeView, QMenu, QAction, QAbstractItemView)
-from PyQt5.QtGui import QPalette, QColor, QBrush, QFont, QMovie, QPixmap, QPainter
-from PyQt5.QtCore import Qt, QMutex, pyqtSlot, QModelIndex, pyqtSignal
+                            QSlider, QLabel, QLineEdit, QPushButton, QTableWidget, QStackedLayout, QSplitter, QTreeWidget, QTreeWidgetItem, QTreeWidgetItemIterator,
+                             QFileDialog, QListWidget, QFileSystemModel, QTreeView, QMenu, QAction, QAbstractItemView, QItemDelegate)
+from PyQt5.QtGui import QPalette, QColor, QBrush, QFont, QMovie, QPixmap, QPainter, QIcon
+from PyQt5.QtCore import Qt, QMutex, pyqtSlot, QModelIndex, pyqtSignal, QSize
 import pyqtgraph as pg
 import qdarkstyle, requests, sys, time, random, json, datetime, re
 import socket
@@ -372,6 +372,34 @@ class MainUi(QMainWindow):
         self.led_brightness_editbox = QLineEdit(self.right_frame)
         self.led_brightness_editbox.setFixedWidth(120)
         self.led_brightness_editbox.setText(str(self.led_wall_brightness))
+
+        ''' led contrast setting'''
+        self.led_contrast_textlabel = QLabel(self.right_frame)
+        self.led_contrast_textlabel.setText('LED Contrast:')
+        self.led_contrast_editbox = QLineEdit(self.right_frame)
+        self.led_contrast_editbox.setFixedWidth(120)
+        self.led_contrast_editbox.setText(str(self.led_wall_brightness))
+
+        '''rgb gain'''
+        self.led_redgain_textlabel = QLabel(self.right_frame)
+        self.led_redgain_textlabel.setText('Red Gain:')
+        self.led_redgain_editbox = QLineEdit(self.right_frame)
+        self.led_redgain_editbox.setFixedWidth(80)
+        self.led_redgain_editbox.setText(str(self.led_wall_brightness))
+
+        self.led_greengain_textlabel = QLabel(self.right_frame)
+        self.led_greengain_textlabel.setText('Red Gain:')
+        self.led_greengain_editbox = QLineEdit(self.right_frame)
+        self.led_greengain_editbox.setFixedWidth(80)
+        self.led_greengain_editbox.setText(str(self.led_wall_brightness))
+
+        self.led_bluegain_textlabel = QLabel(self.right_frame)
+        self.led_bluegain_textlabel.setText('Red Gain:')
+        self.led_bluegain_editbox = QLineEdit(self.right_frame)
+        self.led_bluegain_editbox.setFixedWidth(80)
+        self.led_bluegain_editbox.setText(str(self.led_wall_brightness))
+
+
         self.led_brightness_check_btn = QPushButton()
         self.led_brightness_check_btn.clicked.connect(self.set_led_wall_brightness)
         self.led_brightness_check_btn.setText("Confirm")
@@ -384,11 +412,21 @@ class MainUi(QMainWindow):
         self.led_setting_layout.addWidget(self.led_setting_width_editbox, 0, 2)
         self.led_setting_layout.addWidget(self.led_setting_height_textlabel, 0, 3)
         self.led_setting_layout.addWidget(self.led_setting_height_editbox, 0, 4)
-        self.led_setting_layout.addWidget(self.led_res_check_btn, 0, 5)
+        self.led_setting_layout.addWidget(self.led_res_check_btn, 0, 7)
 
-        self.led_setting_layout.addWidget(self.led_brightness_textlabel, 1, 3)
-        self.led_setting_layout.addWidget(self.led_brightness_editbox, 1, 4)
-        self.led_setting_layout.addWidget(self.led_brightness_check_btn, 1, 5)
+        self.led_setting_layout.addWidget(self.led_brightness_textlabel, 1, 1)
+        self.led_setting_layout.addWidget(self.led_brightness_editbox, 1, 2)
+        self.led_setting_layout.addWidget(self.led_contrast_textlabel, 1, 3)
+        self.led_setting_layout.addWidget(self.led_contrast_editbox, 1, 4)
+
+        self.led_setting_layout.addWidget(self.led_redgain_textlabel, 2, 1)
+        self.led_setting_layout.addWidget(self.led_redgain_editbox, 2, 2)
+        self.led_setting_layout.addWidget(self.led_greengain_textlabel, 2, 3)
+        self.led_setting_layout.addWidget(self.led_greengain_editbox, 2, 4)
+        self.led_setting_layout.addWidget(self.led_bluegain_textlabel, 2, 5)
+        self.led_setting_layout.addWidget(self.led_bluegain_editbox, 2, 6)
+
+        self.led_setting_layout.addWidget(self.led_brightness_check_btn, 2, 7)
 
         self.led_setting.setLayout(self.led_setting_layout)
 
@@ -411,7 +449,7 @@ class MainUi(QMainWindow):
         self.led_client_layout_tree.setFont(font)
 
 
-        self.led_setting_layout.addWidget(self.led_client_layout_tree, 2, 0, 1, 6)
+        self.led_setting_layout.addWidget(self.led_client_layout_tree, 3, 0, 1, 8)
 
         self.led_setting_layout.setRowStretch(2, 1)
         self.right_layout.addWidget(self.led_setting)
@@ -486,6 +524,7 @@ class MainUi(QMainWindow):
                 #connect signal/slot function
                 c.signal_send_cmd_ret.connect(self.client_send_cmd_ret)
                 c.signal_cabinet_params_changed.connect(self.send_cmd_set_cabinet_params)
+                c.signal_sync_cabinet_params.connect(self.sync_cabinet_params)
 
                 self.client_id_count += 1
                 self.clients.append(c)
@@ -501,6 +540,15 @@ class MainUi(QMainWindow):
         finally:
             self.clients_unlock()
 
+
+    def sync_cabinet_params(self, cab_params):
+        ''' change led setting page treewidget'''
+        log.debug("")
+        finditems = self.led_client_layout_tree.findItems(cab_params.client_ip, Qt.MatchContains, 1)
+        for item in finditems:
+            log.debug("%s", item.text(0))
+        #for i in range(self.led_client_layout_tree.size()):
+        #    log.debug("%d : %s", i, self.led_client_layout_tree.itemFromIndex(i).text(0))
 
 
 
@@ -570,13 +618,30 @@ class MainUi(QMainWindow):
 
                     '''cabinet params test start '''
                     test_params = QTreeWidgetItem(port_layout)
-                    test_params.setText(0, 'test')
+                    test_params.setText(0, 'cabinet_width:' + str(c.cabinets_setting[i].cabinet_width))
+                    test_params = QTreeWidgetItem(port_layout)
+                    test_params.setText(0, 'cabinet_height:' + str(c.cabinets_setting[i].cabinet_height))
+                    test_params = QTreeWidgetItem(port_layout)
+                    test_params.setText(0, 'start_x:' + str(c.cabinets_setting[i].start_x))
+                    test_params = QTreeWidgetItem(port_layout)
+                    test_params.setText(0, 'start_y:' + str(c.cabinets_setting[i].start_y))
+                    test_params = QTreeWidgetItem(port_layout)
+
+                    test_pixmap = utils.qtui_utils.gen_led_layout_type_pixmap(96, 96, 10, c.cabinets_setting[i].layout_type)
+
+                    qicon_type = QIcon(test_pixmap)
+
+                    test_params.setIcon(0, qicon_type)
+
+
                     '''cabinet params test end '''
 
                     #gen cabinet label in led_wall_layout_window
                     self.signal_add_cabinet_label.emit(c.cabinets_setting[i])
-
+                ''' set icon size'''
+                self.led_client_layout_tree.setIconSize(QSize(64,64))
                 self.client_led_layout.append(client_led_layout)
+
 
 
 
@@ -951,9 +1016,10 @@ class MainUi(QMainWindow):
         log.debug("%s", self.led_client_layout_tree.itemFromIndex(a0).parent().text(0))
 
         client_ip_selected = self.led_client_layout_tree.itemFromIndex(a0).parent().text(0).split("ip:")[1].split(")")[0]
+        
         log.debug(a0.row())
         for c in self.clients:
-            if c.client_ip ==client_ip_selected:
+            if c.client_ip == client_ip_selected:
                 try:
                     if self.cabinet_setting_window is not None:
                         self.cabinet_setting_window.set_params(c.cabinets_setting[a0.row()])
@@ -1023,3 +1089,10 @@ class MainUi(QMainWindow):
                 for i in range(c.num_of_cabinet):
                     param_str = "port_id:" + str(i)
                     c.send_cmd(cmd=cmd_get_cabinet_params, cmd_seq_id=self.cmd_seq_id_increase(), param=param_str)
+
+class MyDelegate(QItemDelegate):
+    def __init__(self):
+        QItemDelegate.__init__(self)
+
+    def sizeHint(self, option, index):
+        return QSize(32,32)

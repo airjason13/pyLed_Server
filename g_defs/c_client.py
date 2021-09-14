@@ -16,7 +16,10 @@ class client(QObject):
     alive_val_def = 2
     ''' ret, send_cmd, recv_data, client_ip, client_reply_port '''
     signal_send_cmd_ret = pyqtSignal(bool, str, str, str, int)
+    ''' send signal while cabinet params changed from cabinet setting window'''
     signal_cabinet_params_changed = pyqtSignal(cabinet_params)
+    ''' send signal while get cabinet signal from cabinet '''
+    signal_sync_cabinet_params = pyqtSignal(cabinet_params)
 
     '''init'''
     def __init__(self, client_ip, server_ip, client_version, client_id, **kwargs):
@@ -63,20 +66,7 @@ class client(QObject):
     def send_cmd_callback(self, ret, send_cmd, recvData=None, client_ip=None, client_reply_port=None ):
         #self.cmd_cb(ret, recvData, client_ip, client_reply_port)
         self.signal_send_cmd_ret.emit(ret, send_cmd, recvData, self.client_ip, client_reply_port)
-        '''if recvData is not None:
-            log.debug("recvData : %s", recvData)
-            log.debug("client_ip : %s", client_ip)
-            log.debug("client_reply_port : %d", client_reply_port )
 
-        if ret is False:
-            log.fatal("ret :%s", ret)
-            msg = QMessageBox()
-            msg.setIcon(QMessageBox.Critical)
-            msg.setText("Error")
-            msg.setInformativeText(recvData)
-            msg.setWindowTitle("Error")
-            msg.setStyleSheet(qdarkstyle.load_stylesheet_pyqt5())
-            msg.exec_()'''
 
     def get_client_version(self):
         return self.client_version
@@ -113,17 +103,19 @@ class client(QObject):
                     start_y = int(s.split("start_y=")[1])
                 elif s.startswith("layout_type"):
                     layout_type = int(s.split("layout_type=")[1])
-            log.debug("port_id: %d", port_id)
+            """log.debug("port_id: %d", port_id)
             log.debug("cabinet_width: %d", cabinet_width)
             log.debug("cabinet_height: %d", cabinet_height)
             log.debug("start_x: %d", start_x)
             log.debug("start_y: %d", start_y)
-            log.debug("layout_type: %d", layout_type)
+            log.debug("layout_type: %d", layout_type)"""
             self.cabinets_setting[port_id].cabinet_width = cabinet_width
             self.cabinets_setting[port_id].cabinet_height = cabinet_height
             self.cabinets_setting[port_id].start_x = start_x
             self.cabinets_setting[port_id].start_y = start_y
             self.cabinets_setting[port_id].layout_type = layout_type
+            self.signal_sync_cabinet_params.emit(self.cabinets_setting[port_id])
+
 
         except Exception as e:
             log.fatal(e)
