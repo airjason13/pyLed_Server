@@ -14,6 +14,11 @@ def get_media_file_list(dir, with_path=False):
 
     return file_list
 
+def get_playlist_file_list(dir, with_path=False):
+    log.debug("dir : %s", dir)
+    file_list = glob.glob(dir + "/*.playlist")
+
+    return file_list
 
 
 def get_mount_points(devices=None):

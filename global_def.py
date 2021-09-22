@@ -21,6 +21,7 @@ else:
     internal_media_folder="/home/venom/Videos"
 
 ThumbnailFileFolder = "/.thumbnails/"
+PlaylistFolder = "/.playlists/"
 
 class play_type(enum.IntEnum):
     play_none = 0
