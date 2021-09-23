@@ -1,3 +1,5 @@
+import os.path
+
 from PyQt5.QtCore import QThread, pyqtSignal, QDateTime, QObject
 from utils.ffmpy_utils import *
 import utils.log_utils
@@ -8,9 +10,16 @@ log = utils.log_utils.logging_init(__file__)
 
 class media_engine(QObject):
     ''' changed_or_not, playlist_name, file_uri, "add" or "del" '''
-    signal_playlist_changed_ret = pyqtSignal(bool, str, str, str)
+    signal_playlist_changed_ret = pyqtSignal(bool, str, str, int, str)
     ''' changed_or_not '''
     signal_external_medialist_changed_ret = pyqtSignal(bool)
+
+    '''Action TAG'''
+    ACTION_TAG_ADD_MEDIA_FILE="add_media_file"
+    ACTION_TAG_REMOVE_MEDIA_FILE="remove_media_file"
+    ACTION_TAG_REMOVE_ENTIRE_PLAYLIST="remove_entire_playlist"
+    ACTION_TAG_ADD_NEW_PLAYLIST="add_playlist"
+
     '''init'''
     def __init__(self, **kwargs):
         super(media_engine, self).__init__(**kwargs)
@@ -62,7 +71,30 @@ class media_engine(QObject):
         for playlist in self.playlist:
             if playlist.name == playlist_name:
                 playlist.add_file_uri_to_playlist(media_file_uri)
-                self.signal_playlist_changed_ret.emit(True, playlist_name, media_file_uri, 'add')
+                self.signal_playlist_changed_ret.emit(True, playlist_name, media_file_uri, 0, self.ACTION_TAG_ADD_MEDIA_FILE)
+                return
+
+        '''在這邊表示playlist_name 為新創建的,不在原本的playlist array裏面'''
+        self.new_playlist(playlist_name)
+        for playlist in self.playlist:
+            if playlist.name == playlist_name:
+                playlist.add_file_uri_to_playlist(media_file_uri)
+                self.signal_playlist_changed_ret.emit(True, playlist_name, media_file_uri, 0, self.ACTION_TAG_ADD_NEW_PLAYLIST)
+                return
+
+
+    def remove_from_playlist(self, playlist_name, index):
+        log.debug("remove_from_playlist index :%d", index)
+        for playlist in self.playlist:
+            if playlist.name == playlist_name:
+                for i in playlist.fileslist:
+                    log.debug("%s", i)
+                media_file_uri = playlist.fileslist[index]
+                del playlist.fileslist[index]
+                playlist.playlist_sync_file()
+                for i in playlist.fileslist:
+                    log.debug("%s", i)
+                self.signal_playlist_changed_ret.emit(True, playlist_name, media_file_uri, index, self.ACTION_TAG_REMOVE_MEDIA_FILE)
 
 
     def print_device_event(self, device):
@@ -78,6 +110,27 @@ class media_engine(QObject):
                 self.add_external_medialist(uri)
             self.signal_external_medialist_changed_ret.emit(True)
 
+    def new_playlist(self, new_playlist_name):
+        #new_playlist_name += ".playlist"
+        new_playlist = playlist(internal_media_folder + PlaylistFolder + new_playlist_name)
+        new_playlist.playlist_sync_file()
+        self.playlist.append(new_playlist)
+
+    def del_playlist(self, remove_playlist_name):
+        index = -1
+        playlist_len = len(self.playlist)
+        log.debug("playlist_len : %d", playlist_len)
+        for i in range(playlist_len):
+            if self.playlist[i].name == remove_playlist_name:
+                index = i
+                break
+
+        if index != -1:
+            self.playlist[i].del_playlist_file()
+            del self.playlist[index]
+            self.signal_playlist_changed_ret.emit(True, remove_playlist_name, "", 0, self.ACTION_TAG_REMOVE_ENTIRE_PLAYLIST)
+
+
 
 class medialist(QObject):
     def __init__(self, uri):
@@ -90,8 +143,10 @@ class playlist(QObject):
         self.name_with_path = name
         self.name = os.path.basename(self.name_with_path)
         self.fileslist = []
-        self.load_playlist(self.name_with_path)
-
+        if os.path.exists(self.name_with_path):
+            self.load_playlist(self.name_with_path)
+        else:
+            self.add_file_uri_to_playlist(None)
 
     def load_playlist(self, file_uri):
         file = open(file_uri, 'r')
@@ -101,5 +156,23 @@ class playlist(QObject):
                 self.fileslist.append(line.strip())
 
     def add_file_uri_to_playlist(self, file_uri):
-        self.fileslist.append(file_uri)
+        if file_uri is not None:
+            self.fileslist.append(file_uri)
+            self.playlist_sync_file()
+        else:
+            file = open(self.name_with_path, "w")
+            file.truncate()
+
+    def playlist_sync_file(self):
+        file = open(self.name_with_path, "w")
+        for i in self.fileslist:
+            file.write(i + "\n")
+        file.truncate()
+
+    def del_playlist_file(self):
+        if os.path.exists(self.name_with_path):
+            os.remove(self.name_with_path)
+
+    def __del__(self):
+        log.debug("playlist del")
 

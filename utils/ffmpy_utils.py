@@ -10,7 +10,7 @@ log = utils.log_utils.logging_init('ffmpy_utils')
 def ffmpy_execute(QObject, video_path, width=80, height=96):
     global_opts = '-hide_banner -loglevel error'
     scale_params = "scale=" + str(width) + ":" + str(height)
-    eq_params = "zmq,eq=brightness=0.0"+scale_params
+    eq_params = "zmq,eq=brightness=0.0"+","+scale_params
     if platform.machine() in ('arm', 'arm64', 'aarch64'):
         ff = ffmpy.FFmpeg(
             global_options=global_opts,
@@ -29,8 +29,6 @@ def ffmpy_execute(QObject, video_path, width=80, height=96):
             global_options=global_opts,
             inputs={video_path: ["-re"]},
             outputs={
-                #udp_sink: ["-preset", "ultrafast", "-vcodec", "libx264", '-vf', eq_params,  "-f",
-                #           "h264", "-localaddr", "192.168.0.2"]}
                 udp_sink: ["-preset", "ultrafast", "-vcodec", "libx264", '-filter_complex', eq_params , "-f", "h264", "-localaddr", "192.168.0.2"]}
 
         )
