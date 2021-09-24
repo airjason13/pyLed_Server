@@ -10,6 +10,7 @@ server_broadcast_message="ABCDE;Server:192.168.0.3;Cmd_Port:11335;Alive_Port:113
 alive_report_port=11333
 #cmd_port = 11335
 udp_sink = "udp://239.11.11.11:15000"
+local_sink = "udp://127.0.0.1:15001"
 cmd_timeout = 2
 g_client_udp_cmd_port=11335
 

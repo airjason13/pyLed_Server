@@ -1,6 +1,8 @@
 import os.path
-
-from PyQt5.QtCore import QThread, pyqtSignal, QDateTime, QObject
+import signal
+import time
+import threading
+from PyQt5.QtCore import QThread, pyqtSignal, QDateTime, QObject, QTimer
 from utils.ffmpy_utils import *
 import utils.log_utils
 from utils.file_utils import *
@@ -32,7 +34,6 @@ class media_engine(QObject):
             external_medialist_tmp = medialist(mount_point)
             self.external_medialist.append(external_medialist_tmp)
 
-
         '''handle the playlist'''
         self.playlist_files = get_playlist_file_list(internal_media_folder + PlaylistFolder)
         log.debug(self.playlist_files)
@@ -41,16 +42,34 @@ class media_engine(QObject):
             playlist_tmp = playlist(file)
             self.playlist.append(playlist_tmp)
 
-
         '''init usb monitor'''
         self.init_usb_monitor()
 
+        '''media_process'''
+        self.media_processor = media_processor()
+
+    def play_single_file(self, file_uri):
+        log.debug("")
+        if os.path.exists(file_uri) is False:
+            log.error("%s is not exist", file_uri)
+        self.media_processor.single_play(file_uri)
+
+    def stop_play(self):
+        self.media_processor.stop_playing()
+
+    def pause_play(self):
+        self.media_processor.pause_playing()
+
+    def resume_play(self):
+        self.media_processor.resume_playing()
 
     def init_usb_monitor(self):
         context = Context()
         monitor = Monitor.from_netlink(context)
         monitor.filter_by(subsystem='usb')
-        observer = MonitorObserver(monitor, callback=self.print_device_event, name='monitor-observer')
+        observer = MonitorObserver(monitor,
+                                   callback=self.print_device_event,
+                                   name='monitor-observer')
         observer.daemon
         observer.start()
 
@@ -102,7 +121,6 @@ class media_engine(QObject):
         mount_points = get_mount_points()
         '''用mount points 長度判斷是否要改變external_medialist'''
         if len(mount_points) != len(self.external_medialist):
-            '''全砍了,再創新的'''
             del self.external_medialist
             self.external_medialist = []
             for uri in mount_points:
@@ -176,3 +194,195 @@ class playlist(QObject):
     def __del__(self):
         log.debug("playlist del")
 
+
+class media_processor(QObject):
+    signal_media_play_status_changed = pyqtSignal(bool, int)
+    def __init__(self):
+        super(media_processor, self).__init__()
+        self.output_width = default_led_wall_width
+        self.output_height = default_led_wall_height
+        self.play_status = play_status.stop
+        self.pre_play_status = play_status.stop
+        self.play_type = play_type.play_none
+        self.repeat_option = repeat_option.repeat_one
+        self.play_single_file_thread = None
+        self.ffmpy_process = None
+        self.playing_file_name = None
+
+        self.check_ffmpy_process_timer = QTimer(self)
+        self.check_ffmpy_process_timer.timeout.connect(self.check_ffmpy_process)  # 當時間到時會執行 run
+        self.check_ffmpy_process_timer.start(1000)
+
+        self.check_play_status_timer = QTimer(self)
+        self.check_play_status_timer.timeout.connect(self.check_play_status)  # 當時間到時會執行 run
+        self.check_play_status_timer.start(500)
+
+        self.play_single_file_worker = None
+
+
+    def set_repeat_option(self, repeat_option):
+        if repeat_option < repeat_option.repeat_none \
+            or repeat_option > repeat_option.repeat_option_max:
+            log.error("repeat_option out of range")
+            return
+        self.repeat_option = repeat_option
+
+    def set_output_resolution(self, width, height):
+        self.output_width = width
+        self.output_height = height
+
+    def stop_playing(self):
+        if self.play_status != play_status.stop:
+            try:
+                if self.ffmpy_process is not None:
+                    os.kill(self.ffmpy_process.pid, signal.SIGTERM)
+            except Exception as e:
+                log.debug(e)
+
+    def pause_playing(self):
+        if self.play_status != play_status.stop:
+            try:
+                if self.ffmpy_process is not None:
+                    os.kill(self.ffmpy_process.pid, signal.SIGSTOP)
+                    self.play_status = play_status.pausing
+            except Exception as e:
+                log.debug(e)
+
+    def resume_playing(self):
+        if self.play_status != play_status.stop:
+            try:
+                if self.ffmpy_process is not None:
+                    os.kill(self.ffmpy_process.pid, signal.SIGCONT)
+                    self.play_status = play_status.playing
+            except Exception as e:
+                log.debug(e)
+
+
+
+    def single_play(self, file_uri):
+        log.debug("")
+
+        if self.play_single_file_worker is not None:
+            if self.play_single_file_worker.get_task_status() == 1:
+                self.stop_playing()
+                self.play_single_file_worker.stop()
+                self.play_single_file_thread.quit()
+                self.play_single_file_thread.wait()
+
+        self.play_single_file_thread = QThread()
+        self.play_single_file_worker = self.play_single_file_work(self, file_uri, 5)
+        self.play_single_file_worker.moveToThread(self.play_single_file_thread)
+        self.play_single_file_thread.started.connect(self.play_single_file_worker.run)
+        self.play_single_file_worker.finished.connect(self.play_single_file_thread.quit)
+        self.play_single_file_worker.finished.connect(self.play_single_file_worker.deleteLater)
+        self.play_single_file_thread.finished.connect(self.play_single_file_thread.deleteLater)
+        self.play_single_file_thread.start()
+
+        log.debug("")
+
+    '''def play_single_file_thread(self, file_uri):
+        log.debug("")
+        while True:
+            if self.play_status != play_status.stop:
+                try:
+                    if self.ffmpy_process is not None:
+                        if self.play_status == play_status.pausing:
+                            os.kill(self.ffmpy_process.pid, signal.SIGCONT)
+                            #time.sleep(1)
+                    os.kill(self.ffmpy_process.pid, signal.SIGTERM)
+                    #time.sleep(1)
+                    log.debug("kill")
+                except Exception as e:
+                    log.debug(e)
+
+            log.debug("test")
+            self.ffmpy_process = neo_ffmpy_execute(file_uri, self.output_width, self.output_height)
+            if self.ffmpy_process.pid > 0:
+                self.play_status = play_status.playing
+                self.playing_file_name = file_uri
+                while True:
+                    if self.play_status == play_status.stop:
+                        break
+                    time.sleep(0.5)
+
+            if self.repeat_option == repeat_option.repeat_none:
+                break'''
+
+    def playlist_play(self, playlist):
+        if self.play_status == play_status.playing:
+            os.kill(self.ff_process.pid, signal.SIGTERM)
+
+    '''檢查影片是否推播完畢'''
+    def check_ffmpy_process(self):
+        if self.ffmpy_process is None:
+            return
+        try:
+            if self.ffmpy_process.poll() is None:
+                log.debug("ffmpy_process alive!")
+                #os.kill(self.ffmpy_process.pid, signal.SIGTERM)
+                pass
+            else:
+                log.debug("poll() not None!")
+                if self.play_status != play_status.stop:
+                    self.play_status = play_status.stop
+                    self.ffmpy_process = None
+                    self.playing_file_name = None
+
+        except Exception as e:
+            log.debug(e)
+
+    def check_play_status(self):
+        if self.play_status != self.pre_play_status:
+            pass
+
+    class play_single_file_work(QObject):
+        finished = pyqtSignal()
+        progress = pyqtSignal(int)
+
+        def __init__(self, QObject, file_uri, n):
+            super().__init__()
+            self.media_processor = QObject
+            self.file_uri = file_uri
+            self.n = n
+            self.force_stop = False
+            self.worker_status = 0
+
+        def run(self):
+            while True:
+                self.worker_status = 1
+                if self.media_processor.play_status != play_status.stop:
+                    try:
+                        if self.media_processor.ffmpy_process is not None:
+                            if self.media_processor.play_status == play_status.pausing:
+                                os.kill(self.media_processor.ffmpy_process.pid, signal.SIGCONT)
+                                # time.sleep(1)
+                        os.kill(self.ffmpy_process.pid, signal.SIGTERM)
+                        # time.sleep(1)
+                        log.debug("kill")
+                    except Exception as e:
+                        log.debug(e)
+
+                log.debug("test")
+                self.media_processor.ffmpy_process = neo_ffmpy_execute(self.file_uri, self.media_processor.output_width, self.media_processor.output_height)
+                if self.media_processor.ffmpy_process.pid > 0:
+                    self.media_processor.play_status = play_status.playing
+                    self.media_processor.playing_file_name = self.file_uri
+                    while True:
+                        if self.media_processor.play_status == play_status.stop:
+                            break
+                        if self.force_stop is True:
+                            break
+                        time.sleep(0.5)
+
+                if self.media_processor.repeat_option == repeat_option.repeat_none:
+                    break
+                if self.force_stop is True:
+                    break
+            self.finished.emit()
+            self.worker_status = 0
+
+        def stop(self):
+            self.force_stop = True
+
+        def get_task_status(self):
+            return self.worker_status

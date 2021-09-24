@@ -116,7 +116,7 @@ class MainUi(QMainWindow):
 
         self.media_engige.signal_playlist_changed_ret.connect(self.playlist_changed)
         self.media_engige.signal_external_medialist_changed_ret.connect(self.external_medialist_changed)
-        self.NewPlaylistDialog = NewPlaylistDialog()
+        self.NewPlaylistDialog = None
 
         self.videoplayer = VideoPlayer()
 
@@ -807,8 +807,10 @@ class MainUi(QMainWindow):
         log.debug("%s", q.text())
         if q.text() == "Play":
             """play single file"""
-            self.ff_process = utils.ffmpy_utils.ffmpy_execute(self, self.right_clicked_select_file_uri, width=80, height=96)
-            self.play_type = play_type.play_single
+            log.debug("file_uri :%s", self.right_clicked_select_file_uri)
+            self.media_engige.play_single_file(self.right_clicked_select_file_uri)
+            '''self.ff_process = utils.ffmpy_utils.ffmpy_execute(self, self.right_clicked_select_file_uri, width=80, height=96)
+            self.play_type = play_type.play_single'''
         elif "add to " in q.text():
             log.debug("media file uri : %s", self.right_clicked_select_file_uri)
             playlist_name = q.text().split(" ")[2]
@@ -816,7 +818,7 @@ class MainUi(QMainWindow):
                 #launch a dialog
                 # pop up a playlist generation dialog
                 if self.NewPlaylistDialog is None:
-                    self.NewPlaylistDialog = NewPlaylistDialog()
+                    self.NewPlaylistDialog = NewPlaylistDialog(self.media_engige.playlist)
                 self.NewPlaylistDialog.signal_new_playlist_generate.connect(self.slot_new_playlist)
                 self.NewPlaylistDialog.show()
             else:
@@ -877,8 +879,9 @@ class MainUi(QMainWindow):
 
     def stop_media_trigger(self):
         log.debug("")
+        self.media_engige.stop_play()
         """if playtype is play file_list, stop it first"""
-        if self.play_type == play_type.play_playlist:
+        '''if self.play_type == play_type.play_playlist:
             self.play_type = play_type.play_none
 
         """check the popen subprocess is alive or not"""
@@ -888,11 +891,18 @@ class MainUi(QMainWindow):
             self.ffmpy_running = play_status.stop
         
         if len(self.media_play_list) > 0:
-            self.btn_play_playlist.setDisabled(False)
+            self.btn_play_playlist.setDisabled(False)'''
 
     def pause_media_trigger(self):
         """check the popen subprocess is alive or not"""
-        if self.ff_process is None:
+        if self.media_engige.media_processor.play_status == play_status.playing:
+            self.media_engige.pause_play()
+            self.btn_pause.setText("Resume")
+        elif self.media_engige.media_processor.play_status == play_status.pausing:
+            self.media_engige.resume_play()
+            self.btn_pause.setText("Pause")
+
+        '''if self.ff_process is None:
             log.debug("No ff_process")
             return
         if self.ff_process.poll() is None:
@@ -908,7 +918,7 @@ class MainUi(QMainWindow):
                 self.ffmpy_running = play_status.playing
                 self.btn_pause.setText("Pause")
         else:
-            log.debug("self.ff_process is Not alive")
+            log.debug("self.ff_process is Not alive")'''
 
     def repeat_option_trigger(self):
         if self.play_option_repeat >= repeat_option.repeat_option_max:
