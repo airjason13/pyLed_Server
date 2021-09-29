@@ -7,6 +7,7 @@ from utils.ffmpy_utils import *
 import utils.log_utils
 from utils.file_utils import *
 from pyudev import Context, Monitor, MonitorObserver
+import random
 
 log = utils.log_utils.logging_init(__file__)
 
@@ -50,9 +51,18 @@ class media_engine(QObject):
 
     def play_single_file(self, file_uri):
         log.debug("")
+        self.stop_play()
         if os.path.exists(file_uri) is False:
             log.error("%s is not exist", file_uri)
         self.media_processor.single_play(file_uri)
+
+    def play_playlsit(self, playlist_name):
+        log.debug("playlist_name = %s", playlist_name)
+        self.stop_play()
+        for pl in self.playlist:
+            if pl.name == playlist_name:
+                log.debug("find playlist with playlist_name = %s", playlist_name)
+                self.media_processor.playlist_play(pl)
 
     def stop_play(self):
         self.media_processor.stop_playing()
@@ -204,7 +214,7 @@ class media_processor(QObject):
         self.play_status = play_status.stop
         self.pre_play_status = play_status.stop
         self.play_type = play_type.play_none
-        self.repeat_option = repeat_option.repeat_one
+        self.repeat_option = repeat_option.repeat_none
         self.play_single_file_thread = None
         self.ffmpy_process = None
         self.playing_file_name = None
@@ -218,24 +228,33 @@ class media_processor(QObject):
         self.check_play_status_timer.start(500)
 
         self.play_single_file_worker = None
+        self.play_playlist_worker = None
 
 
-    def set_repeat_option(self, repeat_option):
-        if repeat_option < repeat_option.repeat_none \
-            or repeat_option > repeat_option.repeat_option_max:
+    def set_repeat_option(self, option):
+        if option < repeat_option.repeat_none or option > repeat_option.repeat_option_max:
             log.error("repeat_option out of range")
             return
-        self.repeat_option = repeat_option
+        self.repeat_option = option
+        log.debug("self.repeat_option : %d", self.repeat_option)
 
     def set_output_resolution(self, width, height):
         self.output_width = width
         self.output_height = height
 
     def stop_playing(self):
+        log.debug("")
         if self.play_status != play_status.stop:
             try:
                 if self.ffmpy_process is not None:
                     os.kill(self.ffmpy_process.pid, signal.SIGTERM)
+                if self.play_single_file_worker != None:
+                    self.play_single_file_worker.stop()
+                if self.play_playlist_worker != None:
+                    self.play_playlist_worker.stop()
+
+
+
             except Exception as e:
                 log.debug(e)
 
@@ -278,39 +297,27 @@ class media_processor(QObject):
         self.play_single_file_thread.finished.connect(self.play_single_file_thread.deleteLater)
         self.play_single_file_thread.start()
 
-        log.debug("")
-
-    '''def play_single_file_thread(self, file_uri):
-        log.debug("")
-        while True:
-            if self.play_status != play_status.stop:
-                try:
-                    if self.ffmpy_process is not None:
-                        if self.play_status == play_status.pausing:
-                            os.kill(self.ffmpy_process.pid, signal.SIGCONT)
-                            #time.sleep(1)
-                    os.kill(self.ffmpy_process.pid, signal.SIGTERM)
-                    #time.sleep(1)
-                    log.debug("kill")
-                except Exception as e:
-                    log.debug(e)
-
-            log.debug("test")
-            self.ffmpy_process = neo_ffmpy_execute(file_uri, self.output_width, self.output_height)
-            if self.ffmpy_process.pid > 0:
-                self.play_status = play_status.playing
-                self.playing_file_name = file_uri
-                while True:
-                    if self.play_status == play_status.stop:
-                        break
-                    time.sleep(0.5)
-
-            if self.repeat_option == repeat_option.repeat_none:
-                break'''
 
     def playlist_play(self, playlist):
-        if self.play_status == play_status.playing:
-            os.kill(self.ff_process.pid, signal.SIGTERM)
+        log.debug("")
+        #if self.play_status == play_status.playing:
+        #    os.kill(self.ff_process.pid, signal.SIGTERM)
+
+        if self.play_playlist_worker is not None:
+            if self.play_playlist_worker.get_task_status() == 1:
+                self.stop_playing()
+                self.play_playlist_worker.stop()
+                self.play_playlist_worker.quit()
+                self.play_playlist_worker.wait()
+
+        self.play_playlist_thread = QThread()
+        self.play_playlist_worker = self.play_playlist_work(self, playlist, 5)
+        self.play_playlist_worker.moveToThread(self.play_playlist_thread)
+        self.play_playlist_thread.started.connect(self.play_playlist_worker.run)
+        self.play_playlist_worker.finished.connect(self.play_playlist_thread.quit)
+        self.play_playlist_worker.finished.connect(self.play_playlist_worker.deleteLater)
+        self.play_playlist_thread.finished.connect(self.play_playlist_thread.deleteLater)
+        self.play_playlist_thread.start()
 
     '''檢查影片是否推播完畢'''
     def check_ffmpy_process(self):
@@ -335,6 +342,86 @@ class media_processor(QObject):
         if self.play_status != self.pre_play_status:
             pass
 
+    class play_playlist_work(QObject):
+        finished = pyqtSignal()
+        progress = pyqtSignal(int)
+
+        def __init__(self, QObject, plist, n):
+            super().__init__()
+            self.media_processor = QObject
+            self.playlist = plist
+            self.n = n
+            self.force_stop = False
+            self.worker_status = 0
+            self.file_idx = 0
+
+        def run(self):
+            log.debug("self.media_processor.repeat_option : %d", self.media_processor.repeat_option)
+            self.media_processor.play_type = play_type.play_playlist
+            self.file_idx = 0
+            while True:
+                self.worker_status = 1
+                if self.media_processor.play_status != play_status.stop:
+                    try:
+                        if self.media_processor.ffmpy_process is not None:
+                            if self.media_processor.play_status == play_status.pausing:
+                                os.kill(self.media_processor.ffmpy_process.pid, signal.SIGCONT)
+                                # time.sleep(1)
+                        os.kill(self.ffmpy_process.pid, signal.SIGTERM)
+                        # time.sleep(1)
+                        log.debug("kill")
+                    except Exception as e:
+                        log.debug(e)
+                if self.media_processor.repeat_option == repeat_option.repeat_random:
+                    self.file_idx = random.randint(0, len(self.playlist.fileslist) - 1)
+                log.debug("file_idx = %d", self.file_idx)
+                self.file_uri = self.playlist.fileslist[self.file_idx]
+                if os.path.exists(self.file_uri) is False:
+                    self.file_idx += 1
+                    if self.file_idx >= len(self.playlist.fileslist):
+                        if self.media_processor.repeat_option != repeat_option.repeat_one:
+                            log.debug("Quit Play Playlist")
+                            break
+                        else:
+                                self.file_idx = 0
+                    continue
+
+                log.debug("self.file_uri = %s", self.file_uri)
+                self.media_processor.ffmpy_process = neo_ffmpy_execute(self.file_uri, self.media_processor.output_width, self.media_processor.output_height)
+                if self.media_processor.ffmpy_process.pid > 0:
+                    self.media_processor.play_status = play_status.playing
+                    self.media_processor.playing_file_name = self.file_uri
+                    while True:
+                        if self.media_processor.play_status == play_status.stop:
+                            break
+                        if self.force_stop is True:
+                            log.debug("force_stop first")
+                            break
+                        time.sleep(0.5)
+
+
+                if self.force_stop is True:
+                    log.debug("force_stop second")
+                    break
+                self.file_idx += 1
+                if self.file_idx >= len(self.playlist.fileslist):
+                    self.file_idx = 0
+                    if self.media_processor.repeat_option != repeat_option.repeat_all or self.media_processor.repeat_option != repeat_option.repeat_random:
+                        log.debug("self.media_processor.repeat_option : %d", self.media_processor.repeat_option)
+                        log.debug("Quit Play Playlist After all file done")
+                        break
+                else:
+                    pass
+            self.finished.emit()
+            self.worker_status = 0
+            self.media_processor.play_type = play_type.play_none
+
+        def stop(self):
+            self.force_stop = True
+
+        def get_task_status(self):
+            return self.worker_status
+
     class play_single_file_work(QObject):
         finished = pyqtSignal()
         progress = pyqtSignal(int)
@@ -348,6 +435,7 @@ class media_processor(QObject):
             self.worker_status = 0
 
         def run(self):
+            self.media_processor.play_type = play_type.play_single
             while True:
                 self.worker_status = 1
                 if self.media_processor.play_status != play_status.stop:
@@ -374,11 +462,12 @@ class media_processor(QObject):
                             break
                         time.sleep(0.5)
 
-                if self.media_processor.repeat_option == repeat_option.repeat_none:
+                if self.media_processor.repeat_option != repeat_option.repeat_one:
                     break
                 if self.force_stop is True:
                     break
             self.finished.emit()
+            self.media_processor.play_type = play_type.play_none
             self.worker_status = 0
 
         def stop(self):

@@ -769,8 +769,9 @@ class MainUi(QMainWindow):
     def show_playlist_popMenu(self, pos):
         popMenu = QMenu()
         set_qstyle_dark(popMenu)
-
-        removeAct = QAction("Remove playlist", self)
+        playAct = QAction("Play Playlist", self)
+        popMenu.addAction(playAct)
+        removeAct = QAction("Remove Playlist", self)
         popMenu.addAction(removeAct)
         popMenu.triggered[QAction].connect(self.popmenu_trigger_act)
 
@@ -861,11 +862,14 @@ class MainUi(QMainWindow):
                 if parent.child(i).text(0) == remove_file_name:
                     self.media_engige.remove_from_playlist(remove_from_playlist, i)
                     break
-        elif q.text() == "Remove playlist":
+        elif q.text() == "Remove Playlist":
             item = self.file_tree.itemAt(self.right_clicked_pos.x(), self.right_clicked_pos.y())
             remove_playlist_name = item.text(0)
             self.media_engige.del_playlist(remove_playlist_name)
-
+        elif q.text() == "Play Playlist":
+            item = self.file_tree.itemAt(self.right_clicked_pos.x(), self.right_clicked_pos.y())
+            play_playlist_name = item.text(0)
+            self.media_engige.play_playlsit(play_playlist_name)
         elif q.text() == "test":
             for c in self.clients:
                 if c.client_ip == self.right_click_select_client_ip:
@@ -937,10 +941,14 @@ class MainUi(QMainWindow):
             self.btn_repeat.setText("No Repeat")
         elif self.play_option_repeat == repeat_option.repeat_one:
             self.btn_repeat.setText("Repeat One")
+        elif self.play_option_repeat == repeat_option.repeat_random:
+            self.btn_repeat.setText("Random")
         elif self.play_option_repeat == repeat_option.repeat_all:
             self.btn_repeat.setText("Repeat All")
         else:
             self.btn_repeat.setText("Repeat unknown")
+
+        self.media_engige.media_processor.set_repeat_option(self.play_option_repeat)
         log.debug("self.play_option_repeat : %d", self.play_option_repeat)
 
     def mouseMoveEvent(self, event):

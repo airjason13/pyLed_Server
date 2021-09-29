@@ -38,7 +38,8 @@ class repeat_option(enum.IntEnum):
     repeat_none = 0
     repeat_one = 1
     repeat_all = 2
-    repeat_option_max = 2
+    repeat_random = 3
+    repeat_option_max = 3
 
 
 """ UI relative"""
