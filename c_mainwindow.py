@@ -1,3 +1,5 @@
+#coding=UTF-8
+
 import platform
 import os
 import signal
@@ -39,13 +41,15 @@ from set_qstyle import *
 
 log = utils.log_utils.logging_init(__file__)
 
+#reload(sys)
+#sys.setdefaultencoding('utf-8')
+
 class MainUi(QMainWindow):
     signal_add_cabinet_label = pyqtSignal(cabinet_params)
     signal_redraw_cabinet_label = pyqtSignal(cabinet_params, Qt.GlobalColor)
     def __init__(self):
         super().__init__()
         pg.setConfigOptions(antialias=True)
-
         self.center()
         self.setWindowOpacity(1.0)  # 设置窗口透明度
         self.setStyleSheet(qdarkstyle.load_stylesheet_pyqt5())
