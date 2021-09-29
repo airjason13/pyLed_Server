@@ -8,20 +8,30 @@ import utils.log_utils
 log = utils.log_utils.logging_init('ffmpy_utils')
 
 def neo_ffmpy_execute( video_path, width=80, height=96):
+    #for test
+    #width=316
+    #height=248
+
     global_opts = '-hide_banner -loglevel error'
     scale_params = "scale=" + str(width) + ":" + str(height)
-    eq_params = "zmq,eq=brightness=0.0"+","+scale_params
+    eq_params = "zmq,eq=brightness=0.0" + ","+scale_params
+    
+    video_encoder = "libx264"
 
     if platform.machine() in ('arm', 'arm64', 'aarch64'):
+        if width > 320 and height > 240:
+            video_encoder = "h264_v4l2m2m"
+        else:
+            video_encoder = "libx264"
+
         ff = ffmpy.FFmpeg(
             global_options=global_opts,
             inputs={
                         video_path: ["-re"]
                     },
             outputs={
-                udp_sink: ["-preset", "ultrafast", "-vcodec", "libx264", '--filter_complex', eq_params,"-f", "h264", "-localaddr", "192.168.0.3"]
-                #udp_sink: ["-preset", "ultrafast", "-vcodec", "libx264", '-vf', scale_params, "-f", "h264",
-                #           "-localaddr", "192.168.0.3"]
+                udp_sink: [ "-vcodec", video_encoder, '-filter_complex', eq_params,"-b:v", "2000k", "-f", "h264", "-pix_fmt", "yuv420p", "-localaddr", "192.168.0.3"]
+                #udp_sink: ["-preset", "ultrafast", "-vcodec", "libx264", '-vf', scale_params, "-f", "h264", "-localaddr", "192.168.0.3"]
             },
 
         )

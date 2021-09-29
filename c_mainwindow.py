@@ -35,7 +35,7 @@ from commands_def import *
 from g_defs.c_media_engine import media_engine
 from c_new_playlist_dialog import NewPlaylistDialog
 from set_qstyle import *
-from g_defs.c_videoplayer import *
+#from g_defs.c_videoplayer import *
 
 log = utils.log_utils.logging_init(__file__)
 
@@ -118,7 +118,10 @@ class MainUi(QMainWindow):
         self.media_engige.signal_external_medialist_changed_ret.connect(self.external_medialist_changed)
         self.NewPlaylistDialog = None
 
-        self.videoplayer = VideoPlayer()
+        #self.videoplayer = VideoPlayer()
+    def closeEvent(self, event):
+        log.debug("close")
+        os.system("pkill ffmpeg")
 
 
     def init_ui(self):
@@ -515,7 +518,7 @@ class MainUi(QMainWindow):
 
     def func_testB(self):
         log.debug("testB")
-        self.videoplayer.play()
+        #self.videoplayer.play()
         '''self.media_preview_widget.show()
         self.test_cmd_thread = Worker(method=self.cmd_test, )
         self.test_cmd_thread.start()
