@@ -407,6 +407,8 @@ class media_processor(QObject):
                 if self.file_idx >= len(self.playlist.fileslist):
                     self.file_idx = 0
                     if self.media_processor.repeat_option != repeat_option.repeat_all or self.media_processor.repeat_option != repeat_option.repeat_random:
+                        pass
+                    else:
                         log.debug("self.media_processor.repeat_option : %d", self.media_processor.repeat_option)
                         log.debug("Quit Play Playlist After all file done")
                         break
