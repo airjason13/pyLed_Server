@@ -38,6 +38,7 @@ from g_defs.c_media_engine import media_engine
 from c_new_playlist_dialog import NewPlaylistDialog
 from set_qstyle import *
 #from g_defs.c_videoplayer import *
+from qtui.c_page_client import *
 
 log = utils.log_utils.logging_init(__file__)
 
@@ -87,14 +88,7 @@ class MainUi(QMainWindow):
         self.ff_process = None
         self.play_option_repeat = repeat_option.repeat_none
 
-        self.setMouseTracking(True)
-        self.init_ui()
-        self.page_status = self.statusBar()
-        self.page_status.showMessage("Client Page")
-
-        self.setWindowTitle("LED Server")
-
-        #get eth0 ip and set it to server_ip
+        # get eth0 ip and set it to server_ip
         self.server_ip = net_utils.get_ip_address()
         self.clients = []
         self.clients_mutex = QMutex()
@@ -103,6 +97,15 @@ class MainUi(QMainWindow):
         self.cmd_seq_id_mutex = QMutex()
 
         self.client_id_count = 0
+
+        self.setMouseTracking(True)
+        self.init_ui()
+        self.page_status = self.statusBar()
+        self.page_status.showMessage("Client Page")
+
+        self.setWindowTitle("LED Server")
+
+
 
 
         self.broadcast_thread = Worker(method=self.server_broadcast, data=server_broadcast_message, port=server_broadcast_port)
@@ -227,12 +230,12 @@ class MainUi(QMainWindow):
         self.media_preview_widget = media_preview_widget
 
     def initial_client_table_page(self):
-
+        self.client_page = clients_page(self, self.clients)
         """QTableWidget"""
-        self.client_table = QTableWidget(self.right_frame)
-        self.client_table.setEditTriggers(QtWidgets.QTableWidget.NoEditTriggers)
+        '''self.client_table = QTableWidget(self.right_frame)
+        self.client_table.setEditTriggers(QtWidgets.QTableWidget.NoEditTriggers)'''
         ''' ip, id, status, version'''
-        self.client_table.setColumnCount(4)
+        '''self.client_table.setColumnCount(4)
         self.client_table.setRowCount(0)
 
         self.client_table.setMouseTracking(True)
@@ -246,7 +249,7 @@ class MainUi(QMainWindow):
         #right click menu
         self.client_table.setContextMenuPolicy(Qt.CustomContextMenu)
         self.client_table.customContextMenuRequested.connect(self.clientsmenuContextTree)
-        self.right_layout.addWidget(client_widget)
+        self.right_layout.addWidget(client_widget)'''
 
 
 
@@ -522,12 +525,7 @@ class MainUi(QMainWindow):
 
     def func_testB(self):
         log.debug("testB")
-        #self.videoplayer.play()
-        '''self.media_preview_widget.show()
-        self.test_cmd_thread = Worker(method=self.cmd_test, )
-        self.test_cmd_thread.start()
-
-        self.right_layout.setCurrentIndex(3)'''
+       
 
     """ handle the command from qlocalserver"""
     def parser_cmd_from_qlocalserver(self, data):
@@ -558,8 +556,9 @@ class MainUi(QMainWindow):
                 self.clients.append(c)
 
                 self.sync_client_cabinet_params(c.client_ip, False)
-
-                self.refresh_client_table()
+                self.client_page.refresh_clients(self.clients)
+                self.client_page.refresh_client_table()
+                #self.refresh_client_table()
             else:
                 """ find this ip in clients list, set the alive report count"""
                 tmp_client.set_alive_count(5)
@@ -625,15 +624,20 @@ class MainUi(QMainWindow):
             log.debug(e)
         finally:
             if ori_len != len(self.clients):
-                self.refresh_client_table()
+                self.client_page.refresh_clients(self.clients)
+                self.client_page.refresh_client_table()
+                #self.refresh_client_table()
             self.clients_unlock()
 
         sleep(sleep_time)
+        self.sync_client_layout_params(False, True)
 
+    def sync_client_layout_params(self, force_refresh, fresh_layout_map):
         ''' led layout page treewidget show'''
-        #log.debug("self.led_client_layout_tree.topLevelItemCount() = %d",self.led_client_layout_tree.topLevelItemCount())
-        #log.debug("len(self.clients) = %d", len(self.clients))
+
         if self.led_client_layout_tree.topLevelItemCount() != len(self.clients):
+            force_refresh = True
+        if force_refresh is True:
             self.client_led_layout.clear()
             self.led_client_layout_tree.clear()
 
@@ -665,15 +669,17 @@ class MainUi(QMainWindow):
                     '''cabinet params test end '''
 
                     #gen cabinet label in led_wall_layout_window
-                    self.signal_add_cabinet_label.emit(c.cabinets_setting[i])
+                    if fresh_layout_map is True:
+                        self.signal_add_cabinet_label.emit(c.cabinets_setting[i])
                 ''' set icon size'''
                 self.led_client_layout_tree.setIconSize(QSize(64,64))
-                self.client_led_layout.append(client_led_layout)
+                if fresh_layout_map is True:
+                    self.client_led_layout.append(client_led_layout)
 
 
 
 
-    def refresh_client_table(self):
+    '''def refresh_client_table(self):
         row_count = self.client_table.rowCount()
         for i in range(row_count):
             row_to_remove = self.client_table.rowAt(i)
@@ -684,7 +690,7 @@ class MainUi(QMainWindow):
             self.client_table.insertRow(row_count)
             self.client_table.setItem(row_count, 0, QTableWidgetItem(c.client_ip))
             self.client_table.setItem(row_count, 1, QTableWidgetItem(str(c.client_id)))
-            self.client_table.setItem(row_count, 3, QTableWidgetItem(c.client_version))
+            self.client_table.setItem(row_count, 3, QTableWidgetItem(c.client_version))'''
 
 
 
@@ -696,7 +702,7 @@ class MainUi(QMainWindow):
             log.debug("%s", it.parent().text(0))
             # play the file
             if it.parent().text(0) == 'Internal Media':
-                file_uri = internal_media_folder + "/" +it.text(col)
+                file_uri = internal_media_folder + "/" + it.text(col)
             else:
                 if 'External Media' in it.parent().text(0):
                     dir = it.parent().text(0).split(":")[1]
@@ -704,9 +710,9 @@ class MainUi(QMainWindow):
 
             log.debug("%s", file_uri)
 
-    #client table right clicked slot function
+    '''client table right clicked slot function'''
     def clientsmenuContextTree(self, position):
-        QTableWidgetItem = self.client_table.itemAt(position)
+        QTableWidgetItem = self.client_page.client_table.itemAt(position)
         if QTableWidgetItem is None:
             return
         log.debug("client ip :%s", QTableWidgetItem.text())
@@ -722,9 +728,9 @@ class MainUi(QMainWindow):
         popMenu.addAction(test_Act)
         popMenu.triggered[QAction].connect(self.popmenu_trigger_act)
 
-        popMenu.exec_(self.client_table.mapToGlobal(position))
+        popMenu.exec_(self.client_page.client_table.mapToGlobal(position))
 
-    #right clicked slot function
+    '''right clicked slot function'''
     def menuContextTree(self, position):
         widgetitem = self.file_tree.itemAt(position)
         self.right_clicked_pos = position
@@ -891,18 +897,7 @@ class MainUi(QMainWindow):
     def stop_media_trigger(self):
         log.debug("")
         self.media_engige.stop_play()
-        """if playtype is play file_list, stop it first"""
-        '''if self.play_type == play_type.play_playlist:
-            self.play_type = play_type.play_none
 
-        """check the popen subprocess is alive or not"""
-        if self.ff_process.poll() is None:
-            log.debug("send sigterm!")
-            os.kill(self.ff_process.pid, signal.SIGTERM)
-            self.ffmpy_running = play_status.stop
-        
-        if len(self.media_play_list) > 0:
-            self.btn_play_playlist.setDisabled(False)'''
 
     def pause_media_trigger(self):
         """check the popen subprocess is alive or not"""
@@ -913,23 +908,7 @@ class MainUi(QMainWindow):
             self.media_engige.resume_play()
             self.btn_pause.setText("Pause")
 
-        '''if self.ff_process is None:
-            log.debug("No ff_process")
-            return
-        if self.ff_process.poll() is None:
-            log.debug("self.ff_process is alive")
-            if self.ffmpy_running == play_status.playing:
-                log.debug("send sigstop for pause!")
-                os.kill(self.ff_process.pid, signal.SIGSTOP)
-                self.ffmpy_running = play_status.pausing
-                self.btn_pause.setText("Resume")
-            elif self.ffmpy_running == play_status.pausing:
-                log.debug("send sigcont for playing!")
-                os.kill(self.ff_process.pid, signal.SIGCONT)
-                self.ffmpy_running = play_status.playing
-                self.btn_pause.setText("Pause")
-        else:
-            log.debug("self.ff_process is Not alive")'''
+
 
     def repeat_option_trigger(self):
         if self.play_option_repeat >= repeat_option.repeat_option_max:
@@ -1074,6 +1053,16 @@ class MainUi(QMainWindow):
                     for c in self.clients:
                         if c.client_ip == client_ip:
                             c.parse_get_cmd_reply(send_cmd, recvData)
+
+            elif send_cmd.startswith("set"):
+                pass
+                '''if send_cmd == "set_cabinet_params":
+                    for c in self.clients:
+                        if c.client_ip == client_ip:
+
+                            param_str = "port_id:" + str(0)
+                            c.send_cmd(cmd=cmd_get_cabinet_params, cmd_seq_id=self.cmd_seq_id_increase(),
+                                       param=param_str)'''
             log.debug('send_cmd : %s', send_cmd)
             log.debug('recvData : %s', recvData)
             pass
@@ -1153,6 +1142,8 @@ class MainUi(QMainWindow):
                 log.debug("c.cabinets_setting[c_params.port_id].cabinet_height = %d", c.cabinets_setting[c_params.port_id].cabinet_height)
                 log.debug("c.cabinets_setting[c_params.port_id].start_x = %d", c.cabinets_setting[c_params.port_id].start_x)
                 log.debug("c.cabinets_setting[c_params.port_id].start_y = %d", c.cabinets_setting[c_params.port_id].start_y)
+
+        self.sync_client_layout_params(True, False)
 
     '''slot for signal_draw_temp_cabinet from cabinet_setting_window'''
     def draw_cabinet_label(self, c_params, qt_line_color):

@@ -96,6 +96,10 @@ class media_engine(QObject):
 
 
     def add_to_playlist(self, playlist_name, media_file_uri):
+        playlist_folder_path = internal_media_folder + "/.playlists"
+        if not os.path.exists(playlist_folder_path):
+            os.makedirs(playlist_folder_path)
+
         log.debug("playlist_name : %s", playlist_name)
         for playlist in self.playlist:
             if playlist.name == playlist_name:
@@ -232,7 +236,8 @@ class media_processor(QObject):
 
 
     def set_repeat_option(self, option):
-        if option < repeat_option.repeat_none or option > repeat_option.repeat_option_max:
+        if option < repeat_option.repeat_none \
+                or option > repeat_option.repeat_option_max:
             log.error("repeat_option out of range")
             return
         self.repeat_option = option
@@ -252,9 +257,6 @@ class media_processor(QObject):
                     self.play_single_file_worker.stop()
                 if self.play_playlist_worker != None:
                     self.play_playlist_worker.stop()
-
-
-
             except Exception as e:
                 log.debug(e)
 
