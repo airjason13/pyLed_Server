@@ -12,7 +12,7 @@ import utils.log_utils
 
 
 
-log = utils.log_utils.logging_init('c_client')
+log = utils.log_utils.logging_init(__file__)
 
 def set_qstyle_dark(QObject):
     try:

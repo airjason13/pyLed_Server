@@ -1,6 +1,6 @@
 from PyQt5.QtCore import QObject
 import utils.log_utils
-log = utils.log_utils.logging_init('c_led_params')
+log = utils.log_utils.logging_init(__file__)
 
 class led_params(QObject):
     def __init__(self, led_width, led_height, **kwargs):

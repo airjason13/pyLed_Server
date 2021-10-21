@@ -1,7 +1,7 @@
 from PyQt5.QtCore import QObject
 import utils.log_utils
 
-log = utils.log_utils.logging_init('mediafileparam')
+log = utils.log_utils.logging_init(__file__)
 
 class mediafileparam(QObject):
     def __init__(self, file_uri, **kwargs):

@@ -12,7 +12,7 @@ from PyQt5.QtWidgets import (QApplication, QMainWindow, QDesktopWidget, QStyleFa
 from PyQt5.QtGui import QPalette, QColor, QBrush, QFont, QMovie, QPixmap, QPainter, QIcon
 from PyQt5.QtCore import Qt, QMutex, pyqtSlot, QModelIndex, pyqtSignal, QSize
 import pyqtgraph as pg
-import qdarkstyle, requests, sys, time, random, json, datetime, re
+import qdarkstyle
 import socket
 from time import sleep
 from global_def import *
@@ -37,17 +37,19 @@ from commands_def import *
 from g_defs.c_media_engine import media_engine
 from c_new_playlist_dialog import NewPlaylistDialog
 from set_qstyle import *
-#from g_defs.c_videoplayer import *
+# from g_defs.c_videoplayer import *
 from qtui.c_page_client import *
+from qtui.c_page_medialist import *
 
 log = utils.log_utils.logging_init(__file__)
 
-#reload(sys)
-#sys.setdefaultencoding('utf-8')
+# reload(sys)
+# sys.setdefaultencoding('utf-8')
 
 class MainUi(QMainWindow):
     signal_add_cabinet_label = pyqtSignal(cabinet_params)
     signal_redraw_cabinet_label = pyqtSignal(cabinet_params, Qt.GlobalColor)
+
     def __init__(self):
         super().__init__()
         pg.setConfigOptions(antialias=True)
@@ -56,7 +58,7 @@ class MainUi(QMainWindow):
         self.setStyleSheet(qdarkstyle.load_stylesheet_pyqt5())
 
         '''Initial media engine'''
-        self.media_engige = media_engine()
+        self.media_engine = media_engine()
 
 
         ''' Set Led layout params'''
@@ -105,15 +107,14 @@ class MainUi(QMainWindow):
 
         self.setWindowTitle("LED Server")
 
-
-
-
-        self.broadcast_thread = Worker(method=self.server_broadcast, data=server_broadcast_message, port=server_broadcast_port)
+        self.broadcast_thread = \
+            Worker(method=self.server_broadcast, data=server_broadcast_message, port=server_broadcast_port)
         self.broadcast_thread.start()
         self.refresh_clients_thread = Worker(method=self.refresh_clients_list, sleep_time=5)
         self.refresh_clients_thread.start()
 
-        self.client_alive_report_thread = qthreads.c_alive_report_thread.alive_report_thread(ip=self.server_ip, port=alive_report_port)
+        self.client_alive_report_thread = \
+            qthreads.c_alive_report_thread.alive_report_thread(ip=self.server_ip, port=alive_report_port)
         self.client_alive_report_thread.check_client.connect(self.check_client)
         self.client_alive_report_thread.start()
 
@@ -121,15 +122,15 @@ class MainUi(QMainWindow):
 
         self.send_cmd_fail_msg = QMessageBox()
 
-        self.media_engige.signal_playlist_changed_ret.connect(self.playlist_changed)
-        self.media_engige.signal_external_medialist_changed_ret.connect(self.external_medialist_changed)
+        self.media_engine.signal_playlist_changed_ret.connect(self.playlist_changed)
+        self.media_engine.signal_external_medialist_changed_ret.connect(self.external_medialist_changed)
         self.NewPlaylistDialog = None
 
-        #self.videoplayer = VideoPlayer()
+        # self.videoplayer = VideoPlayer()
+
     def closeEvent(self, event):
         log.debug("close")
         os.system("pkill ffmpeg")
-
 
     def init_ui(self):
         self.setFixedSize(960, 800)
@@ -144,7 +145,6 @@ class MainUi(QMainWindow):
 
         btm_left_frame = QFrame(self)
         btm_left_frame.setMouseTracking(True)
-
 
         version_label = QLabel(btm_left_frame)
         version_label.setMouseTracking(True)
@@ -163,7 +163,7 @@ class MainUi(QMainWindow):
         # btn for connect client
         connect_btn = QPushButton(top_left_frame)
         connect_btn.setMouseTracking(True)
-        #connect_btn.setStyleSheet('QPushButton {background-color: #A3C1DA; color: orange;}')
+        # connect_btn.setStyleSheet('QPushButton {background-color: #A3C1DA; color: orange;}')
         connect_btn.setFixedSize(200, 30), connect_btn.setText("Connect Client")
         connect_btn.clicked.connect(self.fun_connect_clients)
         button_layout.addWidget(connect_btn)
@@ -231,154 +231,9 @@ class MainUi(QMainWindow):
 
     def initial_client_table_page(self):
         self.client_page = clients_page(self, self.clients)
-        """QTableWidget"""
-        '''self.client_table = QTableWidget(self.right_frame)
-        self.client_table.setEditTriggers(QtWidgets.QTableWidget.NoEditTriggers)'''
-        ''' ip, id, status, version'''
-        '''self.client_table.setColumnCount(4)
-        self.client_table.setRowCount(0)
-
-        self.client_table.setMouseTracking(True)
-        self.client_table.setHorizontalHeaderLabels(['IP', 'ID', 'Status', 'Version'])
-        self.client_table.setColumnWidth(0, 200) #IP Column width:200
-        self.client_table.setColumnWidth(3, 200)  # Version Column width:200
-        client_widget = QWidget(self.right_frame)
-        client_layout = QVBoxLayout()
-        client_widget.setLayout(client_layout)
-        client_layout.addWidget(self.client_table)
-        #right click menu
-        self.client_table.setContextMenuPolicy(Qt.CustomContextMenu)
-        self.client_table.customContextMenuRequested.connect(self.clientsmenuContextTree)
-        self.right_layout.addWidget(client_widget)'''
-
-
 
     def initial_media_file_page(self):
-        # QTreeWidgetFile Tree in Tab.2
-        self.file_tree = CTreeWidget(self.right_frame)
-        self.file_tree.mouseMove.connect(self.media_page_mouseMove)
-
-        self.file_tree.setSelectionMode(QAbstractItemView.MultiSelection)
-        self.file_tree.setColumnCount(1)
-        self.file_tree.setColumnWidth(0, 300)
-        self.file_tree.headerItem().setText(0, "Media Files")
-        font = QFont()
-        font.setPointSize(24)
-        self.file_tree.setFont(font)
-
-        # Add Internal Media Folder in tree root
-        self.internal_media_root = QTreeWidgetItem(self.file_tree)
-
-        self.internal_media_root.setText(0, "Internal Media")
-        for f in self.media_engige.internal_medialist.filelist:
-            internal_file_item = QTreeWidgetItem()
-            internal_file_item.setText(0, os.path.basename(f))
-            utils.ffmpy_utils.gen_webp_from_video(internal_media_folder, os.path.basename(f)) #need to remove later
-            self.internal_media_root.addChild(internal_file_item)
-
-
-        self.file_tree.addTopLevelItem(self.internal_media_root)
-        self.file_tree.parentWidget().setMouseTracking(True)
-        self.file_tree.setMouseTracking(True)
-
-        # Add External Media Folder in tree root
-        self.external_media_root = QTreeWidgetItem(self.file_tree)
-        self.external_media_root.setText(0, "External Media" ) #+ ":" + external_media_list.folder_uri)
-        child_count = 0
-        for external_media_list in self.media_engige.external_medialist:
-            external_folder = QTreeWidgetItem()
-            external_folder.setText(0, os.path.basename(external_media_list.folder_uri))
-            self.external_media_root.addChild(external_folder)
-            for f in external_media_list.filelist:
-                external_file_item = QTreeWidgetItem()
-                external_file_item.setText(0, os.path.basename(f))
-                utils.ffmpy_utils.gen_webp_from_video(external_media_list.folder_uri, os.path.basename(f)) #need to remove later
-                self.external_media_root.child(child_count).addChild(external_file_item)
-            child_count += 1
-            #self.external_media_root_list.append(external_media_root)
-        self.file_tree.addTopLevelItem(self.external_media_root)
-
-        # playlist file tree
-        self.qtw_media_play_list = QTreeWidgetItem(self.file_tree)
-        self.qtw_media_play_list.setText(0, "Playlist")
-        for playlist in self.media_engige.playlist:
-            playlist_root = QTreeWidgetItem(self.qtw_media_play_list)
-            playlist_root.setText(0, playlist.name)
-            for file_name in playlist.fileslist:
-                log.debug("playlist.fileslist :%s",file_name )
-                file_name_item = QTreeWidgetItem(playlist_root)
-                file_name_item.setText(0, os.path.basename(file_name))
-                playlist_root.addChild(file_name_item)
-
-
-
-        self.file_tree.addTopLevelItem(self.qtw_media_play_list)
-        self.file_tree.expandAll()
-
-        self.file_tree.setMouseTracking(True)
-        # Add right clicked function signal/slot
-        self.file_tree.setContextMenuPolicy(Qt.CustomContextMenu)
-        self.file_tree.customContextMenuRequested.connect(self.menuContextTree)
-
-        log.debug("mount point : %s", utils.file_utils.get_mount_points())
-
-        """play singal file btn"""
-        self.btn_play_select_file = QPushButton(self.right_frame)
-        self.btn_play_select_file.setText("Play Select File")
-        self.btn_play_select_file.setFixedWidth(media_btn_width)
-        self.btn_play_select_file.setDisabled(True)
-
-        """play playlist btn"""
-        self.btn_play_playlist = QPushButton(self.right_frame)
-        self.btn_play_playlist.setText("Play Playlist")
-        self.btn_play_playlist.setFixedWidth(media_btn_width)
-        #if len(self.media_play_list) == 0:
-        #    self.btn_play_playlist.setDisabled(True)
-        self.btn_play_playlist.clicked.connect(self.play_playlist_trigger)
-
-        """stop btn"""
-        self.btn_stop = QPushButton(self.right_frame)
-        self.btn_stop.setText("Stop")
-        self.btn_stop.setFixedWidth(media_btn_width)
-        self.btn_stop.clicked.connect(self.stop_media_trigger)
-
-        self.btn_pause = QPushButton(self.right_frame)
-        self.btn_pause.setText("Pause")
-        self.btn_pause.setFixedWidth(media_btn_width)
-        self.btn_pause.clicked.connect(self.pause_media_trigger)
-
-        self.btn_repeat = QPushButton(self.right_frame)
-        if self.play_option_repeat == repeat_option.repeat_none:
-            self.btn_repeat.setText("No Repeat")
-        elif self.play_option_repeat == repeat_option.repeat_one:
-            self.btn_repeat.setText("Repeat One")
-        elif self.play_option_repeat == repeat_option.repeat_all:
-            self.btn_repeat.setText("Repeat All")
-        else:
-            self.btn_repeat.setText("Repeat unknown")
-
-        self.btn_repeat.setFixedWidth(media_btn_width)
-        self.btn_repeat.clicked.connect(self.repeat_option_trigger)
-
-        self.play_option_widget = QWidget(self.right_frame)
-        play_option_layout = QHBoxLayout()
-        self.play_option_widget.setLayout(play_option_layout)
-        play_option_layout.addWidget(self.btn_play_select_file)
-        play_option_layout.addWidget(self.btn_play_playlist)
-        play_option_layout.addWidget(self.btn_stop)
-        play_option_layout.addWidget(self.btn_pause)
-        play_option_layout.addWidget(self.btn_repeat)
-
-        self.play_option_widget.setMouseTracking(True)
-
-        self.file_tree_widget = QWidget(self.right_frame)
-        file_tree_layout = QVBoxLayout()
-        self.file_tree_widget.setLayout(file_tree_layout)
-        file_tree_layout.addWidget(self.file_tree)
-        file_tree_layout.addWidget(self.play_option_widget)
-        self.file_tree_widget.setMouseTracking(True)
-
-        self.right_layout.addWidget(self.file_tree_widget)
+        self.medialist_page = media_page(self)
 
     def initial_led_layout_page(self):
         self.led_setting = QWidget(self.right_frame)
@@ -525,7 +380,7 @@ class MainUi(QMainWindow):
 
     def func_testB(self):
         log.debug("testB")
-       
+
 
     """ handle the command from qlocalserver"""
     def parser_cmd_from_qlocalserver(self, data):
@@ -598,7 +453,7 @@ class MainUi(QMainWindow):
             sock.close()
 
         sleep(2)
-    
+
 
     def clients_lock(self):
         self.clients_mutex.lock()
@@ -633,7 +488,7 @@ class MainUi(QMainWindow):
         self.sync_client_layout_params(False, True)
 
     def sync_client_layout_params(self, force_refresh, fresh_layout_map):
-        ''' led layout page treewidget show'''
+        # led layout page treewidget show
 
         if self.led_client_layout_tree.topLevelItemCount() != len(self.clients):
             force_refresh = True
@@ -676,25 +531,6 @@ class MainUi(QMainWindow):
                 if fresh_layout_map is True:
                     self.client_led_layout.append(client_led_layout)
 
-
-
-
-    '''def refresh_client_table(self):
-        row_count = self.client_table.rowCount()
-        for i in range(row_count):
-            row_to_remove = self.client_table.rowAt(i)
-            self.client_table.removeRow(row_to_remove)
-
-        for c in self.clients:
-            row_count = self.client_table.rowCount()
-            self.client_table.insertRow(row_count)
-            self.client_table.setItem(row_count, 0, QTableWidgetItem(c.client_ip))
-            self.client_table.setItem(row_count, 1, QTableWidgetItem(str(c.client_id)))
-            self.client_table.setItem(row_count, 3, QTableWidgetItem(c.client_version))'''
-
-
-
-
     @pyqtSlot(QtWidgets.QTreeWidgetItem, int)
     def onFileTreeItemClicked(self, it, col):
         log.debug("%s, %s, %s", it, col, it.text(col))
@@ -731,11 +567,11 @@ class MainUi(QMainWindow):
         popMenu.exec_(self.client_page.client_table.mapToGlobal(position))
 
     '''right clicked slot function'''
-    def menuContextTree(self, position):
+    '''def menuContextTree(self, position):
         widgetitem = self.file_tree.itemAt(position)
         self.right_clicked_pos = position
         if widgetitem.childCount() != 0:
-            ''' parent 為 Playlist,表示自己為playlist之一'''
+            # parent 為 Playlist,表示自己為playlist之一
             if widgetitem.parent().text(0) == "Playlist":
                 self.show_playlist_popMenu(self.file_tree.mapToGlobal(position))
                 return
@@ -753,7 +589,7 @@ class MainUi(QMainWindow):
             elif widgetitem.parent().parent() is not None:
                 log.debug("%s", widgetitem.parent().parent().text(0))
                 if "External Media" in widgetitem.parent().parent().text(0):
-                    for external_medialist in self.media_engige.external_medialist:
+                    for external_medialist in self.media_engine.external_medialist:
                         if widgetitem.parent().text(0) in external_medialist.folder_uri:
                             for file_uri in external_medialist.filelist:
                                 if widgetitem.text(0) in file_uri:
@@ -769,22 +605,22 @@ class MainUi(QMainWindow):
             log.debug("root")
             return
 
-        self.show_media_file_popMenu(self.file_tree.mapToGlobal(position))
+        self.show_media_file_popMenu(self.file_tree.mapToGlobal(position))'''
 
     '''處理playlist, 目前只有一個menu --> del'''
-    def show_playlist_popMenu(self, pos):
-        popMenu = QMenu()
-        set_qstyle_dark(popMenu)
-        playAct = QAction("Play Playlist", self)
-        popMenu.addAction(playAct)
-        removeAct = QAction("Remove Playlist", self)
-        popMenu.addAction(removeAct)
-        popMenu.triggered[QAction].connect(self.popmenu_trigger_act)
+    '''def show_playlist_popMenu(self, pos):
+        popmenu = QMenu()
+        set_qstyle_dark(popmenu)
+        playact = QAction("Play Playlist", self)
+        popmenu.addAction(playact)
+        removeact = QAction("Remove Playlist", self)
+        popmenu.addAction(removeact)
+        popmenu.triggered[QAction].connect(self.popmenu_trigger_act)
 
-        popMenu.exec_(pos)
+        popmenu.exec_(pos)'''
 
     '''處理playlist media file list, 目前只有一個menu --> remove'''
-    def show_playlist_file_popMenu(self, pos):
+    '''def show_playlist_file_popMenu(self, pos):
         popMenu = QMenu()
         set_qstyle_dark(popMenu)
 
@@ -792,7 +628,7 @@ class MainUi(QMainWindow):
         popMenu.addAction(removeAct)
         popMenu.triggered[QAction].connect(self.popmenu_trigger_act)
 
-        popMenu.exec_(pos)
+        popMenu.exec_(pos)'''
 
     def show_media_file_popMenu(self, pos):
         popMenu = QMenu()
@@ -806,7 +642,7 @@ class MainUi(QMainWindow):
         addtoplaylist_menu = QMenu('AddtoPlaylist')
         set_qstyle_dark(addtoplaylist_menu)
 
-        for playlist in self.media_engige.playlist:
+        for playlist in self.media_engine.playlist:
             playlist_name = playlist.name
             addtoplaylist_menu.addAction('add to ' + playlist_name)
 
@@ -822,7 +658,7 @@ class MainUi(QMainWindow):
         if q.text() == "Play":
             """play single file"""
             log.debug("file_uri :%s", self.right_clicked_select_file_uri)
-            self.media_engige.play_single_file(self.right_clicked_select_file_uri)
+            self.media_engine.play_single_file(self.right_clicked_select_file_uri)
             '''self.ff_process = utils.ffmpy_utils.ffmpy_execute(self, self.right_clicked_select_file_uri, width=80, height=96)
             self.play_type = play_type.play_single'''
         elif "add to " in q.text():
@@ -832,11 +668,11 @@ class MainUi(QMainWindow):
                 #launch a dialog
                 # pop up a playlist generation dialog
                 if self.NewPlaylistDialog is None:
-                    self.NewPlaylistDialog = NewPlaylistDialog(self.media_engige.playlist)
+                    self.NewPlaylistDialog = NewPlaylistDialog(self.media_engine.playlist)
                 self.NewPlaylistDialog.signal_new_playlist_generate.connect(self.slot_new_playlist)
                 self.NewPlaylistDialog.show()
             else:
-                self.media_engige.add_to_playlist(playlist_name, self.right_clicked_select_file_uri)
+                self.media_engine.add_to_playlist(playlist_name, self.right_clicked_select_file_uri)
 
         elif q.text() == "fw upgrade":
             log.debug("fw upgrade")
@@ -858,7 +694,7 @@ class MainUi(QMainWindow):
                 return
         elif q.text() == "Remove file from playlist":
             #log.debug("%s", self.file_tree.itemAt(self.right_clicked_pos.x(), self.right_clicked_pos.y()).text(0))
-            item = self.file_tree.itemAt(self.right_clicked_pos.x(), self.right_clicked_pos.y())
+            item = self.medialist_page.file_tree.itemAt(self.right_clicked_pos.x(), self.right_clicked_pos.y())
             parent = item.parent()
             remove_file_name = item.text(0)
             remove_from_playlist = parent.text(0)
@@ -866,16 +702,16 @@ class MainUi(QMainWindow):
             log.debug("remove_from_playlist : %s", remove_from_playlist)
             for i in range(parent.childCount()):
                 if parent.child(i).text(0) == remove_file_name:
-                    self.media_engige.remove_from_playlist(remove_from_playlist, i)
+                    self.media_engine.remove_from_playlist(remove_from_playlist, i)
                     break
         elif q.text() == "Remove Playlist":
             item = self.file_tree.itemAt(self.right_clicked_pos.x(), self.right_clicked_pos.y())
             remove_playlist_name = item.text(0)
-            self.media_engige.del_playlist(remove_playlist_name)
+            self.media_engine.del_playlist(remove_playlist_name)
         elif q.text() == "Play Playlist":
             item = self.file_tree.itemAt(self.right_clicked_pos.x(), self.right_clicked_pos.y())
             play_playlist_name = item.text(0)
-            self.media_engige.play_playlsit(play_playlist_name)
+            self.media_engine.play_playlsit(play_playlist_name)
         elif q.text() == "test":
             for c in self.clients:
                 if c.client_ip == self.right_click_select_client_ip:
@@ -894,40 +730,34 @@ class MainUi(QMainWindow):
         thread_1.start()
 
 
-    def stop_media_trigger(self):
+    def stop_media_set(self):
         log.debug("")
-        self.media_engige.stop_play()
+        self.media_engine.stop_play()
+
+    '''def stop_media_trigger(self):
+        log.debug("")
+        self.media_engine.stop_play()'''
 
 
     def pause_media_trigger(self):
         """check the popen subprocess is alive or not"""
-        if self.media_engige.media_processor.play_status == play_status.playing:
-            self.media_engige.pause_play()
+        if self.media_engine.media_processor.play_status == play_status.playing:
+            self.media_engine.pause_play()
             self.btn_pause.setText("Resume")
-        elif self.media_engige.media_processor.play_status == play_status.pausing:
-            self.media_engige.resume_play()
+        elif self.media_engine.media_processor.play_status == play_status.pausing:
+            self.media_engine.resume_play()
             self.btn_pause.setText("Pause")
 
+    def pause_media_set(self):
+        self.media_engine.pause_play()
+
+    def resume_media_set(self):
+        self.media_engine.resume_play()
 
 
-    def repeat_option_trigger(self):
-        if self.play_option_repeat >= repeat_option.repeat_option_max:
-            self.play_option_repeat = repeat_option.repeat_none
-        else:
-            self.play_option_repeat += 1
-
-        if self.play_option_repeat == repeat_option.repeat_none:
-            self.btn_repeat.setText("No Repeat")
-        elif self.play_option_repeat == repeat_option.repeat_one:
-            self.btn_repeat.setText("Repeat One")
-        elif self.play_option_repeat == repeat_option.repeat_random:
-            self.btn_repeat.setText("Random")
-        elif self.play_option_repeat == repeat_option.repeat_all:
-            self.btn_repeat.setText("Repeat All")
-        else:
-            self.btn_repeat.setText("Repeat unknown")
-
-        self.media_engige.media_processor.set_repeat_option(self.play_option_repeat)
+    def repeat_option_set(self, repeat_value):
+        self.play_option_repeat = repeat_value
+        self.media_engine.media_processor.set_repeat_option(self.play_option_repeat)
         log.debug("self.play_option_repeat : %d", self.play_option_repeat)
 
     def mouseMoveEvent(self, event):
@@ -960,35 +790,41 @@ class MainUi(QMainWindow):
                                                            320, 240)
             self.port_layout_infomation_widget.show()
 
-
+    '''media page mouse move slot'''
+    def media_page_mouseMove_depreciated(self, event):
+        pass
 
     '''media page mouse move slot'''
     def media_page_mouseMove(self, event):
+        try:
+            self.grabMouse()
 
-        self.grabMouse()
-        #log.debug("media_page_mouseMove")
-
-        if self.file_tree.itemAt(event.x(), event.y()) is None:
-            if self.media_preview_widget.isVisible() is True:
-                self.media_preview_widget.hide()
+            if self.medialist_page.file_tree.itemAt(event.x(), event.y()) is None:
+                if self.media_preview_widget.isVisible() is True:
+                    self.media_preview_widget.hide()
+                self.releaseMouse()
+                return
+            self.preview_file_name = self.medialist_page.file_tree.itemAt(event.x(), event.y()).text(0)
+            if os.path.exists(
+                    internal_media_folder + ThumbnailFileFolder
+                    + self.preview_file_name.replace(".mp4", ".webp")) is False:
+                if self.media_preview_widget.isVisible() is True:
+                    self.media_preview_widget.hide()
+                self.releaseMouse()
+                return
+            else:
+                self.media_preview_widget.setGeometry(self.medialist_page.file_tree.x() + event.x(),
+                                                      self.medialist_page.file_tree.y() + event.y(), 640, 480)
+                self.preview_file_name = self.medialist_page.file_tree.itemAt(event.x(), event.y()).text(0)
+                self.movie = QMovie(
+                    internal_media_folder + ThumbnailFileFolder + self.preview_file_name.replace(".mp4", ".webp"))
+                self.media_preview_widget.setMovie(self.movie)
+                self.movie.start()
+                self.media_preview_widget.show()
+        except Exception as e:
+            log.debug(e)
+        finally:
             self.releaseMouse()
-            return
-        self.preview_file_name = self.file_tree.itemAt(event.x(), event.y()).text(0)
-        if os.path.exists(internal_media_folder + ThumbnailFileFolder + self.preview_file_name.replace(".mp4", ".webp")) is False:
-            if self.media_preview_widget.isVisible() is True:
-                self.media_preview_widget.hide()
-            self.releaseMouse()
-            return
-        else:
-            self.media_preview_widget.setGeometry(self.file_tree.x() + event.x(), self.file_tree.y() + event.y(), 640,
-                                                  480)
-            self.preview_file_name = self.file_tree.itemAt(event.x(), event.y()).text(0)
-            self.movie = QMovie(
-                internal_media_folder + ThumbnailFileFolder + self.preview_file_name.replace(".mp4", ".webp"))
-            self.media_preview_widget.setMovie(self.movie)
-            self.movie.start()
-            self.media_preview_widget.show()
-        self.releaseMouse()
 
 
 
@@ -1082,7 +918,7 @@ class MainUi(QMainWindow):
             if self.led_layout_window.isVisible() is True:
                 self.led_layout_window.hide()
 
-    
+
     def set_led_wall_size(self):
         self.led_wall_width = int(self.led_setting_width_editbox.text())
         self.led_wall_height = int(self.led_setting_height_editbox.text())
@@ -1106,7 +942,7 @@ class MainUi(QMainWindow):
         log.debug("%s", self.led_client_layout_tree.itemFromIndex(a0).parent().text(0))
 
         client_ip_selected = self.led_client_layout_tree.itemFromIndex(a0).parent().text(0).split("ip:")[1].split(")")[0]
-        
+
         log.debug(a0.row())
         for c in self.clients:
             if c.client_ip == client_ip_selected:
@@ -1184,38 +1020,38 @@ class MainUi(QMainWindow):
 
     ''' re-modified the playlist treewidget'''
     ''' 增加用media_file_uri, 移除用index'''
-    def playlist_changed(self, changed_or_not, playlist_name, media_file_uri, index,action):
+    def playlist_changed(self, changed_or_not, playlist_name, media_file_uri, index, action):
         log.debug("playlist_changed")
         '''如果需要更新'''
         if changed_or_not is True:
             '''如果是新playlist'''
-            if action == self.media_engige.ACTION_TAG_ADD_NEW_PLAYLIST:
+            if action == self.media_engine.ACTION_TAG_ADD_NEW_PLAYLIST:
                 tmp_new_playlist = QTreeWidgetItem()
                 tmp_new_playlist.setText(0, playlist_name)
                 tmp_new_file_uri = QTreeWidgetItem()
                 tmp_new_file_uri.setText(0, os.path.basename(media_file_uri))
                 tmp_new_playlist.addChild(tmp_new_file_uri)
                 tmp_new_playlist.setExpanded(True)
-                self.qtw_media_play_list.addChild(tmp_new_playlist)
+                self.medialist_page.qtw_media_play_list.addChild(tmp_new_playlist)
 
             else:
                 '''先尋找是否已經存在playlist,如果有就掃描加入'''
-                for i in range(self.qtw_media_play_list.childCount()):
-                    print(self.qtw_media_play_list.child(i).text(0))
-                    if self.qtw_media_play_list.child(i).text(0) == playlist_name:
-                        if action == self.media_engige.ACTION_TAG_ADD_MEDIA_FILE:
-                            file_name_item = QTreeWidgetItem(self.qtw_media_play_list.child(i))
+                for i in range(self.medialist_page.qtw_media_play_list.childCount()):
+                    print(self.medialist_page.qtw_media_play_list.child(i).text(0))
+                    if self.medialist_page.qtw_media_play_list.child(i).text(0) == playlist_name:
+                        if action == self.media_engine.ACTION_TAG_ADD_MEDIA_FILE:
+                            file_name_item = QTreeWidgetItem(self.medialist_page.qtw_media_play_list.child(i))
                             file_name_item.setText(0, os.path.basename(media_file_uri))
-                            self.qtw_media_play_list.child(i).addChild(file_name_item)
+                            self.medialist_page.qtw_media_play_list.child(i).addChild(file_name_item)
                             return
-                        elif action == self.media_engige.ACTION_TAG_REMOVE_MEDIA_FILE:
-                            playlist_tmp = self.qtw_media_play_list.child(i)
+                        elif action == self.media_engine.ACTION_TAG_REMOVE_MEDIA_FILE:
+                            playlist_tmp = self.medialist_page.qtw_media_play_list.child(i)
                             remove_item = playlist_tmp.child(index)
                             playlist_tmp.removeChild(remove_item)
                             return
-                        elif action == self.media_engige.ACTION_TAG_REMOVE_ENTIRE_PLAYLIST:
-                            playlist_tmp = self.qtw_media_play_list.child(i)
-                            self.qtw_media_play_list.removeChild(playlist_tmp)
+                        elif action == self.media_engine.ACTION_TAG_REMOVE_ENTIRE_PLAYLIST:
+                            playlist_tmp = self.medialist_page.qtw_media_play_list.child(i)
+                            self.medialist_page.qtw_media_play_list.removeChild(playlist_tmp)
                             return
 
 
@@ -1223,27 +1059,27 @@ class MainUi(QMainWindow):
         log.debug("external_medialist_changed")
         '''如果需要更新,要全部掃描一次'''
         if changed_or_not is True:
-            for i in range(self.external_media_root.childCount()):
-                self.external_media_root.removeChild(self.external_media_root.child(i))
+            for i in range(self.medialist_page.external_media_root.childCount()):
+                self.medialist_page.external_media_root.removeChild(self.medialist_page.external_media_root.child(i))
             child_count = 0
-            for external_media_list in self.media_engige.external_medialist:
+            for external_media_list in self.media_engine.external_medialist:
                 external_folder = QTreeWidgetItem()
                 external_folder.setText(0, os.path.basename(external_media_list.folder_uri))
-                self.external_media_root.addChild(external_folder)
+                self.medialist_page.external_media_root.addChild(external_folder)
                 for f in external_media_list.filelist:
                     external_file_item = QTreeWidgetItem()
                     external_file_item.setText(0, os.path.basename(f))
                     utils.ffmpy_utils.gen_webp_from_video(external_media_list.folder_uri,
                                                           os.path.basename(f))  # need to remove later
-                    self.external_media_root.child(child_count).addChild(external_file_item)
-                self.external_media_root.child(child_count).setExpanded(True)
+                    self.medialist_page.external_media_root.child(child_count).addChild(external_file_item)
+                self.medialist_page.external_media_root.child(child_count).setExpanded(True)
                 child_count += 1
 
     def slot_new_playlist(self, new_playlist_name):
         log.debug("")
         new_playlist_name += '.playlist'
-        #self.media_engige.new_playlist(new_playlist_name)
-        self.media_engige.add_to_playlist(new_playlist_name, self.right_clicked_select_file_uri)
+        #self.media_engine.new_playlist(new_playlist_name)
+        self.media_engine.add_to_playlist(new_playlist_name, self.medialist_page.right_clicked_select_file_uri)
 
 class MyDelegate(QItemDelegate):
     def __init__(self):

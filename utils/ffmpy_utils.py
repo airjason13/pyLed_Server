@@ -4,6 +4,7 @@ import threading
 from global_def import *
 import platform
 import os
+import zmq
 import utils.log_utils
 log = utils.log_utils.logging_init('ffmpy_utils')
 
@@ -165,3 +166,18 @@ def gen_webp_from_video(file_folder, video):
         )
         ff.run()
     return thumbnail_path
+
+def ffmpy_set_brightness_level(level):
+    context = zmq.Context()
+    log.debug("Connecting to server...")
+
+    socket = context.socket(zmq.REQ)
+    socket.connect("tcp://localhost:%s" % 5555)
+    cmd = "Parsed_eq_1 brightness " + str(level)
+    log.debug("cmd : %s", cmd)
+    socket.send(cmd.encode())
+
+    socket.disconnect("tcp://localhost:%s" % 5555)
+
+    context.destroy()
+    context.term()

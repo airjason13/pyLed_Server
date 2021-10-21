@@ -7,9 +7,11 @@ from utils.ffmpy_utils import *
 import utils.log_utils
 from utils.file_utils import *
 from pyudev import Context, Monitor, MonitorObserver
+from g_defs.c_video_params import *
 import random
 
 log = utils.log_utils.logging_init(__file__)
+
 
 class media_engine(QObject):
     ''' changed_or_not, playlist_name, file_uri, "add" or "del" '''
@@ -29,7 +31,7 @@ class media_engine(QObject):
         self.internal_medialist = medialist(internal_media_folder)
 
         ''' handle the external media list'''
-        #self.external_mount_points = get_mount_points()
+        # self.external_mount_points = get_mount_points()
         self.external_medialist = []
         for mount_point in utils.file_utils.get_mount_points():
             external_medialist_tmp = medialist(mount_point)
@@ -158,7 +160,7 @@ class media_engine(QObject):
                 break
 
         if index != -1:
-            self.playlist[i].del_playlist_file()
+            self.playlist[index].del_playlist_file()
             del self.playlist[index]
             self.signal_playlist_changed_ret.emit(True, remove_playlist_name, "", 0, self.ACTION_TAG_REMOVE_ENTIRE_PLAYLIST)
 
@@ -202,7 +204,9 @@ class playlist(QObject):
         file.truncate()
 
     def del_playlist_file(self):
+        log.debug("del_playlist_file")
         if os.path.exists(self.name_with_path):
+            log.debug("del playlist : %s", self.name_with_path)
             os.remove(self.name_with_path)
 
     def __del__(self):
@@ -222,6 +226,7 @@ class media_processor(QObject):
         self.play_single_file_thread = None
         self.ffmpy_process = None
         self.playing_file_name = None
+        self.video_params = video_params(True, 20, 50, 0, 0, 0)
 
         self.check_ffmpy_process_timer = QTimer(self)
         self.check_ffmpy_process_timer.timeout.connect(self.check_ffmpy_process)  # 當時間到時會執行 run
@@ -343,6 +348,10 @@ class media_processor(QObject):
     def check_play_status(self):
         if self.play_status != self.pre_play_status:
             pass
+
+    def set_brightness_level(self, level):
+        self.video_params.set_video_brightness(level)
+        ffmpy_set_brightness_level(self.video_params.get_translated_brightness())
 
     class play_playlist_work(QObject):
         finished = pyqtSignal()

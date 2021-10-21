@@ -3,7 +3,7 @@ from PyQt5.QtCore import QTimer, pyqtSignal, QObject, QThread
 import json
 import utils.log_utils
 
-log = utils.log_utils.logging_init('jqlocalserver')
+log = utils.log_utils.logging_init(__file__)
 
 SERVER = "OrHCSZBAQz" #None
 def get_server_name():

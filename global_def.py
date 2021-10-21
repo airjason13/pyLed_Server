@@ -23,6 +23,7 @@ else:
 
 ThumbnailFileFolder = "/.thumbnails/"
 PlaylistFolder = "/.playlists/"
+init_config_file = ".config_video_param"
 
 class play_type(enum.IntEnum):
     play_none = 0
