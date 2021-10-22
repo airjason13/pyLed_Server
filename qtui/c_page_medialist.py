@@ -167,14 +167,14 @@ class media_page(QObject):
 
         # green gain
         self.greengain_label = QLabel(self.mainwindow.right_frame)
-        self.greengain_label.setText("Red Gain:")
+        self.greengain_label.setText("Green Gain:")
         self.greengain_edit = QLineEdit(self.mainwindow.right_frame)
         self.greengain_edit.setFixedWidth(100)
         self.greengain_edit.setText(str(self.mainwindow.media_engine.media_processor.video_params.video_green_bias))
 
         # blue gain
         self.blugain_label = QLabel(self.mainwindow.right_frame)
-        self.blugain_label.setText("Red Gain:")
+        self.blugain_label.setText("Blue Gain:")
         self.bluegain_edit = QLineEdit(self.mainwindow.right_frame)
         self.bluegain_edit.setFixedWidth(100)
         self.bluegain_edit.setText(str(self.mainwindow.media_engine.media_processor.video_params.video_blue_bias))
@@ -290,7 +290,7 @@ class media_page(QObject):
 
         add_to_playlist_menu.addAction('add to new playlist')
         pop_menu.addMenu(add_to_playlist_menu)
-        pop_menu.triggered[QAction].connect(self.popmenu_trigger_act)
+        pop_menu.triggered[QAction].connect(self.pop_menu_trigger_act)
 
         pop_menu.exec_(pos)
 
@@ -303,7 +303,7 @@ class media_page(QObject):
         pop_menu.addAction(playact)
         remove_act = QAction("Remove Playlist", self)
         pop_menu.addAction(remove_act)
-        pop_menu.triggered[QAction].connect(self.popmenu_trigger_act)
+        pop_menu.triggered[QAction].connect(self.pop_menu_trigger_act)
 
         pop_menu.exec_(pos)
 
@@ -313,7 +313,7 @@ class media_page(QObject):
 
         remove_act = QAction("Remove file from playlist", self)
         pop_menu.addAction(remove_act)
-        pop_menu.triggered[QAction].connect(self.popmenu_trigger_act)
+        pop_menu.triggered[QAction].connect(self.pop_menu_trigger_act)
 
         pop_menu.exec_(pos)
 
@@ -358,7 +358,27 @@ class media_page(QObject):
             play_playlist_name = item.text(0)
             self.mainwindow.media_engine.play_playlsit(play_playlist_name)
 
+    def resfresh_video_params_config_file(self):
+        log.debug("")
+        self.media_engine.media_processor.video_params.refresh_config_file()
+
     def video_params_confirm_btn_clicked(self):
-        video_params = self.media_engine.media_processor.video_params
+        media_processor = self.media_engine.media_processor
+        video_params = media_processor.video_params
         if video_params.video_brightness != int(self.brightness_edit.text()):
             log.debug("brightness changed!")
+            media_processor.set_brightness_level(int(self.brightness_edit.text()))
+        if video_params.video_contrast != int(self.contrast_edit.text()):
+            log.debug("contrast changed!")
+            media_processor.set_contrast_level(int(self.contrast_edit.text()))
+        if video_params.video_red_bias != int(self.redgain_edit.text()):
+            log.debug("red gain changed!")
+            media_processor.set_red_bias_level(int(self.redgain_edit.text()))
+        if video_params.video_green_bias != int(self.greengain_edit.text()):
+            log.debug("green gain changed!")
+            media_processor.set_green_bias_level(int(self.greengain_edit.text()))
+        if video_params.video_blue_bias != int(self.bluegain_edit.text()):
+            log.debug("blue gain changed!")
+            media_processor.set_blue_bias_level(int(self.bluegain_edit.text()))
+
+

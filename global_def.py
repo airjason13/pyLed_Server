@@ -3,27 +3,27 @@ import platform
 """Software version"""
 
 """Network relative"""
-version="LS210907A01"
-multicast_group="239.11.11.11"
-server_broadcast_port=11334
-server_broadcast_message="ABCDE;Server:192.168.0.3;Cmd_Port:11335;Alive_Port:11333"
-alive_report_port=11333
+version = "LS211022A01"
+multicast_group = "239.11.11.11"
+server_broadcast_port = 11334
+server_broadcast_message = "ABCDE;Server:192.168.0.3;Cmd_Port:11335;Alive_Port:11333"
+alive_report_port = 11333
 #cmd_port = 11335
 udp_sink = "udp://239.11.11.11:15000"
 local_sink = "udp://127.0.0.1:15001"
 cmd_timeout = 2
-g_client_udp_cmd_port=11335
+g_client_udp_cmd_port = 11335
 
 
 """Media folder"""
 if platform.machine() in ('arm', 'arm64', 'aarch64'):
-    internal_media_folder="/home/root/Videos"
+    internal_media_folder = "/home/root/Videos"
 else:
-    internal_media_folder="/home/venom/Videos"
+    internal_media_folder = "/home/venom/Videos"
 
 ThumbnailFileFolder = "/.thumbnails/"
 PlaylistFolder = "/.playlists/"
-init_config_file = ".config_video_param"
+init_config_file = "/.config_video_param"
 
 class play_type(enum.IntEnum):
     play_none = 0

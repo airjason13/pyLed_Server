@@ -8,14 +8,22 @@ import zmq
 import utils.log_utils
 log = utils.log_utils.logging_init('ffmpy_utils')
 
-def neo_ffmpy_execute( video_path, width=80, height=96):
+def neo_ffmpy_execute( video_path, brightness, contrast, red_bias, green_bias, blue_bias, width=80, height=96):
     #for test
     #width=316
     #height=248
 
     global_opts = '-hide_banner -loglevel error'
     scale_params = "scale=" + str(width) + ":" + str(height)
-    eq_params = "zmq,eq=brightness=0.0" + ","+scale_params
+    brightness_params = "brightness=" + str(brightness)
+    contrast_params = "contrast=" + str(contrast)
+    filter1_str = "eq=" + brightness_params + ":" + contrast_params
+    red_bias_params = "romin=" + str(red_bias)
+    green_bias_params = "gomin=" + str(green_bias)
+    blue_bias_params = "bomin=" + str(blue_bias)
+    filter2_str = "colorlevels=" + red_bias_params + ":" + green_bias_params + ":" + blue_bias_params
+    eq_params = "zmq," + filter1_str + "," + filter2_str + "," + scale_params
+    # eq_params = "zmq,eq=brightness=0.0,colorlevels=romin=0.0" + ","+scale_params
     
     video_encoder = "libx264"
 
@@ -167,7 +175,39 @@ def gen_webp_from_video(file_folder, video):
         ff.run()
     return thumbnail_path
 
-def ffmpy_set_brightness_level(level):
+
+def ffmpy_set_video_param_level(param_name, level):
+    cmd = ""
+    if param_name == 'brightness':
+        cmd = "Parsed_eq_1 brightness " + str(level)
+    elif param_name == 'contrast':
+        cmd = "Parsed_eq_1 contrast " + str(level)
+    elif param_name == 'red_gain':
+        cmd = "Parsed_colorlevels_2 romin " + str(level)
+    elif param_name == 'green_gain':
+        cmd = "Parsed_colorlevels_2 gomin " + str(level)
+    elif param_name == 'blue_gain':
+        cmd = "Parsed_colorlevels_2 bomin " + str(level)
+
+    if cmd == "":
+        log.error("cmd is NULL")
+        return
+    context = zmq.Context()
+    log.debug("Connecting to server...")
+
+    log.debug("cmd : %s", cmd)
+    socket = context.socket(zmq.REQ)
+    socket.connect("tcp://localhost:%s" % 5555)
+
+    log.debug("cmd : %s", cmd)
+    socket.send(cmd.encode())
+
+    socket.disconnect("tcp://localhost:%s" % 5555)
+
+    context.destroy()
+    context.term()
+
+'''def ffmpy_set_brightness_level(level):
     context = zmq.Context()
     log.debug("Connecting to server...")
 
@@ -181,3 +221,18 @@ def ffmpy_set_brightness_level(level):
 
     context.destroy()
     context.term()
+    
+def ffmpy_set_contrast_level(level):
+    context = zmq.Context()
+    log.debug("Connecting to server...")
+
+    socket = context.socket(zmq.REQ)
+    socket.connect("tcp://localhost:%s" % 5555)
+    cmd = "Parsed_eq_1 contrast " + str(level)
+    log.debug("cmd : %s", cmd)
+    socket.send(cmd.encode())
+
+    socket.disconnect("tcp://localhost:%s" % 5555)
+
+    context.destroy()
+    context.term()'''

@@ -79,6 +79,6 @@ def force_set_eth_ip():
             if platform.machine() in ('arm', 'arm64', 'aarch64'):
                 ifname = 'eth0'
             else:
-                ifname = 'enp8s0'
+                ifname = 'enp2s0'
             cmd = 'ifconfig' + ' ' + ifname + ' ' + '192.168.0.3'
             os.system(cmd)

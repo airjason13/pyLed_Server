@@ -20,12 +20,13 @@ class media_engine(QObject):
     signal_external_medialist_changed_ret = pyqtSignal(bool)
 
     '''Action TAG'''
-    ACTION_TAG_ADD_MEDIA_FILE="add_media_file"
-    ACTION_TAG_REMOVE_MEDIA_FILE="remove_media_file"
-    ACTION_TAG_REMOVE_ENTIRE_PLAYLIST="remove_entire_playlist"
-    ACTION_TAG_ADD_NEW_PLAYLIST="add_playlist"
+    ACTION_TAG_ADD_MEDIA_FILE = "add_media_file"
+    ACTION_TAG_REMOVE_MEDIA_FILE = "remove_media_file"
+    ACTION_TAG_REMOVE_ENTIRE_PLAYLIST = "remove_entire_playlist"
+    ACTION_TAG_ADD_NEW_PLAYLIST = "add_playlist"
 
     '''init'''
+
     def __init__(self, **kwargs):
         super(media_engine, self).__init__(**kwargs)
         self.internal_medialist = medialist(internal_media_folder)
@@ -95,8 +96,6 @@ class media_engine(QObject):
         external_media_list = medialist(uri)
         self.external_medialist.append(external_media_list)
 
-
-
     def add_to_playlist(self, playlist_name, media_file_uri):
         playlist_folder_path = internal_media_folder + "/.playlists"
         if not os.path.exists(playlist_folder_path):
@@ -106,7 +105,8 @@ class media_engine(QObject):
         for playlist in self.playlist:
             if playlist.name == playlist_name:
                 playlist.add_file_uri_to_playlist(media_file_uri)
-                self.signal_playlist_changed_ret.emit(True, playlist_name, media_file_uri, 0, self.ACTION_TAG_ADD_MEDIA_FILE)
+                self.signal_playlist_changed_ret.emit(True, playlist_name, media_file_uri, 0,
+                                                      self.ACTION_TAG_ADD_MEDIA_FILE)
                 return
 
         '''在這邊表示playlist_name 為新創建的,不在原本的playlist array裏面'''
@@ -114,9 +114,9 @@ class media_engine(QObject):
         for playlist in self.playlist:
             if playlist.name == playlist_name:
                 playlist.add_file_uri_to_playlist(media_file_uri)
-                self.signal_playlist_changed_ret.emit(True, playlist_name, media_file_uri, 0, self.ACTION_TAG_ADD_NEW_PLAYLIST)
+                self.signal_playlist_changed_ret.emit(True, playlist_name, media_file_uri, 0,
+                                                      self.ACTION_TAG_ADD_NEW_PLAYLIST)
                 return
-
 
     def remove_from_playlist(self, playlist_name, index):
         log.debug("remove_from_playlist index :%d", index)
@@ -129,8 +129,8 @@ class media_engine(QObject):
                 playlist.playlist_sync_file()
                 for i in playlist.fileslist:
                     log.debug("%s", i)
-                self.signal_playlist_changed_ret.emit(True, playlist_name, media_file_uri, index, self.ACTION_TAG_REMOVE_MEDIA_FILE)
-
+                self.signal_playlist_changed_ret.emit(True, playlist_name, media_file_uri, index,
+                                                      self.ACTION_TAG_REMOVE_MEDIA_FILE)
 
     def print_device_event(self, device):
         sleep(3)  # time for waiting mount
@@ -145,7 +145,7 @@ class media_engine(QObject):
             self.signal_external_medialist_changed_ret.emit(True)
 
     def new_playlist(self, new_playlist_name):
-        #new_playlist_name += ".playlist"
+        # new_playlist_name += ".playlist"
         new_playlist = playlist(internal_media_folder + PlaylistFolder + new_playlist_name)
         new_playlist.playlist_sync_file()
         self.playlist.append(new_playlist)
@@ -162,8 +162,8 @@ class media_engine(QObject):
         if index != -1:
             self.playlist[index].del_playlist_file()
             del self.playlist[index]
-            self.signal_playlist_changed_ret.emit(True, remove_playlist_name, "", 0, self.ACTION_TAG_REMOVE_ENTIRE_PLAYLIST)
-
+            self.signal_playlist_changed_ret.emit(True, remove_playlist_name, "", 0,
+                                                  self.ACTION_TAG_REMOVE_ENTIRE_PLAYLIST)
 
 
 class medialist(QObject):
@@ -215,6 +215,7 @@ class playlist(QObject):
 
 class media_processor(QObject):
     signal_media_play_status_changed = pyqtSignal(bool, int)
+
     def __init__(self):
         super(media_processor, self).__init__()
         self.output_width = default_led_wall_width
@@ -238,7 +239,6 @@ class media_processor(QObject):
 
         self.play_single_file_worker = None
         self.play_playlist_worker = None
-
 
     def set_repeat_option(self, option):
         if option < repeat_option.repeat_none \
@@ -283,8 +283,6 @@ class media_processor(QObject):
             except Exception as e:
                 log.debug(e)
 
-
-
     def single_play(self, file_uri):
         log.debug("")
 
@@ -304,10 +302,9 @@ class media_processor(QObject):
         self.play_single_file_thread.finished.connect(self.play_single_file_thread.deleteLater)
         self.play_single_file_thread.start()
 
-
     def playlist_play(self, playlist):
         log.debug("")
-        #if self.play_status == play_status.playing:
+        # if self.play_status == play_status.playing:
         #    os.kill(self.ff_process.pid, signal.SIGTERM)
 
         if self.play_playlist_worker is not None:
@@ -327,13 +324,14 @@ class media_processor(QObject):
         self.play_playlist_thread.start()
 
     '''檢查影片是否推播完畢'''
+
     def check_ffmpy_process(self):
         if self.ffmpy_process is None:
             return
         try:
             if self.ffmpy_process.poll() is None:
-                log.debug("ffmpy_process alive!")
-                #os.kill(self.ffmpy_process.pid, signal.SIGTERM)
+                # log.debug("ffmpy_process alive!")
+                # os.kill(self.ffmpy_process.pid, signal.SIGTERM)
                 pass
             else:
                 log.debug("poll() not None!")
@@ -351,7 +349,28 @@ class media_processor(QObject):
 
     def set_brightness_level(self, level):
         self.video_params.set_video_brightness(level)
-        ffmpy_set_brightness_level(self.video_params.get_translated_brightness())
+        if self.ffmpy_process is not None:
+            ffmpy_set_video_param_level('brightness', self.video_params.get_translated_brightness())
+
+    def set_contrast_level(self, level):
+        self.video_params.set_video_contrast(level)
+        if self.ffmpy_process is not None:
+            ffmpy_set_video_param_level('contrast', self.video_params.get_translated_contrast())
+
+    def set_red_bias_level(self, level):
+        self.video_params.set_video_red_bias(level)
+        if self.ffmpy_process is not None:
+            ffmpy_set_video_param_level('red_gain', self.video_params.get_translated_redgain())
+
+    def set_green_bias_level(self, level):
+        self.video_params.set_video_green_bias(level)
+        if self.ffmpy_process is not None:
+            ffmpy_set_video_param_level('green_gain', self.video_params.get_translated_greengain())
+
+    def set_blue_bias_level(self, level):
+        self.video_params.set_video_blue_bias(level)
+        if self.ffmpy_process is not None:
+            ffmpy_set_video_param_level('blue_gain', self.video_params.get_translated_bluegain())
 
     class play_playlist_work(QObject):
         finished = pyqtSignal()
@@ -394,11 +413,19 @@ class media_processor(QObject):
                             log.debug("Quit Play Playlist")
                             break
                         else:
-                                self.file_idx = 0
+                            self.file_idx = 0
                     continue
 
                 log.debug("self.file_uri = %s", self.file_uri)
-                self.media_processor.ffmpy_process = neo_ffmpy_execute(self.file_uri, self.media_processor.output_width, self.media_processor.output_height)
+                self.media_processor.ffmpy_process = \
+                    neo_ffmpy_execute(self.file_uri,
+                                      self.media_processor.video_params.get_translated_brightness(),
+                                      self.media_processor.video_params.get_translated_contrast(),
+                                      self.media_processor.video_params.get_translated_redgain(),
+                                      self.media_processor.video_params.get_translated_greengain(),
+                                      self.media_processor.video_params.get_translated_bluegain(),
+                                      self.media_processor.output_width,
+                                      self.media_processor.output_height)
                 if self.media_processor.ffmpy_process.pid > 0:
                     self.media_processor.play_status = play_status.playing
                     self.media_processor.playing_file_name = self.file_uri
@@ -409,7 +436,6 @@ class media_processor(QObject):
                             log.debug("force_stop first")
                             break
                         time.sleep(0.5)
-
 
                 if self.force_stop is True:
                     log.debug("force_stop second")
@@ -464,7 +490,15 @@ class media_processor(QObject):
                         log.debug(e)
 
                 log.debug("test")
-                self.media_processor.ffmpy_process = neo_ffmpy_execute(self.file_uri, self.media_processor.output_width, self.media_processor.output_height)
+                self.media_processor.ffmpy_process = \
+                    neo_ffmpy_execute(self.file_uri,
+                       self.media_processor.video_params.get_translated_brightness(),
+                       self.media_processor.video_params.get_translated_contrast(),
+                       self.media_processor.video_params.get_translated_redgain(),
+                       self.media_processor.video_params.get_translated_greengain(),
+                       self.media_processor.video_params.get_translated_bluegain(),
+                       self.media_processor.output_width,
+                       self.media_processor.output_height)
                 if self.media_processor.ffmpy_process.pid > 0:
                     self.media_processor.play_status = play_status.playing
                     self.media_processor.playing_file_name = self.file_uri

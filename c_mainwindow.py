@@ -40,6 +40,7 @@ from set_qstyle import *
 # from g_defs.c_videoplayer import *
 from qtui.c_page_client import *
 from qtui.c_page_medialist import *
+from material import *
 
 log = utils.log_utils.logging_init(__file__)
 
@@ -84,7 +85,7 @@ class MainUi(QMainWindow):
         '''main ui right frame page index'''
         self.page_idx = 0
 
-        #initial streaming ffmpy status
+        # initial streaming ffmpy status
         self.ffmpy_running = play_status.stop
         self.play_type = play_type.play_none
         self.ff_process = None
@@ -154,7 +155,8 @@ class MainUi(QMainWindow):
         version_label.setFixedHeight(200)
 
         test_label = QLabel(btm_left_frame)
-        test_pixmap = utils.qtui_utils.gen_led_layout_type_pixmap(200, 100, 10, 1)
+        test_pixmap = QPixmap("material/logo.jpg").scaledToWidth(200)
+        
         test_label.setPixmap(test_pixmap)
         blank_layout.addWidget(test_label)
 
@@ -254,21 +256,21 @@ class MainUi(QMainWindow):
         self.led_res_check_btn.clicked.connect(self.set_led_wall_size)
         self.led_res_check_btn.setText("Confirm")
 
-        ''' led brightness setting'''
+        # led brightness setting
         self.led_brightness_textlabel = QLabel(self.right_frame)
         self.led_brightness_textlabel.setText('LED Brightness:')
         self.led_brightness_editbox = QLineEdit(self.right_frame)
         self.led_brightness_editbox.setFixedWidth(120)
         self.led_brightness_editbox.setText(str(self.led_wall_brightness))
 
-        ''' led contrast setting'''
+        # led contrast setting
         self.led_contrast_textlabel = QLabel(self.right_frame)
         self.led_contrast_textlabel.setText('LED Contrast:')
         self.led_contrast_editbox = QLineEdit(self.right_frame)
         self.led_contrast_editbox.setFixedWidth(120)
         self.led_contrast_editbox.setText(str(self.led_wall_brightness))
 
-        '''rgb gain'''
+        # rgb gain
         self.led_redgain_textlabel = QLabel(self.right_frame)
         self.led_redgain_textlabel.setText('Red Gain:')
         self.led_redgain_editbox = QLineEdit(self.right_frame)
@@ -331,11 +333,9 @@ class MainUi(QMainWindow):
         self.led_client_layout_tree.setColumnWidth(0, 300)
         self.led_client_layout_tree.headerItem().setText(0, "Client Layout")
 
-
         font = QFont()
         font.setPointSize(24)
         self.led_client_layout_tree.setFont(font)
-
 
         self.led_setting_layout.addWidget(self.led_client_layout_tree, 3, 0, 1, 8)
 
@@ -562,75 +562,11 @@ class MainUi(QMainWindow):
         popMenu.addSeparator()
         test_Act = QAction("test", self)
         popMenu.addAction(test_Act)
-        popMenu.triggered[QAction].connect(self.popmenu_trigger_act)
+        popMenu.triggered[QAction].connect(self.pop_menu_trigger_act)
 
         popMenu.exec_(self.client_page.client_table.mapToGlobal(position))
 
-    '''right clicked slot function'''
-    '''def menuContextTree(self, position):
-        widgetitem = self.file_tree.itemAt(position)
-        self.right_clicked_pos = position
-        if widgetitem.childCount() != 0:
-            # parent 為 Playlist,表示自己為playlist之一
-            if widgetitem.parent().text(0) == "Playlist":
-                self.show_playlist_popMenu(self.file_tree.mapToGlobal(position))
-                return
-            log.debug("Just a label, not file list")
-            return
-        if widgetitem.parent() is not None:
-            if widgetitem.parent().text(0) == "Internal Media":
-                self.right_clicked_select_file_uri = internal_media_folder + "/" + widgetitem.text(0)
-            elif widgetitem.parent().text(0) == "External Media":
-                log.debug("%s", widgetitem.text(0))
-                return
-            elif "Playlist" in widgetitem.parent().text(0):
-                self.show_playlist_popMenu(self.file_tree.mapToGlobal(position))
-                return
-            elif widgetitem.parent().parent() is not None:
-                log.debug("%s", widgetitem.parent().parent().text(0))
-                if "External Media" in widgetitem.parent().parent().text(0):
-                    for external_medialist in self.media_engine.external_medialist:
-                        if widgetitem.parent().text(0) in external_medialist.folder_uri:
-                            for file_uri in external_medialist.filelist:
-                                if widgetitem.text(0) in file_uri:
-                                    self.right_clicked_select_file_uri = file_uri
-
-                elif "Playlist" in widgetitem.parent().parent().text(0):
-                    log.debug("no playlist right click")
-                    #self.right_clicked_pos = position
-                    self.show_playlist_file_popMenu(self.file_tree.mapToGlobal(position))
-
-                    return
-        else:
-            log.debug("root")
-            return
-
-        self.show_media_file_popMenu(self.file_tree.mapToGlobal(position))'''
-
-    '''處理playlist, 目前只有一個menu --> del'''
-    '''def show_playlist_popMenu(self, pos):
-        popmenu = QMenu()
-        set_qstyle_dark(popmenu)
-        playact = QAction("Play Playlist", self)
-        popmenu.addAction(playact)
-        removeact = QAction("Remove Playlist", self)
-        popmenu.addAction(removeact)
-        popmenu.triggered[QAction].connect(self.popmenu_trigger_act)
-
-        popmenu.exec_(pos)'''
-
-    '''處理playlist media file list, 目前只有一個menu --> remove'''
-    '''def show_playlist_file_popMenu(self, pos):
-        popMenu = QMenu()
-        set_qstyle_dark(popMenu)
-
-        removeAct = QAction("Remove file from playlist", self)
-        popMenu.addAction(removeAct)
-        popMenu.triggered[QAction].connect(self.popmenu_trigger_act)
-
-        popMenu.exec_(pos)'''
-
-    def show_media_file_popMenu(self, pos):
+    '''def show_media_file_pop_menu(self, pos):
         popMenu = QMenu()
         set_qstyle_dark(popMenu)
 
@@ -650,10 +586,10 @@ class MainUi(QMainWindow):
         popMenu.addMenu(addtoplaylist_menu)
         popMenu.triggered[QAction].connect(self.popmenu_trigger_act)
 
-        popMenu.exec_(pos)
+        popMenu.exec_(pos)'''
 
-    """All popmenu trigger act"""
-    def popmenu_trigger_act(self, q):
+    # All popmenu trigger act
+    def pop_menu_trigger_act(self, q):
         log.debug("%s", q.text())
         if q.text() == "Play":
             """play single file"""
@@ -963,21 +899,24 @@ class MainUi(QMainWindow):
         for c in self.clients:
             if c.client_ip == c_params.client_ip:
                 log.debug('')
-                #c.cabinets_setting[c_params.port_id] = c_params
+                # c.cabinets_setting[c_params.port_id] = c_params
                 c.set_cabinets(c_params)
                 params_str = c.cabinets_setting[c_params.port_id].params_to_string()
                 log.debug("params_str : %s", params_str)
                 '''send params to client'''
                 c.send_cmd(cmd=cmd_set_cabinet_params, cmd_seq_id=self.cmd_seq_id_increase(), param=params_str)
 
-
-        '''check'''
+        # check
         for c in self.clients:
             if c.client_ip == c_params.client_ip:
-                log.debug("c.cabinets_setting[c_params.port_id].cabinet_width = %d", c.cabinets_setting[c_params.port_id].cabinet_width)
-                log.debug("c.cabinets_setting[c_params.port_id].cabinet_height = %d", c.cabinets_setting[c_params.port_id].cabinet_height)
-                log.debug("c.cabinets_setting[c_params.port_id].start_x = %d", c.cabinets_setting[c_params.port_id].start_x)
-                log.debug("c.cabinets_setting[c_params.port_id].start_y = %d", c.cabinets_setting[c_params.port_id].start_y)
+                log.debug("c.cabinets_setting[c_params.port_id].cabinet_width = %d",
+                          c.cabinets_setting[c_params.port_id].cabinet_width)
+                log.debug("c.cabinets_setting[c_params.port_id].cabinet_height = %d",
+                          c.cabinets_setting[c_params.port_id].cabinet_height)
+                log.debug("c.cabinets_setting[c_params.port_id].start_x = %d",
+                          c.cabinets_setting[c_params.port_id].start_x)
+                log.debug("c.cabinets_setting[c_params.port_id].start_y = %d",
+                          c.cabinets_setting[c_params.port_id].start_y)
 
         self.sync_client_layout_params(True, False)
 
@@ -987,7 +926,7 @@ class MainUi(QMainWindow):
             log.debug('')
             '''send another signal to led_layout_window to draw the new cabinet layout'''
             self.signal_redraw_cabinet_label.emit(c_params, qt_line_color)
-            #self.led_layout_window.redraw_cabinet_label(c_params)
+            # self.led_layout_window.redraw_cabinet_label(c_params)
 
     '''slot for signal_set_default_cabinet_resolution from cabinet_setting_window'''
     def set_default_cabinet_resolution(self, width, height):
