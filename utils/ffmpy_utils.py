@@ -9,19 +9,21 @@ import utils.log_utils
 log = utils.log_utils.logging_init('ffmpy_utils')
 
 def neo_ffmpy_execute( video_path, brightness, contrast, red_bias, green_bias, blue_bias, width=80, height=96):
-    #for test
-    #width=316
-    #height=248
-
+    #red_bias = 0.9
+    #green_bias = 0.9
+    #blue_bias = 0.9
     global_opts = '-hide_banner -loglevel error'
-    scale_params = "scale=" + str(width) + ":" + str(height)
+    scale_params = "scale=" + str(width) + ":" + str(height) + ",hflip"
     brightness_params = "brightness=" + str(brightness)
+    #brightness_params = "brightness=" + str(-0.9)
     contrast_params = "contrast=" + str(contrast)
+    #contrast_params = "contrast=" + str(100)
     filter1_str = "eq=" + brightness_params + ":" + contrast_params
     red_bias_params = "romin=" + str(red_bias)
     green_bias_params = "gomin=" + str(green_bias)
     blue_bias_params = "bomin=" + str(blue_bias)
-    filter2_str = "colorlevels=" + red_bias_params + ":" + green_bias_params + ":" + blue_bias_params
+    filter2_str = "colorlevels=" + "rimin=0.99:gimin=0.99:bimin=0.99:" + red_bias_params + ":" + green_bias_params + ":" + blue_bias_params
+
     eq_params = "zmq," + filter1_str + "," + filter2_str + "," + scale_params
     # eq_params = "zmq,eq=brightness=0.0,colorlevels=romin=0.0" + ","+scale_params
     

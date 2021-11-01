@@ -1,14 +1,17 @@
-#coding=UTF-8
+# coding=UTF-8
 
 import platform
 import os
 import signal
 import threading
 from PyQt5 import QtWidgets
-from PyQt5.QtWidgets import (QApplication, QMainWindow, QDesktopWidget, QStyleFactory, QWidget, QHBoxLayout, QVBoxLayout, QFormLayout,
-                            QGridLayout, QFrame,QHeaderView, QTableWidgetItem, QMessageBox, QFileDialog,
-                            QSlider, QLabel, QLineEdit, QPushButton, QTableWidget, QStackedLayout, QSplitter, QTreeWidget, QTreeWidgetItem, QTreeWidgetItemIterator,
-                             QFileDialog, QListWidget, QFileSystemModel, QTreeView, QMenu, QAction, QAbstractItemView, QItemDelegate)
+from PyQt5.QtWidgets import (QApplication, QMainWindow, QDesktopWidget, QStyleFactory, QWidget, QHBoxLayout,
+                             QVBoxLayout, QFormLayout,
+                             QGridLayout, QFrame, QHeaderView, QTableWidgetItem, QMessageBox, QFileDialog,
+                             QSlider, QLabel, QLineEdit, QPushButton, QTableWidget, QStackedLayout, QSplitter,
+                             QTreeWidget, QTreeWidgetItem, QTreeWidgetItemIterator,
+                             QFileDialog, QListWidget, QFileSystemModel, QTreeView, QMenu, QAction, QAbstractItemView,
+                             QItemDelegate)
 from PyQt5.QtGui import QPalette, QColor, QBrush, QFont, QMovie, QPixmap, QPainter, QIcon
 from PyQt5.QtCore import Qt, QMutex, pyqtSlot, QModelIndex, pyqtSignal, QSize
 import pyqtgraph as pg
@@ -44,8 +47,6 @@ from material import *
 
 log = utils.log_utils.logging_init(__file__)
 
-# reload(sys)
-# sys.setdefaultencoding('utf-8')
 
 class MainUi(QMainWindow):
     signal_add_cabinet_label = pyqtSignal(cabinet_params)
@@ -54,13 +55,24 @@ class MainUi(QMainWindow):
     def __init__(self):
         super().__init__()
         pg.setConfigOptions(antialias=True)
+
         self.center()
         self.setWindowOpacity(1.0)  # 设置窗口透明度
         self.setStyleSheet(qdarkstyle.load_stylesheet_pyqt5())
 
+        # instance elements
+        self.NewPlaylistDialog = None
+        self.movie = None
+        self.media_preview_widget = None
+        self.right_frame = None
+        self.right_layout = None
+        self.splitter1 = None
+        self.splitter2 = None
+
+        self.client_page = None
+
         '''Initial media engine'''
         self.media_engine = media_engine()
-
 
         ''' Set Led layout params'''
         self.led_wall_width = default_led_wall_width
@@ -125,9 +137,6 @@ class MainUi(QMainWindow):
 
         self.media_engine.signal_playlist_changed_ret.connect(self.playlist_changed)
         self.media_engine.signal_external_medialist_changed_ret.connect(self.external_medialist_changed)
-        self.NewPlaylistDialog = None
-
-        # self.videoplayer = VideoPlayer()
 
     def closeEvent(self, event):
         log.debug("close")
@@ -156,7 +165,7 @@ class MainUi(QMainWindow):
 
         test_label = QLabel(btm_left_frame)
         test_pixmap = QPixmap("material/logo.jpg").scaledToWidth(200)
-        
+
         test_label.setPixmap(test_pixmap)
         blank_layout.addWidget(test_label)
 
@@ -289,12 +298,9 @@ class MainUi(QMainWindow):
         self.led_bluegain_editbox.setFixedWidth(80)
         self.led_bluegain_editbox.setText(str(self.led_wall_brightness))
 
-
         self.led_brightness_check_btn = QPushButton()
         self.led_brightness_check_btn.clicked.connect(self.set_led_wall_brightness)
         self.led_brightness_check_btn.setText("Confirm")
-
-
 
         self.led_setting_layout = QGridLayout()
 
@@ -320,8 +326,7 @@ class MainUi(QMainWindow):
 
         self.led_setting.setLayout(self.led_setting_layout)
 
-
-        #self.led_setting_layout.addWidget(self.led_fake_label, 1, 0, 1, 5)
+        # self.led_setting_layout.addWidget(self.led_fake_label, 1, 0, 1, 5)
         self.led_client_layout_tree = CTreeWidget(self.right_frame)
         self.led_client_layout_tree.mouseMove.connect(self.led_client_layout_mouse_move)
         self.led_client_layout_tree.setMouseTracking(True)
@@ -342,21 +347,19 @@ class MainUi(QMainWindow):
         self.led_setting_layout.setRowStretch(2, 1)
         self.right_layout.addWidget(self.led_setting)
 
-        port_layout_infomation_widget = QLabel()
-        port_layout_infomation_widget.setFrameShape(QFrame.StyledPanel)
-        port_layout_infomation_widget.setWindowFlags(Qt.ToolTip)
-        port_layout_infomation_widget.setAttribute(Qt.WA_TransparentForMouseEvents)
-        port_layout_infomation_widget.hide()
-        self.port_layout_infomation_widget = port_layout_infomation_widget
+        port_layout_information_widget = QLabel()
+        port_layout_information_widget.setFrameShape(QFrame.StyledPanel)
+        port_layout_information_widget.setWindowFlags(Qt.ToolTip)
+        port_layout_information_widget.setAttribute(Qt.WA_TransparentForMouseEvents)
+        port_layout_information_widget.hide()
+        self.port_layout_information_widget = port_layout_information_widget
 
     def center(self):
-        '''
-        get the geomertry of the screen and set the postion in the center of screen
-        '''
+        # get the geomertry of the screen and set the postion in the center of screen
+
         screen = QDesktopWidget().screenGeometry()
         size = self.geometry()
         self.move((screen.width() - size.width()) / 2, (screen.height() - size.height()) / 2)
-
 
     def fun_connect_clients(self):
         log.debug("connect clients")
@@ -377,12 +380,11 @@ class MainUi(QMainWindow):
         self.page_status_change()
         self.led_layout_window.show()
 
-
     def func_testB(self):
         log.debug("testB")
 
-
     """ handle the command from qlocalserver"""
+
     def parser_cmd_from_qlocalserver(self, data):
         log.debug("data : ", data)
 
@@ -402,7 +404,7 @@ class MainUi(QMainWindow):
             """ no such client ip in clients list, new one and append"""
             if is_found is False:
                 c = client(ip, net_utils.get_ip_address(), c_version, self.client_id_count)
-                #connect signal/slot function
+                # connect signal/slot function
                 c.signal_send_cmd_ret.connect(self.client_send_cmd_ret)
                 c.signal_cabinet_params_changed.connect(self.send_cmd_set_cabinet_params)
                 c.signal_sync_cabinet_params.connect(self.sync_cabinet_params)
@@ -413,7 +415,7 @@ class MainUi(QMainWindow):
                 self.sync_client_cabinet_params(c.client_ip, False)
                 self.client_page.refresh_clients(self.clients)
                 self.client_page.refresh_client_table()
-                #self.refresh_client_table()
+                # self.refresh_client_table()
             else:
                 """ find this ip in clients list, set the alive report count"""
                 tmp_client.set_alive_count(5)
@@ -422,19 +424,17 @@ class MainUi(QMainWindow):
         finally:
             self.clients_unlock()
 
-
     def sync_cabinet_params(self, cab_params):
         ''' change led setting page treewidget'''
         log.debug("")
         finditems = self.led_client_layout_tree.findItems(cab_params.client_ip, Qt.MatchContains, 1)
         for item in finditems:
             log.debug("%s", item.text(0))
-        #for i in range(self.led_client_layout_tree.size()):
+        # for i in range(self.led_client_layout_tree.size()):
         #    log.debug("%d : %s", i, self.led_client_layout_tree.itemFromIndex(i).text(0))
 
-
-
     """send broadcast on eth0"""
+
     def server_broadcast(self, arg):
         data = arg.get("data")
         port = arg.get("port")
@@ -444,7 +444,7 @@ class MainUi(QMainWindow):
 
         msg = data.encode()
         if ip != "":
-            #print(f'sending on {ip}')
+            # print(f'sending on {ip}')
             sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)  # UDP
             sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
             sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
@@ -454,7 +454,6 @@ class MainUi(QMainWindow):
 
         sleep(2)
 
-
     def clients_lock(self):
         self.clients_mutex.lock()
 
@@ -462,7 +461,7 @@ class MainUi(QMainWindow):
         self.clients_mutex.unlock()
 
     def refresh_clients_list(self, arg):
-        #is_list_changed = False
+        # is_list_changed = False
         ori_len = len(self.clients)
         try:
             self.clients_lock()
@@ -481,7 +480,7 @@ class MainUi(QMainWindow):
             if ori_len != len(self.clients):
                 self.client_page.refresh_clients(self.clients)
                 self.client_page.refresh_client_table()
-                #self.refresh_client_table()
+                # self.refresh_client_table()
             self.clients_unlock()
 
         sleep(sleep_time)
@@ -514,20 +513,20 @@ class MainUi(QMainWindow):
                     test_params.setText(0, 'start_y:' + str(c.cabinets_setting[i].start_y))
                     test_params = QTreeWidgetItem(port_layout)
 
-                    test_pixmap = utils.qtui_utils.gen_led_layout_type_pixmap(96, 96, 10, c.cabinets_setting[i].layout_type)
+                    test_pixmap = utils.qtui_utils.gen_led_layout_type_pixmap(96, 96, 10,
+                                                                              c.cabinets_setting[i].layout_type)
 
                     qicon_type = QIcon(test_pixmap)
 
                     test_params.setIcon(0, qicon_type)
 
-
                     '''cabinet params test end '''
 
-                    #gen cabinet label in led_wall_layout_window
+                    # gen cabinet label in led_wall_layout_window
                     if fresh_layout_map is True:
                         self.signal_add_cabinet_label.emit(c.cabinets_setting[i])
                 ''' set icon size'''
-                self.led_client_layout_tree.setIconSize(QSize(64,64))
+                self.led_client_layout_tree.setIconSize(QSize(64, 64))
                 if fresh_layout_map is True:
                     self.client_led_layout.append(client_led_layout)
 
@@ -547,6 +546,7 @@ class MainUi(QMainWindow):
             log.debug("%s", file_uri)
 
     '''client table right clicked slot function'''
+
     def clientsmenuContextTree(self, position):
         QTableWidgetItem = self.client_page.client_table.itemAt(position)
         if QTableWidgetItem is None:
@@ -601,7 +601,7 @@ class MainUi(QMainWindow):
             log.debug("media file uri : %s", self.right_clicked_select_file_uri)
             playlist_name = q.text().split(" ")[2]
             if playlist_name == 'new':
-                #launch a dialog
+                # launch a dialog
                 # pop up a playlist generation dialog
                 if self.NewPlaylistDialog is None:
                     self.NewPlaylistDialog = NewPlaylistDialog(self.media_engine.playlist)
@@ -615,7 +615,8 @@ class MainUi(QMainWindow):
             if platform.machine() in ('arm', 'arm64', 'aarch64'):
                 upgrade_file_uri = QFileDialog.getOpenFileName(None, "Select Upgrade File", "/home/root/")
             else:
-                upgrade_file_uri = QFileDialog.getOpenFileName(None, "Select Upgrade File", "/home/venom/","SWU File (*.swu)")
+                upgrade_file_uri = QFileDialog.getOpenFileName(None, "Select Upgrade File", "/home/venom/",
+                                                               "SWU File (*.swu)")
 
             if upgrade_file_uri == "":
                 log.debug("No select")
@@ -625,11 +626,12 @@ class MainUi(QMainWindow):
                 log.debug("Goto upgrade!")
                 ips = []
                 ips.append(self.right_click_select_client_ip)
-                utils.update_utils.upload_update_swu_to_client(ips, upgrade_file_uri[0], utils.update_utils.update_client_callback)
+                utils.update_utils.upload_update_swu_to_client(ips, upgrade_file_uri[0],
+                                                               utils.update_utils.update_client_callback)
             else:
                 return
         elif q.text() == "Remove file from playlist":
-            #log.debug("%s", self.file_tree.itemAt(self.right_clicked_pos.x(), self.right_clicked_pos.y()).text(0))
+            # log.debug("%s", self.file_tree.itemAt(self.right_clicked_pos.x(), self.right_clicked_pos.y()).text(0))
             item = self.medialist_page.file_tree.itemAt(self.right_clicked_pos.x(), self.right_clicked_pos.y())
             parent = item.parent()
             remove_file_name = item.text(0)
@@ -654,17 +656,13 @@ class MainUi(QMainWindow):
                     log.debug("ready to send command")
                     cmd = "get_version"
                     param = "get_version"
-                    c.send_cmd( cmd=cmd, cmd_seq_id=self.cmd_seq_id_increase(), param=param)
-
-
-
+                    c.send_cmd(cmd=cmd, cmd_seq_id=self.cmd_seq_id_increase(), param=param)
 
     def play_playlist_trigger(self):
         log.debug("")
         self.play_type = play_type.play_playlist
-        thread_1 = threading.Thread(target=utils.ffmpy_utils.ffmpy_execute_list, args=(self, self.media_play_list, ))
+        thread_1 = threading.Thread(target=utils.ffmpy_utils.ffmpy_execute_list, args=(self, self.media_play_list,))
         thread_1.start()
-
 
     def stop_media_set(self):
         log.debug("")
@@ -673,7 +671,6 @@ class MainUi(QMainWindow):
     '''def stop_media_trigger(self):
         log.debug("")
         self.media_engine.stop_play()'''
-
 
     def pause_media_trigger(self):
         """check the popen subprocess is alive or not"""
@@ -690,41 +687,43 @@ class MainUi(QMainWindow):
     def resume_media_set(self):
         self.media_engine.resume_play()
 
-
     def repeat_option_set(self, repeat_value):
         self.play_option_repeat = repeat_value
         self.media_engine.media_processor.set_repeat_option(self.play_option_repeat)
         log.debug("self.play_option_repeat : %d", self.play_option_repeat)
 
     def mouseMoveEvent(self, event):
-        #log.debug("mouseMoveEvent")
+        if self.media_preview_widget is None:
+            return
+        # log.debug("mouseMoveEvent")
         if self.media_preview_widget.isVisible() is True:
             self.media_preview_widget.hide()
             self.preview_file_name = ""
-        if self.port_layout_infomation_widget.isVisible() is True:
-            self.port_layout_infomation_widget.hide()
+        if self.port_layout_information_widget.isVisible() is True:
+            self.port_layout_information_widget.hide()
 
     '''media page mouse move slot'''
+
     def led_client_layout_mouse_move(self, event):
         if self.led_client_layout_tree.itemAt(event.x(), event.y()) is None:
-            if self.port_layout_infomation_widget.isVisible() is True:
-                self.port_layout_infomation_widget.hide()
+            if self.port_layout_information_widget.isVisible() is True:
+                self.port_layout_information_widget.hide()
             return
         if self.led_client_layout_tree.itemAt(event.x(), event.y()).text(0).startswith("id"):
-            if self.port_layout_infomation_widget.isVisible() is True:
-                self.port_layout_infomation_widget.hide()
+            if self.port_layout_information_widget.isVisible() is True:
+                self.port_layout_information_widget.hide()
         else:
+            self.port_layout_information_widget.setText("port layout :\n" +
+                                                        "width :\n" +
+                                                        "height :\n" +
+                                                        "layout_type :\n" +
+                                                        "start_point :\n")
 
-            self.port_layout_infomation_widget.setText("port layout :\n" +
-                                                       "width :\n" +
-                                                       "height :\n" +
-                                                       "layout_type :\n" +
-                                                       "start_point :\n"
-                                                       )
-            self.port_layout_infomation_widget.setGeometry(self.x() + self.right_frame.x() + self.led_client_layout_tree.x() + event.x() + 200,
-                                                           self.y() + self.right_frame.y() + self.led_client_layout_tree.y() + event.y() + 100,
-                                                           320, 240)
-            self.port_layout_infomation_widget.show()
+            self.port_layout_information_widget.setGeometry(
+                self.x() + self.right_frame.x() + self.led_client_layout_tree.x() + event.x() + 200,
+                self.y() + self.right_frame.y() + self.led_client_layout_tree.y() + event.y() + 100,
+                320, 240)
+            self.port_layout_information_widget.show()
 
     '''media page mouse move slot'''
     def media_page_mouseMove_depreciated(self, event):
@@ -762,8 +761,6 @@ class MainUi(QMainWindow):
         finally:
             self.releaseMouse()
 
-
-
     def cmd_seq_id_lock(self):
         self.cmd_seq_id_mutex.lock()
 
@@ -772,6 +769,7 @@ class MainUi(QMainWindow):
 
     ''' cmd seqid increase method
         cmd seqid range : 0~65534'''
+
     def cmd_seq_id_increase(self):
         self.cmd_seq_id_lock()
         self.cmd_send_seq_id += 1
@@ -781,11 +779,11 @@ class MainUi(QMainWindow):
         log.debug("self.cmd_send_seq_id :%d", self.cmd_send_seq_id)
         return self.cmd_send_seq_id
 
-    def cmd_reply_callback(self,  ret, recvData=None, client_ip=None, client_reply_port=None):
+    def cmd_reply_callback(self, ret, recvData=None, client_ip=None, client_reply_port=None):
         log.debug("ret :%s", ret)
 
-
     """Just for Test random command trigger"""
+
     def cmd_test(self, arg):
         while True:
 
@@ -805,26 +803,27 @@ class MainUi(QMainWindow):
                     c.send_cmd(cmd=cmd, cmd_seq_id=self.cmd_seq_id_increase(), param=param)
                     time.sleep(0.1)
 
-    def client_send_cmd_ret(self, ret, send_cmd, recvData=None, client_ip=None, client_reply_port=None):
+    def client_send_cmd_ret(self, ret, send_cmd, recv_data=None, client_ip=None, client_reply_port=None):
         if ret is False:
             log.fatal("client_ip : %s", client_ip)
-            #self.send_cmd_fail_msg.hide()
+            # self.send_cmd_fail_msg.hide()
             if self.send_cmd_fail_msg is not None:
                 try:
                     self.send_cmd_fail_msg.setIcon(QMessageBox.Critical)
                     self.send_cmd_fail_msg.setText("Error")
-                    self.send_cmd_fail_msg.setInformativeText("Can not get response of " + send_cmd + " from " + client_ip)
+                    self.send_cmd_fail_msg.setInformativeText(
+                        "Can not get response of " + send_cmd + " from " + client_ip)
                     self.send_cmd_fail_msg.setWindowTitle("Error")
                     self.send_cmd_fail_msg.setStyleSheet(qdarkstyle.load_stylesheet_pyqt5())
                     self.send_cmd_fail_msg.show()
                 except Exception as e:
                     log.fatal(e)
         else:
-            if send_cmd.startswith("get") :
+            if send_cmd.startswith("get"):
                 if client_ip is not None:
                     for c in self.clients:
                         if c.client_ip == client_ip:
-                            c.parse_get_cmd_reply(send_cmd, recvData)
+                            c.parse_get_cmd_reply(send_cmd, recv_data)
 
             elif send_cmd.startswith("set"):
                 pass
@@ -836,10 +835,8 @@ class MainUi(QMainWindow):
                             c.send_cmd(cmd=cmd_get_cabinet_params, cmd_seq_id=self.cmd_seq_id_increase(),
                                        param=param_str)'''
             log.debug('send_cmd : %s', send_cmd)
-            log.debug('recvData : %s', recvData)
+            log.debug('recv_data : %s', recv_data)
             pass
-
-
 
     def page_status_change(self):
         if self.page_idx == 0:
@@ -854,7 +851,6 @@ class MainUi(QMainWindow):
             if self.led_layout_window.isVisible() is True:
                 self.led_layout_window.hide()
 
-
     def set_led_wall_size(self):
         self.led_wall_width = int(self.led_setting_width_editbox.text())
         self.led_wall_height = int(self.led_setting_height_editbox.text())
@@ -866,18 +862,20 @@ class MainUi(QMainWindow):
 
     def set_led_wall_brightness(self):
         self.led_wall_brightness = int(self.led_brightness_editbox.text())
-        #cmd_params_str = "led_wall_brightness=" + str(self.led_wall_brightness)
-        #for c in self.clients:
+        # cmd_params_str = "led_wall_brightness=" + str(self.led_wall_brightness)
+        # for c in self.clients:
         #    c.send_cmd(cmd=cmd_set_led_brightness, cmd_seq_id=self.cmd_seq_id_increase(), param=cmd_params_str)
 
     '''pop-up cabinet_setting_window while client_layout_tree clicked'''
-    def cabinet_setting_window_show(self, a0: QModelIndex)-> None:
+
+    def cabinet_setting_window_show(self, a0: QModelIndex) -> None:
         if self.led_client_layout_tree.itemFromIndex(a0).parent().text(0) is None:
             return
         log.debug("%s", self.led_client_layout_tree.itemFromIndex(a0).text(0))
         log.debug("%s", self.led_client_layout_tree.itemFromIndex(a0).parent().text(0))
 
-        client_ip_selected = self.led_client_layout_tree.itemFromIndex(a0).parent().text(0).split("ip:")[1].split(")")[0]
+        client_ip_selected = self.led_client_layout_tree.itemFromIndex(a0).parent().text(0).split("ip:")[1].split(")")[
+            0]
 
         log.debug(a0.row())
         for c in self.clients:
@@ -894,7 +892,7 @@ class MainUi(QMainWindow):
                 break
 
     def set_cabinet_params(self, c_params):
-        log.debug('c_params.client_ip : %s', c_params.client_ip )
+        log.debug('c_params.client_ip : %s', c_params.client_ip)
         log.debug('c_params.port_id : %d', c_params.port_id)
         for c in self.clients:
             if c.client_ip == c_params.client_ip:
@@ -921,6 +919,7 @@ class MainUi(QMainWindow):
         self.sync_client_layout_params(True, False)
 
     '''slot for signal_draw_temp_cabinet from cabinet_setting_window'''
+
     def draw_cabinet_label(self, c_params, qt_line_color):
         if self.led_layout_window is not None:
             log.debug('')
@@ -929,6 +928,7 @@ class MainUi(QMainWindow):
             # self.led_layout_window.redraw_cabinet_label(c_params)
 
     '''slot for signal_set_default_cabinet_resolution from cabinet_setting_window'''
+
     def set_default_cabinet_resolution(self, width, height):
         log.debug("")
         for c in self.clients:
@@ -937,7 +937,7 @@ class MainUi(QMainWindow):
                 c_param.cabinet_height = height
 
     def send_cmd_set_cabinet_params(self, c_params):
-        '''select the client'''
+        # select the client
         for c in self.clients:
             if c.client_ip is c_params.client_ip:
                 str_params = 'port_id=' + str(c_params.port_id) + ',cabinet_width=' + str(c_params.cabinet_width) + \
@@ -950,20 +950,20 @@ class MainUi(QMainWindow):
                 break
 
     def sync_client_cabinet_params(self, ip, force_or_not):
-        #ip = "192.168.0.10" #test
+        # ip = "192.168.0.10" #test
         for c in self.clients:
             if c.client_ip == ip:
                 for i in range(c.num_of_cabinet):
                     param_str = "port_id:" + str(i)
                     c.send_cmd(cmd=cmd_get_cabinet_params, cmd_seq_id=self.cmd_seq_id_increase(), param=param_str)
 
-    ''' re-modified the playlist treewidget'''
-    ''' 增加用media_file_uri, 移除用index'''
+    # re-modified the playlist tree widget
+    # 增加用media_file_uri, 移除用index
     def playlist_changed(self, changed_or_not, playlist_name, media_file_uri, index, action):
         log.debug("playlist_changed")
-        '''如果需要更新'''
+        # 如果需要更新
         if changed_or_not is True:
-            '''如果是新playlist'''
+            # 如果是新playlist
             if action == self.media_engine.ACTION_TAG_ADD_NEW_PLAYLIST:
                 tmp_new_playlist = QTreeWidgetItem()
                 tmp_new_playlist.setText(0, playlist_name)
@@ -993,7 +993,6 @@ class MainUi(QMainWindow):
                             self.medialist_page.qtw_media_play_list.removeChild(playlist_tmp)
                             return
 
-
     def external_medialist_changed(self, changed_or_not):
         log.debug("external_medialist_changed")
         '''如果需要更新,要全部掃描一次'''
@@ -1017,12 +1016,13 @@ class MainUi(QMainWindow):
     def slot_new_playlist(self, new_playlist_name):
         log.debug("")
         new_playlist_name += '.playlist'
-        #self.media_engine.new_playlist(new_playlist_name)
+        # self.media_engine.new_playlist(new_playlist_name)
         self.media_engine.add_to_playlist(new_playlist_name, self.medialist_page.right_clicked_select_file_uri)
+
 
 class MyDelegate(QItemDelegate):
     def __init__(self):
         QItemDelegate.__init__(self)
 
     def sizeHint(self, option, index):
-        return QSize(32,32)
+        return QSize(32, 32)
