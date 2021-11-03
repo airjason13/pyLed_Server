@@ -44,6 +44,7 @@ from set_qstyle import *
 from qtui.c_page_client import *
 from qtui.c_page_medialist import *
 from material import *
+import hashlib
 
 log = utils.log_utils.logging_init(__file__)
 
@@ -740,9 +741,11 @@ class MainUi(QMainWindow):
                 self.releaseMouse()
                 return
             self.preview_file_name = self.medialist_page.file_tree.itemAt(event.x(), event.y()).text(0)
+
+            thumbnail_file_name = hashlib.md5(
+                self.preview_file_name.split(".")[0].encode('utf-8')).hexdigest() + ".webp"
             if os.path.exists(
-                    internal_media_folder + ThumbnailFileFolder
-                    + self.preview_file_name.replace(".mp4", ".webp")) is False:
+                    internal_media_folder + ThumbnailFileFolder + thumbnail_file_name) is False:
                 if self.media_preview_widget.isVisible() is True:
                     self.media_preview_widget.hide()
                 self.releaseMouse()
@@ -750,10 +753,15 @@ class MainUi(QMainWindow):
             else:
                 self.media_preview_widget.setGeometry(self.medialist_page.file_tree.x() + event.x(),
                                                       self.medialist_page.file_tree.y() + event.y(), 640, 480)
-                self.preview_file_name = self.medialist_page.file_tree.itemAt(event.x(), event.y()).text(0)
+                #self.preview_file_name = self.medialist_page.file_tree.itemAt(event.x(), event.y()).text(0)
+                #log.debug("A1")
+                #thumbnail_file_name = hashlib.md5(self.preview_file_name.split(".")[0].encode('utf-8')).hexdigest() + ".webp"
+                #log.debug("thumbnail_file_name = %s", thumbnail_file_name)
                 self.movie = QMovie(
-                    internal_media_folder + ThumbnailFileFolder + self.preview_file_name.replace(".mp4", ".webp"))
+                    internal_media_folder + ThumbnailFileFolder + thumbnail_file_name)
+                
                 self.media_preview_widget.setMovie(self.movie)
+
                 self.movie.start()
                 self.media_preview_widget.show()
         except Exception as e:

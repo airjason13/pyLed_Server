@@ -6,6 +6,7 @@ import platform
 import os
 import zmq
 import utils.log_utils
+import hashlib
 log = utils.log_utils.logging_init('ffmpy_utils')
 
 def neo_ffmpy_execute( video_path, brightness, contrast, red_bias, green_bias, blue_bias, width=80, height=96):
@@ -18,15 +19,20 @@ def neo_ffmpy_execute( video_path, brightness, contrast, red_bias, green_bias, b
     #brightness_params = "brightness=" + str(-0.9)
     contrast_params = "contrast=" + str(contrast)
     #contrast_params = "contrast=" + str(100)
-    filter1_str = "eq=" + brightness_params + ":" + contrast_params
+    eq_str = "eq=" + brightness_params + ":" + contrast_params
     red_bias_params = "romin=" + str(red_bias)
     green_bias_params = "gomin=" + str(green_bias)
     blue_bias_params = "bomin=" + str(blue_bias)
-    filter2_str = "colorlevels=" + "rimin=0.99:gimin=0.99:bimin=0.99:" + red_bias_params + ":" + green_bias_params + ":" + blue_bias_params
+    #filter2_str = "colorlevels=" + "rimin=0.99:gimin=0.99:bimin=0.99:" + red_bias_params + ":" + green_bias_params + ":" + blue_bias_params
 
-    eq_params = "zmq," + filter1_str + "," + filter2_str + "," + scale_params
-    # eq_params = "zmq,eq=brightness=0.0,colorlevels=romin=0.0" + ","+scale_params
-    
+    colorlevel_str = "colorlevels=" + red_bias_params + ":" + green_bias_params + ":" + blue_bias_params
+
+    #add TEXT
+    #drawtext_str = "drawtext=text='Jason':x=10*w/80:y=96*h/96-20*h*t/96:fontsize=24*h/96:fontcolor=red"
+
+    eq_params = "zmq," + eq_str + "," + colorlevel_str + "," + scale_params
+    #eq_params = "zmq," + eq_str + "," + colorlevel_str + "," + drawtext_str + "," + scale_params
+
     video_encoder = "libx264"
 
     if platform.machine() in ('arm', 'arm64', 'aarch64'):
@@ -160,21 +166,29 @@ def ffmpy_execute_list(QObject, video_path_list):
 
 
 def gen_webp_from_video(file_folder, video):
+    # usb hashlib md5 to generate preview file name
+    video_name = video.split(".")[0]
+    preview_file_name = hashlib.md5(video_name.encode('utf-8')).hexdigest()
 
-    thumbnail_path = internal_media_folder + ThumbnailFileFolder + video.replace(".mp4", ".webp")
+    #thumbnail_path = internal_media_folder + ThumbnailFileFolder + video.replace(".mp4", ".webp")
+    thumbnail_path = internal_media_folder + ThumbnailFileFolder + preview_file_name + ".webp"
     video_path = file_folder + "/" + video
+    log.debug("video_path = %s", video_path)
+    log.debug("thumbnail_path = %s", thumbnail_path)
     thunbnail_folder_path = internal_media_folder + ThumbnailFileFolder
     if not os.path.exists(thunbnail_folder_path):
         os.makedirs(thunbnail_folder_path)
-
-    if os.path.isfile(thumbnail_path) is False:
-        global_opts = '-hide_banner -loglevel error'
-        ff = ffmpy.FFmpeg(
-            global_options=global_opts,
-            inputs={video_path: ['-ss', '3', '-t', '3']},
-            outputs={thumbnail_path: ['-vf', 'scale=640:480']}
-        )
-        ff.run()
+    try:
+        if os.path.isfile(thumbnail_path) is False:
+            global_opts = '-hide_banner -loglevel error'
+            ff = ffmpy.FFmpeg(
+                global_options=global_opts,
+                inputs={video_path: ['-ss', '3', '-t', '3']},
+                outputs={thumbnail_path: ['-vf', 'scale=640:480']}
+            )
+            ff.run()
+    except Exception as e:
+        log.debug(e)
     return thumbnail_path
 
 
