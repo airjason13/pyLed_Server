@@ -102,7 +102,7 @@ class MainUi(QMainWindow):
         self.ffmpy_running = play_status.stop
         self.play_type = play_type.play_none
         self.ff_process = None
-        self.play_option_repeat = repeat_option.repeat_none
+        self.play_option_repeat = repeat_option.repeat_all
 
         # get eth0 ip and set it to server_ip
         self.server_ip = net_utils.get_ip_address()
@@ -753,13 +753,10 @@ class MainUi(QMainWindow):
             else:
                 self.media_preview_widget.setGeometry(self.medialist_page.file_tree.x() + event.x(),
                                                       self.medialist_page.file_tree.y() + event.y(), 640, 480)
-                #self.preview_file_name = self.medialist_page.file_tree.itemAt(event.x(), event.y()).text(0)
-                #log.debug("A1")
-                #thumbnail_file_name = hashlib.md5(self.preview_file_name.split(".")[0].encode('utf-8')).hexdigest() + ".webp"
-                #log.debug("thumbnail_file_name = %s", thumbnail_file_name)
+
                 self.movie = QMovie(
                     internal_media_folder + ThumbnailFileFolder + thumbnail_file_name)
-                
+
                 self.media_preview_widget.setMovie(self.movie)
 
                 self.movie.start()

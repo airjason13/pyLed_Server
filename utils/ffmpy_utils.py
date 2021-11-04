@@ -10,28 +10,30 @@ import hashlib
 log = utils.log_utils.logging_init('ffmpy_utils')
 
 def neo_ffmpy_execute( video_path, brightness, contrast, red_bias, green_bias, blue_bias, width=80, height=96):
-    #red_bias = 0.9
-    #green_bias = 0.9
-    #blue_bias = 0.9
+    # red_bias = 0.9
+    # green_bias = 0.9
+    # blue_bias = 0.9
     global_opts = '-hide_banner -loglevel error'
     scale_params = "scale=" + str(width) + ":" + str(height) + ",hflip"
     brightness_params = "brightness=" + str(brightness)
-    #brightness_params = "brightness=" + str(-0.9)
+    # brightness_params = "brightness=" + str(-0.9)
     contrast_params = "contrast=" + str(contrast)
-    #contrast_params = "contrast=" + str(100)
+    # contrast_params = "contrast=" + str(100)
     eq_str = "eq=" + brightness_params + ":" + contrast_params
     red_bias_params = "romin=" + str(red_bias)
     green_bias_params = "gomin=" + str(green_bias)
     blue_bias_params = "bomin=" + str(blue_bias)
-    #filter2_str = "colorlevels=" + "rimin=0.99:gimin=0.99:bimin=0.99:" + red_bias_params + ":" + green_bias_params + ":" + blue_bias_params
+    # filter2_str = "colorlevels=" + "rimin=0.99:gimin=0.99:bimin=0.99:" + red_bias_params + ":" + green_bias_params + ":" + blue_bias_params
 
-    colorlevel_str = "colorlevels=" + red_bias_params + ":" + green_bias_params + ":" + blue_bias_params
+    color_level_str = "colorlevels=" + red_bias_params + ":" + green_bias_params + ":" + blue_bias_params
 
-    #add TEXT
-    #drawtext_str = "drawtext=text='Jason':x=10*w/80:y=96*h/96-20*h*t/96:fontsize=24*h/96:fontcolor=red"
+    # add TEXT
+    if "blank.mp4" in video_path:
+        drawtext_str = "drawtext=fontfile=/home/venom/Videos/fonts/msjhbd.ttc:text='歡迎林商行蒞臨指導':x=10*w/80-20*t:y=40:fontsize=24*h/96:fontcolor=white"
+        eq_params = "zmq," + eq_str + "," + color_level_str + "," + drawtext_str + "," + scale_params
+    else:
+        eq_params = "zmq," + eq_str + "," + color_level_str + "," + scale_params
 
-    eq_params = "zmq," + eq_str + "," + colorlevel_str + "," + scale_params
-    #eq_params = "zmq," + eq_str + "," + colorlevel_str + "," + drawtext_str + "," + scale_params
 
     video_encoder = "libx264"
 

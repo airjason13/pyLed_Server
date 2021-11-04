@@ -223,7 +223,7 @@ class media_processor(QObject):
         self.play_status = play_status.stop
         self.pre_play_status = play_status.stop
         self.play_type = play_type.play_none
-        self.repeat_option = repeat_option.repeat_none
+        self.repeat_option = repeat_option.repeat_all
         self.play_single_file_thread = None
         self.ffmpy_process = None
         self.playing_file_name = None
@@ -443,7 +443,7 @@ class media_processor(QObject):
                 self.file_idx += 1
                 if self.file_idx >= len(self.playlist.fileslist):
                     self.file_idx = 0
-                    if self.media_processor.repeat_option != repeat_option.repeat_all or self.media_processor.repeat_option != repeat_option.repeat_random:
+                    if self.media_processor.repeat_option == repeat_option.repeat_all or self.media_processor.repeat_option == repeat_option.repeat_random:
                         pass
                     else:
                         log.debug("self.media_processor.repeat_option : %d", self.media_processor.repeat_option)
