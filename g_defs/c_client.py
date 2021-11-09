@@ -30,6 +30,8 @@ class client(QObject):
         self.client_udp_cmd_port = g_client_udp_cmd_port
         self.client_version = client_version
         self.client_id = client_id
+        self.client_brightness = -1
+        self.client_br_divisor = -1
 
         self.alive_val = self.alive_val_def
         self.id = -1

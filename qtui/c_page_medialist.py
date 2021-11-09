@@ -8,6 +8,7 @@ import os
 from global_def import *
 from set_qstyle import *
 from c_new_playlist_dialog import NewPlaylistDialog
+from commands_def import *
 import utils.log_utils
 log = utils.log_utils.logging_init(__file__)
 
@@ -179,6 +180,23 @@ class media_page(QObject):
         self.bluegain_edit.setFixedWidth(100)
         self.bluegain_edit.setText(str(self.mainwindow.media_engine.media_processor.video_params.video_blue_bias))
 
+        #client brightness adjust
+        self.client_brightness_label = QLabel(self.mainwindow.right_frame)
+        self.client_brightness_label.setText("Client Brightness:")
+        self.client_brightness_edit = QLineEdit(self.mainwindow.right_frame)
+        self.client_brightness_edit.setFixedWidth(100)
+        self.client_brightness_edit.setText(
+            str(self.mainwindow.media_engine.media_processor.video_params.video_brightness))
+
+        # client brightness adjust
+        self.client_br_divisor_label = QLabel(self.mainwindow.right_frame)
+        self.client_br_divisor_label.setText("Client BrDivisor:")
+        self.client_br_divisor_edit = QLineEdit(self.mainwindow.right_frame)
+        self.client_br_divisor_edit.setFixedWidth(100)
+        self.client_br_divisor_edit.setText(
+            str(self.mainwindow.media_engine.media_processor.video_params.video_brightness))
+
+
         self.video_params_widget = QWidget(self.mainwindow.right_frame)
         video_params_layout = QGridLayout()
         self.video_params_widget.setLayout(video_params_layout)
@@ -186,6 +204,10 @@ class media_page(QObject):
         self.video_params_confirm_btn = QPushButton(self.mainwindow.right_frame)
         self.video_params_confirm_btn.setText("Set")
         self.video_params_confirm_btn.clicked.connect(self.video_params_confirm_btn_clicked)
+
+        self.client_params_confirm_btn = QPushButton(self.mainwindow.right_frame)
+        self.client_params_confirm_btn.setText("Set")
+        self.client_params_confirm_btn.clicked.connect(self.video_params_confirm_btn_clicked)
 
         video_params_layout.addWidget(self.redgain_label, 0, 0)
         video_params_layout.addWidget(self.redgain_edit, 0, 1)
@@ -198,7 +220,14 @@ class media_page(QObject):
         video_params_layout.addWidget(self.brightness_edit, 1, 1)
         video_params_layout.addWidget(self.contrast_label, 1, 2)
         video_params_layout.addWidget(self.contrast_edit, 1, 3)
+
+        video_params_layout.addWidget(self.client_brightness_label, 2, 0)
+        video_params_layout.addWidget(self.client_brightness_edit, 2, 1)
+        video_params_layout.addWidget(self.client_br_divisor_label, 2, 2)
+        video_params_layout.addWidget(self.client_br_divisor_edit, 2, 3)
+
         video_params_layout.addWidget(self.video_params_confirm_btn, 1, 5)
+        video_params_layout.addWidget(self.client_params_confirm_btn, 2, 5)
 
     def stop_media_trigger(self):
         log.debug("")
@@ -381,4 +410,17 @@ class media_page(QObject):
             log.debug("blue gain changed!")
             media_processor.set_blue_bias_level(int(self.bluegain_edit.text()))
 
+        clients = self.mainwindow.clients
+
+        for c in clients:
+            log.debug("c.client_ip = %s", c.client_ip)
+            if c.client_brightness != int(self.client_brightness_edit.text()):
+                c.send_cmd(cmd_set_frame_brightness,
+                           self.mainwindow.cmd_seq_id_increase(),
+                           self.client_brightness_edit.text())
+
+            if c.client_br_divisor != int(self.client_br_divisor_edit.text()):
+                c.send_cmd(cmd_set_frame_br_divisor,
+                           self.mainwindow.cmd_seq_id_increase(),
+                           self.client_br_divisor_edit.text())
 

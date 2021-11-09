@@ -14,7 +14,7 @@ def neo_ffmpy_execute( video_path, brightness, contrast, red_bias, green_bias, b
     # green_bias = 0.9
     # blue_bias = 0.9
     global_opts = '-hide_banner -loglevel error'
-    scale_params = "scale=" + str(width) + ":" + str(height) + ",hflip"
+    scale_params = "scale=" + str(width) + ":" + str(height) # + ",hflip"
     brightness_params = "brightness=" + str(brightness)
     # brightness_params = "brightness=" + str(-0.9)
     contrast_params = "contrast=" + str(contrast)
@@ -29,10 +29,11 @@ def neo_ffmpy_execute( video_path, brightness, contrast, red_bias, green_bias, b
 
     # add TEXT
     if "blank.mp4" in video_path:
-        drawtext_str = "drawtext=fontfile=/home/venom/Videos/fonts/msjhbd.ttc:text='歡迎林商行蒞臨指導':x=10*w/80-20*t:y=40:fontsize=24*h/96:fontcolor=white"
-        eq_params = "zmq," + eq_str + "," + color_level_str + "," + drawtext_str + "," + scale_params
+        drawtext_str = "drawtext=fontfile=" + internal_media_folder + \
+                       "/fonts/msjhbd.ttc:text='歡迎台大生醫婦幼中心蒞臨指導':x=10*w/80-20*t:y=40:fontsize=24*h/96:fontcolor=white"
+        filter_params = "zmq," + eq_str + "," + color_level_str + "," + drawtext_str + "," + scale_params
     else:
-        eq_params = "zmq," + eq_str + "," + color_level_str + "," + scale_params
+        filter_params = "zmq," + eq_str + "," + color_level_str + "," + scale_params
 
 
     video_encoder = "libx264"
@@ -49,7 +50,7 @@ def neo_ffmpy_execute( video_path, brightness, contrast, red_bias, green_bias, b
                         video_path: ["-re"]
                     },
             outputs={
-                udp_sink: [ "-vcodec", video_encoder, '-filter_complex', eq_params,"-b:v", "2000k", "-f", "h264", "-pix_fmt", "yuv420p", "-localaddr", "192.168.0.3"]
+                udp_sink: [ "-vcodec", video_encoder, '-filter_complex', filter_params,"-b:v", "2000k", "-f", "h264", "-pix_fmt", "yuv420p", "-localaddr", "192.168.0.3"]
                 #udp_sink: ["-preset", "ultrafast", "-vcodec", "libx264", '-vf', scale_params, "-f", "h264", "-localaddr", "192.168.0.3"]
             },
 
@@ -59,7 +60,7 @@ def neo_ffmpy_execute( video_path, brightness, contrast, red_bias, green_bias, b
             global_options=global_opts,
             inputs={video_path: ["-re"]},
             outputs={
-                udp_sink: ["-preset", "ultrafast", "-vcodec", "libx264", '-filter_complex', eq_params , "-f", "h264", "-localaddr", "192.168.0.2"],
+                udp_sink: ["-preset", "ultrafast", "-vcodec", "libx264", '-filter_complex', filter_params , "-f", "h264", "-localaddr", "192.168.0.2"],
             }
         )
 
@@ -168,7 +169,7 @@ def ffmpy_execute_list(QObject, video_path_list):
 
 
 def gen_webp_from_video(file_folder, video):
-    # usb hashlib md5 to generate preview file name
+    # use hashlib md5 to generate preview file name
     video_name = video.split(".")[0]
     preview_file_name = hashlib.md5(video_name.encode('utf-8')).hexdigest()
 
