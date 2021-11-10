@@ -14,7 +14,7 @@ def neo_ffmpy_execute( video_path, brightness, contrast, red_bias, green_bias, b
     # green_bias = 0.9
     # blue_bias = 0.9
     global_opts = '-hide_banner -loglevel error'
-    scale_params = "scale=" + str(width) + ":" + str(height) # + ",hflip"
+    scale_params = "scale=" + str(width) + ":" + str(height)  + ",hflip"
     brightness_params = "brightness=" + str(brightness)
     # brightness_params = "brightness=" + str(-0.9)
     contrast_params = "contrast=" + str(contrast)

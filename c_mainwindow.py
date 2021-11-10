@@ -11,8 +11,8 @@ from PyQt5.QtWidgets import (QApplication, QMainWindow, QDesktopWidget, QStyleFa
                              QSlider, QLabel, QLineEdit, QPushButton, QTableWidget, QStackedLayout, QSplitter,
                              QTreeWidget, QTreeWidgetItem, QTreeWidgetItemIterator,
                              QFileDialog, QListWidget, QFileSystemModel, QTreeView, QMenu, QAction, QAbstractItemView,
-                             QItemDelegate)
-from PyQt5.QtGui import QPalette, QColor, QBrush, QFont, QMovie, QPixmap, QPainter, QIcon
+                             QItemDelegate, QShortcut, )
+from PyQt5.QtGui import QPalette, QColor, QBrush, QFont, QMovie, QPixmap, QPainter, QIcon, QKeySequence
 from PyQt5.QtCore import Qt, QMutex, pyqtSlot, QModelIndex, pyqtSignal, QSize
 import pyqtgraph as pg
 import qdarkstyle
@@ -60,6 +60,11 @@ class MainUi(QMainWindow):
         self.center()
         self.setWindowOpacity(1.0)  # 设置窗口透明度
         self.setStyleSheet(qdarkstyle.load_stylesheet_pyqt5())
+
+        # set engineer mode trigger
+        self.engineer_mode_trigger = QShortcut(QKeySequence("Ctrl+E"), self)
+        self.engineer_mode_trigger.activated.connect(self.ctrl_e_trigger)
+        self.engineer_mode = False
 
         # instance elements
         self.NewPlaylistDialog = None
@@ -138,6 +143,13 @@ class MainUi(QMainWindow):
 
         self.media_engine.signal_playlist_changed_ret.connect(self.playlist_changed)
         self.media_engine.signal_external_medialist_changed_ret.connect(self.external_medialist_changed)
+
+
+
+    def ctrl_e_trigger(self):
+        log.debug(" ")
+        self.engineer_mode = True
+        self.init_ui()
 
     def closeEvent(self, event):
         log.debug("close")
@@ -413,6 +425,15 @@ class MainUi(QMainWindow):
                 self.client_id_count += 1
                 self.clients.append(c)
 
+                # send brightness and br_divisor to the new client
+                c.send_cmd(cmd_set_frame_brightness,
+                           self.cmd_seq_id_increase(),
+                           str(self.media_engine.media_processor.video_params.frame_brightness))
+
+                c.send_cmd(cmd_set_frame_br_divisor,
+                           self.cmd_seq_id_increase(),
+                           str(self.media_engine.media_processor.video_params.frame_br_divisor))
+
                 self.sync_client_cabinet_params(c.client_ip, False)
                 self.client_page.refresh_clients(self.clients)
                 self.client_page.refresh_client_table()
@@ -547,7 +568,6 @@ class MainUi(QMainWindow):
             log.debug("%s", file_uri)
 
     '''client table right clicked slot function'''
-
     def clientsmenuContextTree(self, position):
         QTableWidgetItem = self.client_page.client_table.itemAt(position)
         if QTableWidgetItem is None:
@@ -567,27 +587,6 @@ class MainUi(QMainWindow):
 
         popMenu.exec_(self.client_page.client_table.mapToGlobal(position))
 
-    '''def show_media_file_pop_menu(self, pos):
-        popMenu = QMenu()
-        set_qstyle_dark(popMenu)
-
-        playAct = QAction("Play", self)
-        popMenu.addAction(playAct)
-        popMenu.addSeparator()
-
-
-        addtoplaylist_menu = QMenu('AddtoPlaylist')
-        set_qstyle_dark(addtoplaylist_menu)
-
-        for playlist in self.media_engine.playlist:
-            playlist_name = playlist.name
-            addtoplaylist_menu.addAction('add to ' + playlist_name)
-
-        addtoplaylist_menu.addAction('add to new playlist')
-        popMenu.addMenu(addtoplaylist_menu)
-        popMenu.triggered[QAction].connect(self.popmenu_trigger_act)
-
-        popMenu.exec_(pos)'''
 
     # All popmenu trigger act
     def pop_menu_trigger_act(self, q):
@@ -669,9 +668,7 @@ class MainUi(QMainWindow):
         log.debug("")
         self.media_engine.stop_play()
 
-    '''def stop_media_trigger(self):
-        log.debug("")
-        self.media_engine.stop_play()'''
+
 
     def pause_media_trigger(self):
         """check the popen subprocess is alive or not"""
@@ -704,7 +701,6 @@ class MainUi(QMainWindow):
             self.port_layout_information_widget.hide()
 
     '''media page mouse move slot'''
-
     def led_client_layout_mouse_move(self, event):
         if self.led_client_layout_tree.itemAt(event.x(), event.y()) is None:
             if self.port_layout_information_widget.isVisible() is True:
@@ -734,7 +730,6 @@ class MainUi(QMainWindow):
     def media_page_mouseMove(self, event):
         try:
             self.grabMouse()
-
             if self.medialist_page.file_tree.itemAt(event.x(), event.y()) is None:
                 if self.media_preview_widget.isVisible() is True:
                     self.media_preview_widget.hide()
@@ -758,7 +753,6 @@ class MainUi(QMainWindow):
                     internal_media_folder + ThumbnailFileFolder + thumbnail_file_name)
 
                 self.media_preview_widget.setMovie(self.movie)
-
                 self.movie.start()
                 self.media_preview_widget.show()
         except Exception as e:
@@ -788,7 +782,6 @@ class MainUi(QMainWindow):
         log.debug("ret :%s", ret)
 
     """Just for Test random command trigger"""
-
     def cmd_test(self, arg):
         while True:
 
