@@ -266,7 +266,18 @@ class LedLayoutWindow(QWidget):
         elif c_params.layout_type == 3:
             x = c_params.start_x - c_params.cabinet_width + 1
             y = c_params.start_y - c_params.cabinet_height + 1
-
+        elif c_params.layout_type == 4:
+            x = c_params.start_x - c_params.cabinet_width + 1
+            y = c_params.start_y
+        elif c_params.layout_type == 5:
+            x = c_params.start_x
+            y = c_params.start_y - c_params.cabinet_height + 1
+        elif c_params.layout_type == 6:
+            x = c_params.start_x - c_params.cabinet_width + 1
+            y = c_params.start_y - c_params.cabinet_height + 1
+        elif c_params.layout_type == 7:
+            x = c_params.start_x
+            y = c_params.start_y
         return x, y
 
 

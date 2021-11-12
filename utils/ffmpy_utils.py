@@ -30,7 +30,7 @@ def neo_ffmpy_execute( video_path, brightness, contrast, red_bias, green_bias, b
     # add TEXT
     if "blank.mp4" in video_path:
         drawtext_str = "drawtext=fontfile=" + internal_media_folder + \
-                       "/fonts/msjhbd.ttc:text='歡迎台大生醫婦幼中心蒞臨指導':x=10*w/80-20*t:y=40:fontsize=24*h/96:fontcolor=white"
+                       "/fonts/msjhbd.ttc:text='歡迎MIH蒞臨指導':x=10*w/80-80*t:y=0:fontsize=24*h/96:fontcolor=white"
         filter_params = "zmq," + eq_str + "," + color_level_str + "," + drawtext_str + "," + scale_params
     else:
         filter_params = "zmq," + eq_str + "," + color_level_str + "," + scale_params
@@ -59,6 +59,7 @@ def neo_ffmpy_execute( video_path, brightness, contrast, red_bias, green_bias, b
         ff = ffmpy.FFmpeg(
             global_options=global_opts,
             inputs={video_path: ["-re"]},
+
             outputs={
                 udp_sink: ["-preset", "ultrafast", "-vcodec", "libx264", '-filter_complex', filter_params , "-f", "h264", "-localaddr", "192.168.0.2"],
             }

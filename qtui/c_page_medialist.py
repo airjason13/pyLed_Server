@@ -196,6 +196,14 @@ class media_page(QObject):
         self.client_br_divisor_edit.setText(
             str(self.mainwindow.media_engine.media_processor.video_params.frame_br_divisor))
 
+        # client contrast(black level) adjust
+        self.client_contrast_label = QLabel(self.mainwindow.right_frame)
+        self.client_contrast_label.setText("Client Contrast:")
+        self.client_contrast_edit = QLineEdit(self.mainwindow.right_frame)
+        self.client_contrast_edit.setFixedWidth(100)
+        self.client_contrast_edit.setText(
+            str(self.mainwindow.media_engine.media_processor.video_params.frame_contrast))
+
         self.video_params_widget = QWidget(self.mainwindow.right_frame)
         video_params_layout = QGridLayout()
         self.video_params_widget.setLayout(video_params_layout)
@@ -220,14 +228,17 @@ class media_page(QObject):
         video_params_layout.addWidget(self.client_brightness_edit, 2, 1)
         video_params_layout.addWidget(self.client_br_divisor_label, 2, 2)
         video_params_layout.addWidget(self.client_br_divisor_edit, 2, 3)
+        video_params_layout.addWidget(self.client_contrast_label, 3, 0)
+        video_params_layout.addWidget(self.client_contrast_edit, 3, 1)
 
-        video_params_layout.addWidget(self.video_params_confirm_btn, 2, 5)
+
+        video_params_layout.addWidget(self.video_params_confirm_btn, 3, 5)
 
         if self.mainwindow.engineer_mode is True:
             self.max_brightness_label = QLabel(self.mainwindow.right_frame)
             self.max_brightness_label.setText( "Max Frame Brightness Value is " +
-                str((255*int(self.client_brightness_edit.text()))/(int(self.client_br_divisor_edit.text())*100)))
-            video_params_layout.addWidget(self.max_brightness_label, 3, 0, 1, 5)
+                str((256*int(self.client_brightness_edit.text()))/(int(self.client_br_divisor_edit.text())*100)))
+            video_params_layout.addWidget(self.max_brightness_label, 4, 0, 1, 5)
 
     def stop_media_trigger(self):
         log.debug("")
@@ -426,3 +437,19 @@ class media_page(QObject):
                            self.mainwindow.cmd_seq_id_increase(),
                            str(video_params.frame_br_divisor))
 
+        if video_params.frame_contrast != int(self.client_contrast_edit.text()):
+            video_params.frame_contrast = int(self.client_contrast_edit.text())
+            for c in clients:
+                c.send_cmd(cmd_set_frame_contrast,
+                           self.mainwindow.cmd_seq_id_increase(),
+                           str(video_params.frame_contrast))
+
+        if self.mainwindow.engineer_mode is True:
+            self.refresh_max_brightness_label()
+
+    def refresh_max_brightness_label(self):
+        if self.mainwindow.engineer_mode is False:
+            return
+        self.max_brightness_label.setText("Max Frame Brightness Value is " +
+                                          str((256 * int(self.client_brightness_edit.text())) / (
+                                                      int(self.client_br_divisor_edit.text()) * 100)))

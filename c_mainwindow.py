@@ -267,12 +267,12 @@ class MainUi(QMainWindow):
         self.led_setting_width_textlabel = QLabel(self.right_frame)
         self.led_setting_width_textlabel.setText('LED Wall Width:')
         self.led_setting_width_editbox = QLineEdit(self.right_frame)
-        self.led_setting_width_editbox.setFixedWidth(120)
+        self.led_setting_width_editbox.setFixedWidth(100)
         self.led_setting_width_editbox.setText(str(self.led_wall_width))
         self.led_setting_height_textlabel = QLabel(self.right_frame)
         self.led_setting_height_textlabel.setText('LED Wall Height:')
         self.led_setting_height_editbox = QLineEdit(self.right_frame)
-        self.led_setting_height_editbox.setFixedWidth(120)
+        self.led_setting_height_editbox.setFixedWidth(100)
         self.led_setting_height_editbox.setText(str(self.led_wall_height))
         self.led_res_check_btn = QPushButton()
         self.led_res_check_btn.clicked.connect(self.set_led_wall_size)
@@ -282,14 +282,14 @@ class MainUi(QMainWindow):
         self.led_brightness_textlabel = QLabel(self.right_frame)
         self.led_brightness_textlabel.setText('LED Brightness:')
         self.led_brightness_editbox = QLineEdit(self.right_frame)
-        self.led_brightness_editbox.setFixedWidth(120)
+        self.led_brightness_editbox.setFixedWidth(100)
         self.led_brightness_editbox.setText(str(self.led_wall_brightness))
 
         # led contrast setting
         self.led_contrast_textlabel = QLabel(self.right_frame)
         self.led_contrast_textlabel.setText('LED Contrast:')
         self.led_contrast_editbox = QLineEdit(self.right_frame)
-        self.led_contrast_editbox.setFixedWidth(120)
+        self.led_contrast_editbox.setFixedWidth(100)
         self.led_contrast_editbox.setText(str(self.led_wall_brightness))
 
         # rgb gain

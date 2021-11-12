@@ -21,6 +21,7 @@ class video_params(QObject):
         # control by clients
         self.frame_brightness = 50
         self.frame_br_divisor = 16
+        self.frame_contrast = 0
 
     def parse_init_config(self):
         # Using readlines()
