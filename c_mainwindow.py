@@ -854,6 +854,8 @@ class MainUi(QMainWindow):
         self.led_wall_height = int(self.led_setting_height_editbox.text())
         log.debug("%d", self.led_wall_width)
         log.debug("%d", self.led_wall_height)
+        self.media_engine.media_processor.output_width = int(self.led_setting_width_editbox.text())
+        self.media_engine.media_processor.output_height = int(self.led_setting_height_editbox.text())
         self.led_layout_window.change_led_wall_res(self.led_wall_width,
                                                    self.led_wall_height,
                                                    default_led_wall_margin)

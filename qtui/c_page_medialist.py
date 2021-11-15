@@ -182,7 +182,7 @@ class media_page(QObject):
 
         #client brightness adjust
         self.client_brightness_label = QLabel(self.mainwindow.right_frame)
-        self.client_brightness_label.setText("Client Brightness:")
+        self.client_brightness_label.setText("Client Br:")
         self.client_brightness_edit = QLineEdit(self.mainwindow.right_frame)
         self.client_brightness_edit.setFixedWidth(100)
         self.client_brightness_edit.setText(
@@ -198,7 +198,7 @@ class media_page(QObject):
 
         # client contrast(black level) adjust
         self.client_contrast_label = QLabel(self.mainwindow.right_frame)
-        self.client_contrast_label.setText("Client Contrast:")
+        self.client_contrast_label.setText("Client Black-Lv:")
         self.client_contrast_edit = QLineEdit(self.mainwindow.right_frame)
         self.client_contrast_edit.setFixedWidth(100)
         self.client_contrast_edit.setText(
