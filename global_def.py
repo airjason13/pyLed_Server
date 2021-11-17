@@ -1,9 +1,9 @@
 import enum
 import platform
 """Software version"""
+version = "LS211022A01"
 
 """Network relative"""
-version = "LS211022A01"
 multicast_group = "239.11.11.11"
 server_broadcast_port = 11334
 server_broadcast_message = "ABCDE;Server:192.168.0.3;Cmd_Port:11335;Alive_Port:11333"

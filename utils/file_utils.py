@@ -10,7 +10,7 @@ log = utils.log_utils.logging_init('file_utils')
 
 def get_media_file_list(dir, with_path=False):
     log.error("dir : %s", dir)
-    file_list = glob.glob(dir + "/*.mp4")
+    file_list = glob.glob(dir + "/*.mp4") + glob.glob(dir + "/*.jpg") + glob.glob(dir + "/*.png")
 
     return file_list
 

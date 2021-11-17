@@ -7,14 +7,21 @@ import os
 import zmq
 import utils.log_utils
 import hashlib
+
 log = utils.log_utils.logging_init('ffmpy_utils')
 
-def neo_ffmpy_execute( video_path, brightness, contrast, red_bias, green_bias, blue_bias, width=80, height=96):
+still_image_loop_cnt = 1
+still_image_video_period = 15
+preview_start_time = 3
+preview_period = 3
+
+def neo_ffmpy_execute(video_path, brightness, contrast, red_bias, green_bias, blue_bias, width=80, height=96):
     # red_bias = 0.9
     # green_bias = 0.9
     # blue_bias = 0.9
+    ff = None
     global_opts = '-hide_banner -loglevel error'
-    scale_params = "scale=" + str(width) + ":" + str(height)  #+ ",hflip"
+    scale_params = "scale=" + str(width) + ":" + str(height)  # + ",hflip"
     brightness_params = "brightness=" + str(brightness)
     # brightness_params = "brightness=" + str(-0.9)
     contrast_params = "contrast=" + str(contrast)
@@ -23,7 +30,6 @@ def neo_ffmpy_execute( video_path, brightness, contrast, red_bias, green_bias, b
     red_bias_params = "romin=" + str(red_bias)
     green_bias_params = "gomin=" + str(green_bias)
     blue_bias_params = "bomin=" + str(blue_bias)
-    # filter2_str = "colorlevels=" + "rimin=0.99:gimin=0.99:bimin=0.99:" + red_bias_params + ":" + green_bias_params + ":" + blue_bias_params
 
     color_level_str = "colorlevels=" + red_bias_params + ":" + green_bias_params + ":" + blue_bias_params
 
@@ -35,7 +41,6 @@ def neo_ffmpy_execute( video_path, brightness, contrast, red_bias, green_bias, b
     else:
         filter_params = "zmq," + eq_str + "," + color_level_str + "," + scale_params
 
-
     video_encoder = "libx264"
 
     if platform.machine() in ('arm', 'arm64', 'aarch64'):
@@ -43,28 +48,55 @@ def neo_ffmpy_execute( video_path, brightness, contrast, red_bias, green_bias, b
             video_encoder = "h264_v4l2m2m"
         else:
             video_encoder = "libx264"
+        if video_path.endswith("mp4"):
+            ff = ffmpy.FFmpeg(
+                global_options=global_opts,
+                inputs={
+                    video_path: ["-re"]
+                },
+                outputs={
+                    udp_sink: ["-vcodec", video_encoder, '-filter_complex', filter_params, "-b:v", "2000k", "-f",
+                               "h264", "-pix_fmt", "yuv420p", "-localaddr", "192.168.0.3"]
+                },
+            )
+        elif video_path.endswith("jpg") or video_path.endswith("png"):
+            log.debug("jpg to mp4")
+            ff = ffmpy.FFmpeg(
+                global_options=global_opts,
+                inputs={
+                    video_path: ["-loop", str(still_image_loop_cnt), "-t", str(still_image_video_period), "-re"]
+                },
+                outputs={
+                    udp_sink: ["-vcodec", video_encoder, '-filter_complex', filter_params, "-b:v", "2000k", "-f",
+                               "h264", "-pix_fmt", "yuv420p", "-localaddr", "192.168.0.3"]
 
-        ff = ffmpy.FFmpeg(
-            global_options=global_opts,
-            inputs={
-                        video_path: ["-re"]
-                    },
-            outputs={
-                udp_sink: [ "-vcodec", video_encoder, '-filter_complex', filter_params,"-b:v", "2000k", "-f", "h264", "-pix_fmt", "yuv420p", "-localaddr", "192.168.0.3"]
-                #udp_sink: ["-preset", "ultrafast", "-vcodec", "libx264", '-vf', scale_params, "-f", "h264", "-localaddr", "192.168.0.3"]
-            },
-
-        )
+                },
+            )
     else:
-        ff = ffmpy.FFmpeg(
-            global_options=global_opts,
-            inputs={video_path: ["-re"]},
+        if video_path.endswith("mp4"):
+            ff = ffmpy.FFmpeg(
+                global_options=global_opts,
+                inputs={video_path: ["-re"]},
 
-            outputs={
-                udp_sink: ["-preset", "ultrafast", "-vcodec", "libx264", '-filter_complex', filter_params , "-f", "h264", "-localaddr", "192.168.0.2"],
-            }
-        )
+                outputs={
+                    udp_sink: ["-preset", "ultrafast", "-vcodec", "libx264", '-filter_complex', filter_params, "-f",
+                               "h264", "-localaddr", "192.168.0.2"],
+                }
+            )
+        elif video_path.endswith("jpg") or video_path.endswith("png"):
+            log.debug("jpg to mp4")
+            ff = ffmpy.FFmpeg(
+                global_options=global_opts,
+                inputs={
+                    video_path: ["-loop", str(still_image_loop_cnt), "-t", str(still_image_video_period), "-re"]
+                },
+                outputs={
+                    udp_sink: ["-vcodec", video_encoder, '-filter_complex', filter_params, "-b:v", "2000k", "-f",
+                               "h264", "-pix_fmt", "yuv420p", "-localaddr", "192.168.0.2"]
 
+                },
+
+            )
     log.debug("%s", ff.cmd)
     try:
         thread_1 = threading.Thread(target=ff.run)
@@ -79,21 +111,23 @@ def neo_ffmpy_execute( video_path, brightness, contrast, red_bias, green_bias, b
 
     return ff.process
 
-''' deprecated'''
-def ffmpy_execute(QObject, video_path, width=80, height=96):
+
+# deprecated
+'''def ffmpy_execute(QObject, video_path, width=80, height=96):
     global_opts = '-hide_banner -loglevel error'
     scale_params = "scale=" + str(width) + ":" + str(height)
-    eq_params = "zmq,eq=brightness=0.0"+","+scale_params
+    eq_params = "zmq,eq=brightness=0.0" + "," + scale_params
 
     if platform.machine() in ('arm', 'arm64', 'aarch64'):
         ff = ffmpy.FFmpeg(
             global_options=global_opts,
             inputs={
-                        video_path: ["-re"]
-                    },
+                video_path: ["-re"]
+            },
             outputs={
-                udp_sink: ["-preset", "ultrafast", "-vcodec", "libx264", '--filter_complex', eq_params,"-f", "h264", "-localaddr", "192.168.0.3"]
-                #udp_sink: ["-preset", "ultrafast", "-vcodec", "libx264", '-vf', scale_params, "-f", "h264",
+                udp_sink: ["-preset", "ultrafast", "-vcodec", "libx264", '--filter_complex', eq_params, "-f", "h264",
+                           "-localaddr", "192.168.0.3"]
+                # udp_sink: ["-preset", "ultrafast", "-vcodec", "libx264", '-vf', scale_params, "-f", "h264",
                 #           "-localaddr", "192.168.0.3"]
             },
 
@@ -103,7 +137,8 @@ def ffmpy_execute(QObject, video_path, width=80, height=96):
             global_options=global_opts,
             inputs={video_path: ["-re"]},
             outputs={
-                udp_sink: ["-preset", "ultrafast", "-vcodec", "libx264", '-filter_complex', eq_params, "-f", "h264", "-localaddr", "192.168.0.2"]
+                udp_sink: ["-preset", "ultrafast", "-vcodec", "libx264", '-filter_complex', eq_params, "-f", "h264",
+                           "-localaddr", "192.168.0.2"]
             }
         )
 
@@ -123,10 +158,11 @@ def ffmpy_execute(QObject, video_path, width=80, height=96):
     log.debug("ff.process : %s", ff.process)
     log.debug("ff.process pid : %d", ff.process.pid)
 
-    return ff.process
+    return ff.process'''
 
-''' deprecated'''
-def ffmpy_execute_list(QObject, video_path_list):
+
+# deprecated
+'''def ffmpy_execute_list(QObject, video_path_list):
     mainUI = QObject
 
     while True:
@@ -145,14 +181,13 @@ def ffmpy_execute_list(QObject, video_path_list):
                             mainUI.ffmpy_running = play_status.stop
                             break
 
-
                 if mainUI.ffmpy_running == play_status.stop:
                     log.debug("playing %s", videoparam.file_uri)
                     video_path = videoparam.file_uri
                     thread_1 = threading.Thread(target=ffmpy_execute, args=(QObject, video_path,))
                     thread_1.start()
                     sleep(2)
-                #else:
+                # else:
                 #    while True:
                 #        if mainUI.ff_process.poll() is None:
                 #            break;
@@ -166,15 +201,17 @@ def ffmpy_execute_list(QObject, video_path_list):
             break
 
         if mainUI.play_type == play_type.play_none:
-            return
+            return'''
 
 
 def gen_webp_from_video(file_folder, video):
     # use hashlib md5 to generate preview file name
     video_name = video.split(".")[0]
+    video_extension = video.split(".")[1]
+    log.debug("video_extension = %s", video_extension)
     preview_file_name = hashlib.md5(video_name.encode('utf-8')).hexdigest()
 
-    #thumbnail_path = internal_media_folder + ThumbnailFileFolder + video.replace(".mp4", ".webp")
+    # thumbnail_path = internal_media_folder + ThumbnailFileFolder + video.replace(".mp4", ".webp")
     thumbnail_path = internal_media_folder + ThumbnailFileFolder + preview_file_name + ".webp"
     video_path = file_folder + "/" + video
     log.debug("video_path = %s", video_path)
@@ -185,11 +222,20 @@ def gen_webp_from_video(file_folder, video):
     try:
         if os.path.isfile(thumbnail_path) is False:
             global_opts = '-hide_banner -loglevel error'
-            ff = ffmpy.FFmpeg(
-                global_options=global_opts,
-                inputs={video_path: ['-ss', '3', '-t', '3']},
-                outputs={thumbnail_path: ['-vf', 'scale=640:480']}
-            )
+            if video_extension in ["jpg", "png"]:
+                log.debug("still image")
+                ff = ffmpy.FFmpeg(
+                    global_options=global_opts,
+                    inputs={video_path: ['-loop', str(still_image_loop_cnt), '-t', str(preview_period)]},
+                    outputs={thumbnail_path: ['-vf', 'scale=640:480']}
+                )
+            else:
+                ff = ffmpy.FFmpeg(
+                    global_options=global_opts,
+                    inputs={video_path: ['-ss', str(preview_start_time), '-t', str(preview_period)]},
+                    outputs={thumbnail_path: ['-vf', 'scale=640:480']}
+                )
+            log.debug("%s", ff.cmd)
             ff.run()
     except Exception as e:
         log.debug(e)
@@ -226,6 +272,7 @@ def ffmpy_set_video_param_level(param_name, level):
 
     context.destroy()
     context.term()
+
 
 '''def ffmpy_set_brightness_level(level):
     context = zmq.Context()
