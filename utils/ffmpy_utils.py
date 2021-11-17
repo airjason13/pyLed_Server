@@ -241,6 +241,10 @@ def gen_webp_from_video(file_folder, video):
         log.debug(e)
     return thumbnail_path
 
+def gen_webp_from_video_threading(file_folder, video):
+    threads = []
+    threads.append(threading.Thread(target=gen_webp_from_video, args=(file_folder, video,)))
+    threads[0].start()
 
 def ffmpy_set_video_param_level(param_name, level):
     cmd = ""

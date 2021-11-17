@@ -37,7 +37,8 @@ class media_page(QObject):
         for f in self.mainwindow.media_engine.internal_medialist.filelist:
             internal_file_item = QTreeWidgetItem()
             internal_file_item.setText(0, os.path.basename(f))
-            utils.ffmpy_utils.gen_webp_from_video(internal_media_folder, os.path.basename(f))  # need to remove later
+            #utils.ffmpy_utils.gen_webp_from_video(internal_media_folder, os.path.basename(f))  # need to remove later
+            utils.ffmpy_utils.gen_webp_from_video_threading(internal_media_folder, os.path.basename(f))
             self.internal_media_root.addChild(internal_file_item)
 
         self.file_tree.addTopLevelItem(self.internal_media_root)
@@ -53,8 +54,9 @@ class media_page(QObject):
             for f in external_media_list.filelist:
                 external_file_item = QTreeWidgetItem()
                 external_file_item.setText(0, os.path.basename(f))
-                utils.ffmpy_utils.gen_webp_from_video(external_media_list.folder_uri,
-                                                      os.path.basename(f))  # need to remove later
+                #utils.ffmpy_utils.gen_webp_from_video(external_media_list.folder_uri,
+                #                                      os.path.basename(f))  # need to remove later
+                utils.ffmpy_utils.gen_webp_from_video_threading(external_media_list.folder_uri, os.path.basename(f))
                 self.external_media_root.child(child_count).addChild(external_file_item)
             child_count += 1
             # self.external_media_root_list.append(external_media_root)
