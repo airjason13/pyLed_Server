@@ -41,7 +41,7 @@ class client(QObject):
         self.cabinets_setting = []
         for i in range(self.num_of_cabinet):
             '''client_ip, client_id, port_id, cabinet_width, cabinet_height, layout_type, start_x, start_y'''
-            cabinet_setting = cabinet_params(self.client_ip, 0, i, 0, 0, 0, 1, 1)
+            cabinet_setting = cabinet_params(self.client_ip, self.client_id, i, 0, 0, 0, 1, 1)
             self.cabinets_setting.append(cabinet_setting)
 
 

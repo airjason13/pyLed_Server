@@ -214,6 +214,12 @@ class media_page(QObject):
         self.video_params_confirm_btn.setText("Set")
         self.video_params_confirm_btn.clicked.connect(self.video_params_confirm_btn_clicked)
 
+        self.video_params_pinch_btn = QPushButton(self.mainwindow.right_frame)
+        self.video_params_pinch_btn.setText("P5")
+        self.video_params_pinch_btn.clicked.connect(self.video_params_pinch_btn_clicked)
+
+
+
         video_params_layout.addWidget(self.redgain_label, 0, 0)
         video_params_layout.addWidget(self.redgain_edit, 0, 1)
         video_params_layout.addWidget(self.greengain_label, 0, 2)
@@ -233,7 +239,7 @@ class media_page(QObject):
         video_params_layout.addWidget(self.client_contrast_label, 3, 0)
         video_params_layout.addWidget(self.client_contrast_edit, 3, 1)
 
-
+        video_params_layout.addWidget(self.video_params_pinch_btn, 3, 4)
         video_params_layout.addWidget(self.video_params_confirm_btn, 3, 5)
 
         if self.mainwindow.engineer_mode is True:
@@ -448,6 +454,24 @@ class media_page(QObject):
 
         if self.mainwindow.engineer_mode is True:
             self.refresh_max_brightness_label()
+
+    def video_params_pinch_btn_clicked(self):
+        log.debug("")
+        clients = self.mainwindow.clients
+        if self.video_params_pinch_btn.text() == "P5":
+            self.video_params_pinch_btn.setText("P10")
+            for c in clients:
+                log.debug("c.client_ip = %s", c.client_ip)
+                c.send_cmd(cmd_set_pixel_interval,
+                           self.mainwindow.cmd_seq_id_increase(),
+                            str(1))
+        else:
+            self.video_params_pinch_btn.setText("P5")
+            for c in clients:
+                log.debug("c.client_ip = %s", c.client_ip)
+                c.send_cmd(cmd_set_pixel_interval,
+                           self.mainwindow.cmd_seq_id_increase(),
+                            str(0))
 
     def refresh_max_brightness_label(self):
         if self.mainwindow.engineer_mode is False:

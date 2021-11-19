@@ -416,6 +416,7 @@ class MainUi(QMainWindow):
                     break
             """ no such client ip in clients list, new one and append"""
             if is_found is False:
+                log.debug("client_id_count = %d", self.client_id_count)
                 c = client(ip, net_utils.get_ip_address(), c_version, self.client_id_count)
                 # connect signal/slot function
                 c.signal_send_cmd_ret.connect(self.client_send_cmd_ret)
@@ -456,7 +457,6 @@ class MainUi(QMainWindow):
         #    log.debug("%d : %s", i, self.led_client_layout_tree.itemFromIndex(i).text(0))
 
     """send broadcast on eth0"""
-
     def server_broadcast(self, arg):
         data = arg.get("data")
         port = arg.get("port")
@@ -767,8 +767,7 @@ class MainUi(QMainWindow):
         self.cmd_seq_id_mutex.unlock()
 
     ''' cmd seqid increase method
-        cmd seqid range : 0~65534'''
-
+        cmd seqid range : 0~65535'''
     def cmd_seq_id_increase(self):
         self.cmd_seq_id_lock()
         self.cmd_send_seq_id += 1

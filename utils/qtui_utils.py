@@ -241,7 +241,8 @@ def gen_led_cabinet_pixmap_with_cabinet_params(c_params, margin=0,
     pixmap_paint = QPainter(pixmap_led_layout_type)
 
     pixmap_paint.setPen(line_color)
-
+    log.debug("c_params.client_id = %d", c_params.client_id)
+    log.debug("c_params.client_id = %d", c_params.port_id)
     str_port_id = str(c_params.client_id) + "-" + str(c_params.port_id)
     if c_params.layout_type < 4:
         if margin == 0:

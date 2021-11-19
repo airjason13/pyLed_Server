@@ -302,8 +302,6 @@ class Draggable_cabinet_label(QLabel):
         self.setScaledContents(True)
         self.setAcceptDrops(True)
 
-
-
         self.start_drag_signal.connect(start_drag_slot)
         self.label_drop_signal.connect(label_drop_slot)
         #self.show()
