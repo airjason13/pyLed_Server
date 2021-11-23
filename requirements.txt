@@ -10,3 +10,4 @@ psutil
 ffmpy
 requests
 zmq
+pyinotify

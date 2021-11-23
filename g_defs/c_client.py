@@ -47,6 +47,8 @@ class client(QObject):
 
 
 
+
+
     def send_cmd(self,  cmd, cmd_seq_id, param):
         log.debug("client send_cmd")
         thread_cmd = threading.Thread(target=utils.net_utils.send_udp_cmd,

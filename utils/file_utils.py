@@ -10,7 +10,7 @@ log = utils.log_utils.logging_init('file_utils')
 
 def get_media_file_list(dir, with_path=False):
     log.error("dir : %s", dir)
-    file_list = glob.glob(dir + "/*.mp4") + glob.glob(dir + "/*.jpg") + glob.glob(dir + "/*.png")
+    file_list = glob.glob(dir + "/*.mp4") + glob.glob(dir + "/*.jpg") + glob.glob(dir + "/*.jpeg") + glob.glob(dir + "/*.png")
 
     return file_list
 
@@ -38,4 +38,6 @@ def get_mount_points(devices=None):
                 mount_points.append(p.mountpoint)
 
     return mount_points
+
+
 

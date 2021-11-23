@@ -435,6 +435,10 @@ class MainUi(QMainWindow):
                            self.cmd_seq_id_increase(),
                            str(self.media_engine.media_processor.video_params.frame_br_divisor))
 
+                c.send_cmd(cmd_set_client_id,
+                           self.cmd_seq_id_increase(),
+                           str(c.client_id))
+
                 self.sync_client_cabinet_params(c.client_ip, False)
                 self.client_page.refresh_clients(self.clients)
                 self.client_page.refresh_client_table()

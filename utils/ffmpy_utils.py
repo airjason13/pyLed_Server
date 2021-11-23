@@ -11,7 +11,7 @@ import hashlib
 log = utils.log_utils.logging_init('ffmpy_utils')
 
 still_image_loop_cnt = 1
-still_image_video_period = 15
+still_image_video_period = 3
 preview_start_time = 3
 preview_period = 3
 
@@ -36,7 +36,7 @@ def neo_ffmpy_execute(video_path, brightness, contrast, red_bias, green_bias, bl
     # add TEXT
     if "blank" in video_path:
         drawtext_str = "drawtext=fontfile=" + internal_media_folder + \
-                       "/fonts/msjhbd.ttc:text='歡迎MIH蒞臨指導':x=10*w/80-20*t:y=0:fontsize=108*h/96:fontcolor=white"
+                       "/fonts/msjhbd.ttc:text='歡迎資策會蒞臨指導':x=10*w/80-40*t:y=20:fontsize=72*h/96:fontcolor=white"
         filter_params = "zmq," + eq_str + "," + color_level_str + "," + drawtext_str + "," + scale_params
     else:
         filter_params = "zmq," + eq_str + "," + color_level_str + "," + scale_params
@@ -59,7 +59,7 @@ def neo_ffmpy_execute(video_path, brightness, contrast, red_bias, green_bias, bl
                                "h264", "-pix_fmt", "yuv420p", "-localaddr", "192.168.0.3"]
                 },
             )
-        elif video_path.endswith("jpg") or video_path.endswith("png"):
+        elif video_path.endswith("jpeg") or video_path.endswith("jpg") or video_path.endswith("png"):
             log.debug("jpg to mp4")
             ff = ffmpy.FFmpeg(
                 global_options=global_opts,
@@ -84,7 +84,7 @@ def neo_ffmpy_execute(video_path, brightness, contrast, red_bias, green_bias, bl
                     #           "-g", "120", "-f", "h264", "-localaddr", "192.168.0.2"],
                 }
             )
-        elif video_path.endswith("jpg") or video_path.endswith("png"):
+        elif video_path.endswith("jpeg") or video_path.endswith("jpg") or video_path.endswith("png"):
             log.debug("jpg to mp4")
             ff = ffmpy.FFmpeg(
                 global_options=global_opts,
@@ -223,7 +223,7 @@ def gen_webp_from_video(file_folder, video):
     try:
         if os.path.isfile(thumbnail_path) is False:
             global_opts = '-hide_banner -loglevel error'
-            if video_extension in ["jpg", "png"]:
+            if video_extension in ["jpeg", "jpg", "png"]:
                 log.debug("still image")
                 ff = ffmpy.FFmpeg(
                     global_options=global_opts,
