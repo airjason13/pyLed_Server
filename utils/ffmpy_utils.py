@@ -11,7 +11,7 @@ import hashlib
 log = utils.log_utils.logging_init('ffmpy_utils')
 
 still_image_loop_cnt = 1
-still_image_video_period = 3
+still_image_video_period = 20
 preview_start_time = 3
 preview_period = 3
 
@@ -36,7 +36,7 @@ def neo_ffmpy_execute(video_path, brightness, contrast, red_bias, green_bias, bl
     # add TEXT
     if "blank" in video_path:
         drawtext_str = "drawtext=fontfile=" + internal_media_folder + \
-                       "/fonts/msjhbd.ttc:text='歡迎資策會蒞臨指導':x=10*w/80-40*t:y=20:fontsize=72*h/96:fontcolor=white"
+                       "/fonts/msjhbd.ttc:text='歡迎億光電子蒞臨指導':x=10*w/80-40*t:y=20:fontsize=72*h/96:fontcolor=white"
         filter_params = "zmq," + eq_str + "," + color_level_str + "," + drawtext_str + "," + scale_params
     else:
         filter_params = "zmq," + eq_str + "," + color_level_str + "," + scale_params
@@ -96,7 +96,6 @@ def neo_ffmpy_execute(video_path, brightness, contrast, red_bias, green_bias, bl
                                "h264", "-pix_fmt", "yuv420p", "-localaddr", "192.168.0.2"]
 
                 },
-
             )
     log.debug("%s", ff.cmd)
     try:

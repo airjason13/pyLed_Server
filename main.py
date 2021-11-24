@@ -24,7 +24,6 @@ if __name__ == '__main__':
     log = utils.log_utils.logging_init(__file__)
     log.info('Main')
 
-
     global_debug_level = logging.FATAL
     utils.log_utils.set_logging_level(global_debug_level)
 
@@ -46,6 +45,9 @@ if __name__ == '__main__':
     gui.show()
     server = jqlocalserver.Server()
     server.dataReceived.connect(gui.parser_cmd_from_qlocalserver)
+
+    # detect focus on windows or not
+    app.focusChanged.connect(gui.focus_on_window_changed)
 
     sys.exit(app.exec_())
 

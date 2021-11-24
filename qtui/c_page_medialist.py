@@ -97,6 +97,20 @@ class media_page(QObject):
         self.file_tree.mouseMove.connect(self.mainwindow.media_page_mouseMove)
         self.mainwindow.right_layout.addWidget(self.file_tree_widget)
 
+    def refresh_internal_medialist(self):
+        for i in reversed(range(self.internal_media_root.childCount())):
+            log.debug("self.medialist_page.internal_media_root.child() = %s",
+                      self.internal_media_root.child(i).text(0))
+            self.internal_media_root.removeChild(self.internal_media_root.child(i))
+
+        self.internal_media_root.setText(0, "Internal Media")
+        for f in self.mainwindow.media_engine.internal_medialist.filelist:
+            internal_file_item = QTreeWidgetItem()
+            internal_file_item.setText(0, os.path.basename(f))
+            # utils.ffmpy_utils.gen_webp_from_video(internal_media_folder, os.path.basename(f))  # need to remove later
+            utils.ffmpy_utils.gen_webp_from_video_threading(internal_media_folder, os.path.basename(f))
+            self.internal_media_root.addChild(internal_file_item)
+
     def play_option_init(self):
         """play singal file btn"""
         self.btn_play_select_file = QPushButton(self.mainwindow.right_frame)

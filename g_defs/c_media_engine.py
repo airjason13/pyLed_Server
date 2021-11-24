@@ -165,6 +165,9 @@ class media_engine(QObject):
             self.signal_playlist_changed_ret.emit(True, remove_playlist_name, "", 0,
                                                   self.ACTION_TAG_REMOVE_ENTIRE_PLAYLIST)
 
+    def refresh_internal_medialist(self):
+        del self.internal_medialist
+        self.internal_medialist = medialist(internal_media_folder)
 
 class medialist(QObject):
     def __init__(self, uri):

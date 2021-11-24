@@ -45,6 +45,7 @@ from qtui.c_page_client import *
 from qtui.c_page_medialist import *
 from material import *
 import hashlib
+from g_defs.c_filewatcher import *
 
 log = utils.log_utils.logging_init(__file__)
 
@@ -144,7 +145,10 @@ class MainUi(QMainWindow):
         self.media_engine.signal_playlist_changed_ret.connect(self.playlist_changed)
         self.media_engine.signal_external_medialist_changed_ret.connect(self.external_medialist_changed)
 
-
+        paths = []
+        paths.append(internal_media_folder)
+        self.filewatcher = FileWatcher(paths)
+        self.filewatcher.install_folder_changed_slot(self.internaldef_medialist_changed)
 
     def ctrl_e_trigger(self):
         log.debug(" ")
@@ -1016,11 +1020,27 @@ class MainUi(QMainWindow):
                 self.medialist_page.external_media_root.child(child_count).setExpanded(True)
                 child_count += 1
 
+    def internaldef_medialist_changed(self):
+        log.debug("self.medialist_page.internal_media_root.childCount() = %d",
+                  self.medialist_page.internal_media_root.childCount())
+        self.media_engine.refresh_internal_medialist()
+
+        self.medialist_page.refresh_internal_medialist()
+
+
+
+
     def slot_new_playlist(self, new_playlist_name):
         log.debug("")
         new_playlist_name += '.playlist'
         # self.media_engine.new_playlist(new_playlist_name)
         self.media_engine.add_to_playlist(new_playlist_name, self.medialist_page.right_clicked_select_file_uri)
+
+    def focus_on_window_changed(self):
+        log.debug("")
+        if self.isActiveWindow() is False:
+            if self.media_preview_widget.isVisible() is True:
+                self.media_preview_widget.hide()
 
 
 class MyDelegate(QItemDelegate):
