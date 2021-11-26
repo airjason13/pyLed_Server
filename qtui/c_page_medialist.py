@@ -10,9 +10,12 @@ from set_qstyle import *
 from c_new_playlist_dialog import NewPlaylistDialog
 from commands_def import *
 import utils.log_utils
+import hashlib
 log = utils.log_utils.logging_init(__file__)
 
 class media_page(QObject):
+    signal_refresh_internal_medialist = pyqtSignal()
+
     def __init__(self, mainwindow, **kwargs):
         super(media_page, self).__init__(**kwargs)
         self.mainwindow = mainwindow
@@ -96,6 +99,8 @@ class media_page(QObject):
         self.file_tree_widget.setMouseTracking(True)
         self.file_tree.mouseMove.connect(self.mainwindow.media_page_mouseMove)
         self.mainwindow.right_layout.addWidget(self.file_tree_widget)
+
+        self.signal_refresh_internal_medialist.connect(self.mainwindow.internaldef_medialist_changed)
 
     def refresh_internal_medialist(self):
         for i in reversed(range(self.internal_media_root.childCount())):
@@ -341,6 +346,13 @@ class media_page(QObject):
 
         play_act = QAction("Play", self)
         pop_menu.addAction(play_act)
+
+        del_act = QAction("Delete", self)
+        pop_menu.addAction(del_act)
+
+        crop_act = QAction("Crop", self)
+        crop_act.setDisabled(True)
+        pop_menu.addAction(crop_act)
         pop_menu.addSeparator()
 
         add_to_playlist_menu = QMenu('AddtoPlaylist')
@@ -350,7 +362,10 @@ class media_page(QObject):
             playlist_name = playlist.name
             add_to_playlist_menu.addAction('add to ' + playlist_name)
 
-        add_to_playlist_menu.addAction('add to new playlist')
+
+
+
+        add_to_playlist_menu.addAction('Add to new playlist')
         pop_menu.addMenu(add_to_playlist_menu)
         pop_menu.triggered[QAction].connect(self.pop_menu_trigger_act)
 
@@ -419,6 +434,24 @@ class media_page(QObject):
             item = self.file_tree.itemAt(self.right_clicked_pos.x(), self.right_clicked_pos.y())
             play_playlist_name = item.text(0)
             self.mainwindow.media_engine.play_playlsit(play_playlist_name)
+        elif q.text() == "Delete":
+            log.debug("file_uri :%s", self.right_clicked_select_file_uri)
+            # remove file and thumbnail file
+            file_ui = self.right_clicked_select_file_uri.replace(" ", "\ ")
+            if os.path.exists(self.right_clicked_select_file_uri) is True:
+                os.remove(self.right_clicked_select_file_uri)
+            log.debug("self.right_clicked_select_file_uri.split(internal_media_folder)[1] = %s", self.right_clicked_select_file_uri.split(internal_media_folder +"/")[1]);
+            thumbnail_file_name = hashlib.md5(
+                self.right_clicked_select_file_uri.split(internal_media_folder + "/")[1].split(".")[0].encode('utf-8')).hexdigest() + ".webp"
+
+            thumbnail_file = internal_media_folder + ThumbnailFileFolder + thumbnail_file_name
+            log.debug("thumbnail_file = %s", thumbnail_file)
+            if os.path.exists(thumbnail_file) is True:
+                log.debug("thumbnail_file exists")
+                os.remove(self.right_clicked_select_file_uri)
+            self.signal_refresh_internal_medialist.emit()
+
+
 
     def resfresh_video_params_config_file(self):
         log.debug("")

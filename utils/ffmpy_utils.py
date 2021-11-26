@@ -79,7 +79,7 @@ def neo_ffmpy_execute(video_path, brightness, contrast, red_bias, green_bias, bl
                 inputs={video_path: ["-re"]},
                 outputs={
                     udp_sink: ["-preset", "ultrafast", "-vcodec", "libx264", '-filter_complex', filter_params,
-                               "-g", "120", "-f", "h264", "-pix_fmt", "yuv420p", "-localaddr", "192.168.0.2"],
+                               "-g", "60", "-f", "h264", "-pix_fmt", "yuv420p", "-localaddr", "192.168.0.2"],
                     #udp_sink: ["-preset", "ultrafast", "-vcodec", "libx264", '-filter_complex', filter_params,
                     #           "-g", "120", "-f", "h264", "-localaddr", "192.168.0.2"],
                 }
