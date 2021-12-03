@@ -11,7 +11,7 @@ import hashlib
 log = utils.log_utils.logging_init('ffmpy_utils')
 
 still_image_loop_cnt = 1
-still_image_video_period = 20
+still_image_video_period = 60
 preview_start_time = 3
 preview_period = 3
 
@@ -35,11 +35,15 @@ def neo_ffmpy_execute(video_path, brightness, contrast, red_bias, green_bias, bl
 
     # add TEXT
     if "blank" in video_path:
+        #drawtext_str = "drawtext=fontfile=" + internal_media_folder + \
+        #               "/fonts/msjhbd.ttc:text='p':x=10*w/80-40*t:y=20:fontsize=72*h/96:fontcolor=white"
         drawtext_str = "drawtext=fontfile=" + internal_media_folder + \
-                       "/fonts/msjhbd.ttc:text='歡迎億光電子蒞臨指導':x=10*w/80-40*t:y=20:fontsize=72*h/96:fontcolor=white"
+                      "/fonts/msjhbd.ttc:text='p':x=10*w/80-40*t:y=20:fontsize=72*h/96:fontcolor=white"
         filter_params = "zmq," + eq_str + "," + color_level_str + "," + drawtext_str + "," + scale_params
     else:
-        filter_params = "zmq," + eq_str + "," + color_level_str + "," + scale_params
+        drawtext_str = "drawtext=fontfile=" + internal_media_folder + \
+                       "/fonts/msjhbd.ttc:text='':x=10:y=20:fontsize=24*h/96:fontcolor=white"
+        filter_params = "zmq," + eq_str + "," + color_level_str + "," + drawtext_str + "," + scale_params
 
     video_encoder = "libx264"
 
@@ -77,6 +81,7 @@ def neo_ffmpy_execute(video_path, brightness, contrast, red_bias, green_bias, bl
             ff = ffmpy.FFmpeg(
                 global_options=global_opts,
                 inputs={video_path: ["-re"]},
+
                 outputs={
                     udp_sink: ["-preset", "ultrafast", "-vcodec", "libx264", '-filter_complex', filter_params,
                                "-g", "60", "-f", "h264", "-pix_fmt", "yuv420p", "-localaddr", "192.168.0.2"],
@@ -93,7 +98,7 @@ def neo_ffmpy_execute(video_path, brightness, contrast, red_bias, green_bias, bl
                 },
                 outputs={
                     udp_sink: ["-vcodec", video_encoder, '-filter_complex', filter_params, "-b:v", "2000k", "-f",
-                               "h264", "-pix_fmt", "yuv420p", "-localaddr", "192.168.0.2"]
+                                "h264", "-pix_fmt", "yuv420p", "-localaddr", "192.168.0.2"]
 
                 },
             )
@@ -277,6 +282,22 @@ def ffmpy_set_video_param_level(param_name, level):
     context.destroy()
     context.term()
 
+
+def ffmpy_draw_text(text):
+    context = zmq.Context()
+    log.debug("Connecting to server...")
+    cmd = "Parsed_drawtext_3 reinit text=" + str(text)
+    log.debug("cmd : %s", cmd)
+    socket = context.socket(zmq.REQ)
+    socket.connect("tcp://localhost:%s" % 5555)
+
+    log.debug("cmd : %s", cmd)
+    socket.send(cmd.encode())
+
+    socket.disconnect("tcp://localhost:%s" % 5555)
+
+    context.destroy()
+    context.term()
 
 '''def ffmpy_set_brightness_level(level):
     context = zmq.Context()

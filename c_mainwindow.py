@@ -398,7 +398,30 @@ class MainUi(QMainWindow):
         self.led_layout_window.show()
 
     def func_testB(self):
+        # for test color adjust
+        '''self.test_timer_A = QTimer(self)
+        self.test_timer_A.timeout.connect(self.test_timer_A_handler)
+        i = int(self.medialist_page.client_br_divisor_edit.text())
+        utils.ffmpy_utils.ffmpy_draw_text(str(i))
+        self.test_timer_A.start(2000)'''
         log.debug("testB")
+
+    def test_timer_A_handler(self):
+        log.debug("AA")
+        log.debug("self.medialist_page.client_br_divisor_edit.text() = %s", self.medialist_page.client_br_divisor_edit.text())
+        i = int(self.medialist_page.client_br_divisor_edit.text())
+        j = i*2
+        if j > 255:
+            j = 1
+        utils.ffmpy_utils.ffmpy_draw_text(str(j))
+        i = i*2
+        if i > 255:
+            i = 1
+        self.medialist_page.client_br_divisor_edit.setText(str(i))
+        log.debug("BBself.medialist_page.client_br_divisor_edit.text() = %s",
+                  self.medialist_page.client_br_divisor_edit.text())
+        self.medialist_page.video_params_confirm_btn_clicked()
+        #utils.ffmpy_utils.ffmpy_draw_text(str(i))
 
     """ handle the command from qlocalserver"""
 

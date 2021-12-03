@@ -516,6 +516,7 @@ class media_processor(QObject):
                     break
                 if self.force_stop is True:
                     break
+
             self.finished.emit()
             self.media_processor.play_type = play_type.play_none
             self.worker_status = 0
