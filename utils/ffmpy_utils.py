@@ -38,7 +38,7 @@ def neo_ffmpy_execute(video_path, brightness, contrast, red_bias, green_bias, bl
         #drawtext_str = "drawtext=fontfile=" + internal_media_folder + \
         #               "/fonts/msjhbd.ttc:text='p':x=10*w/80-40*t:y=20:fontsize=72*h/96:fontcolor=white"
         drawtext_str = "drawtext=fontfile=" + internal_media_folder + \
-                      "/fonts/msjhbd.ttc:text='p':x=10*w/80-40*t:y=20:fontsize=72*h/96:fontcolor=white"
+                      "/fonts/msjhbd.ttc:text='歡迎長虹光電蒞臨指導':x=10*w/80-40*t:y=20:fontsize=72*h/96:fontcolor=white"
         filter_params = "zmq," + eq_str + "," + color_level_str + "," + drawtext_str + "," + scale_params
     else:
         drawtext_str = "drawtext=fontfile=" + internal_media_folder + \
