@@ -225,6 +225,14 @@ class media_page(QObject):
         self.client_contrast_edit.setText(
             str(self.mainwindow.media_engine.media_processor.video_params.frame_contrast))
 
+        # client gamma adjust
+        self.client_gamma_label = QLabel(self.mainwindow.right_frame)
+        self.client_gamma_label.setText("Client Gamma:")
+        self.client_gamma_edit = QLineEdit(self.mainwindow.right_frame)
+        self.client_gamma_edit.setFixedWidth(100)
+        self.client_gamma_edit.setText(
+            str(self.mainwindow.media_engine.media_processor.video_params.frame_gamma))
+
         self.video_params_widget = QWidget(self.mainwindow.right_frame)
         video_params_layout = QGridLayout()
         self.video_params_widget.setLayout(video_params_layout)
@@ -257,6 +265,8 @@ class media_page(QObject):
         video_params_layout.addWidget(self.client_br_divisor_edit, 2, 3)
         video_params_layout.addWidget(self.client_contrast_label, 3, 0)
         video_params_layout.addWidget(self.client_contrast_edit, 3, 1)
+        video_params_layout.addWidget(self.client_gamma_label, 4, 0)
+        video_params_layout.addWidget(self.client_gamma_edit, 4, 1)
 
         video_params_layout.addWidget(self.video_params_pinch_btn, 3, 4)
         video_params_layout.addWidget(self.video_params_confirm_btn, 3, 5)
@@ -361,9 +371,6 @@ class media_page(QObject):
         for playlist in self.mainwindow.media_engine.playlist:
             playlist_name = playlist.name
             add_to_playlist_menu.addAction('add to ' + playlist_name)
-
-
-
 
         add_to_playlist_menu.addAction('Add to new playlist')
         pop_menu.addMenu(add_to_playlist_menu)
@@ -498,6 +505,13 @@ class media_page(QObject):
                 c.send_cmd(cmd_set_frame_contrast,
                            self.mainwindow.cmd_seq_id_increase(),
                            str(video_params.frame_contrast))
+
+        if video_params.frame_gamma != float(self.client_gamma_edit.text()):
+            video_params.frame_gamma = float(self.client_gamma_edit.text())
+            for c in clients:
+                c.send_cmd(cmd_set_frame_gamma,
+                           self.mainwindow.cmd_seq_id_increase(),
+                           str(video_params.frame_gamma))
 
         if self.mainwindow.engineer_mode is True:
             self.refresh_max_brightness_label()

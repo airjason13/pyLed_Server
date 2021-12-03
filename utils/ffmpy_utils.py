@@ -11,7 +11,7 @@ import hashlib
 log = utils.log_utils.logging_init('ffmpy_utils')
 
 still_image_loop_cnt = 1
-still_image_video_period = 60
+still_image_video_period = 600
 preview_start_time = 3
 preview_period = 3
 
@@ -42,7 +42,7 @@ def neo_ffmpy_execute(video_path, brightness, contrast, red_bias, green_bias, bl
         filter_params = "zmq," + eq_str + "," + color_level_str + "," + drawtext_str + "," + scale_params
     else:
         drawtext_str = "drawtext=fontfile=" + internal_media_folder + \
-                       "/fonts/msjhbd.ttc:text='':x=10:y=20:fontsize=24*h/96:fontcolor=white"
+                       "/fonts/msjhbd.ttc:text='':x=10:y=20:fontsize=24*h/96:fontcolor=black"
         filter_params = "zmq," + eq_str + "," + color_level_str + "," + drawtext_str + "," + scale_params
 
     video_encoder = "libx264"

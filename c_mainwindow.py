@@ -399,13 +399,30 @@ class MainUi(QMainWindow):
 
     def func_testB(self):
         # for test color adjust
-        '''self.test_timer_A = QTimer(self)
-        self.test_timer_A.timeout.connect(self.test_timer_A_handler)
-        i = int(self.medialist_page.client_br_divisor_edit.text())
+        self.test_timer_A = QTimer(self)
+        self.test_timer_A.timeout.connect(self.test_brightness_loop)
+        # i = int(self.medialist_page.client_br_divisor_edit.text())
+        i = 1
+
+        self.medialist_page.client_br_divisor_edit.setText(str(i))
+        self.medialist_page.client_brightness_edit.setText(str(i))
+        self.medialist_page.video_params_confirm_btn_clicked()
         utils.ffmpy_utils.ffmpy_draw_text(str(i))
-        self.test_timer_A.start(2000)'''
+        # time.sleep(4)
+        self.test_timer_A.start(500)
         log.debug("testB")
 
+    def test_brightness_loop(self):
+        i = int(self.medialist_page.client_brightness_edit.text())
+        i += 1
+        if i > 255 :
+            i = 0
+        utils.ffmpy_utils.ffmpy_draw_text(str(i))
+        self.medialist_page.client_brightness_edit.setText(str(i))
+        self.medialist_page.video_params_confirm_btn_clicked()
+
+
+    ''' test divisor '''
     def test_timer_A_handler(self):
         log.debug("AA")
         log.debug("self.medialist_page.client_br_divisor_edit.text() = %s", self.medialist_page.client_br_divisor_edit.text())

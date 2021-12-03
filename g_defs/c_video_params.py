@@ -6,7 +6,7 @@ log = utils.log_utils.logging_init('c_led_params')
 
 class video_params(QObject):
 
-    def __init__(self, from_config, video_brightness, video_contrast, red_bias, green_bias, blue_bias, **kwargs):
+    def __init__(self, from_config, video_brightness, video_contrast, red_bias, green_bias, blue_bias, gamma, **kwargs):
         super(video_params, self).__init__(**kwargs)
         if from_config is True:
             self.parse_init_config()
@@ -18,10 +18,12 @@ class video_params(QObject):
             self.video_green_bias = green_bias
             self.video_blue_bias = blue_bias
 
+
         # control by clients
         self.frame_brightness = 50
         self.frame_br_divisor = 16
         self.frame_contrast = 0
+        self.frame_gamma = 1
 
     def parse_init_config(self):
         # Using readlines()
