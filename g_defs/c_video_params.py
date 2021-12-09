@@ -18,12 +18,11 @@ class video_params(QObject):
             self.video_green_bias = green_bias
             self.video_blue_bias = blue_bias
 
-
         # control by clients
-        self.frame_brightness = 50
-        self.frame_br_divisor = 16
+        self.frame_brightness = default_led_client_brightness
+        self.frame_br_divisor = default_led_client_brdivisor
         self.frame_contrast = 0
-        self.frame_gamma = 1
+        self.frame_gamma = default_led_client_gamma
 
     def parse_init_config(self):
         # Using readlines()

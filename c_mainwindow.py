@@ -63,8 +63,8 @@ class MainUi(QMainWindow):
         self.setStyleSheet(qdarkstyle.load_stylesheet_pyqt5())
 
         # set engineer mode trigger
-        self.engineer_mode_trigger = QShortcut(QKeySequence("Ctrl+E"), self)
-        self.engineer_mode_trigger.activated.connect(self.ctrl_e_trigger)
+        #self.engineer_mode_trigger = QShortcut(QKeySequence("Ctrl+E"), self)
+        #self.engineer_mode_trigger.activated.connect(self.ctrl_e_trigger)
         self.engineer_mode = False
 
         # instance elements
@@ -478,6 +478,10 @@ class MainUi(QMainWindow):
                 c.send_cmd(cmd_set_frame_br_divisor,
                            self.cmd_seq_id_increase(),
                            str(self.media_engine.media_processor.video_params.frame_br_divisor))
+
+                c.send_cmd(cmd_set_frame_gamma,
+                           self.cmd_seq_id_increase(),
+                           str(self.media_engine.media_processor.video_params.frame_gamma))
 
                 c.send_cmd(cmd_set_client_id,
                            self.cmd_seq_id_increase(),

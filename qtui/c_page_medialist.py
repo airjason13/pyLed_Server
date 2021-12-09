@@ -10,6 +10,7 @@ from set_qstyle import *
 from c_new_playlist_dialog import NewPlaylistDialog
 from commands_def import *
 import utils.log_utils
+import utils.ffmpy_utils
 import hashlib
 log = utils.log_utils.logging_init(__file__)
 
@@ -239,11 +240,56 @@ class media_page(QObject):
 
         self.video_params_confirm_btn = QPushButton(self.mainwindow.right_frame)
         self.video_params_confirm_btn.setText("Set")
+        self.video_params_confirm_btn.setFixedWidth(100)
         self.video_params_confirm_btn.clicked.connect(self.video_params_confirm_btn_clicked)
 
         self.video_params_pinch_btn = QPushButton(self.mainwindow.right_frame)
         self.video_params_pinch_btn.setText("P5")
+        self.video_params_pinch_btn.setFixedWidth(100)
         self.video_params_pinch_btn.clicked.connect(self.video_params_pinch_btn_clicked)
+
+        #crop params
+        self.video_params_crop_x_label = QLabel(self.mainwindow.right_frame)
+        self.video_params_crop_x_label.setText("Crop_Start_X:")
+        self.video_params_crop_x_label.setFixedWidth(100)
+
+        self.video_params_crop_x_edit = QLineEdit(self.mainwindow.right_frame)
+        self.video_params_crop_x_edit.setText("0")
+        self.video_params_crop_x_edit.setFixedWidth(100)
+
+        self.video_params_crop_y_label = QLabel(self.mainwindow.right_frame)
+        self.video_params_crop_y_label.setText("Crop_Start_Y:")
+        self.video_params_crop_y_label.setFixedWidth(100)
+
+        self.video_params_crop_y_edit = QLineEdit(self.mainwindow.right_frame)
+        self.video_params_crop_y_edit.setText("0")
+        self.video_params_crop_y_edit.setFixedWidth(100)
+
+        self.video_params_crop_w_label = QLabel(self.mainwindow.right_frame)
+        self.video_params_crop_w_label.setText("Crop_W:")
+        self.video_params_crop_w_label.setFixedWidth(100)
+
+        self.video_params_crop_w_edit = QLineEdit(self.mainwindow.right_frame)
+        self.video_params_crop_w_edit.setText("0")
+        self.video_params_crop_w_edit.setFixedWidth(100)
+
+        self.video_params_crop_h_label = QLabel(self.mainwindow.right_frame)
+        self.video_params_crop_h_label.setText("Crop_H:")
+        self.video_params_crop_h_label.setFixedWidth(100)
+
+        self.video_params_crop_h_edit = QLineEdit(self.mainwindow.right_frame)
+        self.video_params_crop_h_edit.setText("0")
+        self.video_params_crop_h_edit.setFixedWidth(100)
+
+        self.video_params_crop_enable = QPushButton(self.mainwindow.right_frame)
+        self.video_params_crop_enable.setText("Crop Enable")
+        self.video_params_crop_enable.setFixedWidth(100)
+        self.video_params_crop_enable.clicked.connect(self.video_crop_enable)
+
+        self.video_params_crop_disable = QPushButton(self.mainwindow.right_frame)
+        self.video_params_crop_disable.setText("Crop Disable")
+        self.video_params_crop_disable.setFixedWidth(100)
+        self.video_params_crop_disable.clicked.connect(self.video_crop_disable)
 
 
 
@@ -267,6 +313,19 @@ class media_page(QObject):
         video_params_layout.addWidget(self.client_contrast_edit, 3, 1)
         video_params_layout.addWidget(self.client_gamma_label, 4, 0)
         video_params_layout.addWidget(self.client_gamma_edit, 4, 1)
+
+        #crop
+        video_params_layout.addWidget(self.video_params_crop_x_label, 5, 0)
+        video_params_layout.addWidget(self.video_params_crop_x_edit, 5, 1)
+        video_params_layout.addWidget(self.video_params_crop_y_label, 5, 2)
+        video_params_layout.addWidget(self.video_params_crop_y_edit, 5, 3)
+        video_params_layout.addWidget(self.video_params_crop_w_label, 6, 0)
+        video_params_layout.addWidget(self.video_params_crop_w_edit, 6, 1)
+        video_params_layout.addWidget(self.video_params_crop_h_label, 6, 2)
+        video_params_layout.addWidget(self.video_params_crop_h_edit, 6, 3)
+        video_params_layout.addWidget(self.video_params_crop_enable, 6, 5)
+        video_params_layout.addWidget(self.video_params_crop_disable, 6, 4)
+
 
         video_params_layout.addWidget(self.video_params_pinch_btn, 3, 4)
         video_params_layout.addWidget(self.video_params_confirm_btn, 3, 5)
@@ -533,6 +592,21 @@ class media_page(QObject):
                 c.send_cmd(cmd_set_pixel_interval,
                            self.mainwindow.cmd_seq_id_increase(),
                             str(0))
+
+
+    def video_crop_enable(self):
+        log.debug("crop_enable")
+        utils.ffmpy_utils.ffmpy_crop_enable(self.video_params_crop_x_edit.text(),
+                                     self.video_params_crop_y_edit.text(),
+                                     self.video_params_crop_w_edit.text(),
+                                     self.video_params_crop_h_edit.text(),
+                                     self.mainwindow.led_wall_width,
+                                     self.mainwindow.led_wall_height)
+
+    def video_crop_disable(self):
+        log.debug("crop_disable")
+        utils.ffmpy_utils.ffmpy_crop_disable(self.mainwindow.led_wall_width,
+                                     self.mainwindow.led_wall_height)
 
     def refresh_max_brightness_label(self):
         if self.mainwindow.engineer_mode is False:

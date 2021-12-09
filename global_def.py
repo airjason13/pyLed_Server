@@ -57,3 +57,8 @@ default_led_wall_brightness = 100
 default_led_cabinet_width = 40
 default_led_cabinet_height = 24
 default_led_wall_margin = 10
+
+"""default led client frame params"""
+default_led_client_brightness = 100
+default_led_client_brdivisor = 1
+default_led_client_gamma = 2.2

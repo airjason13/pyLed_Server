@@ -15,7 +15,8 @@ still_image_video_period = 600
 preview_start_time = 3
 preview_period = 3
 
-def neo_ffmpy_execute(video_path, brightness, contrast, red_bias, green_bias, blue_bias, width=80, height=96):
+def neo_ffmpy_execute(video_path, brightness, contrast, red_bias, green_bias, blue_bias,
+                      width=80, height=96):
     # red_bias = 0.9
     # green_bias = 0.9
     # blue_bias = 0.9
@@ -30,6 +31,7 @@ def neo_ffmpy_execute(video_path, brightness, contrast, red_bias, green_bias, bl
     red_bias_params = "romin=" + str(red_bias)
     green_bias_params = "gomin=" + str(green_bias)
     blue_bias_params = "bomin=" + str(blue_bias)
+    crop_str = "crop=iw:ih:0:0"
 
     color_level_str = "colorlevels=" + red_bias_params + ":" + green_bias_params + ":" + blue_bias_params
 
@@ -43,7 +45,7 @@ def neo_ffmpy_execute(video_path, brightness, contrast, red_bias, green_bias, bl
     else:
         drawtext_str = "drawtext=fontfile=" + internal_media_folder + \
                        "/fonts/msjhbd.ttc:text='':x=10:y=20:fontsize=24*h/96:fontcolor=black"
-        filter_params = "zmq," + eq_str + "," + color_level_str + "," + drawtext_str + "," + scale_params
+        filter_params = "zmq," + eq_str + "," + color_level_str + "," + drawtext_str + "," + crop_str + "," + scale_params
 
     video_encoder = "libx264"
 
@@ -293,6 +295,219 @@ def ffmpy_draw_text(text):
 
     log.debug("cmd : %s", cmd)
     socket.send(cmd.encode())
+
+    socket.disconnect("tcp://localhost:%s" % 5555)
+
+    context.destroy()
+    context.term()
+
+def ffmpy_crop_enable(crop_x, crop_y, crop_w, crop_h, led_w, led_h):
+    context = zmq.Context()
+    log.debug("Connecting to server...")
+    socket = context.socket(zmq.REQ)
+    socket.connect("tcp://localhost:%s" % 5555)
+
+
+    socket.send(("Parsed_crop_4 w " + str(crop_w)).encode())
+    data = socket.recv(1024)
+    log.debug("recv data = %s", data.decode())
+    if 'Success' not in data.decode():
+        socket.disconnect("tcp://localhost:%s" % 5555)
+        context.destroy()
+        context.term()
+        log.debug("Error")
+        return False
+
+    socket.send(("Parsed_crop_4 h " + str(crop_h)).encode())
+    data = socket.recv(1024)
+    if 'Success' not in data.decode():
+        socket.disconnect("tcp://localhost:%s" % 5555)
+        context.destroy()
+        context.term()
+        return False
+
+    socket.send(("Parsed_crop_4 x " + str(crop_x)).encode())
+    data = socket.recv(1024)
+    if 'Success' not in data.decode():
+        socket.disconnect("tcp://localhost:%s" % 5555)
+        context.destroy()
+        context.term()
+        return False
+
+    socket.send(("Parsed_crop_4 y " + str(crop_y)).encode())
+    data = socket.recv(1024)
+    if 'Success' not in data.decode():
+        socket.disconnect("tcp://localhost:%s" % 5555)
+        context.destroy()
+        context.term()
+        return False
+
+    socket.send(("Parsed_scale_5 w " + str(led_w)).encode())
+    data = socket.recv(1024)
+    if 'Success' not in data.decode():
+        socket.disconnect("tcp://localhost:%s" % 5555)
+        context.destroy()
+        context.term()
+        return False
+
+    socket.send(("Parsed_scale_5 h " + str(led_h)).encode())
+    data = socket.recv(1024)
+    if 'Success' not in data.decode():
+        socket.disconnect("tcp://localhost:%s" % 5555)
+        context.destroy()
+        context.term()
+        return False
+
+    socket.disconnect("tcp://localhost:%s" % 5555)
+
+    context.destroy()
+    context.term()
+    log.debug("set scale end")
+    return True
+
+def ffmpy_crop_disable(led_w, led_h):
+    context = zmq.Context()
+    log.debug("Connecting to server...")
+
+    cmd_w = "Parsed_crop_4 w iw"
+    cmd_h = "Parsed_crop_4 h ih"
+    cmd_x = "Parsed_crop_4 x 0"
+    cmd_y = "Parsed_crop_4 y 0"
+    cmd_scale_w = "Parsed_scale_5 w " + str(led_w)
+    cmd_scale_h = "Parsed_scale_5 h " + str(led_h)
+    log.debug("cmd_w : %s", cmd_w)
+    socket = context.socket(zmq.REQ)
+    socket.connect("tcp://localhost:%s" % 5555)
+
+    socket.send(("Parsed_crop_4 w iw" ).encode())
+    data = socket.recv(1024)
+    log.debug("recv data = %s", data.decode())
+    if 'Success' not in data.decode():
+        socket.disconnect("tcp://localhost:%s" % 5555)
+        context.destroy()
+        context.term()
+        log.debug("Error")
+        return False
+
+    socket.send(("Parsed_crop_4 h ih").encode())
+    data = socket.recv(1024)
+    if 'Success' not in data.decode():
+        socket.disconnect("tcp://localhost:%s" % 5555)
+        context.destroy()
+        context.term()
+        return False
+
+    socket.send(("Parsed_crop_4 x 0").encode())
+    data = socket.recv(1024)
+    if 'Success' not in data.decode():
+        socket.disconnect("tcp://localhost:%s" % 5555)
+        context.destroy()
+        context.term()
+        return False
+
+    socket.send(("Parsed_crop_4 y 0").encode())
+    data = socket.recv(1024)
+    if 'Success' not in data.decode():
+        socket.disconnect("tcp://localhost:%s" % 5555)
+        context.destroy()
+        context.term()
+        return False
+
+    socket.send(("Parsed_scale_5 w " + str(led_w)).encode())
+    data = socket.recv(1024)
+    if 'Success' not in data.decode():
+        socket.disconnect("tcp://localhost:%s" % 5555)
+        context.destroy()
+        context.term()
+        return False
+
+    socket.send(("Parsed_scale_5 h " + str(led_h)).encode())
+    data = socket.recv(1024)
+    if 'Success' not in data.decode():
+        socket.disconnect("tcp://localhost:%s" % 5555)
+        context.destroy()
+        context.term()
+        return False
+
+    socket.disconnect("tcp://localhost:%s" % 5555)
+
+    context.destroy()
+    context.term()
+
+def ffmpy_crop_enable_depreciated(crop_x, crop_y, crop_w, crop_h, led_w, led_h):
+    context = zmq.Context()
+    log.debug("Connecting to server...")
+
+    cmd_w = "Parsed_crop_4 w " + str(crop_w)
+    cmd_h = "Parsed_crop_4 h " + str(crop_h)
+    cmd_x = "Parsed_crop_4 x " + str(crop_x)
+    cmd_y = "Parsed_crop_4 y " + str(crop_y)
+    cmd_scale_w = "Parsed_scale_5 w " + str(led_w)
+    cmd_scale_h = "Parsed_scale_5 h " + str(led_h)
+    log.debug("cmd_w : %s", cmd_w)
+    socket = context.socket(zmq.REQ)
+    socket.connect("tcp://localhost:%s" % 5555)
+
+    socket.send(cmd_w.encode())
+    data = socket.recv(1024)
+
+    socket.send(cmd_h.encode())
+    data = socket.recv(1024)
+    # log.debug("data = %s", data)
+    socket.send(cmd_x.encode())
+    data = socket.recv(1024)
+    # log.debug("data = %s", data)
+    socket.send(cmd_y.encode())
+    data = socket.recv(1024)
+    # log.debug("data = %s", data)
+
+    socket.send(cmd_scale_w.encode())
+    data = socket.recv(1024)
+    # log.debug("data = %s", data)
+
+    socket.send(cmd_scale_h.encode())
+    data = socket.recv(1024)
+    # log.debug("data = %s", data)
+
+    socket.disconnect("tcp://localhost:%s" % 5555)
+
+    context.destroy()
+    context.term()
+
+def ffmpy_crop_disable_depreciated(led_w, led_h):
+    context = zmq.Context()
+    log.debug("Connecting to server...")
+
+    cmd_w = "Parsed_crop_4 w iw"
+    cmd_h = "Parsed_crop_4 h ih"
+    cmd_x = "Parsed_crop_4 x 0"
+    cmd_y = "Parsed_crop_4 y 0"
+    cmd_scale_w = "Parsed_scale_5 w " + str(led_w)
+    cmd_scale_h = "Parsed_scale_5 h " + str(led_h)
+    log.debug("cmd_w : %s", cmd_w)
+    socket = context.socket(zmq.REQ)
+    socket.connect("tcp://localhost:%s" % 5555)
+
+    socket.send(cmd_w.encode())
+    data = socket.recv(1024)
+    log.debug("data = %s", data)
+    socket.send(cmd_h.encode())
+    data = socket.recv(1024)
+    log.debug("data = %s", data)
+    socket.send(cmd_x.encode())
+    data = socket.recv(1024)
+    log.debug("data = %s", data)
+    socket.send(cmd_y.encode())
+    data = socket.recv(1024)
+    log.debug("data = %s", data)
+
+    socket.send(cmd_scale_w.encode())
+    data = socket.recv(1024)
+    log.debug("data = %s", data)
+
+    socket.send(cmd_scale_h.encode())
+    data = socket.recv(1024)
+    log.debug("data = %s", data)
 
     socket.disconnect("tcp://localhost:%s" % 5555)
 
