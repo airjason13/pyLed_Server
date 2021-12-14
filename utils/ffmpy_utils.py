@@ -17,16 +17,12 @@ preview_period = 3
 
 def neo_ffmpy_execute(video_path, brightness, contrast, red_bias, green_bias, blue_bias,
                       width=80, height=96):
-    # red_bias = 0.9
-    # green_bias = 0.9
-    # blue_bias = 0.9
+
     ff = None
     global_opts = '-hide_banner -loglevel error'
     scale_params = "scale=" + str(width) + ":" + str(height)  # + ",hflip"
     brightness_params = "brightness=" + str(brightness)
-    # brightness_params = "brightness=" + str(-0.9)
     contrast_params = "contrast=" + str(contrast)
-    # contrast_params = "contrast=" + str(100)
     eq_str = "eq=" + brightness_params + ":" + contrast_params
     red_bias_params = "romin=" + str(red_bias)
     green_bias_params = "gomin=" + str(green_bias)
@@ -37,8 +33,6 @@ def neo_ffmpy_execute(video_path, brightness, contrast, red_bias, green_bias, bl
 
     # add TEXT
     if "blank" in video_path:
-        #drawtext_str = "drawtext=fontfile=" + internal_media_folder + \
-        #               "/fonts/msjhbd.ttc:text='p':x=10*w/80-40*t:y=20:fontsize=72*h/96:fontcolor=white"
         drawtext_str = "drawtext=fontfile=" + internal_media_folder + \
                       "/fonts/msjhbd.ttc:text='歡迎長虹光電蒞臨指導':x=10*w/80-40*t:y=20:fontsize=72*h/96:fontcolor=white"
         filter_params = "zmq," + eq_str + "," + color_level_str + "," + drawtext_str + "," + scale_params
@@ -307,7 +301,6 @@ def ffmpy_crop_enable(crop_x, crop_y, crop_w, crop_h, led_w, led_h):
     socket = context.socket(zmq.REQ)
     socket.connect("tcp://localhost:%s" % 5555)
 
-
     socket.send(("Parsed_crop_4 w " + str(crop_w)).encode())
     data = socket.recv(1024)
     log.debug("recv data = %s", data.decode())
@@ -317,7 +310,6 @@ def ffmpy_crop_enable(crop_x, crop_y, crop_w, crop_h, led_w, led_h):
         context.term()
         log.debug("Error")
         return False
-
     socket.send(("Parsed_crop_4 h " + str(crop_h)).encode())
     data = socket.recv(1024)
     if 'Success' not in data.decode():
@@ -325,7 +317,6 @@ def ffmpy_crop_enable(crop_x, crop_y, crop_w, crop_h, led_w, led_h):
         context.destroy()
         context.term()
         return False
-
     socket.send(("Parsed_crop_4 x " + str(crop_x)).encode())
     data = socket.recv(1024)
     if 'Success' not in data.decode():
@@ -333,7 +324,6 @@ def ffmpy_crop_enable(crop_x, crop_y, crop_w, crop_h, led_w, led_h):
         context.destroy()
         context.term()
         return False
-
     socket.send(("Parsed_crop_4 y " + str(crop_y)).encode())
     data = socket.recv(1024)
     if 'Success' not in data.decode():
@@ -341,7 +331,6 @@ def ffmpy_crop_enable(crop_x, crop_y, crop_w, crop_h, led_w, led_h):
         context.destroy()
         context.term()
         return False
-
     socket.send(("Parsed_scale_5 w " + str(led_w)).encode())
     data = socket.recv(1024)
     if 'Success' not in data.decode():
@@ -349,7 +338,6 @@ def ffmpy_crop_enable(crop_x, crop_y, crop_w, crop_h, led_w, led_h):
         context.destroy()
         context.term()
         return False
-
     socket.send(("Parsed_scale_5 h " + str(led_h)).encode())
     data = socket.recv(1024)
     if 'Success' not in data.decode():
@@ -357,9 +345,7 @@ def ffmpy_crop_enable(crop_x, crop_y, crop_w, crop_h, led_w, led_h):
         context.destroy()
         context.term()
         return False
-
     socket.disconnect("tcp://localhost:%s" % 5555)
-
     context.destroy()
     context.term()
     log.debug("set scale end")

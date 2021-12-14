@@ -43,6 +43,7 @@ from set_qstyle import *
 # from g_defs.c_videoplayer import *
 from qtui.c_page_client import *
 from qtui.c_page_medialist import *
+from qtui.c_page_hdmi_in import *
 from material import *
 import hashlib
 from g_defs.c_filewatcher import *
@@ -53,6 +54,8 @@ log = utils.log_utils.logging_init(__file__)
 class MainUi(QMainWindow):
     signal_add_cabinet_label = pyqtSignal(cabinet_params)
     signal_redraw_cabinet_label = pyqtSignal(cabinet_params, Qt.GlobalColor)
+
+    signal_right_page_changed = pyqtSignal(int, int)  # pre_idx, current_idx
 
     def __init__(self):
         super().__init__()
@@ -103,6 +106,7 @@ class MainUi(QMainWindow):
 
         '''main ui right frame page index'''
         self.page_idx = 0
+        self.pre_page_idx = 0
 
         # initial streaming ffmpy status
         self.ffmpy_running = play_status.stop
@@ -150,6 +154,9 @@ class MainUi(QMainWindow):
         self.filewatcher = FileWatcher(paths)
         self.filewatcher.install_folder_changed_slot(self.internaldef_medialist_changed)
 
+        self.signal_right_page_changed.connect(self.right_page_change_index)
+
+    # enter engineer mode
     def ctrl_e_trigger(self):
         log.debug(" ")
         self.engineer_mode = True
@@ -202,6 +209,11 @@ class MainUi(QMainWindow):
         content_btn.clicked.connect(self.func_file_contents)
         button_layout.addWidget(content_btn)
 
+        hdmi_in_btn = QPushButton(top_left_frame)
+        hdmi_in_btn.setFixedSize(200, 30), hdmi_in_btn.setText("HDMI-in")
+        hdmi_in_btn.clicked.connect(self.func_hdmi_in_contents)
+        button_layout.addWidget(hdmi_in_btn)
+
         test_btn = QPushButton(top_left_frame)
         test_btn.setFixedSize(200, 30), test_btn.setText("LED Setting")
         test_btn.clicked.connect(self.func_led_setting)
@@ -225,6 +237,9 @@ class MainUi(QMainWindow):
 
         """QTreeWidgetFile Tree in Tab.2"""
         self.initial_media_file_page()
+
+        """Qt Hdmi-in Page in Tab.3"""
+        self.initial_hdmi_in_page()
 
         """QTreeWidget for LED Setting"""
         self.initial_led_layout_page()
@@ -262,6 +277,9 @@ class MainUi(QMainWindow):
 
     def initial_media_file_page(self):
         self.medialist_page = media_page(self)
+
+    def initial_hdmi_in_page(self):
+        self.hdmi_in_page = Hdmi_In_Page(self)
 
     def initial_led_layout_page(self):
         self.led_setting = QWidget(self.right_frame)
@@ -378,22 +396,46 @@ class MainUi(QMainWindow):
         size = self.geometry()
         self.move((screen.width() - size.width()) / 2, (screen.height() - size.height()) / 2)
 
+
+    def right_page_change_index(self, pre_idx, going_idx):
+        log.debug("")
+        if pre_idx != page_hdmi_in_content_idx and going_idx == page_hdmi_in_content_idx:
+            log.debug("start hdmi-in preview")
+            self.hdmi_in_page.start_hdmi_in_preview()
+        if pre_idx == page_hdmi_in_content_idx and going_idx != page_hdmi_in_content_idx:
+            log.debug("stop hdmi-in preview")
+            self.hdmi_in_page.stop_hdmi_in_preview()
+
+        self.pre_page_idx = self.page_idx
+        self.page_idx = going_idx
+        self.right_layout.setCurrentIndex(self.page_idx)
+
     def fun_connect_clients(self):
         log.debug("connect clients")
-        self.page_idx = 0
-        self.right_layout.setCurrentIndex(self.page_idx)
+        # self.page_idx = 0
+        # self.right_layout.setCurrentIndex(self.page_idx)
+        self.signal_right_page_changed.emit(self.page_idx, page_client_connect_idx)
         self.page_status_change()
 
     def func_file_contents(self):
         log.debug("file contents")
-        self.page_idx = 1
-        self.right_layout.setCurrentIndex(self.page_idx)
+        # self.page_idx = 1
+        # self.right_layout.setCurrentIndex(self.page_idx)
+        self.signal_right_page_changed.emit(self.page_idx, page_media_content_idx)
+        self.page_status_change()
+
+    def func_hdmi_in_contents(self):
+        log.debug("hdmi-in contents")
+        # self.page_idx = 2
+        # self.right_layout.setCurrentIndex(self.page_idx)
+        self.signal_right_page_changed.emit(self.page_idx, page_hdmi_in_content_idx)
         self.page_status_change()
 
     def func_led_setting(self):
         log.debug("func_led_setting")
-        self.page_idx = 2
-        self.right_layout.setCurrentIndex(self.page_idx)
+        # self.page_idx = 3
+        # self.right_layout.setCurrentIndex(self.page_idx)
+        self.signal_right_page_changed.emit(self.page_idx, page_led_setting_idx)
         self.page_status_change()
         self.led_layout_window.show()
 
@@ -894,9 +936,11 @@ class MainUi(QMainWindow):
             self.page_status.showMessage("Meida Page")
         elif self.page_idx == 2:
             self.page_status.showMessage("LED Setting Page")
+        elif self.page_idx == 3:
+            self.page_status.showMessage("HDMI-in Page")
 
         '''如果不是在led setting 頁面,把layout視窗關閉'''
-        if self.page_idx != 2:
+        if self.page_idx != 3:
             if self.led_layout_window.isVisible() is True:
                 self.led_layout_window.hide()
 
