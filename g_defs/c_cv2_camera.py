@@ -21,7 +21,7 @@ class CV2Camera(QtCore.QThread):  # 繼承 QtCore.QThread 來建立 Camera 類�
         # 將父類初始化
         super().__init__(parent)
         # 建立 cv2 的攝影機物件
-        self.cam = cv2.VideoCapture(6)
+        self.cam = cv2.VideoCapture(5)
         # 判斷攝影機是否正常連接
         if self.cam is None or not self.cam.isOpened():
             self.connect = False
@@ -40,9 +40,19 @@ class CV2Camera(QtCore.QThread):  # 繼承 QtCore.QThread 來建立 Camera 類�
         # 當正常連接攝影機才能進入迴圈
         #while self.running and self.connect:
         while True:
+            if self.cam is None or not self.cam.isOpened():
+                time.sleep(1)
+                self.cam = cv2.VideoCapture(5)
+                if self.cam is None or not self.cam.isOpened():
+                    self.connect = False
+                    self.running = False
+                else:
+                    self.connect = True
+                    self.running = True
 
             if self.running is False:
-                #log.debug("waiting for start to read")
+                log.debug("waiting for start to read")
+                time.sleep(1)
                 continue
 
             ret, img = self.cam.read()    # 讀取影像

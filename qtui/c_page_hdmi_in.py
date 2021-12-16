@@ -1,3 +1,5 @@
+import time
+
 from PyQt5 import QtWidgets
 from PyQt5.QtCore import QObject, Qt
 from PyQt5.QtGui import QPalette, QColor, QBrush, QFont, QImage
@@ -12,7 +14,7 @@ from commands_def import *
 import utils.log_utils
 import utils.ffmpy_utils
 from g_defs.c_cv2_camera import CV2Camera
-
+import signal
 import hashlib
 log = utils.log_utils.logging_init(__file__)
 
@@ -50,15 +52,20 @@ class Hdmi_In_Page(QObject):
         self.cv2camera = CV2Camera()
         self.cv2camera.signal_get_rawdata.connect(self.getRaw)
 
+        self.ffmpy_hdmi_in_cast_pid = None
+
     def start_hdmi_in_preview(self):
-        log.debug("")
+
+        if self.ffmpy_hdmi_in_cast_pid is None:
+            self.start_hdmi_in_cast()
+        log.debug("self.ffmpy_hdmi_in_cast_process.pid : %d", self.ffmpy_hdmi_in_cast_process.pid)
         self.cv2camera.open()  # 影像讀取功能開啟
         self.cv2camera.start()  # 在子緒啟動影像讀取
 
     def stop_hdmi_in_preview(self):
         log.debug("")
         self.cv2camera.stop()  # 關閉
-
+        self.stop_hdmi_in_cast()
 
     def getRaw(self, data):  # data 為接收到的影像
         """ 取得影像 """
@@ -79,3 +86,13 @@ class Hdmi_In_Page(QObject):
         ### 將 Qimage 物件設置到 viewData 上
         self.preview_label.setPixmap(QPixmap.fromImage(qimg))
 
+    def start_hdmi_in_cast(self):
+        hdmi_in_cast_out = []
+        hdmi_in_cast_out.append("/dev/video5")
+        hdmi_in_cast_out.append("/dev/video6")
+
+        self.ffmpy_hdmi_in_cast_process = utils.ffmpy_utils.neo_ffmpy_cast_video("/dev/video0", hdmi_in_cast_out, 160, 108)
+
+    def stop_hdmi_in_cast(self):
+        os.kill(self.ffmpy_hdmi_in_cast_process.pid, signal.SIGTERM)
+        self.ffmpy_hdmi_in_cast_process = None

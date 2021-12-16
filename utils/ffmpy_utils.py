@@ -112,6 +112,66 @@ def neo_ffmpy_execute(video_path, brightness, contrast, red_bias, green_bias, bl
 
     return ff.process
 
+def neo_ffmpy_cast_video(video_path, cast_dst, width=80, height=96):
+    if len(cast_dst) == 0 or cast_dst is None:
+        return -1
+    ff = None
+    global_opts = '-hide_banner -loglevel error'
+    output = {}
+    for i in cast_dst:
+        output[i] = ["-f", "v4l2", "-c", "copy"]
+
+    ff = ffmpy.FFmpeg(
+        global_options=global_opts,
+        inputs={
+            video_path: ["-f", "v4l2", "-input_format", "mjpeg", "-s", "640x480", "-framerate", "30"]
+        },
+        outputs=output,
+    )
+
+    log.debug("%s", ff.cmd)
+    try:
+        thread_1 = threading.Thread(target=ff.run)
+        thread_1.start()
+        while not ff.process:
+            sleep(0.05)
+    except RuntimeError as e:
+        log.error(e)
+
+    log.debug("ff.process : %s", ff.process)
+    log.debug("ff.process pid : %d", ff.process.pid)
+
+    return ff.process
+
+
+def neo_ffmpy_cast_video_depreciated(video_path, cast_dst_0, cast_dst_1, width=80, height=96):
+
+    ff = None
+    global_opts = '-hide_banner -loglevel error'
+    ff = ffmpy.FFmpeg(
+        global_options=global_opts,
+        inputs={
+            video_path: ["-f", "v4l2", "-input_format", "mjpeg", "-s", "640x480", "-framerate", "30"]
+        },
+        outputs={
+            cast_dst_0: ["-f", "v4l2", "-c", "copy"],
+            cast_dst_1: ["-f", "v4l2", "-c", "copy"]
+        },
+    )
+    log.debug("%s", ff.cmd)
+    try:
+        thread_1 = threading.Thread(target=ff.run)
+        thread_1.start()
+        while not ff.process:
+            sleep(0.05)
+    except RuntimeError as e:
+        log.error(e)
+
+    log.debug("ff.process : %s", ff.process)
+    log.debug("ff.process pid : %d", ff.process.pid)
+
+    return ff.process
+
 
 # deprecated
 '''def ffmpy_execute(QObject, video_path, width=80, height=96):

@@ -65,6 +65,13 @@ class MainUi(QMainWindow):
         self.setWindowOpacity(1.0)  # 设置窗口透明度
         self.setStyleSheet(qdarkstyle.load_stylesheet_pyqt5())
 
+        # insert v4l2loopback module first
+        if (os.path.exists("/dev/video3") and os.path.exists("/dev/video4")
+            and os.path.exists("/dev/video5") and os.path.exists("/dev/video6")):
+            pass
+        else:
+            os.system('echo %s | sudo -S %s' % ("workout13", "modprobe v4l2loopback video_nr=3,4,5,6"))
+
         # set engineer mode trigger
         #self.engineer_mode_trigger = QShortcut(QKeySequence("Ctrl+E"), self)
         #self.engineer_mode_trigger.activated.connect(self.ctrl_e_trigger)
@@ -153,6 +160,20 @@ class MainUi(QMainWindow):
         paths.append(internal_media_folder)
         self.filewatcher = FileWatcher(paths)
         self.filewatcher.install_folder_changed_slot(self.internaldef_medialist_changed)
+
+        # v4l2loopback variable
+        self.v4l2loopback_module_probed = False
+
+        if self.v4l2loopback_module_probed is False:
+            if platform.machine() in ('arm', 'arm64', 'aarch64'):
+                cmd = "modprobe v4l2loopback video_nr=3,4,5,6"
+                os.system(cmd)
+            else :
+                # please modprobe v4l2loopback on x86 yourself
+                pass
+            self.v4l2loopback_module_probed = True
+
+
 
         self.signal_right_page_changed.connect(self.right_page_change_index)
 
@@ -441,17 +462,7 @@ class MainUi(QMainWindow):
 
     def func_testB(self):
         # for test color adjust
-        self.test_timer_A = QTimer(self)
-        self.test_timer_A.timeout.connect(self.test_brightness_loop)
-        # i = int(self.medialist_page.client_br_divisor_edit.text())
-        i = 1
 
-        self.medialist_page.client_br_divisor_edit.setText(str(i))
-        self.medialist_page.client_brightness_edit.setText(str(i))
-        self.medialist_page.video_params_confirm_btn_clicked()
-        utils.ffmpy_utils.ffmpy_draw_text(str(i))
-        # time.sleep(4)
-        self.test_timer_A.start(500)
         log.debug("testB")
 
     def test_brightness_loop(self):
