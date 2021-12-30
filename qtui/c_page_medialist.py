@@ -468,7 +468,7 @@ class media_page(QObject):
             self.media_engine.play_single_file(self.right_clicked_select_file_uri)
             '''self.ff_process = utils.ffmpy_utils.ffmpy_execute(self, self.right_clicked_select_file_uri, width=80, height=96)
             self.play_type = play_type.play_single'''
-        elif "add to " in q.text():
+        elif "Add to " in q.text():
             log.debug("media file uri : %s", self.right_clicked_select_file_uri)
             playlist_name = q.text().split(" ")[2]
             if playlist_name == 'new':

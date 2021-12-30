@@ -232,7 +232,7 @@ def gen_led_cabinet_pixmap_with_cabinet_params_test(c_params, margin=0,
 def gen_led_cabinet_pixmap_with_cabinet_params(c_params, margin=0,
                            bg_color=Qt.GlobalColor.transparent, line_color=Qt.GlobalColor.red, str_color=Qt.GlobalColor.yellow):
     '''margin is 0 pixel, left/right/up/bottom is 0 pixel'''
-    log.debug('')
+    # log.debug('')
     scale_factor = 8
     line_interval = scale_factor/2
     arrow_width = scale_factor/2
@@ -241,8 +241,8 @@ def gen_led_cabinet_pixmap_with_cabinet_params(c_params, margin=0,
     pixmap_paint = QPainter(pixmap_led_layout_type)
 
     pixmap_paint.setPen(line_color)
-    log.debug("c_params.client_id = %d", c_params.client_id)
-    log.debug("c_params.client_id = %d", c_params.port_id)
+    # log.debug("c_params.client_id = %d", c_params.client_id)
+    # log.debug("c_params.client_id = %d", c_params.port_id)
     str_port_id = str(c_params.client_id) + "-" + str(c_params.port_id)
     if c_params.layout_type < 4:
         if margin == 0:

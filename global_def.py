@@ -62,3 +62,9 @@ default_led_wall_margin = 10
 default_led_client_brightness = 100
 default_led_client_brdivisor = 1
 default_led_client_gamma = 2.2
+
+"""right page idx"""
+page_client_connect_idx = 0
+page_media_content_idx = 1
+page_hdmi_in_content_idx = 2
+page_led_setting_idx = 3
