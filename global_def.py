@@ -11,6 +11,8 @@ alive_report_port = 11333
 #cmd_port = 11335
 udp_sink = "udp://239.11.11.11:15000"
 local_sink = "udp://127.0.0.1:15001"
+cv2_preview_h264_sink = "udp://127.0.0.1:10011"
+hdmi_in_h264_src = "udp://127.0.0.1:10012"
 cmd_timeout = 2
 g_client_udp_cmd_port = 11335
 
@@ -29,6 +31,7 @@ class play_type(enum.IntEnum):
     play_none = 0
     play_single = 1
     play_playlist = 2
+    play_hdmi_in = 3
 
 class play_status(enum.IntEnum):
     stop = 0

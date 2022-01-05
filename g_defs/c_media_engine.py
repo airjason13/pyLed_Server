@@ -52,6 +52,22 @@ class media_engine(QObject):
         '''media_process'''
         self.media_processor = media_processor()
 
+        '''hdmi-in cast'''
+
+    def start_hdmi_in_v4l2(self, hdmi_in_src, cast_dst):
+        log.debug("")
+        if os.path.exists(hdmi_in_src) is False:
+            log.error("%s is not exist", hdmi_in_src)
+            return None
+        return self.media_processor.hdmi_in_cast_v4l2(hdmi_in_src, cast_dst)
+
+    def start_hdmi_in_h264(self, hdmi_in_src, cast_dst):
+        log.debug("")
+        if os.path.exists(hdmi_in_src) is False:
+            log.error("%s is not exist", hdmi_in_src)
+            return None
+        return self.media_processor.hdmi_in_cast_h264(hdmi_in_src, cast_dst)
+
     def play_single_file(self, file_uri):
         log.debug("")
         self.stop_play()
@@ -242,6 +258,10 @@ class media_processor(QObject):
 
         self.play_single_file_worker = None
         self.play_playlist_worker = None
+        self.play_hdmi_in_worker = None
+
+        ''' this is only cast /dev/video0 to others for preview'''
+        self.hdmi_in_cast_process = None
 
     def set_repeat_option(self, option):
         if option < repeat_option.repeat_none \
@@ -326,8 +346,53 @@ class media_processor(QObject):
         self.play_playlist_thread.finished.connect(self.play_playlist_thread.deleteLater)
         self.play_playlist_thread.start()
 
-    '''檢查影片是否推播完畢'''
+    def hdmi_in_play(self, video_src, video_dst):
+        log.debug("%s", video_dst)
 
+        if self.play_hdmi_in_worker is not None:
+            if self.play_hdmi_in_worker.get_task_status() == 1:
+                self.stop_playing()
+                self.play_hdmi_in_worker.stop()
+                self.play_hdmi_in_worker.quit()
+                self.play_hdmi_in_worker.wait()
+
+        self.play_hdmi_in_thread = QThread()
+        self.play_hdmi_in_worker = self.play_hdmi_in_work(self, video_src, video_dst)
+        self.play_hdmi_in_worker.moveToThread(self.play_hdmi_in_thread)
+        self.play_hdmi_in_thread.started.connect(self.play_hdmi_in_worker.run)
+        self.play_hdmi_in_worker.finished.connect(self.play_hdmi_in_thread.quit)
+        self.play_hdmi_in_worker.finished.connect(self.play_hdmi_in_worker.deleteLater)
+        self.play_hdmi_in_thread.finished.connect(self.play_hdmi_in_thread.deleteLater)
+        self.play_hdmi_in_thread.start()
+
+    def hdmi_in_cast_h264(self, hdmi_in_src, cast_dst):
+        self.hdmi_in_cast_process = \
+            neo_ffmpy_cast_video_h264(hdmi_in_src, cast_dst,
+                              self.video_params.get_translated_brightness(),
+                              self.video_params.get_translated_contrast(),
+                              self.video_params.get_translated_redgain(),
+                              self.video_params.get_translated_greengain(),
+                              self.video_params.get_translated_bluegain(),
+                              self.output_width,
+                              self.output_height )
+        log.debug("self.hdmi_in_cast_process.pid = %d", self.hdmi_in_cast_process.pid)
+        return self.hdmi_in_cast_process
+
+
+    def hdmi_in_cast_v4l2(self, hdmi_in_src, cast_dst):
+        self.hdmi_in_cast_process = \
+            neo_ffmpy_cast_video_v4l2(hdmi_in_src, cast_dst,
+                              self.video_params.get_translated_brightness(),
+                              self.video_params.get_translated_contrast(),
+                              self.video_params.get_translated_redgain(),
+                              self.video_params.get_translated_greengain(),
+                              self.video_params.get_translated_bluegain(),
+                              self.output_width,
+                              self.output_height )
+        log.debug("self.hdmi_in_cast_process.pid = %d", self.hdmi_in_cast_process.pid)
+        return self.hdmi_in_cast_process
+
+    '''檢查影片是否推播完畢'''
     def check_ffmpy_process(self):
         if self.ffmpy_process is None:
             return
@@ -526,3 +591,59 @@ class media_processor(QObject):
 
         def get_task_status(self):
             return self.worker_status
+
+    class play_hdmi_in_work(QObject):
+        finished = pyqtSignal()
+        def __init__(self, QObject, video_src, cast_dst):
+            super().__init__()
+            self.media_processor = QObject
+            self.video_src = video_src
+            self.cast_dst = cast_dst
+            log.debug("cast_dst :%s", cast_dst)
+            self.force_stop = False
+            self.worker_status = 0
+        def run(self):
+            self.media_processor.play_type = play_type.play_hdmi_in
+            while True:
+                self.worker_status = 1
+                if self.media_processor.play_status != play_status.stop:
+                    ''' kill other streaming ffmpy instance first'''
+                    try:
+                        if self.media_processor.ffmpy_process is not None:
+                            if self.media_processor.play_status == play_status.pausing:
+                                os.kill(self.media_processor.ffmpy_process.pid, signal.SIGCONT)
+                                # time.sleep(1)
+                        os.kill(self.ffmpy_process.pid, signal.SIGTERM)
+                        # time.sleep(1)
+                        log.debug("kill")
+                    except Exception as e:
+                        log.debug(e)
+
+
+                self.media_processor.ffmpy_process = \
+                    neo_ffmpy_execute(self.video_src,
+                       self.media_processor.video_params.get_translated_brightness(),
+                       self.media_processor.video_params.get_translated_contrast(),
+                       self.media_processor.video_params.get_translated_redgain(),
+                       self.media_processor.video_params.get_translated_greengain(),
+                       self.media_processor.video_params.get_translated_bluegain(),
+                       self.media_processor.output_width,
+                       self.media_processor.output_height)
+                if self.media_processor.ffmpy_process.pid > 0:
+                    self.media_processor.play_status = play_status.playing
+                    self.media_processor.playing_file_name = self.video_src
+                    while True:
+                        if self.media_processor.play_status == play_status.stop:
+                            break
+                        if self.force_stop is True:
+                            break
+                        time.sleep(0.5)
+
+                if self.media_processor.repeat_option != repeat_option.repeat_one:
+                    break
+                if self.force_stop is True:
+                    break
+
+            self.finished.emit()
+            self.media_processor.play_type = play_type.play_none
+            self.worker_status = 0
