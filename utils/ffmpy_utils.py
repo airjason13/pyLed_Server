@@ -270,6 +270,7 @@ def neo_ffmpy_cast_video_h264(video_path, cast_dst, brightness, contrast, red_bi
         return -1
     ff = None
     global_opts = '-hide_banner -loglevel error'
+    out_res = str(width) + "x" + str(height)
     output = {}
     if platform.machine() in ('arm', 'arm64', 'aarch64'):
         if width > 320 and height > 240:
@@ -284,7 +285,7 @@ def neo_ffmpy_cast_video_h264(video_path, cast_dst, brightness, contrast, red_bi
     ff = ffmpy.FFmpeg(
         global_options=global_opts,
         inputs={
-            video_path: ["-f", "v4l2", "-input_format", "mjpeg", "-s", "640x480", "-framerate", "30"]
+            video_path: ["-f", "v4l2", "-input_format", "mjpeg", "-s", out_res, "-framerate", "30"]
         },
         outputs=output,
     )
