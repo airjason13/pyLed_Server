@@ -621,7 +621,7 @@ class media_processor(QObject):
 
 
                 self.media_processor.ffmpy_process = \
-                    neo_ffmpy_execute(self.video_src,
+                    neo_ffmpy_cast_video_h264(self.video_src, self.cast_dst, 
                        self.media_processor.video_params.get_translated_brightness(),
                        self.media_processor.video_params.get_translated_contrast(),
                        self.media_processor.video_params.get_translated_redgain(),

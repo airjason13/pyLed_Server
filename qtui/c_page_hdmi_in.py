@@ -255,4 +255,4 @@ class Hdmi_In_Page(QObject):
         hdmi_in_cast_out.append(udp_sink)
         hdmi_in_cast_out.append(cv2_preview_h264_sink)
 
-        self.media_engine.media_processor.hdmi_in_play(hdmi_in_h264_src, hdmi_in_cast_out)
+        self.media_engine.media_processor.hdmi_in_play("/dev/video0", hdmi_in_cast_out)

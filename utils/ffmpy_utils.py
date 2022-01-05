@@ -266,14 +266,14 @@ def neo_ffmpy_cast_video_h264(video_path, cast_dst, brightness, contrast, red_bi
     out_res = str(width) + "x" + str(height)
     output = {}
     if platform.machine() in ('arm', 'arm64', 'aarch64'):
-        if width > 320 and height > 240:
+        if width >= 320 and height >= 240:
             video_encoder = "h264_v4l2m2m"
         else:
             video_encoder = "libx264"
     else:
         video_encoder = "libx264"
     for i in cast_dst:
-        output[i] = ["-vcodec", video_encoder, "-pix_fmt", "yuv420p", "-f", "h264"]
+        output[i] = ["-vcodec", video_encoder, "-pix_fmt", "yuv420p","-b:v", "200k", "-s", out_res, "-f", "h264", "-localaddr", "192.168.0.3"]
 
     ff = ffmpy.FFmpeg(
         global_options=global_opts,
