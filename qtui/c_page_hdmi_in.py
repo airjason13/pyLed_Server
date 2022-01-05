@@ -196,12 +196,9 @@ class Hdmi_In_Page(QObject):
         self.preview_label.setPixmap(QPixmap.fromImage(qimg))
 
     def start_hdmi_in_cast_h264(self):
-
-
         hdmi_in_cast_out = []
         hdmi_in_cast_out.append("udp://127.0.0.1:10011")
-        hdmi_in_cast_out.append("udp://127.0.0.1:10012")
-
+        #hdmi_in_cast_out.append("udp://127.0.0.1:10012")
 
         ffmpy_hdmi_in_cast_process = self.media_engine.start_hdmi_in_h264("/dev/video0", hdmi_in_cast_out)
         if ffmpy_hdmi_in_cast_process is None:
@@ -252,10 +249,10 @@ class Hdmi_In_Page(QObject):
 
     def send_to_led(self):
         log.debug("")
-        #os.kill(self.ffmpy_hdmi_in_cast_process.pid, signal.SIGTERM)
-        #time.sleep(3)
+        os.kill(self.ffmpy_hdmi_in_cast_process.pid, signal.SIGTERM)
+        time.sleep(1)
         hdmi_in_cast_out = []
         hdmi_in_cast_out.append(udp_sink)
-        #hdmi_in_cast_out.append(cv2_preview_h264_sink)
+        hdmi_in_cast_out.append(cv2_preview_h264_sink)
 
         self.media_engine.media_processor.hdmi_in_play(hdmi_in_h264_src, hdmi_in_cast_out)

@@ -170,30 +170,23 @@ def neo_ffmpy_execute_hdmi_in(video_path, video_dst,brightness, contrast, red_bi
             video_encoder = "h264_v4l2m2m"
         else:
             video_encoder = "libx264"
-        if video_path.endswith("mp4"):
-            ff = ffmpy.FFmpeg(
-                global_options=global_opts,
-                inputs={
-                    video_path: ["-re"]
-                },
-                outputs={
-                    udp_sink: ["-vcodec", video_encoder, '-filter_complex', filter_params, "-b:v", "2000k", "-f",
-                               "h264", "-pix_fmt", "yuv420p", "-localaddr", "192.168.0.3"]
-                },
-            )
-        elif video_path.endswith("jpeg") or video_path.endswith("jpg") or video_path.endswith("png"):
-            log.debug("jpg to mp4")
-            ff = ffmpy.FFmpeg(
-                global_options=global_opts,
-                inputs={
-                    video_path: ["-loop", str(still_image_loop_cnt), "-t", str(still_image_video_period), "-re"]
-                },
-                outputs={
-                    udp_sink: ["-vcodec", video_encoder, '-filter_complex', filter_params, "-b:v", "2000k", "-f",
-                               "h264", "-pix_fmt", "yuv420p", "-localaddr", "192.168.0.3"]
-
-                },
-            )
+        video_encoder = "libx264"
+        output = {}
+        input_res = str(width) + "x" + str(height)
+        '''handle udp streaming'''
+        for i in video_dst:
+            if i == cv2_preview_h264_sink:
+                output[i] = ["-vcodec", video_encoder, "-f", "h264", "-pix_fmt", "yuv420p", "-localaddr", "192.168.0.2"]
+            else:
+                output[i] = ["-vcodec", video_encoder, '-filter_complex', filter_params, "-b:v", "2000k", "-f",
+                             "h264", "-pix_fmt", "yuv420p", "-localaddr", "192.168.0.2"]
+        ff = ffmpy.FFmpeg(
+            global_options=global_opts,
+            inputs={
+                video_path: ["-f", "v4l2", "-pix_fmt", "mjpeg", "-s", input_res]
+            },
+            outputs=output,
+        )
     else:
         video_encoder = "libx264"
         output = {}
@@ -285,7 +278,7 @@ def neo_ffmpy_cast_video_h264(video_path, cast_dst, brightness, contrast, red_bi
     ff = ffmpy.FFmpeg(
         global_options=global_opts,
         inputs={
-            video_path: ["-f", "v4l2", "-input_format", "mjpeg", "-s", out_res, "-framerate", "30"]
+            video_path: ["-f", "v4l2", "-pix_fmt", "mjpeg", "-s", out_res, "-framerate", "30"]
         },
         outputs=output,
     )

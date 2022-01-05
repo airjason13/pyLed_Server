@@ -70,11 +70,12 @@ class CV2Camera(QtCore.QThread):  # 繼承 QtCore.QThread 來建立 Camera 類�
 
             ret, img = self.cam.read()    # 讀取影像
             if ret:
-                img = cv2.resize(img, (640, 480))
+                img = cv2.resize(img, (320, 240))
                 self.signal_get_rawdata.emit(img)    # 發送影像
             else:    # 例外處理
                 log.debug("Warning!!!")
                 self.connect = False
+            time.sleep(0.01)
         log.debug("stop to run")
 
     def open(self):
