@@ -431,7 +431,7 @@ class media_page(QObject):
             playlist_name = playlist.name
             add_to_playlist_menu.addAction('add to ' + playlist_name)
 
-        add_to_playlist_menu.addAction('Add to new playlist')
+        add_to_playlist_menu.addAction('add to new playlist')
         pop_menu.addMenu(add_to_playlist_menu)
         pop_menu.triggered[QAction].connect(self.pop_menu_trigger_act)
 
@@ -468,7 +468,7 @@ class media_page(QObject):
             self.media_engine.play_single_file(self.right_clicked_select_file_uri)
             '''self.ff_process = utils.ffmpy_utils.ffmpy_execute(self, self.right_clicked_select_file_uri, width=80, height=96)
             self.play_type = play_type.play_single'''
-        elif "Add to " in q.text():
+        elif "add to " in q.text():
             log.debug("media file uri : %s", self.right_clicked_select_file_uri)
             playlist_name = q.text().split(" ")[2]
             if playlist_name == 'new':

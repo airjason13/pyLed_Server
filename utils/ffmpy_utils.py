@@ -170,7 +170,7 @@ def neo_ffmpy_execute_hdmi_in(video_path, video_dst,brightness, contrast, red_bi
             video_encoder = "h264_v4l2m2m"
         else:
             video_encoder = "libx264"
-        video_encoder = "libx264"
+        #video_encoder = "libx264"
         output = {}
         input_res = str(width) + "x" + str(height)
         '''handle udp streaming'''
