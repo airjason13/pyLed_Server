@@ -17,7 +17,6 @@ preview_period = 3
 
 def neo_ffmpy_execute(video_path, brightness, contrast, red_bias, green_bias, blue_bias,
                       width=80, height=96):
-
     ff = None
     global_opts = '-hide_banner -loglevel error'
     scale_params = "scale=" + str(width) + ":" + str(height)  # + ",hflip"
@@ -72,6 +71,19 @@ def neo_ffmpy_execute(video_path, brightness, contrast, red_bias, green_bias, bl
 
                 },
             )
+        elif video_path.startswith("udp"):
+            log.debug("udp to mp4")
+            ff = ffmpy.FFmpeg(
+                global_options=global_opts,
+                inputs={
+                    video_path: ["-f", "h264", ]
+                },
+                outputs={
+                    udp_sink: ["-vcodec", video_encoder, '-filter_complex', filter_params, "-b:v", "2000k", "-f",
+                               "h264", "-pix_fmt", "yuv420p", "-localaddr", "192.168.0.2"]
+
+                },
+            )
     else:
         if video_path.endswith("mp4"):
             ff = ffmpy.FFmpeg(
@@ -98,6 +110,20 @@ def neo_ffmpy_execute(video_path, brightness, contrast, red_bias, green_bias, bl
 
                 },
             )
+        elif video_path.startswith("udp"):
+            log.debug("udp to mp4")
+            ff = ffmpy.FFmpeg(
+                global_options=global_opts,
+                inputs={
+                    video_path: ["-f", "h264", ]
+                },
+                outputs={
+                    udp_sink: ["-vcodec", video_encoder, '-filter_complex', filter_params, "-b:v", "2000k", "-f",
+                               "h264", "-pix_fmt", "yuv420p", "-localaddr", "192.168.0.2"]
+
+                },
+            )
+
     log.debug("%s", ff.cmd)
     try:
         thread_1 = threading.Thread(target=ff.run)
@@ -112,14 +138,97 @@ def neo_ffmpy_execute(video_path, brightness, contrast, red_bias, green_bias, bl
 
     return ff.process
 
-def neo_ffmpy_cast_video(video_path, cast_dst, width=80, height=96):
+def neo_ffmpy_execute_hdmi_in(video_path, video_dst,brightness, contrast, red_bias, green_bias, blue_bias,
+                      width=80, height=96):
+    ff = None
+    global_opts = '-hide_banner -loglevel error'
+    scale_params = "scale=" + str(width) + ":" + str(height)  # + ",hflip"
+    brightness_params = "brightness=" + str(brightness)
+    contrast_params = "contrast=" + str(contrast)
+    eq_str = "eq=" + brightness_params + ":" + contrast_params
+    red_bias_params = "romin=" + str(red_bias)
+    green_bias_params = "gomin=" + str(green_bias)
+    blue_bias_params = "bomin=" + str(blue_bias)
+    crop_str = "crop=iw:ih:0:0"
+
+    color_level_str = "colorlevels=" + red_bias_params + ":" + green_bias_params + ":" + blue_bias_params
+
+    # add TEXT
+    if "blank" in video_path:
+        drawtext_str = "drawtext=fontfile=" + internal_media_folder + \
+                      "/fonts/msjhbd.ttc:text='歡迎長虹光電蒞臨指導':x=10*w/80-40*t:y=20:fontsize=72*h/96:fontcolor=white"
+        filter_params = "zmq," + eq_str + "," + color_level_str + "," + drawtext_str + "," + scale_params
+    else:
+        drawtext_str = "drawtext=fontfile=" + internal_media_folder + \
+                       "/fonts/msjhbd.ttc:text='':x=10:y=20:fontsize=24*h/96:fontcolor=black"
+        filter_params = "zmq," + eq_str + "," + color_level_str + "," + drawtext_str + "," + crop_str + "," + scale_params
+
+    video_encoder = "libx264"
+
+    if platform.machine() in ('arm', 'arm64', 'aarch64'):
+        if width > 320 and height > 240:
+            video_encoder = "h264_v4l2m2m"
+        else:
+            video_encoder = "libx264"
+        #video_encoder = "libx264"
+        output = {}
+        input_res = str(width) + "x" + str(height)
+        '''handle udp streaming'''
+        for i in video_dst:
+            if i == cv2_preview_h264_sink:
+                output[i] = ["-vcodec", video_encoder, "-f", "h264", "-pix_fmt", "yuv420p", "-localaddr", "192.168.0.2"]
+            else:
+                output[i] = ["-vcodec", video_encoder, '-filter_complex', filter_params, "-b:v", "2000k", "-f",
+                             "h264", "-pix_fmt", "yuv420p", "-localaddr", "192.168.0.2"]
+        ff = ffmpy.FFmpeg(
+            global_options=global_opts,
+            inputs={
+                video_path: ["-f", "v4l2", "-pix_fmt", "mjpeg", "-s", input_res]
+            },
+            outputs=output,
+        )
+    else:
+        video_encoder = "libx264"
+        output = {}
+        input_res = str(width) + "x" + str(height)
+        '''handle udp streaming'''
+        for i in video_dst:
+            if i == cv2_preview_h264_sink:
+                output[i] = ["-vcodec", video_encoder, "-f", "h264", "-pix_fmt", "yuv420p", "-localaddr", "192.168.0.2"]
+            else:
+                output[i] = ["-vcodec", video_encoder, '-filter_complex', filter_params, "-b:v", "2000k", "-f",
+                           "h264", "-pix_fmt", "yuv420p", "-localaddr", "192.168.0.2"]
+        ff = ffmpy.FFmpeg(
+            global_options=global_opts,
+            inputs={
+                video_path: ["-f", "v4l2", "-pix_fmt", "mjpeg", "-s", input_res]
+            },
+            outputs=output,
+        )
+
+    log.debug("%s", ff.cmd)
+    try:
+        thread_1 = threading.Thread(target=ff.run)
+        thread_1.start()
+        while not ff.process:
+            sleep(0.05)
+    except RuntimeError as e:
+        log.error(e)
+
+    log.debug("ff.process : %s", ff.process)
+    log.debug("ff.process pid : %d", ff.process.pid)
+
+    return ff.process
+
+def neo_ffmpy_cast_video_v4l2(video_path, cast_dst, brightness, contrast, red_bias, green_bias, blue_bias, width=80, height=96):
     if len(cast_dst) == 0 or cast_dst is None:
         return -1
     ff = None
     global_opts = '-hide_banner -loglevel error'
     output = {}
+
     for i in cast_dst:
-        output[i] = ["-f", "v4l2", "-c", "copy"]
+        output[i] = ["-f", "v4l2", "-c:v", "copy"]
 
     ff = ffmpy.FFmpeg(
         global_options=global_opts,
@@ -140,7 +249,58 @@ def neo_ffmpy_cast_video(video_path, cast_dst, width=80, height=96):
 
     log.debug("ff.process : %s", ff.process)
     log.debug("ff.process pid : %d", ff.process.pid)
+    try:
+        os.kill(ff.process.pid, 0)
+    except:
+        log.debug("ffmpy_hdmi_in_cast_process is gone")
+        ff.process = None
+    else:
+        log.debug("ffmpy_hdmi_in_cast_process is alive")
+    return ff.process
 
+def neo_ffmpy_cast_video_h264(video_path, cast_dst, brightness, contrast, red_bias, green_bias, blue_bias, width=80, height=96):
+    if len(cast_dst) == 0 or cast_dst is None:
+        return -1
+    ff = None
+    global_opts = '-hide_banner -loglevel error'
+    out_res = str(width) + "x" + str(height)
+    output = {}
+    if platform.machine() in ('arm', 'arm64', 'aarch64'):
+        if width >= 320 and height >= 240:
+            video_encoder = "h264_v4l2m2m"
+        else:
+            video_encoder = "libx264"
+    else:
+        video_encoder = "libx264"
+    for i in cast_dst:
+        output[i] = ["-vcodec", video_encoder, "-pix_fmt", "yuv420p","-b:v", "200k", "-s", out_res, "-f", "h264", "-localaddr", "192.168.0.3"]
+
+    ff = ffmpy.FFmpeg(
+        global_options=global_opts,
+        inputs={
+            video_path: ["-f", "v4l2", "-pix_fmt", "mjpeg", "-s", out_res, "-framerate", "30"]
+        },
+        outputs=output,
+    )
+
+    log.debug("%s", ff.cmd)
+    try:
+        thread_1 = threading.Thread(target=ff.run)
+        thread_1.start()
+        while not ff.process:
+            sleep(0.05)
+    except RuntimeError as e:
+        log.error(e)
+
+    log.debug("ff.process : %s", ff.process)
+    log.debug("ff.process pid : %d", ff.process.pid)
+    try:
+        os.kill(ff.process.pid, 0)
+    except:
+        log.debug("ffmpy_hdmi_in_cast_process is gone")
+        ff.process = None
+    else:
+        log.debug("ffmpy_hdmi_in_cast_process is alive")
     return ff.process
 
 
