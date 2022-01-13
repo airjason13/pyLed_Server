@@ -16,7 +16,7 @@ preview_start_time = 3
 preview_period = 3
 
 def neo_ffmpy_execute(video_path, brightness, contrast, red_bias, green_bias, blue_bias,
-                      width=80, height=96):
+                      image_period=still_image_video_period, width=80, height=96):
     ff = None
     global_opts = '-hide_banner -loglevel error'
     scale_params = "scale=" + str(width) + ":" + str(height)  # + ",hflip"
@@ -63,7 +63,7 @@ def neo_ffmpy_execute(video_path, brightness, contrast, red_bias, green_bias, bl
             ff = ffmpy.FFmpeg(
                 global_options=global_opts,
                 inputs={
-                    video_path: ["-loop", str(still_image_loop_cnt), "-t", str(still_image_video_period), "-re"]
+                    video_path: ["-loop", str(still_image_loop_cnt), "-t", str(image_period), "-re"]
                 },
                 outputs={
                     udp_sink: ["-vcodec", video_encoder, '-filter_complex', filter_params, "-b:v", "2000k", "-f",
@@ -102,7 +102,7 @@ def neo_ffmpy_execute(video_path, brightness, contrast, red_bias, green_bias, bl
             ff = ffmpy.FFmpeg(
                 global_options=global_opts,
                 inputs={
-                    video_path: ["-loop", str(still_image_loop_cnt), "-t", str(still_image_video_period), "-re"]
+                    video_path: ["-loop", str(still_image_loop_cnt), "-t", str(image_period), "-re"]
                 },
                 outputs={
                     udp_sink: ["-vcodec", video_encoder, '-filter_complex', filter_params, "-b:v", "2000k", "-f",

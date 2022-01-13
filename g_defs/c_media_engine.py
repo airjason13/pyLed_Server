@@ -440,6 +440,9 @@ class media_processor(QObject):
         if self.ffmpy_process is not None:
             ffmpy_set_video_param_level('blue_gain', self.video_params.get_translated_bluegain())
 
+    def set_image_period_value(self, value):
+        self.video_params.set_image_peroid(value)
+
     class play_playlist_work(QObject):
         finished = pyqtSignal()
         progress = pyqtSignal(int)
@@ -492,6 +495,7 @@ class media_processor(QObject):
                                       self.media_processor.video_params.get_translated_redgain(),
                                       self.media_processor.video_params.get_translated_greengain(),
                                       self.media_processor.video_params.get_translated_bluegain(),
+                                      self.media_processor.video_params.image_period,
                                       self.media_processor.output_width,
                                       self.media_processor.output_height)
                 if self.media_processor.ffmpy_process.pid > 0:
@@ -565,6 +569,7 @@ class media_processor(QObject):
                        self.media_processor.video_params.get_translated_redgain(),
                        self.media_processor.video_params.get_translated_greengain(),
                        self.media_processor.video_params.get_translated_bluegain(),
+                       self.media_processor.video_params.image_period,
                        self.media_processor.output_width,
                        self.media_processor.output_height)
                 if self.media_processor.ffmpy_process.pid > 0:

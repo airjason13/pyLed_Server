@@ -71,3 +71,9 @@ page_client_connect_idx = 0
 page_media_content_idx = 1
 page_hdmi_in_content_idx = 2
 page_led_setting_idx = 3
+
+"""ffmpy initial value"""
+still_image_loop_cnt = 1
+still_image_video_period = 600
+preview_start_time = 3
+preview_period = 3

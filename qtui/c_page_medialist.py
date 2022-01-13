@@ -181,6 +181,13 @@ class media_page(QObject):
         self.contrast_edit.setFixedWidth(100)
         self.contrast_edit.setText(str(self.mainwindow.media_engine.media_processor.video_params.video_contrast))
 
+        # contrast
+        self.image_period_label = QLabel(self.mainwindow.right_frame)
+        self.image_period_label.setText("Image Period:")
+        self.image_period_edit = QLineEdit(self.mainwindow.right_frame)
+        self.image_period_edit.setFixedWidth(100)
+        self.image_period_edit.setText(str(self.mainwindow.media_engine.media_processor.video_params.image_period))
+
         # red gain
         self.redgain_label = QLabel(self.mainwindow.right_frame)
         self.redgain_label.setText("Red Gain:")
@@ -304,6 +311,8 @@ class media_page(QObject):
         video_params_layout.addWidget(self.brightness_edit, 1, 1)
         video_params_layout.addWidget(self.contrast_label, 1, 2)
         video_params_layout.addWidget(self.contrast_edit, 1, 3)
+        video_params_layout.addWidget(self.image_period_label, 1, 4)
+        video_params_layout.addWidget(self.image_period_edit, 1, 5)
 
         video_params_layout.addWidget(self.client_brightness_label, 2, 0)
         video_params_layout.addWidget(self.client_brightness_edit, 2, 1)
@@ -541,6 +550,9 @@ class media_page(QObject):
         if video_params.video_blue_bias != int(self.bluegain_edit.text()):
             log.debug("blue gain changed!")
             media_processor.set_blue_bias_level(int(self.bluegain_edit.text()))
+        if video_params.image_period != int(self.image_period_edit.text()):
+            log.debug("image period changed!")
+            media_processor.set_image_period_value(int(self.image_period_edit.text()))
 
         clients = self.mainwindow.clients
         if video_params.frame_brightness != int(self.client_brightness_edit.text()):
