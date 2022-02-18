@@ -152,12 +152,17 @@ class Hdmi_In_Page(QObject):
 
         self.hdmi_in_layout.addWidget(self.preview_widget)
         self.hdmi_in_layout.addWidget(self.setting_widget)
+        
+        #self.hdmi_in_cast_type = "h264"
+        self.hdmi_in_cast_type = "v4l2"
 
-        self.cv2camera = CV2Camera(cv2_preview_h264_sink, "h264")
+        #self.cv2camera = CV2Camera(cv2_preview_h264_sink, self.hdmi_in_cast_type)
+        self.cv2camera = CV2Camera(cv2_preview_v4l2_sink, self.hdmi_in_cast_type)
         self.cv2camera.signal_get_rawdata.connect(self.getRaw)
 
         self.ffmpy_hdmi_in_cast_pid = None
-        self.hdmi_in_cast_type = "h264"
+        # self.hdmi_in_cast_type = "h264"
+        # self.hdmi_in_cast_type = "v4l2"
 
     def start_hdmi_in_preview(self):
         if self.ffmpy_hdmi_in_cast_pid is None:
@@ -165,7 +170,6 @@ class Hdmi_In_Page(QObject):
                 self.ffmpy_hdmi_in_cast_process = self.start_hdmi_in_cast_v4l2()
             else:
                 self.ffmpy_hdmi_in_cast_process = self.start_hdmi_in_cast_h264()
-            log.debug("self.ffmpy_hdmi_in_cast_process.pid : %d", self.ffmpy_hdmi_in_cast_process.pid)
 
         if self.ffmpy_hdmi_in_cast_process is not None:
             self.cv2camera.open()  # 影像讀取功能開啟
@@ -183,9 +187,6 @@ class Hdmi_In_Page(QObject):
     def showData(self, img):
         """ 顯示攝影機的影像 """
         self.Ny, self.Nx, _ = img.shape  # 取得影像尺寸
-
-        # 建立 Qimage 物件 (灰階格式)
-        # qimg = QtGui.QImage(img[:,:,0].copy().data, self.Nx, self.Ny, QtGui.QImage.Format_Indexed8)
 
         # 建立 Qimage 物件 (RGB格式)
         qimg = QImage(img.data, self.Nx, self.Ny, QImage.Format_BGR888)
@@ -212,7 +213,7 @@ class Hdmi_In_Page(QObject):
     def start_hdmi_in_cast_v4l2(self):
         hdmi_in_cast_out = []
         hdmi_in_cast_out.append("/dev/video5")
-        hdmi_in_cast_out.append("/dev/video6")
+        # hdmi_in_cast_out.append("/dev/video6")
 
         ffmpy_hdmi_in_cast_process = self.media_engine.start_hdmi_in_v4l2("/dev/video0", hdmi_in_cast_out)
         if ffmpy_hdmi_in_cast_process is None:

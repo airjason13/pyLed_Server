@@ -54,6 +54,8 @@ class media_engine(QObject):
 
         '''hdmi-in cast'''
 
+    # hdmi_in_src : string
+    # cast_dst : array of string
     def start_hdmi_in_v4l2(self, hdmi_in_src, cast_dst):
         log.debug("")
         if os.path.exists(hdmi_in_src) is False:
@@ -373,8 +375,10 @@ class media_processor(QObject):
                               self.video_params.get_translated_redgain(),
                               self.video_params.get_translated_greengain(),
                               self.video_params.get_translated_bluegain(),
-                              self.output_width,
-                              self.output_height )
+                              160,
+                              120 )
+                              #self.output_width,
+                              #self.output_height )
         log.debug("self.hdmi_in_cast_process.pid = %d", self.hdmi_in_cast_process.pid)
         return self.hdmi_in_cast_process
 
@@ -389,7 +393,7 @@ class media_processor(QObject):
                               self.video_params.get_translated_bluegain(),
                               self.output_width,
                               self.output_height )
-        log.debug("self.hdmi_in_cast_process.pid = %d", self.hdmi_in_cast_process.pid)
+        #log.debug("self.hdmi_in_cast_process.pid = %d", self.hdmi_in_cast_process.pid)
         return self.hdmi_in_cast_process
 
     '''檢查影片是否推播完畢'''

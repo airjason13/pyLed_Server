@@ -12,6 +12,7 @@ alive_report_port = 11333
 udp_sink = "udp://239.11.11.11:15000"
 local_sink = "udp://127.0.0.1:15001"
 cv2_preview_h264_sink = "udp://127.0.0.1:10011"
+cv2_preview_v4l2_sink = "/dev/video5"
 hdmi_in_h264_src = "udp://127.0.0.1:10012"
 cmd_timeout = 2
 g_client_udp_cmd_port = 11335

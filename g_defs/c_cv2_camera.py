@@ -22,16 +22,20 @@ class CV2Camera(QtCore.QThread):  # 繼承 QtCore.QThread 來建立 Camera 類�
         super().__init__(parent)
         self.video_src = video_src
         self.video_type = video_type
+        self.preview_frame_count = 0
         # 建立 cv2 的攝影機物件
         if self.video_type == "v4l2":
-            self.cam = cv2.VideoCapture(self.video_src)
+            #self.cam = cv2.VideoCapture(self.video_src)
             # 判斷攝影機是否正常連接
-            if self.cam is None or not self.cam.isOpened():
-                self.connect = False
-                self.running = False
-            else:
-                self.connect = True
-                self.running = False
+            #if self.cam is None or not self.cam.isOpened():
+            #    self.connect = False
+            #    self.running = False
+            #else:
+            #    self.connect = True
+            #    self.running = False
+            self.connect = False
+            self.running = False
+            self.cam = None
         else:
             self.connect = False
             self.running = False
@@ -70,13 +74,15 @@ class CV2Camera(QtCore.QThread):  # 繼承 QtCore.QThread 來建立 Camera 類�
 
             ret, img = self.cam.read()    # 讀取影像
             if ret:
-                img = cv2.resize(img, (320, 240))
-                self.signal_get_rawdata.emit(img)    # 發送影像
+                self.preview_frame_count += 1
+                if self.preview_frame_count % 1 == 0:
+                    #img = cv2.resize(img, (160, 120))
+                    self.signal_get_rawdata.emit(img)    # 發送影像
             else:    # 例外處理
                 #log.debug("Warning!!!")
                 self.connect = False
                 self.cam = None
-            time.sleep(0.01)
+            time.sleep(0.1)
         log.debug("stop to run")
 
     def open(self):

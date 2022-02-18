@@ -183,7 +183,8 @@ def neo_ffmpy_execute_hdmi_in(video_path, video_dst,brightness, contrast, red_bi
         ff = ffmpy.FFmpeg(
             global_options=global_opts,
             inputs={
-                video_path: ["-f", "v4l2", "-pix_fmt", "mjpeg", "-s", input_res]
+                #video_path: ["-f", "v4l2", "-pix_fmt", "mjpeg", "-s", input_res]
+                video_path: ["-f", "v4l2", "-s", input_res]
             },
             outputs=output,
         )
@@ -201,7 +202,8 @@ def neo_ffmpy_execute_hdmi_in(video_path, video_dst,brightness, contrast, red_bi
         ff = ffmpy.FFmpeg(
             global_options=global_opts,
             inputs={
-                video_path: ["-f", "v4l2", "-pix_fmt", "mjpeg", "-s", input_res]
+                #video_path: ["-f", "v4l2", "-pix_fmt", "mjpeg", "-s", input_res]
+                video_path: ["-f", "v4l2", "-s", input_res]
             },
             outputs=output,
         )
@@ -228,12 +230,14 @@ def neo_ffmpy_cast_video_v4l2(video_path, cast_dst, brightness, contrast, red_bi
     output = {}
 
     for i in cast_dst:
-        output[i] = ["-f", "v4l2", "-c:v", "copy"]
+        output[i] = ["-f", "v4l2"]
 
     ff = ffmpy.FFmpeg(
         global_options=global_opts,
         inputs={
-            video_path: ["-f", "v4l2", "-input_format", "mjpeg", "-s", "640x480", "-framerate", "30"]
+            # video_path: ["-f", "v4l2", "-input_format", "mjpeg", "-s", "640x480", "-framerate", "30"]
+            #video_path: ["-f", "v4l2",  "-s", "320x240", "-framerate", "30"]
+            video_path: ["-f", "v4l2", "-vsync", "2"]
         },
         outputs=output,
     )
@@ -278,7 +282,8 @@ def neo_ffmpy_cast_video_h264(video_path, cast_dst, brightness, contrast, red_bi
     ff = ffmpy.FFmpeg(
         global_options=global_opts,
         inputs={
-            video_path: ["-f", "v4l2", "-pix_fmt", "mjpeg", "-s", out_res, "-framerate", "30"]
+            # video_path: ["-f", "v4l2", "-pix_fmt", "mjpeg", "-s", out_res, "-framerate", "30"]
+            video_path: ["-f", "v4l2", "-s", out_res, "-framerate", "30"]
         },
         outputs=output,
     )
@@ -311,7 +316,8 @@ def neo_ffmpy_cast_video_depreciated(video_path, cast_dst_0, cast_dst_1, width=8
     ff = ffmpy.FFmpeg(
         global_options=global_opts,
         inputs={
-            video_path: ["-f", "v4l2", "-input_format", "mjpeg", "-s", "640x480", "-framerate", "30"]
+            # video_path: ["-f", "v4l2", "-input_format", "mjpeg", "-s", "640x480", "-framerate", "30"]
+            video_path: ["-f", "v4l2", "-s", "640x480", "-framerate", "30"]
         },
         outputs={
             cast_dst_0: ["-f", "v4l2", "-c", "copy"],
