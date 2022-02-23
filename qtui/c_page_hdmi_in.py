@@ -23,6 +23,7 @@ class Hdmi_In_Page(QObject):
 
     def __init__(self, mainwindow, **kwargs):
         super(Hdmi_In_Page, self).__init__(**kwargs)
+        self.ffmpy_hdmi_in_cast_process = None
         self.mainwindow = mainwindow
         self.media_engine = mainwindow.media_engine
         self.preview_status = False
@@ -177,9 +178,11 @@ class Hdmi_In_Page(QObject):
             else:
                 self.ffmpy_hdmi_in_cast_process = self.start_hdmi_in_cast_h264()
 
-        #if self.ffmpy_hdmi_in_cast_process is not None:
-        self.cv2camera.open()  # 影像讀取功能開啟
-        self.cv2camera.start()  # 在子緒啟動影像讀取
+        if self.ffmpy_hdmi_in_cast_process is not None:
+            self.ffmpy_hdmi_in_cast_pid = self.ffmpy_hdmi_in_cast_process.pid
+            self.cv2camera.set_hdmi_in_cast(True)
+            self.cv2camera.open()  # 影像讀取功能開啟
+            self.cv2camera.start()  # 在子緒啟動影像讀取
 
     def stop_hdmi_in_preview(self):
         log.debug("")
@@ -224,12 +227,14 @@ class Hdmi_In_Page(QObject):
         else:
             log.debug("ffmpy_hdmi_in_cast_process is alive")
             self.preview_label.setText("Please Wait for singal")
+
         return ffmpy_hdmi_in_cast_process
 
     def stop_hdmi_in_cast(self):
         if self.ffmpy_hdmi_in_cast_pid is not None:
             os.kill(self.ffmpy_hdmi_in_cast_process.pid, signal.SIGTERM)
         self.ffmpy_hdmi_in_cast_process = None
+        self.ffmpy_hdmi_in_cast_pid = None
 
     def video_params_confirm_btn_clicked(self):
         media_processor = self.media_engine.media_processor
@@ -270,7 +275,7 @@ class Hdmi_In_Page(QObject):
         if self.ffmpy_hdmi_in_cast_process is not None:
             if self.media_engine.media_processor.play_hdmi_in_worker is not None:
                 self.media_engine.media_processor.play_hdmi_in_worker.force_stop = True
-                os.kill(self.ffmpy_hdmi_in_cast_process.pid, )
+                os.kill(self.ffmpy_hdmi_in_cast_process.pid, signal.SIGTERM)
                 self.ffmpy_hdmi_in_cast_process = None
 
         if self.tc358743.get_tc358743_hdmi_connected_status() is False:
