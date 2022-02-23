@@ -52,8 +52,11 @@ class TC358743(QObject):
 
 	def set_tc358743_dv_bt_timing(self):
 		res_set_dv_bt_timing = os.popen("v4l2-ctl --set-dv-bt-timings query").read()
+		log.debug("res_set_dv_bt_timing = %s", res_set_dv_bt_timing)
 		if 'BT timings set' in res_set_dv_bt_timing:
+			log.debug("set timing OK")
 			return True
+		log.debug("set timing NG")
 		return False
 
 	def get_tc358743_hdmi_connected_status(self):
@@ -61,7 +64,7 @@ class TC358743(QObject):
 		connected = False
 		dv_timings = os.popen("v4l2-ctl --query-dv-timings").read()
 		list_dv_timings = dv_timings.split("\n")
-
+		log.debug("list_dv_timings=%s", list_dv_timings)
 		if 'fail' in list_dv_timings[0]:
 			log.debug("not connected")
 			connected = False

@@ -272,16 +272,18 @@ class Hdmi_In_Page(QObject):
     def cv2_read_or_open_fail(self):
         # handle re-init tc358743
         # Stop cast ffmpy first
+        log.debug("")
         if self.ffmpy_hdmi_in_cast_process is not None:
-            if self.media_engine.media_processor.play_hdmi_in_worker is not None:
-                self.media_engine.media_processor.play_hdmi_in_worker.force_stop = True
-                os.kill(self.ffmpy_hdmi_in_cast_process.pid, signal.SIGTERM)
-                self.ffmpy_hdmi_in_cast_process = None
+            self.media_engine.media_processor.play_hdmi_in_work.force_stop = True
+            os.kill(self.ffmpy_hdmi_in_cast_process.pid, signal.SIGTERM)
+            self.ffmpy_hdmi_in_cast_process = None
+
 
         if self.tc358743.get_tc358743_hdmi_connected_status() is False:
             # run a timer to check???
             log.debug("No HDMI connected")
         else:
+            log.debug("HDMI connected")
             if self.tc358743.set_tc358743_dv_bt_timing() is True:
                 self.tc358743.reinit_tc358743_dv_timing()
                 self.start_hdmi_in_preview()
