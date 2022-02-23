@@ -70,6 +70,7 @@ class CV2Camera(QtCore.QThread):  # 繼承 QtCore.QThread 來建立 Camera 類�
                 continue
 
             ret, img = self.cam.read()    # 讀取影像
+
             if ret:
                 self.preview_frame_count += 1
                 if self.preview_frame_count % 1 == 0:

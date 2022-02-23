@@ -270,6 +270,7 @@ class Hdmi_In_Page(QObject):
         if self.ffmpy_hdmi_in_cast_process is not None:
             if self.media_engine.media_processor.play_hdmi_in_worker is not None:
                 self.media_engine.media_processor.play_hdmi_in_worker.force_stop = True
+                os.kill(self.ffmpy_hdmi_in_cast_process.pid, )
                 self.ffmpy_hdmi_in_cast_process = None
 
         if self.tc358743.get_tc358743_hdmi_connected_status() is False:

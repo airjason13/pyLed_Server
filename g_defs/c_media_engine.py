@@ -667,12 +667,14 @@ class media_processor(QObject):
                         if self.media_processor.play_status == play_status.stop:
                             break
                         if self.force_stop is True:
+                            os.kill(self.ffmpy_process.pid, signal.SIGTERM)
                             break
                         time.sleep(0.5)
 
                 if self.media_processor.repeat_option != repeat_option.repeat_one:
                     break
                 if self.force_stop is True:
+
                     break
 
             self.signal_play_hdmi_in_finish.emit()
