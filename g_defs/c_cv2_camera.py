@@ -79,9 +79,11 @@ class CV2Camera(QtCore.QThread):  # 繼承 QtCore.QThread 來建立 Camera 類�
             else:    # 例外處理
                 log.debug("No frame read!!!")
                 self.connect = False
-                self.signal_cv2_read_fail.emit()
+
+                self.hdmi_in_cast = False
                 self.cam.release()
                 self.cam = None
+                self.signal_cv2_read_fail.emit()t
             time.sleep(0.1)
         log.debug("stop to run")
 
