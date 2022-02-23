@@ -8,7 +8,7 @@ import zmq
 import utils.log_utils
 import hashlib
 
-log = utils.log_utils.logging_init('ffmpy_utils')
+log = utils.log_utils.logging_init(__file__)
 
 still_image_loop_cnt = 1
 still_image_video_period = 600

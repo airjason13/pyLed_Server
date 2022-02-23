@@ -15,6 +15,7 @@ import utils.log_utils
 import utils.ffmpy_utils
 from g_defs.c_cv2_camera import CV2Camera
 import signal
+from g_defs.c_tc358743 import TC358743
 import hashlib
 log = utils.log_utils.logging_init(__file__)
 
@@ -120,8 +121,6 @@ class Hdmi_In_Page(QObject):
         self.client_gamma_edit.setText(
             str(self.mainwindow.media_engine.media_processor.video_params.frame_gamma))
 
-
-
         self.video_params_confirm_btn = QPushButton(self.mainwindow.right_frame)
         self.video_params_confirm_btn.setText("Set")
         self.video_params_confirm_btn.setFixedWidth(100)
@@ -159,10 +158,11 @@ class Hdmi_In_Page(QObject):
         #self.cv2camera = CV2Camera(cv2_preview_h264_sink, self.hdmi_in_cast_type)
         self.cv2camera = CV2Camera(cv2_preview_v4l2_sink, self.hdmi_in_cast_type)
         self.cv2camera.signal_get_rawdata.connect(self.getRaw)
+        self.cv2camera.signal_cv2_read_fail.connect(self.cv2_read_or_open_fail)
 
         self.ffmpy_hdmi_in_cast_pid = None
-        # self.hdmi_in_cast_type = "h264"
-        # self.hdmi_in_cast_type = "v4l2"
+
+        self.tc358743 = TC358743()
 
         self.media_engine.media_processor.signal_play_hdmi_in_start_ret.connect(
             self.play_hdmi_in_start_ret)
@@ -170,15 +170,16 @@ class Hdmi_In_Page(QObject):
             self.play_hdmi_in_finish_ret)
 
     def start_hdmi_in_preview(self):
+
         if self.ffmpy_hdmi_in_cast_pid is None:
             if self.hdmi_in_cast_type == "v4l2":
                 self.ffmpy_hdmi_in_cast_process = self.start_hdmi_in_cast_v4l2()
             else:
                 self.ffmpy_hdmi_in_cast_process = self.start_hdmi_in_cast_h264()
 
-        if self.ffmpy_hdmi_in_cast_process is not None:
-            self.cv2camera.open()  # 影像讀取功能開啟
-            self.cv2camera.start()  # 在子緒啟動影像讀取
+        #if self.ffmpy_hdmi_in_cast_process is not None:
+        self.cv2camera.open()  # 影像讀取功能開啟
+        self.cv2camera.start()  # 在子緒啟動影像讀取
 
     def stop_hdmi_in_preview(self):
         log.debug("")
@@ -202,9 +203,7 @@ class Hdmi_In_Page(QObject):
         self.preview_label.setPixmap(QPixmap.fromImage(qimg))
 
     def start_hdmi_in_cast_h264(self):
-        hdmi_in_cast_out = []
-        hdmi_in_cast_out.append("udp://127.0.0.1:10011")
-        #hdmi_in_cast_out.append("udp://127.0.0.1:10012")
+        hdmi_in_cast_out = ["udp://127.0.0.1:10011"]
 
         ffmpy_hdmi_in_cast_process = self.media_engine.start_hdmi_in_h264("/dev/video0", hdmi_in_cast_out)
         if ffmpy_hdmi_in_cast_process is None:
@@ -216,9 +215,7 @@ class Hdmi_In_Page(QObject):
         return ffmpy_hdmi_in_cast_process
 
     def start_hdmi_in_cast_v4l2(self):
-        hdmi_in_cast_out = []
-        hdmi_in_cast_out.append("/dev/video5")
-        # hdmi_in_cast_out.append("/dev/video6")
+        hdmi_in_cast_out = ["/dev/video5", "/dev/video6"]
 
         ffmpy_hdmi_in_cast_process = self.media_engine.start_hdmi_in_v4l2("/dev/video0", hdmi_in_cast_out)
         if ffmpy_hdmi_in_cast_process is None:
@@ -256,8 +253,7 @@ class Hdmi_In_Page(QObject):
     def send_to_led(self):
         log.debug("")
         video_src = "/dev/video6"
-        streaming_sink = []
-        streaming_sink.append(udp_sink)
+        streaming_sink = [udp_sink]
         self.media_engine.media_processor.hdmi_in_play(video_src, streaming_sink)
 
     def play_hdmi_in_start_ret(self):
@@ -267,3 +263,22 @@ class Hdmi_In_Page(QObject):
     def play_hdmi_in_finish_ret(self):
         log.debug("")
         self.play_action_btn.setText("START")
+
+    def cv2_read_or_open_fail(self):
+        # handle re-init tc358743
+        # Stop cast ffmpy first
+        if self.ffmpy_hdmi_in_cast_process is not None:
+            if self.media_engine.media_processor.play_hdmi_in_worker is not None:
+                self.media_engine.media_processor.play_hdmi_in_worker.force_stop = True
+                self.ffmpy_hdmi_in_cast_process = None
+
+        if self.tc358743.get_tc358743_hdmi_connected_status() is False:
+            # run a timer to check???
+            log.debug("No HDMI connected")
+        else:
+            if self.tc358743.set_tc358743_dv_bt_timing() is True:
+                self.tc358743.reinit_tc358743_dv_timing()
+                self.start_hdmi_in_preview()
+                if self.ffmpy_hdmi_in_cast_process is not None:
+                    self.cv2camera.set_hdmi_in_cast(True)
+

@@ -261,8 +261,11 @@ class media_processor(QObject):
         self.check_play_status_timer.start(500)
 
         self.play_single_file_worker = None
+        self.play_single_file_thread = None
         self.play_playlist_worker = None
+        self.play_playlist_thread = None
         self.play_hdmi_in_worker = None
+        self.play_hdmi_in_thread = None
 
         ''' this is only cast /dev/video0 to others for preview'''
         self.hdmi_in_cast_process = None
@@ -362,9 +365,9 @@ class media_processor(QObject):
                 self.play_hdmi_in_worker.quit()
                 self.play_hdmi_in_worker.wait()
 
-        if self.play_hdmi_in_thread is not None:
-            self.play_hdmi_in_thread.finished()
-            self.play_hdmi_in_thread.deleteLater()
+        # if self.play_hdmi_in_thread is not None:
+        #    self.play_hdmi_in_thread.finished()
+        #    self.play_hdmi_in_thread.deleteLater()
 
         self.play_hdmi_in_thread = QThread()
         self.play_hdmi_in_worker = self.play_hdmi_in_work(self, video_src, video_dst)
@@ -372,8 +375,8 @@ class media_processor(QObject):
         self.play_hdmi_in_worker.signal_play_hdmi_in_finish.connect(self.play_hdmi_in_finish_ret)
         self.play_hdmi_in_worker.moveToThread(self.play_hdmi_in_thread)
         self.play_hdmi_in_thread.started.connect(self.play_hdmi_in_worker.run)
-        self.play_hdmi_in_worker.finished.connect(self.play_hdmi_in_thread.quit)
-        self.play_hdmi_in_worker.finished.connect(self.play_hdmi_in_worker.deleteLater)
+        self.play_hdmi_in_worker.signal_play_hdmi_in_finish.connect(self.play_hdmi_in_thread.quit)
+        self.play_hdmi_in_worker.signal_play_hdmi_in_finish.connect(self.play_hdmi_in_worker.deleteLater)
         self.play_hdmi_in_thread.finished.connect(self.play_hdmi_in_thread.deleteLater)
         self.play_hdmi_in_thread.start()
 
