@@ -39,11 +39,11 @@ class Hdmi_In_Page(QObject):
         self.preview_label = QLabel(self.preview_widget)
         self.preview_label.setText("HDMI-in Preview")
 
-        self.preview_action_btn = QPushButton(self.preview_widget)
-        self.preview_action_btn.setText("Start Play")
-        self.preview_action_btn.clicked.connect(self.send_to_led)
+        self.play_action_btn = QPushButton(self.preview_widget)
+        self.play_action_btn.setText("Start Play")
+        self.play_action_btn.clicked.connect(self.send_to_led)
         self.preview_widget_layout.addWidget(self.preview_label, 0, 0)
-        self.preview_widget_layout.addWidget(self.preview_action_btn, 1, 0)
+        self.preview_widget_layout.addWidget(self.play_action_btn, 1, 0)
 
 
         self.setting_widget = QWidget(self.hdmi_in_widget)
@@ -164,6 +164,11 @@ class Hdmi_In_Page(QObject):
         # self.hdmi_in_cast_type = "h264"
         # self.hdmi_in_cast_type = "v4l2"
 
+        self.media_engine.media_processor.signal_play_hdmi_in_start_ret.connect(
+            self.play_hdmi_in_start_ret)
+        self.media_engine.media_processor.signal_play_hdmi_in_finish_ret.connect(
+            self.play_hdmi_in_finish_ret)
+
     def start_hdmi_in_preview(self):
         if self.ffmpy_hdmi_in_cast_pid is None:
             if self.hdmi_in_cast_type == "v4l2":
@@ -250,10 +255,15 @@ class Hdmi_In_Page(QObject):
 
     def send_to_led(self):
         log.debug("")
-        os.kill(self.ffmpy_hdmi_in_cast_process.pid, signal.SIGTERM)
-        time.sleep(1)
-        hdmi_in_cast_out = []
-        hdmi_in_cast_out.append(udp_sink)
-        hdmi_in_cast_out.append(cv2_preview_h264_sink)
+        video_src = "/dev/video6"
+        streaming_sink = []
+        streaming_sink.append(udp_sink)
+        self.media_engine.media_processor.hdmi_in_play(video_src, streaming_sink)
 
-        self.media_engine.media_processor.hdmi_in_play("/dev/video0", hdmi_in_cast_out)
+    def play_hdmi_in_start_ret(self):
+        log.debug("")
+        self.play_action_btn.setText("STOP")
+
+    def play_hdmi_in_finish_ret(self):
+        log.debug("")
+        self.play_action_btn.setText("START")
