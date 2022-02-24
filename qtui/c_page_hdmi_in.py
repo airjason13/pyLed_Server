@@ -27,6 +27,7 @@ class Hdmi_In_Page(QObject):
         self.mainwindow = mainwindow
         self.media_engine = mainwindow.media_engine
         self.preview_status = False
+        self.b_hdmi_in_crop_enable = False
 
         self.hdmi_in_widget = QWidget(self.mainwindow.right_frame)
         self.hdmi_in_layout = QVBoxLayout()
@@ -40,6 +41,8 @@ class Hdmi_In_Page(QObject):
 
         self.preview_label = QLabel(self.preview_widget)
         self.preview_label.setText("HDMI-in Preview")
+        self.preview_label.setFixedHeight(320)
+        self.preview_label.setScaledContents(True)
 
         self.play_action_btn = QPushButton(self.preview_widget)
         self.play_action_btn.setText("Start Play")
@@ -47,13 +50,126 @@ class Hdmi_In_Page(QObject):
         self.preview_widget_layout.addWidget(self.preview_label, 0, 0)
         self.preview_widget_layout.addWidget(self.play_action_btn, 1, 0)
 
+        # infomation of hdmi in
+        self.info_widget = QWidget(self.hdmi_in_widget)
+        self.info_widget_layout = QGridLayout()
+        self.info_widget.setLayout(self.info_widget_layout)
 
+        # width/height/fps
+        self.hdmi_in_info_width_label = QLabel(self.info_widget)
+        self.hdmi_in_info_width_label.setText("HDMI_In Width:")
+        self.hdmi_in_info_width_res_label = QLabel(self.info_widget)
+        self.hdmi_in_info_width_res_label.setText("NA")
+
+        self.hdmi_in_info_height_label = QLabel(self.info_widget)
+        self.hdmi_in_info_height_label.setText("HDMI_In Height:")
+        self.hdmi_in_info_height_res_label = QLabel(self.info_widget)
+        self.hdmi_in_info_height_res_label.setText("NA")
+
+        self.hdmi_in_info_fps_label = QLabel(self.info_widget)
+        self.hdmi_in_info_fps_label.setText("HDMI_In FPS:")
+        self.hdmi_in_info_fps_res_label = QLabel(self.info_widget)
+        self.hdmi_in_info_fps_res_label.setText("NA")
+
+        self.hdmi_in_crop_status_label = QLabel(self.info_widget)
+        self.hdmi_in_crop_status_label.setText("Crop Disable")
+
+        self.hdmi_in_crop_status_x_label = QLabel(self.info_widget)
+        self.hdmi_in_crop_status_x_label.setText("Crop Start X:")
+        self.hdmi_in_crop_status_x_res_label = QLabel(self.info_widget)
+        self.hdmi_in_crop_status_x_res_label.setText("NA")
+
+        self.hdmi_in_crop_status_y_label = QLabel(self.info_widget)
+        self.hdmi_in_crop_status_y_label.setText("Crop Start Y:")
+        self.hdmi_in_crop_status_y_res_label = QLabel(self.info_widget)
+        self.hdmi_in_crop_status_y_res_label.setText("NA")
+
+        self.hdmi_in_crop_status_w_label = QLabel(self.info_widget)
+        self.hdmi_in_crop_status_w_label.setText("Crop Width:")
+        self.hdmi_in_crop_status_w_res_label = QLabel(self.info_widget)
+        self.hdmi_in_crop_status_w_res_label.setText("NA")
+
+        self.hdmi_in_crop_status_h_label = QLabel(self.info_widget)
+        self.hdmi_in_crop_status_h_label.setText("Crop Height:")
+        self.hdmi_in_crop_status_h_res_label = QLabel(self.info_widget)
+        self.hdmi_in_crop_status_h_res_label.setText("NA")
+
+
+        self.info_widget_layout.addWidget(self.hdmi_in_info_width_label, 0, 0)
+        self.info_widget_layout.addWidget(self.hdmi_in_info_width_res_label, 0, 1)
+        self.info_widget_layout.addWidget(self.hdmi_in_info_height_label, 0, 2)
+        self.info_widget_layout.addWidget(self.hdmi_in_info_height_res_label, 0, 3)
+        self.info_widget_layout.addWidget(self.hdmi_in_info_fps_label, 0, 4)
+        self.info_widget_layout.addWidget(self.hdmi_in_info_fps_res_label, 0, 5)
+
+        self.info_widget_layout.addWidget(self.hdmi_in_crop_status_label, 1, 0)
+        self.info_widget_layout.addWidget(self.hdmi_in_crop_status_x_label, 2, 2)
+        self.info_widget_layout.addWidget(self.hdmi_in_crop_status_x_res_label, 2, 3)
+        self.info_widget_layout.addWidget(self.hdmi_in_crop_status_y_label, 2, 4)
+        self.info_widget_layout.addWidget(self.hdmi_in_crop_status_y_res_label, 2, 5)
+
+        self.info_widget_layout.addWidget(self.hdmi_in_crop_status_w_label, 3, 2)
+        self.info_widget_layout.addWidget(self.hdmi_in_crop_status_w_res_label, 3, 3)
+        self.info_widget_layout.addWidget(self.hdmi_in_crop_status_h_label, 3, 4)
+        self.info_widget_layout.addWidget(self.hdmi_in_crop_status_h_res_label, 3, 5)
+
+
+        # crop setting of hdmi in
+        self.crop_setting_widget = QWidget(self.hdmi_in_widget)
+        self.crop_setting_widget_layout = QGridLayout()
+        self.crop_setting_widget.setLayout(self.crop_setting_widget_layout)
+
+        self.hdmi_in_crop_x_label = QLabel(self.crop_setting_widget)
+        self.hdmi_in_crop_x_label.setText("Start X:")
+        self.hdmi_in_crop_x_lineedit = QLineEdit(self.crop_setting_widget)
+        self.hdmi_in_crop_x_lineedit.setFixedWidth(100)
+        self.hdmi_in_crop_x_lineedit.setText("NA")
+
+        self.hdmi_in_crop_y_label = QLabel(self.crop_setting_widget)
+        self.hdmi_in_crop_y_label.setText("Start Y:")
+        self.hdmi_in_crop_y_lineedit = QLineEdit(self.crop_setting_widget)
+        self.hdmi_in_crop_y_lineedit.setFixedWidth(100)
+        self.hdmi_in_crop_y_lineedit.setText("NA")
+
+        self.hdmi_in_crop_w_label = QLabel(self.crop_setting_widget)
+        self.hdmi_in_crop_w_label.setText("Width:")
+        self.hdmi_in_crop_w_lineedit = QLineEdit(self.crop_setting_widget)
+        self.hdmi_in_crop_w_lineedit.setFixedWidth(100)
+        self.hdmi_in_crop_w_lineedit.setText("NA")
+
+        self.hdmi_in_crop_h_label = QLabel(self.crop_setting_widget)
+        self.hdmi_in_crop_h_label.setText("Width:")
+        self.hdmi_in_crop_h_lineedit = QLineEdit(self.crop_setting_widget)
+        self.hdmi_in_crop_h_lineedit.setFixedWidth(100)
+        self.hdmi_in_crop_h_lineedit.setText("NA")
+
+        self.hdmi_in_crop_disable_btn = QPushButton(self.crop_setting_widget)
+        self.hdmi_in_crop_disable_btn.setFixedWidth(100)
+        self.hdmi_in_crop_disable_btn.setText("Disable")
+        self.hdmi_in_crop_disable_btn.clicked.connect(self.hdmi_in_crop_disable)
+
+        self.hdmi_in_crop_enable_btn = QPushButton(self.crop_setting_widget)
+        self.hdmi_in_crop_enable_btn.setFixedWidth(100)
+        self.hdmi_in_crop_enable_btn.setText("Enable")
+        self.hdmi_in_crop_disable_btn.clicked.connect(self.hdmi_in_crop_enable)
+
+        self.crop_setting_widget_layout.addWidget(self.hdmi_in_crop_x_label, 0, 0)
+        self.crop_setting_widget_layout.addWidget(self.hdmi_in_crop_x_lineedit, 0, 1)
+        self.crop_setting_widget_layout.addWidget(self.hdmi_in_crop_y_label, 0, 2)
+        self.crop_setting_widget_layout.addWidget(self.hdmi_in_crop_y_lineedit, 0, 3)
+        self.crop_setting_widget_layout.addWidget(self.hdmi_in_crop_disable_btn, 0, 4)
+        self.crop_setting_widget_layout.addWidget(self.hdmi_in_crop_w_label, 1, 0)
+        self.crop_setting_widget_layout.addWidget(self.hdmi_in_crop_w_lineedit, 1, 1)
+        self.crop_setting_widget_layout.addWidget(self.hdmi_in_crop_h_label, 1, 2)
+        self.crop_setting_widget_layout.addWidget(self.hdmi_in_crop_h_lineedit, 1, 3)
+        
+        self.crop_setting_widget_layout.addWidget(self.hdmi_in_crop_enable_btn, 1, 4, 1, 5)
+
+        # color setting of hdmi in
         self.setting_widget = QWidget(self.hdmi_in_widget)
         self.setting_widget_layout = QGridLayout()
         self.setting_widget.setLayout(self.setting_widget_layout)
 
-        # self.test_btn = QPushButton(self.setting_widget)
-        # self.test_btn.setText("TEST")
 
         # brightness
         self.brightness_label = QLabel(self.mainwindow.right_frame)
@@ -151,6 +267,8 @@ class Hdmi_In_Page(QObject):
         self.setting_widget_layout.addWidget(self.video_params_confirm_btn, 4, 5)
 
         self.hdmi_in_layout.addWidget(self.preview_widget)
+        self.hdmi_in_layout.addWidget(self.info_widget)
+        self.hdmi_in_layout.addWidget(self.crop_setting_widget)
         self.hdmi_in_layout.addWidget(self.setting_widget)
         
         #self.hdmi_in_cast_type = "h264"
@@ -164,6 +282,7 @@ class Hdmi_In_Page(QObject):
         # self.ffmpy_hdmi_in_cast_pid = None
 
         self.tc358743 = TC358743()
+        self.tc358743.signal_refresh_tc358743_param.connect(self.refresh_tc358743_param)
 
         self.media_engine.media_processor.signal_play_hdmi_in_start_ret.connect(
             self.play_hdmi_in_start_ret)
@@ -293,3 +412,28 @@ class Hdmi_In_Page(QObject):
                 else:
                     log.debug("self.ffmpy_hdmi_in_cast_process is None")
 
+    def refresh_tc358743_param(self, connected, width, height, fps):
+        if connected is True:
+            self.hdmi_in_info_width_res_label.setText(str(width))
+            self.hdmi_in_info_height_res_label.setText(str(height))
+            self.hdmi_in_info_fps_res_label_label.setText(str(height))
+            # hdmi in crop enable/disable
+            if self.b_hdmi_in_crop_enable is False:
+                self.hdmi_in_crop_status_x_res_label.setText("0")
+                self.hdmi_in_crop_status_y_res_label.setText("0")
+                self.hdmi_in_crop_status_w_res_label.setText(str(width))
+                self.hdmi_in_crop_status_h_res_label.setText(str(height))
+        else:
+            self.hdmi_in_info_width_res_label.setText("NA")
+            self.hdmi_in_info_height_res_label.setText("NA")
+            self.hdmi_in_info_fps_res_label_label.setText("NA")
+            self.hdmi_in_crop_status_x_res_label.setText("NA")
+            self.hdmi_in_crop_status_y_res_label.setText("NA")
+            self.hdmi_in_crop_status_w_res_label.setText("NA")
+            self.hdmi_in_crop_status_h_res_label.setText("NA")
+
+    def hdmi_in_crop_disable(self):
+        self.b_hdmi_in_crop_enable = False
+
+    def hdmi_in_crop_enable(self):
+        self.b_hdmi_in_crop_enable = True

@@ -7,6 +7,8 @@ import platform
 log = utils.log_utils.logging_init(__file__)
 
 class TC358743(QObject):
+	# connected, width, height, fps
+	signal_refresh_tc358743_param = pyqtSignal(bool, int, int, int)
 
 	def __init__(self, **kwargs):
 		super(TC358743, self).__init__(**kwargs)
@@ -21,6 +23,7 @@ class TC358743(QObject):
 
 	def reinit_tc358743_dv_timing(self):
 		self.hdmi_connected, self.hdmi_width, self.hdmi_height, self.hdmi_fps = self.get_tc358743_dv_timing()
+		self.signal_refresh_tc358743_param.emit()
 
 	def get_tc358743_dv_timing(self):
 		# connected = False
@@ -33,6 +36,7 @@ class TC358743(QObject):
 		if 'fail' in list_dv_timings[0]:
 			log.debug("not connected")
 			connected = False
+			self.signal_refresh_tc358743_param.emit(connected, width, height, fps)
 			return connected, width, height, fps
 		else:
 			connected = True
@@ -48,6 +52,7 @@ class TC358743(QObject):
 		# log.debug("width = %d", width)
 		# log.debug("height = %d", height)
 		# log.debug("fps = %d", fps)
+		self.signal_refresh_tc358743_param.emit(connected, width, height, fps)
 		return connected, width, height, fps
 
 	def set_tc358743_dv_bt_timing(self):
