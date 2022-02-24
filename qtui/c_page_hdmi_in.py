@@ -161,7 +161,7 @@ class Hdmi_In_Page(QObject):
         self.cv2camera.signal_get_rawdata.connect(self.getRaw)
         self.cv2camera.signal_cv2_read_fail.connect(self.cv2_read_or_open_fail)
 
-        self.ffmpy_hdmi_in_cast_pid = None
+        # self.ffmpy_hdmi_in_cast_pid = None
 
         self.tc358743 = TC358743()
 
@@ -179,7 +179,7 @@ class Hdmi_In_Page(QObject):
                 self.ffmpy_hdmi_in_cast_process = self.start_hdmi_in_cast_h264()
 
         if self.ffmpy_hdmi_in_cast_process is not None:
-            self.ffmpy_hdmi_in_cast_pid = self.ffmpy_hdmi_in_cast_process.pid
+            # self.ffmpy_hdmi_in_cast_pid = self.ffmpy_hdmi_in_cast_process.pid
             self.cv2camera.set_hdmi_in_cast(True)
             self.cv2camera.open()  # 影像讀取功能開啟
             self.cv2camera.start()  # 在子緒啟動影像讀取
@@ -231,10 +231,10 @@ class Hdmi_In_Page(QObject):
         return ffmpy_hdmi_in_cast_process
 
     def stop_hdmi_in_cast(self):
-        if self.ffmpy_hdmi_in_cast_pid is not None:
+        if self.ffmpy_hdmi_in_cast_process is not None:
             os.kill(self.ffmpy_hdmi_in_cast_process.pid, signal.SIGTERM)
         self.ffmpy_hdmi_in_cast_process = None
-        self.ffmpy_hdmi_in_cast_pid = None
+        # self.ffmpy_hdmi_in_cast_pid = None
 
     def video_params_confirm_btn_clicked(self):
         media_processor = self.media_engine.media_processor
@@ -282,6 +282,7 @@ class Hdmi_In_Page(QObject):
         if self.tc358743.get_tc358743_hdmi_connected_status() is False:
             # run a timer to check???
             log.debug("No HDMI connected")
+            self.cv2camera.set_hdmi_in_cast(False)
         else:
             log.debug("HDMI connected")
             if self.tc358743.set_tc358743_dv_bt_timing() is True:
