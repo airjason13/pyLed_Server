@@ -120,25 +120,25 @@ class Hdmi_In_Page(QObject):
         self.crop_setting_widget.setLayout(self.crop_setting_widget_layout)
 
         self.hdmi_in_crop_x_label = QLabel(self.crop_setting_widget)
-        self.hdmi_in_crop_x_label.setText("Start X:")
+        self.hdmi_in_crop_x_label.setText("Crop Start X:")
         self.hdmi_in_crop_x_lineedit = QLineEdit(self.crop_setting_widget)
         self.hdmi_in_crop_x_lineedit.setFixedWidth(100)
         self.hdmi_in_crop_x_lineedit.setText("NA")
 
         self.hdmi_in_crop_y_label = QLabel(self.crop_setting_widget)
-        self.hdmi_in_crop_y_label.setText("Start Y:")
+        self.hdmi_in_crop_y_label.setText("Crop Start Y:")
         self.hdmi_in_crop_y_lineedit = QLineEdit(self.crop_setting_widget)
         self.hdmi_in_crop_y_lineedit.setFixedWidth(100)
         self.hdmi_in_crop_y_lineedit.setText("NA")
 
         self.hdmi_in_crop_w_label = QLabel(self.crop_setting_widget)
-        self.hdmi_in_crop_w_label.setText("Width:")
+        self.hdmi_in_crop_w_label.setText("Crop Width:")
         self.hdmi_in_crop_w_lineedit = QLineEdit(self.crop_setting_widget)
         self.hdmi_in_crop_w_lineedit.setFixedWidth(100)
         self.hdmi_in_crop_w_lineedit.setText("NA")
 
         self.hdmi_in_crop_h_label = QLabel(self.crop_setting_widget)
-        self.hdmi_in_crop_h_label.setText("Width:")
+        self.hdmi_in_crop_h_label.setText("Crop Height:")
         self.hdmi_in_crop_h_lineedit = QLineEdit(self.crop_setting_widget)
         self.hdmi_in_crop_h_lineedit.setFixedWidth(100)
         self.hdmi_in_crop_h_lineedit.setText("NA")
@@ -151,19 +151,23 @@ class Hdmi_In_Page(QObject):
         self.hdmi_in_crop_enable_btn = QPushButton(self.crop_setting_widget)
         self.hdmi_in_crop_enable_btn.setFixedWidth(100)
         self.hdmi_in_crop_enable_btn.setText("Enable")
-        self.hdmi_in_crop_disable_btn.clicked.connect(self.hdmi_in_crop_enable)
+        self.hdmi_in_crop_enable_btn.clicked.connect(self.hdmi_in_crop_enable)
+
+        self.hdmi_in_crop_dummy_label = QLabel(self.crop_setting_widget)
 
         self.crop_setting_widget_layout.addWidget(self.hdmi_in_crop_x_label, 0, 0)
         self.crop_setting_widget_layout.addWidget(self.hdmi_in_crop_x_lineedit, 0, 1)
         self.crop_setting_widget_layout.addWidget(self.hdmi_in_crop_y_label, 0, 2)
         self.crop_setting_widget_layout.addWidget(self.hdmi_in_crop_y_lineedit, 0, 3)
-        self.crop_setting_widget_layout.addWidget(self.hdmi_in_crop_disable_btn, 0, 4)
+        self.crop_setting_widget_layout.addWidget(self.hdmi_in_crop_dummy_label, 0, 4)
+        self.crop_setting_widget_layout.addWidget(self.hdmi_in_crop_disable_btn, 0, 5)
+
         self.crop_setting_widget_layout.addWidget(self.hdmi_in_crop_w_label, 1, 0)
         self.crop_setting_widget_layout.addWidget(self.hdmi_in_crop_w_lineedit, 1, 1)
         self.crop_setting_widget_layout.addWidget(self.hdmi_in_crop_h_label, 1, 2)
         self.crop_setting_widget_layout.addWidget(self.hdmi_in_crop_h_lineedit, 1, 3)
         
-        self.crop_setting_widget_layout.addWidget(self.hdmi_in_crop_enable_btn, 1, 4, 1, 5)
+        self.crop_setting_widget_layout.addWidget(self.hdmi_in_crop_enable_btn, 1, 5)
 
         # color setting of hdmi in
         self.setting_widget = QWidget(self.hdmi_in_widget)
@@ -172,73 +176,73 @@ class Hdmi_In_Page(QObject):
 
 
         # brightness
-        self.brightness_label = QLabel(self.mainwindow.right_frame)
+        self.brightness_label = QLabel(self.setting_widget)
         self.brightness_label.setText("Brightness:")
-        self.brightness_edit = QLineEdit(self.mainwindow.right_frame)
+        self.brightness_edit = QLineEdit(self.setting_widget)
         self.brightness_edit.setFixedWidth(100)
         self.brightness_edit.setText(str(self.mainwindow.media_engine.media_processor.video_params.video_brightness))
 
         # contrast
-        self.contrast_label = QLabel(self.mainwindow.right_frame)
+        self.contrast_label = QLabel(self.setting_widget)
         self.contrast_label.setText("Contrast:")
-        self.contrast_edit = QLineEdit(self.mainwindow.right_frame)
+        self.contrast_edit = QLineEdit(self.setting_widget)
         self.contrast_edit.setFixedWidth(100)
         self.contrast_edit.setText(str(self.mainwindow.media_engine.media_processor.video_params.video_contrast))
 
         # red gain
-        self.redgain_label = QLabel(self.mainwindow.right_frame)
+        self.redgain_label = QLabel(self.setting_widget)
         self.redgain_label.setText("Red Gain:")
-        self.redgain_edit = QLineEdit(self.mainwindow.right_frame)
+        self.redgain_edit = QLineEdit(self.setting_widget)
         self.redgain_edit.setFixedWidth(100)
         self.redgain_edit.setText(str(self.mainwindow.media_engine.media_processor.video_params.video_red_bias))
 
         # green gain
-        self.greengain_label = QLabel(self.mainwindow.right_frame)
+        self.greengain_label = QLabel(self.setting_widget)
         self.greengain_label.setText("Green Gain:")
-        self.greengain_edit = QLineEdit(self.mainwindow.right_frame)
+        self.greengain_edit = QLineEdit(self.setting_widget)
         self.greengain_edit.setFixedWidth(100)
         self.greengain_edit.setText(str(self.mainwindow.media_engine.media_processor.video_params.video_green_bias))
 
         # blue gain
-        self.blugain_label = QLabel(self.mainwindow.right_frame)
+        self.blugain_label = QLabel(self.setting_widget)
         self.blugain_label.setText("Blue Gain:")
-        self.bluegain_edit = QLineEdit(self.mainwindow.right_frame)
+        self.bluegain_edit = QLineEdit(self.setting_widget)
         self.bluegain_edit.setFixedWidth(100)
         self.bluegain_edit.setText(str(self.mainwindow.media_engine.media_processor.video_params.video_blue_bias))
 
         # client brightness adjust
-        self.client_brightness_label = QLabel(self.mainwindow.right_frame)
+        self.client_brightness_label = QLabel(self.setting_widget)
         self.client_brightness_label.setText("Client Br:")
-        self.client_brightness_edit = QLineEdit(self.mainwindow.right_frame)
+        self.client_brightness_edit = QLineEdit(self.setting_widget)
         self.client_brightness_edit.setFixedWidth(100)
         self.client_brightness_edit.setText(
             str(self.mainwindow.media_engine.media_processor.video_params.frame_brightness))
 
         # client brightness adjust
-        self.client_br_divisor_label = QLabel(self.mainwindow.right_frame)
+        self.client_br_divisor_label = QLabel(self.setting_widget)
         self.client_br_divisor_label.setText("Client BrDivisor:")
-        self.client_br_divisor_edit = QLineEdit(self.mainwindow.right_frame)
+        self.client_br_divisor_edit = QLineEdit(self.setting_widget)
         self.client_br_divisor_edit.setFixedWidth(100)
         self.client_br_divisor_edit.setText(
             str(self.mainwindow.media_engine.media_processor.video_params.frame_br_divisor))
 
         # client contrast(black level) adjust
-        self.client_contrast_label = QLabel(self.mainwindow.right_frame)
+        self.client_contrast_label = QLabel(self.setting_widget)
         self.client_contrast_label.setText("Client Black-Lv:")
-        self.client_contrast_edit = QLineEdit(self.mainwindow.right_frame)
+        self.client_contrast_edit = QLineEdit(self.setting_widget)
         self.client_contrast_edit.setFixedWidth(100)
         self.client_contrast_edit.setText(
             str(self.mainwindow.media_engine.media_processor.video_params.frame_contrast))
 
         # client gamma adjust
-        self.client_gamma_label = QLabel(self.mainwindow.right_frame)
+        self.client_gamma_label = QLabel(self.setting_widget)
         self.client_gamma_label.setText("Client Gamma:")
-        self.client_gamma_edit = QLineEdit(self.mainwindow.right_frame)
+        self.client_gamma_edit = QLineEdit(self.setting_widget)
         self.client_gamma_edit.setFixedWidth(100)
         self.client_gamma_edit.setText(
             str(self.mainwindow.media_engine.media_processor.video_params.frame_gamma))
 
-        self.video_params_confirm_btn = QPushButton(self.mainwindow.right_frame)
+        self.video_params_confirm_btn = QPushButton(self.setting_widget)
         self.video_params_confirm_btn.setText("Set")
         self.video_params_confirm_btn.setFixedWidth(100)
         self.video_params_confirm_btn.clicked.connect(self.video_params_confirm_btn_clicked)
@@ -433,16 +437,51 @@ class Hdmi_In_Page(QObject):
 
                 
         else:
-            self.hdmi_in_info_width_res_label.setText("NA")
-            self.hdmi_in_info_height_res_label.setText("NA")
-            self.hdmi_in_info_fps_res_label_label.setText("NA")
-            self.hdmi_in_crop_status_x_res_label.setText("NA")
-            self.hdmi_in_crop_status_y_res_label.setText("NA")
-            self.hdmi_in_crop_status_w_res_label.setText("NA")
-            self.hdmi_in_crop_status_h_res_label.setText("NA")
+            self.hdmi_in_crop_status_x_res_label.setText("0")
+            self.hdmi_in_crop_status_y_res_label.setText("0")
+            self.hdmi_in_crop_status_w_res_label.setText(str(self.tc358743.hdmi_width))
+            self.hdmi_in_crop_status_h_res_label.setText(str(self.tc358743.hdmi_height))
+            self.hdmi_in_crop_x_lineedit.setText("0")
+            self.hdmi_in_crop_y_lineedit.setText("0")
+            self.hdmi_in_crop_w_lineedit.setText(str(self.tc358743.hdmi_width))
+            self.hdmi_in_crop_h_lineedit.setText(str(self.tc358743.hdmi_width))
 
     def hdmi_in_crop_disable(self):
         self.b_hdmi_in_crop_enable = False
+        self.video_crop_disable()
 
     def hdmi_in_crop_enable(self):
+        log.debug("")
         self.b_hdmi_in_crop_enable = True
+        self.video_crop_enable()
+
+    def video_crop_enable(self):
+        log.debug("crop_enable")
+        self.hdmi_in_crop_status_label.setText("Crop Enable")
+        self.hdmi_in_crop_status_x_res_label.setText(self.hdmi_in_crop_x_lineedit.text())
+        self.hdmi_in_crop_status_y_res_label.setText(self.hdmi_in_crop_y_lineedit.text())
+        self.hdmi_in_crop_status_w_res_label.setText(self.hdmi_in_crop_w_lineedit.text())
+        self.hdmi_in_crop_status_h_res_label.setText(self.hdmi_in_crop_h_lineedit.text())
+        if self.media_engine.media_processor.play_hdmi_in_worker is not None:
+            utils.ffmpy_utils.ffmpy_crop_enable(self.hdmi_in_crop_x_lineedit.text(),
+                                         self.hdmi_in_crop_y_lineedit.text(),
+                                         self.hdmi_in_crop_w_lineedit.text(),
+                                         self.hdmi_in_crop_h_lineedit.text(),
+                                         self.mainwindow.led_wall_width,
+                                         self.mainwindow.led_wall_height)
+
+
+    def video_crop_disable(self):
+        log.debug("crop_disable")
+        self.hdmi_in_crop_status_label.setText("Crop Disable")
+        self.hdmi_in_crop_status_x_res_label.setText("0")
+        self.hdmi_in_crop_status_y_res_label.setText("0")
+        self.hdmi_in_crop_status_w_res_label.setText(str(self.tc358743.hdmi_width))
+        self.hdmi_in_crop_status_h_res_label.setText(str(self.tc358743.hdmi_height))
+        self.hdmi_in_crop_x_lineedit.setText("0")
+        self.hdmi_in_crop_y_lineedit.setText("0")
+        self.hdmi_in_crop_w_lineedit.setText(str(self.tc358743.hdmi_width))
+        self.hdmi_in_crop_h_lineedit.setText(str(self.tc358743.hdmi_width))
+        if self.media_engine.media_processor.play_hdmi_in_worker is not None:
+            utils.ffmpy_utils.ffmpy_crop_disable(self.mainwindow.led_wall_width,
+                                     self.mainwindow.led_wall_height)
