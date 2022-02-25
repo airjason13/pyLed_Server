@@ -267,7 +267,20 @@ def neo_ffmpy_cast_video_h264(video_path, cast_dst, brightness, contrast, red_bi
         return -1
     ff = None
     global_opts = '-hide_banner -loglevel error'
-    out_res = str(width) + "x" + str(height)
+    scale_params = "scale=" + str(width) + ":" + str(height)  # + ",hflip"
+    brightness_params = "brightness=" + str(brightness)
+    contrast_params = "contrast=" + str(contrast)
+    eq_str = "eq=" + brightness_params + ":" + contrast_params
+    red_bias_params = "romin=" + str(red_bias)
+    green_bias_params = "gomin=" + str(green_bias)
+    blue_bias_params = "bomin=" + str(blue_bias)
+    crop_str = "crop=iw:ih:0:0"
+
+    color_level_str = "colorlevels=" + red_bias_params + ":" + green_bias_params + ":" + blue_bias_params
+    drawtext_str = "drawtext=fontfile=" + internal_media_folder + \
+                   "/fonts/msjhbd.ttc:text='':x=10:y=20:fontsize=24*h/96:fontcolor=black"
+    filter_params = "zmq," + eq_str + "," + color_level_str + "," + drawtext_str + "," + crop_str + "," + scale_params
+
     output = {}
     if platform.machine() in ('arm', 'arm64', 'aarch64'):
         if width >= 320 and height >= 240:
@@ -277,13 +290,14 @@ def neo_ffmpy_cast_video_h264(video_path, cast_dst, brightness, contrast, red_bi
     else:
         video_encoder = "libx264"
     for i in cast_dst:
-        output[i] = ["-vcodec", video_encoder, "-pix_fmt", "yuv420p","-b:v", "200k", "-s", out_res, "-f", "h264", "-localaddr", "192.168.0.3"]
+        output[i] = ["-vcodec", video_encoder, '-filter_complex', filter_params, "-b:v", "2000k", "-f",
+                                 "h264", "-pix_fmt", "yuv420p", "-localaddr", "192.168.0.3"]
 
     ff = ffmpy.FFmpeg(
         global_options=global_opts,
         inputs={
-            # video_path: ["-f", "v4l2", "-pix_fmt", "mjpeg", "-s", out_res, "-framerate", "30"]
-            video_path: ["-f", "v4l2", "-s", out_res, "-framerate", "30"]
+            # video_path: ["-f", "v4l2", "-s", out_res, "-framerate", "30"]
+            video_path: ["-f", "v4l2", "-framerate", "30"]
         },
         outputs=output,
     )
