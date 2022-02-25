@@ -379,10 +379,15 @@ class Hdmi_In_Page(QObject):
             media_processor.set_blue_bias_level(int(self.bluegain_edit.text()))
 
     def send_to_led(self):
-        log.debug("")
-        video_src = "/dev/video6"
-        streaming_sink = [udp_sink]
-        self.media_engine.media_processor.hdmi_in_play(video_src, streaming_sink)
+
+        if self.media_engine.media_processor.play_hdmi_in_worker is None:
+            log.debug("Start streaming to led")
+            video_src = "/dev/video6"
+            streaming_sink = [udp_sink]
+            self.media_engine.media_processor.hdmi_in_play(video_src, streaming_sink)
+        else:
+            log.debug("Stop streaming to led")
+            self.media_engine.media_processor.play_hdmi_in_worker.stop()
 
     def play_hdmi_in_start_ret(self):
         log.debug("")
@@ -481,7 +486,7 @@ class Hdmi_In_Page(QObject):
         self.hdmi_in_crop_x_lineedit.setText("0")
         self.hdmi_in_crop_y_lineedit.setText("0")
         self.hdmi_in_crop_w_lineedit.setText(str(self.tc358743.hdmi_width))
-        self.hdmi_in_crop_h_lineedit.setText(str(self.tc358743.hdmi_width))
+        self.hdmi_in_crop_h_lineedit.setText(str(self.tc358743.hdmi_height))
         if self.media_engine.media_processor.play_hdmi_in_worker is not None:
             utils.ffmpy_utils.ffmpy_crop_disable(self.mainwindow.led_wall_width,
                                      self.mainwindow.led_wall_height)
