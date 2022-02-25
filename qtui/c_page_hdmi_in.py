@@ -380,7 +380,7 @@ class Hdmi_In_Page(QObject):
 
     def send_to_led(self):
 
-        if self.media_engine.media_processor.play_hdmi_in_worker is None:
+        if self.media_engine.media_processor.ffmpy_process is None:
             log.debug("Start streaming to led")
             video_src = "/dev/video6"
             streaming_sink = [udp_sink]
