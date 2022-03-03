@@ -33,7 +33,13 @@ class LCD1602(QObject):
         if platform.machine() not in ('arm', 'arm64', 'aarch64'):
             self.socket_connected = False
         else:
-            self.socket.connect(self.server_address)
+            try:
+                self.socket.connect(self.server_address)
+                self.socket_connected = True
+            except:
+                log.error("lcd1602 server connect failed!")
+                self.socket_connected = False
+
 
 
     def start(self):
