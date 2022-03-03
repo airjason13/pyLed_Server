@@ -178,10 +178,15 @@ class MainUi(QMainWindow):
 
         self.signal_right_page_changed.connect(self.right_page_change_index)
 
-        self.lcd1602 = LCD1602(5000)
-        self.lcd1602.add_data("LED SERVER", version)
-
+        '''self.lcd1602 = LCD1602("LCD_TAG_VERSION_INFO", "TEST", version, 5000)
+        self.lcd1602.add_data("LCD_TAG_VERSION_INFO", "LED SERVER", version)
+        self.lcd1602.add_data("LCD_TAG_TEST_INFO", "TEST0", "TEST1")
+        self.lcd1602.del_data("LCD_TAG_TEST_INFO")'''
+        self.lcd1602 = LCD1602("LCD_TAG_VERSION_INFO", "LED SERVER", version, 5000)
         self.lcd1602.start()
+
+
+
 
     # enter engineer mode
     def ctrl_e_trigger(self):
