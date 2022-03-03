@@ -53,13 +53,15 @@ class LCD1602(QObject):
             if len(self.error_inform_l0) != 0:
                 message = "0:0:" + self.error_inform_l0[0]
                 self.socket.sendall(message.encode())
-                self.lcd_data_l0_idx += 1
+                self.lcd_data_idx += 1
             else:
-                message = "0:0:" + self.lcd_data_l0[self.lcd_data_l0_idx]
+                message = "0:0:" + self.lcd_data_l0[self.lcd_data_idx]
                 self.socket.sendall(message.encode())
-                self.lcd_data_l0_idx += 1
-                if self.lcd_data_l0_idx >= len(self.lcd_data_l0):
-                    self.lcd_data_l0_idx = 0
+                message = "0:1:" + self.lcd_data_l1[self.lcd_data_idx]
+                self.socket.sendall(message.encode())
+                self.lcd_data_idx += 1
+                if self.lcd_data_idx >= len(self.lcd_data_l0):
+                    self.lcd_data_idx = 0
         except:
             log.error("write_lcd_l0 error")
 
