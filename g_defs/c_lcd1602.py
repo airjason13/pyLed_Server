@@ -81,11 +81,11 @@ class LCD1602(QObject):
         for i in range(len(self.lcd_data_l0)):
             if self.lcd_data_l0[i].get("tag") == tag:
                 self.lcd_data_l0[i].update(data)
-                log.debug("%s", self.lcd_data_l0[0].get("d0"))
+                log.debug("%s", self.lcd_data_l0)
                 return
 
         self.lcd_data_l0.append(data)
-        log.debug("%s", self.lcd_data_l0[1].get("d0"))
+        log.debug("%s", self.lcd_data_l0)
 
 
     def del_data(self, tag):

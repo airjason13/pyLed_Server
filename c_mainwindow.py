@@ -433,14 +433,13 @@ class MainUi(QMainWindow):
         log.debug("changed = %d", changed)
         log.debug("status = %d", status)
         d0_str = ""
-        if play_status == play_status.stop:
-            d0_str = "STOP"
-        elif play_status == play_status.pausing:
+        if status == play_status.stop:
+            d0_str = "STANDBY"
             d0_str = "PAUSE"
-        elif play_status == play_status.playing:
+        elif status == play_status.playing:
             d0_str = "PLAYING"
-
-        self.lcd1602.add_data("LCD_TAG_VERSION_INFO", d0_str, "test")
+        log.debug("d0_str = %s", d0_str)
+        self.lcd1602.add_data("LCD_TAG_PLAY_STATUS_INFO", d0_str, "test")
 
     def right_page_change_index(self, pre_idx, going_idx):
         log.debug("")
