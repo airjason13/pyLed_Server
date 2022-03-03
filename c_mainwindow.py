@@ -46,6 +46,7 @@ from qtui.c_page_medialist import *
 from qtui.c_page_hdmi_in import *
 from material import *
 import hashlib
+from g_defs.c_lcd1602 import *
 from g_defs.c_filewatcher import *
 
 log = utils.log_utils.logging_init(__file__)
@@ -176,6 +177,11 @@ class MainUi(QMainWindow):
 
 
         self.signal_right_page_changed.connect(self.right_page_change_index)
+
+        self.lcd1602 = LCD1602(5000)
+        self.lcd1602.add_data("LED SERVER", version)
+
+        self.lcd1602.start()
 
     # enter engineer mode
     def ctrl_e_trigger(self):

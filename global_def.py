@@ -78,3 +78,7 @@ still_image_loop_cnt = 1
 still_image_video_period = 600
 preview_start_time = 3
 preview_period = 3
+
+
+"""lcd1602 server address"""
+lcd1602_server_address = '/tmp/uds_socket_i2clcd7'
