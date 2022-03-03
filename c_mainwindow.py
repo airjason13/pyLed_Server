@@ -444,9 +444,9 @@ class MainUi(QMainWindow):
         elif status == play_status.playing:
             d0_str = "PLAYING"
         if self.media_engine.media_processor.ffmpy_process is not None:
-            log.debug("process name : %d", self.media_engine.media_processor.ffmpy_process.pid)
-            process = psutil.Process(self.media_engine.media_processor.ffmpy_process.pid)
-            if "v4l2" in process.name():
+            #log.debug("process name : %d", self.media_engine.media_processor.ffmpy_process.pid)
+            #log.debug("process name : %s", self.media_engine.media_processor.ffmpy_process.args)
+            if "v4l2" in self.media_engine.media_processor.ffmpy_process.args:
                 d1_str = "HDMI-In Source"
             else:
                 d1_str = "FILE Source"
