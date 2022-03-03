@@ -433,11 +433,14 @@ class MainUi(QMainWindow):
         log.debug("changed = %d", changed)
         log.debug("status = %d", status)
         d0_str = ""
+        d1_str = ""
         if status == play_status.stop:
             d0_str = "STANDBY"
+        elif status == play_status.pausing:
             d0_str = "PAUSE"
         elif status == play_status.playing:
             d0_str = "PLAYING"
+            log.debug("process name : %s", self.media_engine.media_processor.ffmpy_process.name())
         log.debug("d0_str = %s", d0_str)
         self.lcd1602.add_data("LCD_TAG_PLAY_STATUS_INFO", d0_str, "test")
 
