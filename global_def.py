@@ -35,6 +35,7 @@ class play_type(enum.IntEnum):
     play_hdmi_in = 3
 
 class play_status(enum.IntEnum):
+    initial = -1
     stop = 0
     playing = 1
     pausing = 2

@@ -34,20 +34,7 @@ class LCD1602(QObject):
         # refresh timer setting
         self.refresh_timer_0 = QTimer(self)
         self.refresh_timer_0.timeout.connect(self.write_lcd_l0)
-
-
         self.server_address = lcd1602_server_address
-        '''if platform.machine() not in ('arm', 'arm64', 'aarch64'):
-            self.socket_connected = False
-        else:
-            try:
-                self.socket = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
-                self.socket.connect(self.server_address)
-                self.socket_connected = True
-                self.socket.close()
-            except:
-                log.error("lcd1602 server connect failed!")
-                self.socket_connected = False'''
 
 
 

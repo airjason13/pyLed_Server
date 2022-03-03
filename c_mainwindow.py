@@ -156,6 +156,7 @@ class MainUi(QMainWindow):
 
         self.media_engine.signal_playlist_changed_ret.connect(self.playlist_changed)
         self.media_engine.signal_external_medialist_changed_ret.connect(self.external_medialist_changed)
+        self.media_engine.signal_play_status_changed.connect(self.play_status_changed)
 
         paths = []
         paths.append(internal_media_folder)
@@ -428,6 +429,18 @@ class MainUi(QMainWindow):
         size = self.geometry()
         self.move((screen.width() - size.width()) / 2, (screen.height() - size.height()) / 2)
 
+    def play_status_changed(self, changed, status):
+        log.debug("changed = %d", changed)
+        log.debug("status = %d", status)
+        d0_str = ""
+        if play_status == play_status.stop:
+            d0_str = "STOP"
+        elif play_status == play_status.pausing:
+            d0_str = "PAUSE"
+        elif play_status == play_status.playing:
+            d0_str = "PLAYING"
+
+        self.lcd1602.add_data("LCD_TAG_VERSION_INFO", d0_str, "test")
 
     def right_page_change_index(self, pre_idx, going_idx):
         log.debug("")

@@ -18,6 +18,8 @@ class media_engine(QObject):
     signal_playlist_changed_ret = pyqtSignal(bool, str, str, int, str)
     ''' changed_or_not '''
     signal_external_medialist_changed_ret = pyqtSignal(bool)
+    ''' play status changed '''
+    signal_play_status_changed = pyqtSignal(bool, int)
 
     '''Action TAG'''
     ACTION_TAG_ADD_MEDIA_FILE = "add_media_file"
@@ -51,7 +53,7 @@ class media_engine(QObject):
 
         '''media_process'''
         self.media_processor = media_processor()
-
+        self.media_processor.signal_media_play_status_changed.connect(self.play_status_changed)
         '''hdmi-in cast'''
 
     # hdmi_in_src : string
@@ -93,6 +95,9 @@ class media_engine(QObject):
 
     def resume_play(self):
         self.media_processor.resume_playing()
+
+    def play_status_changed(self, status_changed, status):
+        self.signal_play_status_changed.emit(status_changed, status)
 
     def init_usb_monitor(self):
         context = Context()
@@ -244,7 +249,7 @@ class media_processor(QObject):
         self.output_width = default_led_wall_width
         self.output_height = default_led_wall_height
         self.play_status = play_status.stop
-        self.pre_play_status = play_status.stop
+        self.pre_play_status = play_status.initial
         self.play_type = play_type.play_none
         self.repeat_option = repeat_option.repeat_all
         self.play_single_file_thread = None
@@ -435,9 +440,12 @@ class media_processor(QObject):
             log.debug(e)
 
     def check_play_status(self):
+
         if self.play_status != self.pre_play_status:
             log.debug("self.play_status = %d", self.play_status )
             log.debug("self.pre_play_status = %d", self.pre_play_status)
+            self.signal_media_play_status_changed.emit(True, self.play_status)
+            self.pre_play_status = self.play_status
             pass
 
     def set_brightness_level(self, level):
