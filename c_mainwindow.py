@@ -4,6 +4,8 @@ import platform
 import os
 import signal
 import threading
+
+import psutil
 from PyQt5 import QtWidgets
 from PyQt5.QtWidgets import (QApplication, QMainWindow, QDesktopWidget, QStyleFactory, QWidget, QHBoxLayout,
                              QVBoxLayout, QFormLayout,
@@ -434,15 +436,24 @@ class MainUi(QMainWindow):
         log.debug("status = %d", status)
         d0_str = ""
         d1_str = ""
+        input_source = ""
         if status == play_status.stop:
             d0_str = "STANDBY"
         elif status == play_status.pausing:
             d0_str = "PAUSE"
         elif status == play_status.playing:
             d0_str = "PLAYING"
-            log.debug("process name : %s", self.media_engine.media_processor.ffmpy_process.name())
+        if self.media_engine.media_processor.ffmpy_process is not None:
+            log.debug("process name : %d", self.media_engine.media_processor.ffmpy_process.pid)
+            process = psutil.Process(self.media_engine.media_processor.ffmpy_process.pid)
+            if "v4l2" in process.name():
+                d1_str = "HDMI-In Source"
+            else:
+                d1_str = "FILE Source"
+
         log.debug("d0_str = %s", d0_str)
-        self.lcd1602.add_data("LCD_TAG_PLAY_STATUS_INFO", d0_str, "test")
+        log.debug("d1_str = %s", d1_str)
+        self.lcd1602.add_data("LCD_TAG_PLAY_STATUS_INFO", d0_str, d1_str)
 
     def right_page_change_index(self, pre_idx, going_idx):
         log.debug("")
