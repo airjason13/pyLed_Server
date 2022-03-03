@@ -294,18 +294,24 @@ class Hdmi_In_Page(QObject):
             self.play_hdmi_in_finish_ret)
 
     def start_hdmi_in_preview(self):
-
-        if self.ffmpy_hdmi_in_cast_process is None:
-            if self.hdmi_in_cast_type == "v4l2":
-                self.ffmpy_hdmi_in_cast_process = self.start_hdmi_in_cast_v4l2()
-            else:
-                self.ffmpy_hdmi_in_cast_process = self.start_hdmi_in_cast_h264()
-
-        if self.ffmpy_hdmi_in_cast_process is not None:
-            # self.ffmpy_hdmi_in_cast_pid = self.ffmpy_hdmi_in_cast_process.pid
-            self.cv2camera.set_hdmi_in_cast(True)
+        if self.tc358743.hdmi_connected is False:
+            # 故意讓cv2 重開
+            self.cv2camera.set_hdmi_in_cast(False)
             self.cv2camera.open()  # 影像讀取功能開啟
             self.cv2camera.start()  # 在子緒啟動影像讀取
+        else:
+            if self.ffmpy_hdmi_in_cast_process is None:
+                if self.hdmi_in_cast_type == "v4l2":
+                    self.ffmpy_hdmi_in_cast_process = self.start_hdmi_in_cast_v4l2()
+                else:
+                    self.ffmpy_hdmi_in_cast_process = self.start_hdmi_in_cast_h264()
+
+            if self.ffmpy_hdmi_in_cast_process is not None:
+                # self.ffmpy_hdmi_in_cast_pid = self.ffmpy_hdmi_in_cast_process.pid
+                self.cv2camera.set_hdmi_in_cast(True)
+                self.cv2camera.open()  # 影像讀取功能開啟
+                self.cv2camera.start()  # 在子緒啟動影像讀取
+
 
     def stop_hdmi_in_preview(self):
         log.debug("")
