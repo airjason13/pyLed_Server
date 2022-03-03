@@ -1,3 +1,5 @@
+import time
+
 from PyQt5.QtCore import QThread, pyqtSignal, QDateTime, QObject, QTimer
 import utils.log_utils
 import utils.net_utils
@@ -55,10 +57,11 @@ class LCD1602(QObject):
                 self.socket.sendall(message.encode())
                 self.lcd_data_idx += 1
             else:
-                message = "0:0:" + self.lcd_data_l0[self.lcd_data_idx]
-                self.socket.sendall(message.encode())
-                message = "0:1:" + self.lcd_data_l1[self.lcd_data_idx]
-                self.socket.sendall(message.encode())
+                message_line0 = "0:0:" + self.lcd_data_l0[self.lcd_data_idx]
+                self.socket.sendall(message_line0.encode())
+                time.sleep(0.2)
+                message_line1 = "0:1:" + self.lcd_data_l1[self.lcd_data_idx]
+                self.socket.sendall(message_line1.encode())
                 self.lcd_data_idx += 1
                 if self.lcd_data_idx >= len(self.lcd_data_l0):
                     self.lcd_data_idx = 0
