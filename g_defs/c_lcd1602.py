@@ -32,7 +32,7 @@ class LCD1602(QObject):
 
 
         self.server_address = lcd1602_server_address
-        if platform.machine() not in ('arm', 'arm64', 'aarch64'):
+        '''if platform.machine() not in ('arm', 'arm64', 'aarch64'):
             self.socket_connected = False
         else:
             try:
@@ -42,7 +42,7 @@ class LCD1602(QObject):
                 self.socket.close()
             except:
                 log.error("lcd1602 server connect failed!")
-                self.socket_connected = False
+                self.socket_connected = False'''
 
 
 
@@ -52,6 +52,9 @@ class LCD1602(QObject):
 
     def write_lcd_l0(self):
         # pass data to lcd1602_server
+        if platform.machine() not in ('arm', 'arm64', 'aarch64'):
+            log.error("Not on aarch64")
+            return
 
         try:
             if len(self.error_inform_l0) != 0:
@@ -73,7 +76,7 @@ class LCD1602(QObject):
                 message_line1 = "0:1:" + self.lcd_data_l1[self.lcd_data_idx]
                 self.socket.sendall(message_line1.encode())
                 self.socket.close()
-                
+
                 self.lcd_data_idx += 1
                 if self.lcd_data_idx >= len(self.lcd_data_l0):
                     self.lcd_data_idx = 0
