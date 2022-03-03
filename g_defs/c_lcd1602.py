@@ -30,14 +30,16 @@ class LCD1602(QObject):
         self.refresh_timer_0 = QTimer(self)
         self.refresh_timer_0.timeout.connect(self.write_lcd_l0)
 
-        self.socket = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+
         self.server_address = lcd1602_server_address
         if platform.machine() not in ('arm', 'arm64', 'aarch64'):
             self.socket_connected = False
         else:
             try:
+                self.socket = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
                 self.socket.connect(self.server_address)
                 self.socket_connected = True
+                self.socket.close()
             except:
                 log.error("lcd1602 server connect failed!")
                 self.socket_connected = False
@@ -53,15 +55,25 @@ class LCD1602(QObject):
 
         try:
             if len(self.error_inform_l0) != 0:
+                self.socket = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+                self.socket.connect(self.server_address)
                 message = "0:0:" + self.error_inform_l0[0]
                 self.socket.sendall(message.encode())
+                self.socket.close()
                 self.lcd_data_idx += 1
             else:
+                self.socket = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+                self.socket.connect(self.server_address)
                 message_line0 = "0:0:" + self.lcd_data_l0[self.lcd_data_idx]
                 self.socket.sendall(message_line0.encode())
-                time.sleep(0.2)
+                self.socket.close()
+
+                self.socket = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+                self.socket.connect(self.server_address)
                 message_line1 = "0:1:" + self.lcd_data_l1[self.lcd_data_idx]
                 self.socket.sendall(message_line1.encode())
+                self.socket.close()
+                
                 self.lcd_data_idx += 1
                 if self.lcd_data_idx >= len(self.lcd_data_l0):
                     self.lcd_data_idx = 0
