@@ -45,7 +45,7 @@ class LCD1602(QObject):
     def write_lcd_l0(self):
         # pass data to lcd1602_server
         if platform.machine() not in ('arm', 'arm64', 'aarch64'):
-            log.error("Not on aarch64")
+            # log.error("Not on aarch64")
             return
 
         try:
@@ -74,7 +74,6 @@ class LCD1602(QObject):
                     self.lcd_data_idx = 0
         except:
             log.error("write_lcd_l0 error")
-
 
     def add_data(self, tag, data0, data1):
         data = {"tag": tag, "d0": data0, "d1": data1}

@@ -259,47 +259,7 @@ def gen_led_cabinet_pixmap_with_cabinet_params(c_params, margin=0,
     if c_params.layout_type == 0 or c_params.layout_type == 1:
         for i in range( max_line):
             start_point = QPoint(c_params.start_x - 1, c_params.start_y -1)
-            '''start_point_bak = QPoint(c_params.start_x - 1, c_params.start_y -1)
-            print(start_point)
-            pixel_num = c_params.cabinet_width * c_params.cabinet_height
-            reverse = 0
-            for p in range(pixel_num -1):
-                if reverse == 0:
-                    if start_point_bak.x() < (c_params.cabinet_width - 1)*scale_factor:
-                        next_point = start_point_bak + (scale_factor*QPoint(1, 0))
-                    else:
-                        next_point = start_point_bak + (scale_factor * QPoint(0, 1))
-                        if reverse == 0:
-                            reverse = 1
-                        else:
-                            reverse = 0
-                else:
-                    if start_point_bak.x() > 1:
-                        next_point = start_point_bak - (scale_factor * QPoint(1, 0))
-                    else:
-                        next_point = start_point_bak + (scale_factor * QPoint(0, 1))
-                        if reverse == 1:
-                            reverse = 0
-                        else:
-                            reverse = 1
 
-                pixmap_paint.drawLine(start_point_bak, next_point)
-                start_point_bak = next_point'''
-
-            '''for y in range(c_params.cabinet_height - 1):
-                for x in range(c_params.cabinet_width - 1):
-                    pixmap_paint.drawLine(margin + start_point.x() + (x*scale_factor), margin + start_point.y() + (y*scale_factor),
-                                          margin + start_point.x() + ((x+1)*scale_factor), margin + start_point.y() + ((y)*scale_factor))
-                if y % 2 == 0:
-                    pixmap_paint.drawLine(margin + start_point.x() + ((c_params.cabinet_width - 1 )* scale_factor),
-                                          margin + start_point.y() + (y * scale_factor),
-                                          margin + start_point.x() + ((c_params.cabinet_width -1 )* scale_factor),
-                                          margin + start_point.y() + ((y + 1) * scale_factor))
-                else:
-                    pixmap_paint.drawLine(margin + start_point.x() ,
-                                          margin + start_point.y() + (y * scale_factor),
-                                          margin + start_point.x()  ,
-                                          margin + start_point.y() + ((y + 1) * scale_factor))'''
 
             '''橫線'''
             if i % (scale_factor) == line_interval:

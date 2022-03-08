@@ -1119,7 +1119,7 @@ class MainUi(QMainWindow):
             else:
                 '''先尋找是否已經存在playlist,如果有就掃描加入'''
                 for i in range(self.medialist_page.qtw_media_play_list.childCount()):
-                    print(self.medialist_page.qtw_media_play_list.child(i).text(0))
+                    #print(self.medialist_page.qtw_media_play_list.child(i).text(0))
                     if self.medialist_page.qtw_media_play_list.child(i).text(0) == playlist_name:
                         if action == self.media_engine.ACTION_TAG_ADD_MEDIA_FILE:
                             file_name_item = QTreeWidgetItem(self.medialist_page.qtw_media_play_list.child(i))

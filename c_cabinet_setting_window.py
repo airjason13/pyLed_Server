@@ -1,5 +1,3 @@
-import copy
-
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
@@ -167,6 +165,13 @@ class CabinetSettingWindow(QWidget):
     def cancel_btn_clicked(self):
         log.debug("")
         self.signal_draw_temp_cabinet.emit(self.cabinet_params, Qt.GlobalColor.red)
+        # self.signal_draw_temp_cabinet.emit(self.cabinet_params, Qt.GlobalColor.)
+        self.hide()
+
+    def closeEvent(self, event):
+        log.debug("")
+        self.signal_draw_temp_cabinet.emit(self.cabinet_params, Qt.GlobalColor.red)
+        # self.signal_draw_temp_cabinet.emit(self.cabinet_params, None)
         self.hide()
 
     def set_res_as_default_btn_clicked(self):
@@ -205,7 +210,6 @@ class CabinetSettingWindow(QWidget):
                 self.signal_draw_temp_cabinet.emit(self.cabinet_params_bak, Qt.GlobalColor.yellow)
                 break
             i += 1
-
 
     def __del__(self):
         log.debug("")

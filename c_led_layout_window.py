@@ -147,9 +147,13 @@ class LedLayoutWindow(QWidget):
 
     def resizeEvent(self, a0: QResizeEvent) -> None:
         log.debug("resizeEvent")
+        log.debug("self.led_fake_label.width() :%d ", self.led_fake_label.width())
+        log.debug("self.led_fake_label.height() : %d ", self.led_fake_label.height())
+        log.debug("self.width() :%d ", self.width())
+        log.debug("self.height() : %d ", self.height())
         self.led_wall_pixel_pixmap.scaled(self.width(), self.height())
         self.led_fake_label.setPixmap(self.led_wall_pixel_pixmap)
-
+        self.resize(self.led_fake_label.width(), self.led_fake_label.height())
         #self.led_fake_label.resize(int(self.width()), int(self.height()))
         #self.led_fake_label.resize(int(self.width()), int(self.height()))
         a0.accept()
@@ -183,9 +187,7 @@ class LedLayoutWindow(QWidget):
         self.led_fake_label.resize(int(self.width()), int(self.height()))
 
     def gen_single_cabinet_label(self, c_params, start_drag_slot, label_drop_slot):
-
         single_cabinet_label = Draggable_cabinet_label(self, c_params, self.led_pinch, start_drag_slot, label_drop_slot)
-        self.single_cabinet_labels.append(single_cabinet_label)
         return single_cabinet_label
 
     def gen_single_cabinet_label_deprecated(self, c_params, start_drag_slot, label_drop_slot):
@@ -198,8 +200,8 @@ class LedLayoutWindow(QWidget):
 
 
     def add_cabinet_label(self, c_params):
-
-        #c_params_tmp = cabinet_params(c_params.client_ip, c_params.client_id, c_params.port_id, 40, 24, 0, 1, 1) #for test
+        log.debug("")
+        log.debug("len(self.single_cabinet_labels) = %d", len(self.single_cabinet_labels))
         tmp_label = self.gen_single_cabinet_label(c_params, self.start_drag, self.label_drop_on_drag_label)
         tmp_cabinet_pixmap = utils.qtui_utils.gen_led_cabinet_pixmap_with_cabinet_params(tmp_label.c_params, margin=0,
                                                                                                 bg_color=Qt.GlobalColor.transparent,
@@ -214,14 +216,17 @@ class LedLayoutWindow(QWidget):
         tmp_label.move(
             (label_start_x * c_params.led_pinch) + default_led_wall_margin + x_compensation,
             (label_start_y * c_params.led_pinch) + default_led_wall_margin + y_compensation)
-        #tmp_label.move(((tmp_label.c_params.start_x - 1) * tmp_label.c_params.led_pinch) + default_led_wall_margin + x_compensation,
-        #          ((tmp_label.c_params.start_y - 1) * tmp_label.c_params.led_pinch) + default_led_wall_margin + y_compensation)
+
         self.single_cabinet_labels.append(tmp_label)
+        log.debug("len(self.single_cabinet_labels) = %d", len(self.single_cabinet_labels))
         tmp_label.show()
 
     ''' 依照 c_params 選定label來更新'''
     def redraw_cabinet_label(self, c_params, line_color):
         log.debug('len of self.single_cabinet_labels :%d', len(self.single_cabinet_labels))
+        if line_color is None:
+            log.debug("Do not draw this")
+            return
         for cabinet_label in self.single_cabinet_labels:
             if cabinet_label.c_params.client_ip is c_params.client_ip:
                 if cabinet_label.c_params.port_id == c_params.port_id:
@@ -244,11 +249,9 @@ class LedLayoutWindow(QWidget):
                     cabinet_label.move(
                         (label_start_x * c_params.led_pinch) + default_led_wall_margin + x_compensation,
                         (label_start_y * c_params.led_pinch) + default_led_wall_margin + y_compensation)
-                    #cabinet_label.move(((c_params.start_x - 1) * c_params.led_pinch) + default_led_wall_margin + x_compensation,
-                    #          ((c_params.start_y - 1) * c_params.led_pinch) + default_led_wall_margin + y_compensation)
-
 
                     cabinet_label.show()
+
                     break
 
     def get_label_start_pos_with_layout_type(self, c_params):
