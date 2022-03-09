@@ -652,9 +652,13 @@ class MainUi(QMainWindow):
 
     def sync_client_layout_params(self, force_refresh, fresh_layout_map):
         # led layout page treewidget show
-
         if self.led_client_layout_tree.topLevelItemCount() != len(self.clients):
             force_refresh = True
+            self.led_layout_window.remove_all_cabinet_label()
+
+        #if fresh_layout_map is True:
+        #    self.led_layout_window.remove_all_cabinet_label()
+
         if force_refresh is True:
             self.client_led_layout.clear()
             self.led_client_layout_tree.clear()
