@@ -479,6 +479,18 @@ class media_processor(QObject):
     def set_image_period_value(self, value):
         self.video_params.set_image_peroid(value)
 
+    def set_frame_brightness_value(self, value):
+        self.video_params.set_frame_brightness(value)
+
+    def set_frame_br_divisor_value(self, value):
+        self.video_params.set_frame_br_divisor(value)
+
+    def set_frame_contrast_value(self, value):
+        self.video_params.set_frame_contrast(value)
+
+    def set_frame_gamma_value(self, value):
+        self.video_params.set_frame_gamma(value)
+
     class play_playlist_work(QObject):
         finished = pyqtSignal()
         progress = pyqtSignal(int)

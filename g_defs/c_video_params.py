@@ -1,13 +1,23 @@
 from PyQt5.QtCore import QObject
 import utils.log_utils
 import os
+import sys
+
 from global_def import *
-log = utils.log_utils.logging_init('c_led_params')
+
+log = utils.log_utils.logging_init(__file__)
+
+root_dir = os.path.dirname(sys.modules['__main__'].__file__)
+led_config_dir = os.path.join(root_dir, 'video_params_config')
+print("led_config_dir = ", led_config_dir)
+
+os.makedirs(led_config_dir, exist_ok=True)
 
 class video_params(QObject):
 
     def __init__(self, from_config, video_brightness, video_contrast, red_bias, green_bias, blue_bias, gamma, **kwargs):
         super(video_params, self).__init__(**kwargs)
+        self.video_params_file_uri = os.path.join(led_config_dir, ".video_params_config")
         if from_config is True:
             self.parse_init_config()
         else:
@@ -17,21 +27,24 @@ class video_params(QObject):
             self.video_red_bias = red_bias
             self.video_green_bias = green_bias
             self.video_blue_bias = blue_bias
+            # control by clients
+            self.frame_brightness = default_led_client_brightness
+            self.frame_br_divisor = default_led_client_brdivisor
+            self.frame_contrast = 0
+            self.frame_gamma = default_led_client_gamma
 
-        # control by clients
-        self.frame_brightness = default_led_client_brightness
-        self.frame_br_divisor = default_led_client_brdivisor
-        self.frame_contrast = 0
-        self.frame_gamma = default_led_client_gamma
-
-        #still image encode peroid
-        self.image_period = still_image_video_period
+            # still image encode peroid
+            self.image_period = still_image_video_period
 
     def parse_init_config(self):
         # Using readlines()
-        file_uri = internal_media_folder + init_config_file
+        file_uri = self.video_params_file_uri  # internal_media_folder + init_config_file
         if os.path.isfile(file_uri) is False:
-            content_lines = ["brightness=50\n", "contrast=50\n", "red_bias=0\n", "green_bias=0\n", "blue_bias=0\n"]
+            content_lines = [
+                            "brightness=50\n", "contrast=50\n", "red_bias=0\n", "green_bias=0\n", "blue_bias=0\n",
+                            "frame_brightness=100\n", "frame_br_divisor=1\n", "frame_contrast=0\n", "frame_gamma=2.2\n",
+                            "image_period=60\n"
+                             ]
             config_file = open(file_uri, 'w')
             config_file.writelines(content_lines)
             config_file.close()
@@ -59,6 +72,16 @@ class video_params(QObject):
                 self.video_green_bias = int(tmp[1])
             elif tmp[0] == 'blue_bias':
                 self.video_blue_bias = int(tmp[1])
+            elif tmp[0] == 'frame_brightness':
+                self.frame_brightness = int(tmp[1])
+            elif tmp[0] == 'frame_br_divisor':
+                self.frame_br_divisor = int(tmp[1])
+            elif tmp[0] == 'frame_contrast':
+                self.frame_contrast = int(tmp[1])
+            elif tmp[0] == 'frame_gamma':
+                self.frame_gamma = float(tmp[1])
+            elif tmp[0] == 'image_period':
+                self.image_period = int(tmp[1])
 
     def refresh_config_file(self):
         log.debug("")
@@ -67,11 +90,16 @@ class video_params(QObject):
         params_red_bias = 'red_bias=' + str(self.video_red_bias) + '\n'
         params_green_bias = 'green_bias=' + str(self.video_green_bias) + '\n'
         params_blue_bias = 'blue_bias=' + str(self.video_blue_bias) + '\n'
+        params_frame_brightness = 'frame_brightness=' + str(self.frame_brightness) + '\n'
+        params_frame_br_divisor = 'frame_br_divisor=' + str(self.frame_br_divisor) + '\n'
+        params_frame_contrast = 'frame_contrast=' + str(self.frame_contrast) + '\n'
+        params_frame_gamma = 'frame_gamma=' + str(self.frame_gamma) + '\n'
         params_image_period = 'image_period=' + str(self.image_period) + '\n'
 
         content_lines = [params_birghtness, params_contrast, params_red_bias, params_green_bias,
-                         params_blue_bias, params_image_period]
-        file_uri = internal_media_folder + init_config_file
+                         params_blue_bias, params_frame_brightness, params_frame_br_divisor,
+                         params_frame_contrast, params_frame_gamma, params_image_period]
+        file_uri = self.video_params_file_uri   # internal_media_folder + init_config_file
         config_file = open(file_uri, 'w')
         config_file.writelines(content_lines)
         config_file.close()
@@ -101,6 +129,26 @@ class video_params(QObject):
         self.image_period = period_value
         self.refresh_config_file()
 
+    def set_frame_brightness(self, frame_brightness_value):
+        self.frame_brightness = frame_brightness_value
+        self.refresh_config_file()
+
+    def set_frame_br_divisor(self, frame_br_divisor_value):
+        self.frame_br_divisor = frame_br_divisor_value
+        self.refresh_config_file()
+
+    def set_frame_contrast(self, frame_contrast_value):
+        self.frame_contrast = frame_contrast_value
+        self.refresh_config_file()
+
+    def set_frame_gamma(self, frame_gamma_value):
+        self.frame_gamma = frame_gamma_value
+        self.refresh_config_file()
+
+    def set_frame_gamma(self, frame_gamma_value):
+        self.frame_gamma = frame_gamma_value
+        self.refresh_config_file()
+
     '''get the brightness translated value'''
     '''0~100 mapping to -1~1'''
     def get_translated_brightness(self):
@@ -122,3 +170,16 @@ class video_params(QObject):
 
     def get_translated_bluegain(self):
         return self.video_blue_bias / float(100.00)
+
+    def get_frame_brightness(self):
+        return self.frame_brightness
+
+    def get_frame_br_divisor(self):
+        return self.frame_br_divisor
+
+    def get_frame_contrast(self):
+        return self.frame_contrast
+
+    def get_frame_gamma(self):
+        return self.frame_gamma
+

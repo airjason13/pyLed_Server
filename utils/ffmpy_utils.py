@@ -449,14 +449,14 @@ def gen_webp_from_video(file_folder, video):
     # use hashlib md5 to generate preview file name
     video_name = video.split(".")[0]
     video_extension = video.split(".")[1]
-    log.debug("video_extension = %s", video_extension)
+    # log.debug("video_extension = %s", video_extension)
     preview_file_name = hashlib.md5(video_name.encode('utf-8')).hexdigest()
 
     # thumbnail_path = internal_media_folder + ThumbnailFileFolder + video.replace(".mp4", ".webp")
     thumbnail_path = internal_media_folder + ThumbnailFileFolder + preview_file_name + ".webp"
     video_path = file_folder + "/" + video
-    log.debug("video_path = %s", video_path)
-    log.debug("thumbnail_path = %s", thumbnail_path)
+    # log.debug("video_path = %s", video_path)
+    # log.debug("thumbnail_path = %s", thumbnail_path)
     thunbnail_folder_path = internal_media_folder + ThumbnailFileFolder
     if not os.path.exists(thunbnail_folder_path):
         os.makedirs(thunbnail_folder_path)
@@ -464,7 +464,7 @@ def gen_webp_from_video(file_folder, video):
         if os.path.isfile(thumbnail_path) is False:
             global_opts = '-hide_banner -loglevel error'
             if video_extension in ["jpeg", "jpg", "png"]:
-                log.debug("still image")
+                # log.debug("still image")
                 ff = ffmpy.FFmpeg(
                     global_options=global_opts,
                     inputs={video_path: ['-loop', str(still_image_loop_cnt), '-t', str(preview_period)]},
@@ -476,7 +476,7 @@ def gen_webp_from_video(file_folder, video):
                     inputs={video_path: ['-ss', str(preview_start_time), '-t', str(preview_period)]},
                     outputs={thumbnail_path: ['-vf', 'scale=640:480']}
                 )
-            log.debug("%s", ff.cmd)
+            # log.debug("%s", ff.cmd)
             ff.run()
     except Exception as e:
         log.debug(e)

@@ -978,12 +978,8 @@ class MainUi(QMainWindow):
 
     def set_led_wall_brightness(self):
         self.led_wall_brightness = int(self.led_brightness_editbox.text())
-        # cmd_params_str = "led_wall_brightness=" + str(self.led_wall_brightness)
-        # for c in self.clients:
-        #    c.send_cmd(cmd=cmd_set_led_brightness, cmd_seq_id=self.cmd_seq_id_increase(), param=cmd_params_str)
 
     '''pop-up cabinet_setting_window while client_layout_tree clicked'''
-
     def cabinet_setting_window_show(self, a0: QModelIndex) -> None:
         if self.led_client_layout_tree.itemFromIndex(a0).parent().text(0) is None:
             return

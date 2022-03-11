@@ -1,0 +1,10 @@
+brightness=50
+contrast=50
+red_bias=0
+green_bias=0
+blue_bias=0
+frame_brightness=30
+frame_br_divisor=1
+frame_contrast=0
+frame_gamma=2.2
+image_period=60
