@@ -73,7 +73,7 @@ class media_page(QObject):
             playlist_root = QTreeWidgetItem(self.qtw_media_play_list)
             playlist_root.setText(0, playlist.name)
             for file_name in playlist.fileslist:
-                log.debug("playlist.fileslist :%s", file_name)
+                #log.debug("playlist.fileslist :%s", file_name)
                 file_name_item = QTreeWidgetItem(playlist_root)
                 file_name_item.setText(0, os.path.basename(file_name))
                 playlist_root.addChild(file_name_item)
@@ -261,7 +261,7 @@ class media_page(QObject):
         self.video_params_crop_x_label.setFixedWidth(100)
 
         self.video_params_crop_x_edit = QLineEdit(self.mainwindow.right_frame)
-        self.video_params_crop_x_edit.setText("0")
+        self.video_params_crop_x_edit.setText(str(self.media_engine.media_processor.video_params.crop_start_x))
         self.video_params_crop_x_edit.setFixedWidth(100)
 
         self.video_params_crop_y_label = QLabel(self.mainwindow.right_frame)
@@ -269,7 +269,7 @@ class media_page(QObject):
         self.video_params_crop_y_label.setFixedWidth(100)
 
         self.video_params_crop_y_edit = QLineEdit(self.mainwindow.right_frame)
-        self.video_params_crop_y_edit.setText("0")
+        self.video_params_crop_y_edit.setText(str(self.media_engine.media_processor.video_params.crop_start_y))
         self.video_params_crop_y_edit.setFixedWidth(100)
 
         self.video_params_crop_w_label = QLabel(self.mainwindow.right_frame)
@@ -277,7 +277,7 @@ class media_page(QObject):
         self.video_params_crop_w_label.setFixedWidth(100)
 
         self.video_params_crop_w_edit = QLineEdit(self.mainwindow.right_frame)
-        self.video_params_crop_w_edit.setText("0")
+        self.video_params_crop_w_edit.setText(str(self.media_engine.media_processor.video_params.crop_w))
         self.video_params_crop_w_edit.setFixedWidth(100)
 
         self.video_params_crop_h_label = QLabel(self.mainwindow.right_frame)
@@ -285,7 +285,7 @@ class media_page(QObject):
         self.video_params_crop_h_label.setFixedWidth(100)
 
         self.video_params_crop_h_edit = QLineEdit(self.mainwindow.right_frame)
-        self.video_params_crop_h_edit.setText("0")
+        self.video_params_crop_h_edit.setText(str(self.media_engine.media_processor.video_params.crop_h))
         self.video_params_crop_h_edit.setFixedWidth(100)
 
         self.video_params_crop_enable = QPushButton(self.mainwindow.right_frame)
@@ -428,9 +428,10 @@ class media_page(QObject):
         del_act = QAction("Delete", self)
         pop_menu.addAction(del_act)
 
-        crop_act = QAction("Crop", self)
-        crop_act.setDisabled(True)
-        pop_menu.addAction(crop_act)
+        # remove crop function in separate files
+        # crop_act = QAction("Crop", self)
+        # crop_act.setDisabled(True)
+        # pop_menu.addAction(crop_act)
         pop_menu.addSeparator()
 
         add_to_playlist_menu = QMenu('AddtoPlaylist')
@@ -586,6 +587,7 @@ class media_page(QObject):
                            self.mainwindow.cmd_seq_id_increase(),
                            str(video_params.frame_gamma))
 
+
         if self.mainwindow.engineer_mode is True:
             self.refresh_max_brightness_label()
 
@@ -608,17 +610,44 @@ class media_page(QObject):
 
     def video_crop_enable(self):
         log.debug("crop_enable")
-        utils.ffmpy_utils.ffmpy_crop_enable(self.video_params_crop_x_edit.text(),
-                                     self.video_params_crop_y_edit.text(),
-                                     self.video_params_crop_w_edit.text(),
-                                     self.video_params_crop_h_edit.text(),
-                                     self.mainwindow.led_wall_width,
-                                     self.mainwindow.led_wall_height)
+        # test
+        media_processor = self.media_engine.media_processor
+        video_params = media_processor.video_params
+        if video_params.crop_start_x != int(self.video_params_crop_x_edit.text()):
+            media_processor.set_crop_start_x_value(int(self.video_params_crop_x_edit.text()))
+
+        if video_params.crop_start_y != int(self.video_params_crop_y_edit.text()):
+            media_processor.set_crop_start_y_value(int(self.video_params_crop_y_edit.text()))
+
+        if video_params.crop_w != int(self.video_params_crop_w_edit.text()):
+            media_processor.set_crop_w_value(int(self.video_params_crop_w_edit.text()))
+
+        if video_params.crop_h != int(self.video_params_crop_h_edit.text()):
+            media_processor.set_crop_h_value(int(self.video_params_crop_h_edit.text()))
+
+        if self.media_engine.media_processor.ffmpy_process is not None:
+            utils.ffmpy_utils.ffmpy_crop_enable(self.video_params_crop_x_edit.text(),
+                                         self.video_params_crop_y_edit.text(),
+                                         self.video_params_crop_w_edit.text(),
+                                         self.video_params_crop_h_edit.text(),
+                                         self.mainwindow.led_wall_width,
+                                         self.mainwindow.led_wall_height)
 
     def video_crop_disable(self):
         log.debug("crop_disable")
-        utils.ffmpy_utils.ffmpy_crop_disable(self.mainwindow.led_wall_width,
-                                     self.mainwindow.led_wall_height)
+        media_processor = self.media_engine.media_processor
+        self.video_params_crop_x_edit.setText("0")
+        self.video_params_crop_y_edit.setText("0")
+        self.video_params_crop_w_edit.setText("0")
+        self.video_params_crop_h_edit.setText("0")
+        media_processor.set_crop_start_x_value(int(self.video_params_crop_x_edit.text()))
+        media_processor.set_crop_start_y_value(int(self.video_params_crop_y_edit.text()))
+        media_processor.set_crop_w_value(int(self.video_params_crop_w_edit.text()))
+        media_processor.set_crop_h_value(int(self.video_params_crop_h_edit.text()))
+
+        if self.media_engine.media_processor.ffmpy_process is not None:
+            utils.ffmpy_utils.ffmpy_crop_disable(self.mainwindow.led_wall_width,
+                                        self.mainwindow.led_wall_height)
 
     def refresh_max_brightness_label(self):
         if self.mainwindow.engineer_mode is False:

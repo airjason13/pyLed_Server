@@ -382,6 +382,19 @@ class Hdmi_In_Page(QObject):
         if video_params.video_blue_bias != int(self.bluegain_edit.text()):
             log.debug("blue gain changed!")
             media_processor.set_blue_bias_level(int(self.bluegain_edit.text()))
+        if video_params.frame_brightness != int(self.client_brightness_edit.text()):
+            log.debug("frame_brightness changed!")
+            media_processor.set_frame_brightness_value(int(self.client_brightness_edit.text()))
+        if video_params.frame_br_divisor != int(self.client_br_divisor_edit.text()):
+            log.debug("frame_br_divisor changed!")
+            media_processor.set_frame_br_divisor_value(int(self.client_br_divisor_edit.text()))
+        if video_params.frame_contrast != int(self.client_contrast_edit.text()):
+            log.debug("frame_contrast changed!")
+            media_processor.set_frame_contrast_value(int(self.client_contrast_edit.text()))
+        if video_params.frame_gamma != int(self.client_gamma_edit.text()):
+            log.debug("frame_gamma changed!")
+            media_processor.set_frame_gamma_value(int(self.client_gamma_edit.text()))
+
 
     def send_to_led(self):
 
@@ -428,6 +441,8 @@ class Hdmi_In_Page(QObject):
 
     def refresh_tc358743_param(self, connected, width, height, fps):
         log.debug("connected = %d", connected)
+        media_processor = self.media_engine.media_processor
+        video_params = media_processor.video_params
         if connected is True:
             self.hdmi_in_info_width_res_label.setText(str(width))
             self.hdmi_in_info_height_res_label.setText(str(height))
@@ -440,10 +455,10 @@ class Hdmi_In_Page(QObject):
                 self.hdmi_in_crop_status_y_res_label.setText("0")
                 self.hdmi_in_crop_status_w_res_label.setText(str(width))
                 self.hdmi_in_crop_status_h_res_label.setText(str(height))
-                self.hdmi_in_crop_x_lineedit.setText("0")
-                self.hdmi_in_crop_y_lineedit.setText("0")
-                self.hdmi_in_crop_w_lineedit.setText(str(width))
-                self.hdmi_in_crop_h_lineedit.setText(str(height))
+                self.hdmi_in_crop_x_lineedit.setText(str(video_params.get_hdmi_in_crop_start_x()))
+                self.hdmi_in_crop_y_lineedit.setText(str(video_params.get_hdmi_in_crop_start_y()))
+                self.hdmi_in_crop_w_lineedit.setText(str(video_params.get_hdmi_in_crop_w()))
+                self.hdmi_in_crop_h_lineedit.setText(str(video_params.get_hdmi_in_crop_w()))
 
                 
         else:
@@ -451,10 +466,10 @@ class Hdmi_In_Page(QObject):
             self.hdmi_in_crop_status_y_res_label.setText("0")
             self.hdmi_in_crop_status_w_res_label.setText(str(self.tc358743.hdmi_width))
             self.hdmi_in_crop_status_h_res_label.setText(str(self.tc358743.hdmi_height))
-            self.hdmi_in_crop_x_lineedit.setText("0")
-            self.hdmi_in_crop_y_lineedit.setText("0")
-            self.hdmi_in_crop_w_lineedit.setText(str(self.tc358743.hdmi_width))
-            self.hdmi_in_crop_h_lineedit.setText(str(self.tc358743.hdmi_width))
+            self.hdmi_in_crop_x_lineedit.setText(str(video_params.get_hdmi_in_crop_start_x()))
+            self.hdmi_in_crop_y_lineedit.setText(str(video_params.get_hdmi_in_crop_start_y()))
+            self.hdmi_in_crop_w_lineedit.setText(str(video_params.get_hdmi_in_crop_w()))
+            self.hdmi_in_crop_h_lineedit.setText(str(video_params.get_hdmi_in_crop_w()))
 
     def hdmi_in_crop_disable(self):
         self.b_hdmi_in_crop_enable = False
@@ -467,6 +482,17 @@ class Hdmi_In_Page(QObject):
 
     def video_crop_enable(self):
         log.debug("crop_enable")
+        media_processor = self.media_engine.media_processor
+        video_params = media_processor.video_params
+        if video_params.hdmi_in_crop_start_x != int(self.hdmi_in_crop_x_lineedit.text()):
+            media_processor.set_hdmi_in_crop_start_x_value(int(self.hdmi_in_crop_x_lineedit.text()))
+        if video_params.hdmi_in_crop_start_y != int(self.hdmi_in_crop_y_lineedit.text()):
+            media_processor.set_hdmi_in_crop_start_y_value(int(self.hdmi_in_crop_y_lineedit.text()))
+        if video_params.hdmi_in_crop_w != int(self.hdmi_in_crop_w_lineedit.text()):
+            media_processor.set_hdmi_in_crop_w_value(int(self.hdmi_in_crop_w_lineedit.text()))
+        if video_params.hdmi_in_crop_h != int(self.hdmi_in_crop_h_lineedit.text()):
+            media_processor.set_hdmi_in_crop_h_value(int(self.hdmi_in_crop_h_lineedit.text()))
+
         self.hdmi_in_crop_status_label.setText("Crop Enable")
         self.hdmi_in_crop_status_x_res_label.setText(self.hdmi_in_crop_x_lineedit.text())
         self.hdmi_in_crop_status_y_res_label.setText(self.hdmi_in_crop_y_lineedit.text())
@@ -492,6 +518,16 @@ class Hdmi_In_Page(QObject):
         self.hdmi_in_crop_y_lineedit.setText("0")
         self.hdmi_in_crop_w_lineedit.setText(str(self.tc358743.hdmi_width))
         self.hdmi_in_crop_h_lineedit.setText(str(self.tc358743.hdmi_height))
+        media_processor = self.media_engine.media_processor
+        video_params = media_processor.video_params
+        if video_params.hdmi_in_crop_start_x != int(self.hdmi_in_crop_x_lineedit.text()):
+            media_processor.set_hdmi_in_crop_start_x_value(int(self.hdmi_in_crop_x_lineedit.text()))
+        if video_params.hdmi_in_crop_start_y != int(self.hdmi_in_crop_y_lineedit.text()):
+            media_processor.set_hdmi_in_crop_start_y_value(int(self.hdmi_in_crop_y_lineedit.text()))
+        if video_params.hdmi_in_crop_w != int(self.hdmi_in_crop_w_lineedit.text()):
+            media_processor.set_hdmi_in_crop_w_value(int(self.hdmi_in_crop_w_lineedit.text()))
+        if video_params.hdmi_in_crop_h != int(self.hdmi_in_crop_h_lineedit.text()):
+            media_processor.set_hdmi_in_crop_h_value(int(self.hdmi_in_crop_h_lineedit.text()))
         if self.media_engine.media_processor.play_hdmi_in_worker is not None:
             utils.ffmpy_utils.ffmpy_crop_disable(self.mainwindow.led_wall_width,
                                      self.mainwindow.led_wall_height)

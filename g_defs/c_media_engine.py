@@ -491,6 +491,30 @@ class media_processor(QObject):
     def set_frame_gamma_value(self, value):
         self.video_params.set_frame_gamma(value)
 
+    def set_crop_start_x_value(self, value):
+        self.video_params.set_crop_start_x(value)
+
+    def set_crop_start_y_value(self, value):
+        self.video_params.set_crop_start_y(value)
+
+    def set_crop_w_value(self, value):
+        self.video_params.set_crop_w(value)
+
+    def set_crop_h_value(self, value):
+        self.video_params.set_crop_h(value)
+
+    def set_hdmi_in_crop_start_x_value(self, value):
+        self.video_params.set_hdmi_in_crop_start_x(value)
+
+    def set_hdmi_in_crop_start_y_value(self, value):
+        self.video_params.set_hdmi_in_crop_start_y(value)
+
+    def set_hdmi_in_crop_w_value(self, value):
+        self.video_params.set_hdmi_in_crop_w(value)
+
+    def set_hdmi_in_crop_h_value(self, value):
+        self.video_params.set_hdmi_in_crop_h(value)
+
     class play_playlist_work(QObject):
         finished = pyqtSignal()
         progress = pyqtSignal(int)

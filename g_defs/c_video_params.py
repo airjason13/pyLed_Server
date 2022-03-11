@@ -32,6 +32,15 @@ class video_params(QObject):
             self.frame_br_divisor = default_led_client_brdivisor
             self.frame_contrast = 0
             self.frame_gamma = default_led_client_gamma
+            # crop function
+            self.crop_start_x = 0
+            self.crop_start_y = 0
+            self.crop_w = 0
+            self.crop_h = 0
+            self.hdmi_in_crop_start_x = 0
+            self.hdmi_in_crop_start_y = 0
+            self.hdmi_in_crop_w = 0
+            self.hdmi_in_crop_h = 0
 
             # still image encode peroid
             self.image_period = still_image_video_period
@@ -43,7 +52,9 @@ class video_params(QObject):
             content_lines = [
                             "brightness=50\n", "contrast=50\n", "red_bias=0\n", "green_bias=0\n", "blue_bias=0\n",
                             "frame_brightness=100\n", "frame_br_divisor=1\n", "frame_contrast=0\n", "frame_gamma=2.2\n",
-                            "image_period=60\n"
+                            "image_period=60\n", "crop_start_x=0\n", "crop_start_y=0\n", "crop_w=0\n", "crop_h=0\n",
+                            "hdmi_in_crop_start_x=0\n", "hdmi_in_crop_start_y=0\n",
+                            "hdmi_in_crop_w=0\n", "hdmi_in_crop_h=0\n",
                              ]
             config_file = open(file_uri, 'w')
             config_file.writelines(content_lines)
@@ -58,10 +69,10 @@ class video_params(QObject):
         # Strips the newline character
         for line in content_lines:
             count += 1
-            print("Line{}: {}".format(count, line.strip()))
+            log.debug("Line{}: {}".format(count, line.strip()))
             tmp = line.split("=")
-            print("tmp[0] = ", tmp[0])
-            print("tmp[1] = ", tmp[1])
+            # print("tmp[0] = ", tmp[0])
+            # print("tmp[1] = ", tmp[1])
             if tmp[0] == 'brightness':
                 self.video_brightness = int(tmp[1])
             elif tmp[0] == 'contrast':
@@ -82,6 +93,22 @@ class video_params(QObject):
                 self.frame_gamma = float(tmp[1])
             elif tmp[0] == 'image_period':
                 self.image_period = int(tmp[1])
+            elif tmp[0] == 'crop_start_x':
+                self.crop_start_x = int(tmp[1])
+            elif tmp[0] == 'crop_start_y':
+                self.crop_start_y = int(tmp[1])
+            elif tmp[0] == 'crop_w':
+                self.crop_w = int(tmp[1])
+            elif tmp[0] == 'crop_h':
+                self.crop_h = int(tmp[1])
+            elif tmp[0] == 'hdmi_in_crop_start_x':
+                self.hdmi_in_crop_start_x = int(tmp[1])
+            elif tmp[0] == 'hdmi_in_crop_start_y':
+                self.hdmi_in_crop_start_y = int(tmp[1])
+            elif tmp[0] == 'hdmi_in_crop_w':
+                self.hdmi_in_crop_w = int(tmp[1])
+            elif tmp[0] == 'hdmi_in_crop_h':
+                self.hdmi_in_crop_h = int(tmp[1])
 
     def refresh_config_file(self):
         log.debug("")
@@ -95,10 +122,21 @@ class video_params(QObject):
         params_frame_contrast = 'frame_contrast=' + str(self.frame_contrast) + '\n'
         params_frame_gamma = 'frame_gamma=' + str(self.frame_gamma) + '\n'
         params_image_period = 'image_period=' + str(self.image_period) + '\n'
+        params_crop_start_x = 'crop_start_x=' + str(self.crop_start_x) + '\n'
+        params_crop_start_y = 'crop_start_y=' + str(self.crop_start_y) + '\n'
+        params_crop_w = 'crop_w=' + str(self.crop_w) + '\n'
+        params_crop_h = 'crop_h=' + str(self.crop_h) + '\n'
+        params_hdmi_in_crop_start_x = 'hdmi_in_crop_start_x=' + str(self.hdmi_in_crop_start_x) + '\n'
+        params_hdmi_in_crop_start_y = 'hdmi_in_crop_start_y=' + str(self.hdmi_in_crop_start_y) + '\n'
+        params_hdmi_in_crop_w = 'hdmi_in_crop_w=' + str(self.hdmi_in_crop_w) + '\n'
+        params_hdmi_in_crop_h = 'hdmi_in_crop_h=' + str(self.hdmi_in_crop_h) + '\n'
 
         content_lines = [params_birghtness, params_contrast, params_red_bias, params_green_bias,
                          params_blue_bias, params_frame_brightness, params_frame_br_divisor,
-                         params_frame_contrast, params_frame_gamma, params_image_period]
+                         params_frame_contrast, params_frame_gamma, params_image_period,
+                         params_crop_start_x, params_crop_start_y, params_crop_w, params_crop_h,
+                         params_hdmi_in_crop_start_x, params_hdmi_in_crop_start_y,
+                         params_hdmi_in_crop_w, params_hdmi_in_crop_h]
         file_uri = self.video_params_file_uri   # internal_media_folder + init_config_file
         config_file = open(file_uri, 'w')
         config_file.writelines(content_lines)
@@ -145,8 +183,36 @@ class video_params(QObject):
         self.frame_gamma = frame_gamma_value
         self.refresh_config_file()
 
-    def set_frame_gamma(self, frame_gamma_value):
-        self.frame_gamma = frame_gamma_value
+    def set_crop_start_x(self, crop_start_x_value):
+        self.crop_start_x = crop_start_x_value
+        self.refresh_config_file()
+
+    def set_crop_start_y(self, crop_start_y_value):
+        self.crop_start_y = crop_start_y_value
+        self.refresh_config_file()
+
+    def set_crop_w(self, crop_w_value):
+        self.crop_w = crop_w_value
+        self.refresh_config_file()
+
+    def set_crop_h(self, crop_h_value):
+        self.crop_h = crop_h_value
+        self.refresh_config_file()
+
+    def set_hdmi_in_crop_start_x(self, hdmi_in_crop_start_x_value):
+        self.hdmi_in_crop_start_x = hdmi_in_crop_start_x_value
+        self.refresh_config_file()
+
+    def set_hdmi_in_crop_start_y(self, hdmi_in_crop_start_y_value):
+        self.hdmi_in_crop_start_y = hdmi_in_crop_start_y_value
+        self.refresh_config_file()
+
+    def set_hdmi_in_crop_w(self, hdmi_in_crop_w_value):
+        self.hdmi_in_crop_w = hdmi_in_crop_w_value
+        self.refresh_config_file()
+
+    def set_hdmi_in_crop_h(self, hdmi_in_crop_h_value):
+        self.hdmi_in_crop_h = hdmi_in_crop_h_value
         self.refresh_config_file()
 
     '''get the brightness translated value'''
@@ -183,3 +249,26 @@ class video_params(QObject):
     def get_frame_gamma(self):
         return self.frame_gamma
 
+    def get_crop_start_x(self):
+        return self.crop_start_x
+
+    def get_crop_start_y(self):
+        return self.crop_start_y
+
+    def get_crop_w(self):
+        return self.crop_w
+
+    def get_crop_h(self):
+        return self.crop_h
+
+    def get_hdmi_in_crop_start_x(self):
+        return self.hdmi_in_crop_start_x
+
+    def get_hdmi_in_crop_start_y(self):
+        return self.hdmi_in_crop_start_y
+
+    def get_hdmi_in_crop_w(self):
+        return self.hdmi_in_crop_w
+
+    def get_hdmi_in_crop_h(self):
+        return self.hdmi_in_crop_h

@@ -55,8 +55,8 @@ def neo_ffmpy_execute(video_path, brightness, contrast, red_bias, green_bias, bl
             ff = ffmpy.FFmpeg(
                 global_options=global_opts,
                 inputs={
-                    # video_path: ["-re"]
-                    video_path: ["-r 30"]
+                    video_path: ["-re"]
+                    # video_path: ["-r 30"]
                 },
                 outputs={
                     udp_sink: ["-vcodec", video_encoder, '-filter_complex', filter_params, "-b:v", "2000k", "-f",
