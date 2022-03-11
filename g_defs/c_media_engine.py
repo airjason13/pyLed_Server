@@ -8,6 +8,7 @@ import utils.log_utils
 from utils.file_utils import *
 from pyudev import Context, Monitor, MonitorObserver
 from g_defs.c_video_params import *
+from g_defs.c_led_config import *
 import random
 
 log = utils.log_utils.logging_init(__file__)
@@ -29,12 +30,13 @@ class media_engine(QObject):
 
     '''init'''
 
-    def __init__(self, **kwargs):
+    def __init__(self, led_config, **kwargs):
         super(media_engine, self).__init__(**kwargs)
         self.internal_medialist = medialist(internal_media_folder)
 
         ''' handle the external media list'''
         # self.external_mount_points = get_mount_points()
+        self.led_config = led_config
         self.external_medialist = []
         for mount_point in utils.file_utils.get_mount_points():
             external_medialist_tmp = medialist(mount_point)
@@ -52,7 +54,7 @@ class media_engine(QObject):
         self.init_usb_monitor()
 
         '''media_process'''
-        self.media_processor = media_processor()
+        self.media_processor = media_processor(self.led_config)
         self.media_processor.signal_media_play_status_changed.connect(self.play_status_changed)
         '''hdmi-in cast'''
 
@@ -244,10 +246,11 @@ class media_processor(QObject):
     signal_play_hdmi_in_start_ret = pyqtSignal()
     signal_play_hdmi_in_finish_ret = pyqtSignal()
 
-    def __init__(self):
+    def __init__(self, led_config):
         super(media_processor, self).__init__()
-        self.output_width = default_led_wall_width
-        self.output_height = default_led_wall_height
+        self.led_config = led_config
+        self.output_width = self.led_config.get_led_wall_width()   # default_led_wall_width
+        self.output_height = self.led_config.get_led_wall_height()  # default_led_wall_height
         self.play_status = play_status.stop
         self.pre_play_status = play_status.initial
         self.play_type = play_type.play_none

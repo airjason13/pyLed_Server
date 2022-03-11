@@ -20,7 +20,6 @@ import hashlib
 log = utils.log_utils.logging_init(__file__)
 
 class Hdmi_In_Page(QObject):
-
     def __init__(self, mainwindow, **kwargs):
         super(Hdmi_In_Page, self).__init__(**kwargs)
         self.ffmpy_hdmi_in_cast_process = None

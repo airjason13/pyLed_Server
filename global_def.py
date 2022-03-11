@@ -8,7 +8,6 @@ multicast_group = "239.11.11.11"
 server_broadcast_port = 11334
 server_broadcast_message = "ABCDE;Server:192.168.0.3;Cmd_Port:11335;Alive_Port:11333"
 alive_report_port = 11333
-#cmd_port = 11335
 udp_sink = "udp://239.11.11.11:15000"
 local_sink = "udp://127.0.0.1:15001"
 cv2_preview_h264_sink = "udp://127.0.0.1:10011"
@@ -56,8 +55,8 @@ media_btn_width = 110
 cmd_spliter = ";"
 
 """default led params"""
-default_led_wall_width = 160 #80
-default_led_wall_height = 96 #144 #96
+default_led_wall_width = 288 #80
+default_led_wall_height = 120 #144 #96
 default_led_wall_brightness = 100
 default_led_cabinet_width = 40
 default_led_cabinet_height = 24

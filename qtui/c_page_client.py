@@ -25,8 +25,8 @@ class clients_page(QObject):
         client_layout.addWidget(self.client_table)
         # right click menu
         self.client_table.setContextMenuPolicy(Qt.CustomContextMenu)
-        #connect the signal/slot
-        self.client_table.customContextMenuRequested.connect(self.mainwindow.clientsmenuContextTree)
+        # connect the signal/slot
+        self.client_table.customContextMenuRequested.connect(self.mainwindow.clientsmenucontexttree)
         self.mainwindow.right_layout.addWidget(client_widget)
 
     '''refresh the array only'''

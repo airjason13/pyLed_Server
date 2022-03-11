@@ -1,61 +1,32 @@
 # coding=UTF-8
-
-import platform
-import os
-import signal
-import threading
-
-import psutil
-from PyQt5 import QtWidgets
-from PyQt5.QtWidgets import (QApplication, QMainWindow, QDesktopWidget, QStyleFactory, QWidget, QHBoxLayout,
-                             QVBoxLayout, QFormLayout,
-                             QGridLayout, QFrame, QHeaderView, QTableWidgetItem, QMessageBox, QFileDialog,
-                             QSlider, QLabel, QLineEdit, QPushButton, QTableWidget, QStackedLayout, QSplitter,
-                             QTreeWidget, QTreeWidgetItem, QTreeWidgetItemIterator,
-                             QFileDialog, QListWidget, QFileSystemModel, QTreeView, QMenu, QAction, QAbstractItemView,
-                             QItemDelegate, QShortcut, )
-from PyQt5.QtGui import QPalette, QColor, QBrush, QFont, QMovie, QPixmap, QPainter, QIcon, QKeySequence
-from PyQt5.QtCore import Qt, QMutex, pyqtSlot, QModelIndex, pyqtSignal, QSize
-import pyqtgraph as pg
-import qdarkstyle
-import socket
 from time import sleep
-from global_def import *
-from pyqt_worker import Worker
-import utils.net_utils as net_utils
-import utils.update_utils as update_utils
-import platform
 import qthreads.c_alive_report_thread
-from g_defs.c_client import client
-from g_defs.c_mediafileparam import mediafileparam
+import utils.ffmpy_utils
 import utils.file_utils
 import utils.log_utils
-import utils.update_utils
+import utils.net_utils as net_utils
 import utils.qtui_utils
-from random import *
-import utils.ffmpy_utils
-from c_led_layout_window import LedLayoutWindow
+import utils.update_utils
 from c_cabinet_setting_window import CabinetSettingWindow
-from g_defs.c_TreeWidgetItemSP import CTreeWidget
+from c_led_layout_window import LedLayoutWindow
 from g_defs.c_cabinet_params import cabinet_params
-from commands_def import *
-from g_defs.c_media_engine import media_engine
-from c_new_playlist_dialog import NewPlaylistDialog
-from set_qstyle import *
-# from g_defs.c_videoplayer import *
-from qtui.c_page_client import *
-from qtui.c_page_medialist import *
-from qtui.c_page_hdmi_in import *
-from material import *
-import hashlib
-from g_defs.c_lcd1602 import *
+from g_defs.c_client import client
 from g_defs.c_filewatcher import *
+from g_defs.c_lcd1602 import *
+from g_defs.c_led_config import *
+from g_defs.c_media_engine import media_engine
+from pyqt_worker import Worker
+from qtui.c_page_client import *
+from qtui.c_page_hdmi_in import *
+from qtui.c_page_medialist import *
+from PyQt5.QtCore import QThread, pyqtSignal, QDateTime, QObject
 
 log = utils.log_utils.logging_init(__file__)
 
 
 class MainUi(QMainWindow):
     signal_add_cabinet_label = pyqtSignal(cabinet_params)
+
     signal_redraw_cabinet_label = pyqtSignal(cabinet_params, Qt.GlobalColor)
 
     signal_right_page_changed = pyqtSignal(int, int)  # pre_idx, current_idx
@@ -65,19 +36,22 @@ class MainUi(QMainWindow):
         pg.setConfigOptions(antialias=True)
 
         self.center()
-        self.setWindowOpacity(1.0)  # 设置窗口透明度
+        self.setWindowOpacity(1.0)  # 窗口透明度
         self.setStyleSheet(qdarkstyle.load_stylesheet_pyqt5())
 
+        self.led_config = Led_Config()
+        # self.led_config.get_led_wall_width()
+        # self.led_config.set_led_wall_res(888,666)
+
         # insert v4l2loopback module first
-        if (os.path.exists("/dev/video3") and os.path.exists("/dev/video4")
-            and os.path.exists("/dev/video5") and os.path.exists("/dev/video6")):
+        if os.path.exists("/dev/video5") and os.path.exists("/dev/video6"):
             pass
         else:
             os.system('echo %s | sudo -S %s' % ("workout13", "modprobe v4l2loopback video_nr=3,4,5,6"))
 
         # set engineer mode trigger
-        #self.engineer_mode_trigger = QShortcut(QKeySequence("Ctrl+E"), self)
-        #self.engineer_mode_trigger.activated.connect(self.ctrl_e_trigger)
+        # self.engineer_mode_trigger = QShortcut(QKeySequence("Ctrl+E"), self)
+        # self.engineer_mode_trigger.activated.connect(self.ctrl_e_trigger)
         self.engineer_mode = False
 
         # instance elements
@@ -89,14 +63,20 @@ class MainUi(QMainWindow):
         self.splitter1 = None
         self.splitter2 = None
 
+        # for get client ip in client page right click
+        self.right_click_select_client_ip = None
+
         self.client_page = None
+        self.medialist_page = None
+        self.hdmi_in_page = None
+        self.led_setting = None
 
         '''Initial media engine'''
-        self.media_engine = media_engine()
+        self.media_engine = media_engine(self.led_config)
 
         ''' Set Led layout params'''
-        self.led_wall_width = default_led_wall_width
-        self.led_wall_height = default_led_wall_height
+        self.led_wall_width = self.led_config.get_led_wall_width()  # default_led_wall_width
+        self.led_wall_height = self.led_config.get_led_wall_height()  # default_led_wall_height
         self.led_wall_brightness = default_led_wall_brightness
         self.led_cabinet_width = default_led_cabinet_width
         self.led_cabinet_height = default_led_cabinet_height
@@ -160,8 +140,7 @@ class MainUi(QMainWindow):
         self.media_engine.signal_external_medialist_changed_ret.connect(self.external_medialist_changed)
         self.media_engine.signal_play_status_changed.connect(self.play_status_changed)
 
-        paths = []
-        paths.append(internal_media_folder)
+        paths = [internal_media_folder]
         self.filewatcher = FileWatcher(paths)
         self.filewatcher.install_folder_changed_slot(self.internaldef_medialist_changed)
 
@@ -177,14 +156,8 @@ class MainUi(QMainWindow):
                 pass
             self.v4l2loopback_module_probed = True
 
-
-
         self.signal_right_page_changed.connect(self.right_page_change_index)
 
-        '''self.lcd1602 = LCD1602("LCD_TAG_VERSION_INFO", "TEST", version, 5000)
-        self.lcd1602.add_data("LCD_TAG_VERSION_INFO", "LED SERVER", version)
-        self.lcd1602.add_data("LCD_TAG_TEST_INFO", "TEST0", "TEST1")
-        self.lcd1602.del_data("LCD_TAG_TEST_INFO")'''
         self.lcd1602 = LCD1602("LCD_TAG_VERSION_INFO", "LED SERVER", version, 5000)
         self.lcd1602.start()
 
@@ -444,8 +417,8 @@ class MainUi(QMainWindow):
         elif status == play_status.playing:
             d0_str = "PLAYING"
         if self.media_engine.media_processor.ffmpy_process is not None:
-            #log.debug("process name : %d", self.media_engine.media_processor.ffmpy_process.pid)
-            #log.debug("process name : %s", self.media_engine.media_processor.ffmpy_process.args)
+            # log.debug("process name : %d", self.media_engine.media_processor.ffmpy_process.pid)
+            # log.debug("process name : %s", self.media_engine.media_processor.ffmpy_process.args)
             if "v4l2" in self.media_engine.media_processor.ffmpy_process.args:
                 d1_str = "HDMI-In Source"
             else:
@@ -525,15 +498,15 @@ class MainUi(QMainWindow):
         if i > 255:
             i = 1
         self.medialist_page.client_br_divisor_edit.setText(str(i))
-        log.debug("BBself.medialist_page.client_br_divisor_edit.text() = %s",
+        log.debug("self.medialist_page.client_br_divisor_edit.text() = %s",
                   self.medialist_page.client_br_divisor_edit.text())
         self.medialist_page.video_params_confirm_btn_clicked()
         #utils.ffmpy_utils.ffmpy_draw_text(str(i))
 
     """ handle the command from qlocalserver"""
-
     def parser_cmd_from_qlocalserver(self, data):
         log.debug("data : ", data)
+        pass
 
     def check_client(self, ip, data):
 
@@ -651,12 +624,12 @@ class MainUi(QMainWindow):
         self.sync_client_layout_params(False, True)
 
     def sync_client_layout_params(self, force_refresh, fresh_layout_map):
-        # led layout page treewidget show
+        # led layout page tree widget show
         if self.led_client_layout_tree.topLevelItemCount() != len(self.clients):
             force_refresh = True
             self.led_layout_window.remove_all_cabinet_label()
 
-        #if fresh_layout_map is True:
+        # if fresh_layout_map is True:
         #    self.led_layout_window.remove_all_cabinet_label()
 
         if force_refresh is True:
@@ -701,6 +674,7 @@ class MainUi(QMainWindow):
     @pyqtSlot(QtWidgets.QTreeWidgetItem, int)
     def onFileTreeItemClicked(self, it, col):
         log.debug("%s, %s, %s", it, col, it.text(col))
+        file_uri = ""
         if it.parent() is not None:
             log.debug("%s", it.parent().text(0))
             # play the file
@@ -714,27 +688,26 @@ class MainUi(QMainWindow):
             log.debug("%s", file_uri)
 
     '''client table right clicked slot function'''
-    def clientsmenuContextTree(self, position):
-        QTableWidgetItem = self.client_page.client_table.itemAt(position)
-        if QTableWidgetItem is None:
+    def clientsmenucontexttree(self, position):
+        q_table_widget_item = self.client_page.client_table.itemAt(position)
+        if q_table_widget_item is None:
             return
-        log.debug("client ip :%s", QTableWidgetItem.text())
-        self.right_click_select_client_ip = QTableWidgetItem.text()
+        log.debug("client ip :%s", q_table_widget_item.text())
+        self.right_click_select_client_ip = q_table_widget_item.text()
 
-        popMenu = QMenu()
-        set_qstyle_dark(popMenu)
+        pop_menu = QMenu()
+        set_qstyle_dark(pop_menu)
 
-        fw_upgrade_Act = QAction("fw upgrade", self)
-        popMenu.addAction(fw_upgrade_Act)
-        popMenu.addSeparator()
-        test_Act = QAction("test", self)
-        popMenu.addAction(test_Act)
-        popMenu.triggered[QAction].connect(self.pop_menu_trigger_act)
+        fw_upgrade_act = QAction("fw upgrade", self)
+        pop_menu.addAction(fw_upgrade_act)
+        pop_menu.addSeparator()
+        test_act = QAction("test", self)
+        pop_menu.addAction(test_act)
+        pop_menu.triggered[QAction].connect(self.pop_menu_trigger_act)
 
-        popMenu.exec_(self.client_page.client_table.mapToGlobal(position))
+        pop_menu.exec_(self.client_page.client_table.mapToGlobal(position))
 
-
-    # All popmenu trigger act
+    # All pop menu trigger act
     def pop_menu_trigger_act(self, q):
         log.debug("%s", q.text())
         if q.text() == "Play":
@@ -815,7 +788,6 @@ class MainUi(QMainWindow):
         self.media_engine.stop_play()
 
 
-
     def pause_media_trigger(self):
         """check the popen subprocess is alive or not"""
         if self.media_engine.media_processor.play_status == play_status.playing:
@@ -869,11 +841,7 @@ class MainUi(QMainWindow):
             self.port_layout_information_widget.show()
 
     '''media page mouse move slot'''
-    def media_page_mouseMove_depreciated(self, event):
-        pass
-
-    '''media page mouse move slot'''
-    def media_page_mouseMove(self, event):
+    def media_page_mousemove(self, event):
         try:
             self.grabMouse()
             if self.medialist_page.file_tree.itemAt(event.x(), event.y()) is None:
@@ -1001,6 +969,7 @@ class MainUi(QMainWindow):
         self.led_wall_height = int(self.led_setting_height_editbox.text())
         log.debug("%d", self.led_wall_width)
         log.debug("%d", self.led_wall_height)
+        self.led_config.set_led_wall_res(self.led_wall_width, self.led_wall_height)
         self.media_engine.media_processor.output_width = int(self.led_setting_width_editbox.text())
         self.media_engine.media_processor.output_height = int(self.led_setting_height_editbox.text())
         self.led_layout_window.change_led_wall_res(self.led_wall_width,
@@ -1028,6 +997,8 @@ class MainUi(QMainWindow):
         for c in self.clients:
             if c.client_ip == client_ip_selected:
                 try:
+                    for i in range(len(c.cabinets_setting)):
+                        self.draw_cabinet_label(c.cabinets_setting[i], Qt.GlobalColor.red)
                     if self.cabinet_setting_window is not None:
                         self.cabinet_setting_window.set_params(c.cabinets_setting[a0.row()])
                     else:
@@ -1066,7 +1037,6 @@ class MainUi(QMainWindow):
         self.sync_client_layout_params(True, False)
 
     '''slot for signal_draw_temp_cabinet from cabinet_setting_window'''
-
     def draw_cabinet_label(self, c_params, qt_line_color):
         if self.led_layout_window is not None:
             log.debug('')
@@ -1075,7 +1045,6 @@ class MainUi(QMainWindow):
             # self.led_layout_window.redraw_cabinet_label(c_params)
 
     '''slot for signal_set_default_cabinet_resolution from cabinet_setting_window'''
-
     def set_default_cabinet_resolution(self, width, height):
         log.debug("")
         for c in self.clients:

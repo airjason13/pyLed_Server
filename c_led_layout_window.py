@@ -153,7 +153,7 @@ class LedLayoutWindow(QWidget):
         log.debug("self.height() : %d ", self.height())
         self.led_wall_pixel_pixmap.scaled(self.width(), self.height())
         self.led_fake_label.setPixmap(self.led_wall_pixel_pixmap)
-        self.resize(self.led_fake_label.width(), self.led_fake_label.height())
+        # self.resize(self.led_fake_label.width(), self.led_fake_label.height())
         #self.led_fake_label.resize(int(self.width()), int(self.height()))
         #self.led_fake_label.resize(int(self.width()), int(self.height()))
         a0.accept()

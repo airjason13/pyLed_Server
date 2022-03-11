@@ -33,7 +33,7 @@ def neo_ffmpy_execute(video_path, brightness, contrast, red_bias, green_bias, bl
     # add TEXT
     if "blank" in video_path:
         drawtext_str = "drawtext=fontfile=" + internal_media_folder + \
-                      "/fonts/msjhbd.ttc:text='歡迎明基蒞臨指導':x=10*w/80-40*t:y=10:fontsize=64*h/96:fontcolor=white"
+                      "/fonts/msjhbd.ttc:text='歡迎明基蒞臨指導':x=10*w/80-20*t:y=10:fontsize=16*h/80:fontcolor=white"
         #drawtext_str = "drawtext=fontfile=" + internal_media_folder + \
         #          "/fonts/msjhbd.ttc:text='1234567890':x=10*w/80-40*t:y=10:fontsize=36*h/96:fontcolor=white"
         #drawtext_str_1 = "drawtext=fontfile=" + internal_media_folder + \
@@ -55,7 +55,8 @@ def neo_ffmpy_execute(video_path, brightness, contrast, red_bias, green_bias, bl
             ff = ffmpy.FFmpeg(
                 global_options=global_opts,
                 inputs={
-                    video_path: ["-re"]
+                    # video_path: ["-re"]
+                    video_path: ["-r 30"]
                 },
                 outputs={
                     udp_sink: ["-vcodec", video_encoder, '-filter_complex', filter_params, "-b:v", "2000k", "-f",

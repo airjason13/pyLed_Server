@@ -32,7 +32,7 @@ class media_page(QObject):
         font.setPointSize(24)
         self.file_tree.setFont(font)
         # Add Internal Media Folder in tree root
-
+        self.right_clicked_select_file_uri = None
         self.NewPlaylistDialog = None
 
         self.internal_media_root = QTreeWidgetItem(self.file_tree)
@@ -41,7 +41,7 @@ class media_page(QObject):
         for f in self.mainwindow.media_engine.internal_medialist.filelist:
             internal_file_item = QTreeWidgetItem()
             internal_file_item.setText(0, os.path.basename(f))
-            #utils.ffmpy_utils.gen_webp_from_video(internal_media_folder, os.path.basename(f))  # need to remove later
+            # utils.ffmpy_utils.gen_webp_from_video(internal_media_folder, os.path.basename(f))  # need to remove later
             utils.ffmpy_utils.gen_webp_from_video_threading(internal_media_folder, os.path.basename(f))
             self.internal_media_root.addChild(internal_file_item)
 
@@ -58,7 +58,7 @@ class media_page(QObject):
             for f in external_media_list.filelist:
                 external_file_item = QTreeWidgetItem()
                 external_file_item.setText(0, os.path.basename(f))
-                #utils.ffmpy_utils.gen_webp_from_video(external_media_list.folder_uri,
+                # utils.ffmpy_utils.gen_webp_from_video(external_media_list.folder_uri,
                 #                                      os.path.basename(f))  # need to remove later
                 utils.ffmpy_utils.gen_webp_from_video_threading(external_media_list.folder_uri, os.path.basename(f))
                 self.external_media_root.child(child_count).addChild(external_file_item)
@@ -98,7 +98,7 @@ class media_page(QObject):
         file_tree_layout.addWidget(self.play_option_widget)
         file_tree_layout.addWidget(self.video_params_widget)
         self.file_tree_widget.setMouseTracking(True)
-        self.file_tree.mouseMove.connect(self.mainwindow.media_page_mouseMove)
+        self.file_tree.mouseMove.connect(self.mainwindow.media_page_mousemove)
         self.mainwindow.right_layout.addWidget(self.file_tree_widget)
 
         self.signal_refresh_internal_medialist.connect(self.mainwindow.internaldef_medialist_changed)
@@ -384,7 +384,7 @@ class media_page(QObject):
         if widgetitem.childCount() != 0:
             ''' parent 為 Playlist,表示自己為playlist之一'''
             if widgetitem.parent().text(0) == "Playlist":
-                self.show_playlist_popMenu(self.file_tree.mapToGlobal(position))
+                self.show_playlist_pop_menu(self.file_tree.mapToGlobal(position))
                 return
             log.debug("Just a label, not file list")
             return
@@ -395,7 +395,7 @@ class media_page(QObject):
                 log.debug("%s", widgetitem.text(0))
                 return
             elif "Playlist" in widgetitem.parent().text(0):
-                self.show_playlist_popMenu(self.file_tree.mapToGlobal(position))
+                self.show_playlist_pop_menu(self.file_tree.mapToGlobal(position))
                 return
             elif widgetitem.parent().parent() is not None:
                 log.debug("%s", widgetitem.parent().parent().text(0))
@@ -447,8 +447,7 @@ class media_page(QObject):
         pop_menu.exec_(pos)
 
     '''處理playlist, 目前只有一個menu --> del'''
-
-    def show_playlist_popMenu(self, pos):
+    def show_playlist_pop_menu(self, pos):
         pop_menu = QMenu()
         set_qstyle_dark(pop_menu)
         playact = QAction("Play Playlist", self)
@@ -456,7 +455,6 @@ class media_page(QObject):
         remove_act = QAction("Remove Playlist", self)
         pop_menu.addAction(remove_act)
         pop_menu.triggered[QAction].connect(self.pop_menu_trigger_act)
-
         pop_menu.exec_(pos)
 
     def show_playlist_file_pop_menu(self, pos):
@@ -481,7 +479,7 @@ class media_page(QObject):
             log.debug("media file uri : %s", self.right_clicked_select_file_uri)
             playlist_name = q.text().split(" ")[2]
             if playlist_name == 'new':
-                #launch a dialog
+                # launch a dialog
                 # pop up a playlist generation dialog
                 if self.NewPlaylistDialog is None:
                     self.NewPlaylistDialog = NewPlaylistDialog(self.mainwindow.media_engine.playlist)
@@ -525,8 +523,6 @@ class media_page(QObject):
                 log.debug("thumbnail_file exists")
                 os.remove(self.right_clicked_select_file_uri)
             self.signal_refresh_internal_medialist.emit()
-
-
 
     def resfresh_video_params_config_file(self):
         log.debug("")
@@ -602,9 +598,7 @@ class media_page(QObject):
             for c in clients:
                 log.debug("c.client_ip = %s", c.client_ip)
                 c.send_cmd(cmd_set_pixel_interval,
-                           self.mainwindow.cmd_seq_id_increase(),
-                            str(0))
-
+                           self.mainwindow.cmd_seq_id_increase(), str(0))
 
     def video_crop_enable(self):
         log.debug("crop_enable")
