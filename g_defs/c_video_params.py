@@ -31,7 +31,7 @@ class video_params(QObject):
             self.frame_brightness = default_led_client_brightness
             self.frame_br_divisor = default_led_client_brdivisor
             self.frame_contrast = 0
-            self.frame_gamma = default_led_client_gamma
+            self.frame_gamma = gamma
             # crop function
             self.crop_start_x = 0
             self.crop_start_y = 0

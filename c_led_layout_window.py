@@ -217,8 +217,6 @@ class LedLayoutWindow(QWidget):
             (label_start_x * c_params.led_pinch) + default_led_wall_margin + x_compensation,
             (label_start_y * c_params.led_pinch) + default_led_wall_margin + y_compensation)
 
-
-
         self.single_cabinet_labels.append(tmp_label)
         log.debug("len(self.single_cabinet_labels) = %d", len(self.single_cabinet_labels))
         tmp_label.show()

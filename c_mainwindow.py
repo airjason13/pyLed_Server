@@ -160,9 +160,8 @@ class MainUi(QMainWindow):
 
         self.lcd1602 = LCD1602("LCD_TAG_VERSION_INFO", "LED SERVER", version, 5000)
         self.lcd1602.start()
-
-
-
+        log.debug("self.geo x : %d", self.geometry().x())
+        log.debug("self.geo y : %d", self.geometry().y())
 
     # enter engineer mode
     def ctrl_e_trigger(self):
@@ -629,9 +628,6 @@ class MainUi(QMainWindow):
             force_refresh = True
             self.led_layout_window.remove_all_cabinet_label()
 
-        # if fresh_layout_map is True:
-        #    self.led_layout_window.remove_all_cabinet_label()
-
         if force_refresh is True:
             self.client_led_layout.clear()
             self.led_client_layout_tree.clear()
@@ -656,13 +652,9 @@ class MainUi(QMainWindow):
 
                     test_pixmap = utils.qtui_utils.gen_led_layout_type_pixmap(96, 96, 10,
                                                                               c.cabinets_setting[i].layout_type)
-
                     qicon_type = QIcon(test_pixmap)
-
                     test_params.setIcon(0, qicon_type)
-
                     '''cabinet params test end '''
-
                     # gen cabinet label in led_wall_layout_window
                     if fresh_layout_map is True:
                         self.signal_add_cabinet_label.emit(c.cabinets_setting[i])
@@ -994,7 +986,12 @@ class MainUi(QMainWindow):
             if c.client_ip == client_ip_selected:
                 try:
                     for i in range(len(c.cabinets_setting)):
-                        self.draw_cabinet_label(c.cabinets_setting[i], Qt.GlobalColor.red)
+                        if i != a0.row():
+                            # 沒有被選中的為紅色
+                            self.draw_cabinet_label(c.cabinets_setting[i], Qt.GlobalColor.red)
+                        else:
+                            # 被選中的為黃色
+                            self.draw_cabinet_label(c.cabinets_setting[i], Qt.GlobalColor.yellow)
                     if self.cabinet_setting_window is not None:
                         self.cabinet_setting_window.set_params(c.cabinets_setting[a0.row()])
                     else:
