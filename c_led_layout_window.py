@@ -13,6 +13,7 @@ class LedLayoutWindow(QWidget):
         super(LedLayoutWindow, self).__init__()
         self.scale_factor = 8 #need to set into drag and drop label
         self.led_wall_margin = margin
+        self.setStyleSheet("background-color: black;")
         self.setWindowTitle("LED Wall layout")
 
         self.led_wall_w = led_wall_w
