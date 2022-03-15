@@ -473,8 +473,8 @@ class MainUi(QMainWindow):
     def func_testB(self):
         # for test color adjust
         # test change led cabinets setting params treewidget
-        self.clients[0].cabinets_setting[0].start_x = 87
-        self.sync_client_layout_params(True, False, True)
+        '''self.clients[0].cabinets_setting[0].start_x = 87
+        self.sync_client_layout_params(True, False, True)'''
         log.debug("testB")
 
     def test_brightness_loop(self):
