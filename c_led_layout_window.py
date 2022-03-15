@@ -116,6 +116,7 @@ class LedLayoutWindow(QWidget):
         x_compensation, y_compensation = self.get_coordinate_compensation(drop_label.c_params)
         # drop_label.move(final_pos_x + x_compensation, final_pos_y + y_compensation)
         self.drag_label.move(final_pos_x + x_compensation, final_pos_y + y_compensation)
+
         self.drag_label = None
 
     ''' slot function for drop signal'''
@@ -248,7 +249,9 @@ class LedLayoutWindow(QWidget):
     def remove_all_cabinet_label(self):
         log.debug("")
         for i in range(len(self.single_cabinet_labels)):
-            self.single_cabinet_labels[0].clear()
+            self.single_cabinet_labels[i].deleteLater()
+
+        self.single_cabinet_labels.clear()
 
     ''' 依照 c_params 選定label來更新'''
     def redraw_cabinet_label(self, c_params, line_color):
