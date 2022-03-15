@@ -380,6 +380,7 @@ class MainUi(QMainWindow):
         self.led_client_layout_tree.setColumnWidth(0, 300)
         self.led_client_layout_tree.headerItem().setText(0, "Client Layout")
 
+
         font = QFont()
         font.setPointSize(24)
         self.led_client_layout_tree.setFont(font)
@@ -471,7 +472,9 @@ class MainUi(QMainWindow):
 
     def func_testB(self):
         # for test color adjust
-
+        # test change led cabinets setting params treewidget
+        self.clients[0].cabinets_setting[0].start_x = 87
+        self.sync_client_layout_params(True, False, True)
         log.debug("testB")
 
     def test_brightness_loop(self):
@@ -620,13 +623,16 @@ class MainUi(QMainWindow):
             self.clients_unlock()
 
         sleep(sleep_time)
-        self.sync_client_layout_params(False, True)
+        self.sync_client_layout_params(False, True, False)
 
-    def sync_client_layout_params(self, force_refresh, fresh_layout_map):
+    def sync_client_layout_params(self, force_refresh, fresh_layout_map, remove_all_cabinet_label):
         # led layout page tree widget show
         if self.led_client_layout_tree.topLevelItemCount() != len(self.clients):
             force_refresh = True
             self.led_layout_window.remove_all_cabinet_label()
+
+        # if remove_all_cabinet_label is True:
+        #    self.led_layout_window.remove_all_cabinet_label()
 
         if force_refresh is True:
             self.client_led_layout.clear()
@@ -1027,7 +1033,7 @@ class MainUi(QMainWindow):
                 log.debug("c.cabinets_setting[c_params.port_id].start_y = %d",
                           c.cabinets_setting[c_params.port_id].start_y)
 
-        self.sync_client_layout_params(True, False)
+        self.sync_client_layout_params(True, False, False)
 
     '''slot for signal_draw_temp_cabinet from cabinet_setting_window'''
     def draw_cabinet_label(self, c_params, qt_line_color):
