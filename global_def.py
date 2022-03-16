@@ -1,7 +1,7 @@
 import enum
 import platform
 """Software version"""
-version = "LS220301501"
+version = "LS220301601"
 
 """Network relative"""
 multicast_group = "239.11.11.11"
@@ -26,6 +26,7 @@ else:
 ThumbnailFileFolder = "/.thumbnails/"
 PlaylistFolder = "/.playlists/"
 init_config_file = "/.config_video_param"
+subtitle_file_name = "/.subtitle"
 
 class play_type(enum.IntEnum):
     play_none = 0

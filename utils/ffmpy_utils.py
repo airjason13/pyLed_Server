@@ -30,14 +30,17 @@ def neo_ffmpy_execute(video_path, brightness, contrast, red_bias, green_bias, bl
 
     color_level_str = "colorlevels=" + red_bias_params + ":" + green_bias_params + ":" + blue_bias_params
 
+    content_line = ""
     # add TEXT
     if "blank" in video_path:
+        config_file = open(internal_media_folder + subtitle_file_name, 'r')
+        content_line = config_file.readline()
+        log.debug("content_line = %s", content_line)
         drawtext_str = "drawtext=fontfile=" + internal_media_folder + \
-                      "/fonts/msjhbd.ttc:text='歡迎明基蒞臨指導':x=10*w/80-20*t:y=10:fontsize=16*h/80:fontcolor=white"
-        #drawtext_str = "drawtext=fontfile=" + internal_media_folder + \
-        #          "/fonts/msjhbd.ttc:text='1234567890':x=10*w/80-40*t:y=10:fontsize=36*h/96:fontcolor=white"
-        #drawtext_str_1 = "drawtext=fontfile=" + internal_media_folder + \
-        #               "/fonts/msjhbd.ttc:text='1234567890':x=10*w/80-40*t:y=50:fontsize=36*h/96:fontcolor=white"
+                       "/fonts/msjhbd.ttc:text='" + content_line + "':x=10*w/80-20*t:y=10:fontsize=16*h/80:fontcolor=white"
+        # drawtext_str = "drawtext=fontfile=" + internal_media_folder + \
+        #              "/fonts/msjhbd.ttc:text='歡迎明基蒞臨指導':x=10*w/80-20*t:y=10:fontsize=16*h/80:fontcolor=white"
+
         filter_params = "zmq," + eq_str + "," + color_level_str + "," + drawtext_str + "," + drawtext_str + "," + scale_params
     else:
         drawtext_str = "drawtext=fontfile=" + internal_media_folder + \
