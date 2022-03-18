@@ -15,13 +15,17 @@ cv2_preview_v4l2_sink = "/dev/video5"
 hdmi_in_h264_src = "udp://127.0.0.1:10012"
 cmd_timeout = 2
 g_client_udp_cmd_port = 11335
+flask_server_port = 9090
 
+
+SIZE_MB = 1024*1024
 
 """Media folder"""
 if platform.machine() in ('arm', 'arm64', 'aarch64'):
     internal_media_folder = "/home/root/Videos"
 else:
     internal_media_folder = "/home/venom/Videos"
+    webp_extends = '/home/venom/Videos/.thumbnails/*.webp'
 
 ThumbnailFileFolder = "/.thumbnails/"
 PlaylistFolder = "/.playlists/"

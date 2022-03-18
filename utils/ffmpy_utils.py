@@ -13,7 +13,7 @@ log = utils.log_utils.logging_init(__file__)
 still_image_loop_cnt = 1
 still_image_video_period = 600
 preview_start_time = 3
-preview_period = 3
+preview_period = 1
 
 def neo_ffmpy_execute(video_path, brightness, contrast, red_bias, green_bias, blue_bias,
                       image_period=still_image_video_period, width=80, height=96):
@@ -27,9 +27,7 @@ def neo_ffmpy_execute(video_path, brightness, contrast, red_bias, green_bias, bl
     green_bias_params = "gomin=" + str(green_bias)
     blue_bias_params = "bomin=" + str(blue_bias)
     crop_str = "crop=iw:ih:0:0"
-
     color_level_str = "colorlevels=" + red_bias_params + ":" + green_bias_params + ":" + blue_bias_params
-
     content_line = ""
     # add TEXT
     if "blank" in video_path:
@@ -471,13 +469,13 @@ def gen_webp_from_video(file_folder, video):
                 ff = ffmpy.FFmpeg(
                     global_options=global_opts,
                     inputs={video_path: ['-loop', str(still_image_loop_cnt), '-t', str(preview_period)]},
-                    outputs={thumbnail_path: ['-vf', 'scale=640:480']}
+                    outputs={thumbnail_path: ['-vf', 'scale=320:240']}
                 )
             else:
                 ff = ffmpy.FFmpeg(
                     global_options=global_opts,
                     inputs={video_path: ['-ss', str(preview_start_time), '-t', str(preview_period)]},
-                    outputs={thumbnail_path: ['-vf', 'scale=640:480']}
+                    outputs={thumbnail_path: ['-vf', 'scale=320:240']}
                 )
             # log.debug("%s", ff.cmd)
             ff.run()

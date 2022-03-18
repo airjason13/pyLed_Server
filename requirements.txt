@@ -11,3 +11,7 @@ ffmpy
 requests
 zmq
 pyinotify
+Flask==2.0.2
+Flask-WTF==0.15.1
+Werkzeug==2.0.2
+WTForms==2.3.3

@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+{% block content %}
+
+    <thead>
+        <!--<tr><th>File Name </th><th class="number">Size MB</th></tr>-->
+    </thead>
+    <tbody>
+        {% for k,v in files.items() %}
+            <p>
+            <tr><td>
+                <form action="/play/{{k}}" method="GET">
+                    <button type="submit" style="float: left;" width="320" height="240"><img src="./get_thumbnail/{{k}}"></button>
+                </form>
+
+                </td>
+            </p>
+        {% endfor %}
+    </tbody>
+{% endblock %}

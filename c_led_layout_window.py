@@ -20,28 +20,14 @@ class LedLayoutWindow(QWidget):
         self.cabinet_w = cabinet_w
         self.cabinet_h = cabinet_h
         self.led_pinch = 8
-
-
         '''Gen led wall layout with scalable'''
-        self.led_wall_pixel_pixmap = utils.qtui_utils.gen_led_layout_pixmap(self.led_wall_w, self.led_wall_h, self.led_wall_margin,
+        self.led_wall_pixel_pixmap = utils.qtui_utils.gen_led_layout_pixmap(self.led_wall_w, self.led_wall_h,
+                                                                            self.led_wall_margin,
                                                                            Qt.GlobalColor.black, Qt.GlobalColor.white)
         self.led_fake_label = Droppable_led_label(self.led_wall_pixel_pixmap, self)
-        print("led_fake_label label width", self.led_fake_label.width())
-        print("led_fake_label label height", self.led_fake_label.height())
 
-        #tmp_cabinet_params = cabinet_params("?", -1, 0, 40, 24, -1, 1, 1)
-        #self.single_cabinet_label = self.gen_single_cabinet_label(tmp_cabinet_params,
-        #                                                          self.start_drag, self.label_drop_on_drag_label)
         self.single_cabinet_labels = []
         self.cabinet_pixmaps = []
-        # c_params = cabinet_params("?", -1, 0, 40, 24, 0, 1, 1)
-        # single_cabinet_label = Draggable_cabinet_label(self, c_params, self.led_pinch, self.start_drag, self.label_drop_on_drag_label)
-        # self.single_cabinet_labels.append(single_cabinet_label)
-
-
-        # self.led_fake_label.set_drag_label(self.single_cabinet_label)
-        # print("single_cabinet_label label width", self.single_cabinet_label.width())
-        # print("single_cabinet_label label height", self.single_cabinet_label.height())
 
         '''drag_label_ori_offset 為drag_label內之座標, 為QPoint'''
         self.drag_label_ori_offset = None
@@ -49,15 +35,9 @@ class LedLayoutWindow(QWidget):
         self.drag_label = None
         self.led_fake_label.label_drop_signal.connect(self.label_drop)
 
-        # self.single_cabinet_label.start_drag_signal.connect(self.start_drag)
-        # self.single_cabinet_label.label_drop_signal.connect(self.label_drop_on_drag_label)
         self.setFixedWidth(led_wall_w * self.scale_factor + margin * 2)
         self.setFixedHeight(led_wall_h * self.scale_factor + margin * 2)
         self.led_fake_label.move(0, 0)
-        log.debug("self.led_fake_label.width() :%d ", self.led_fake_label.width())
-        log.debug("self.led_fake_label.height() : %d ", self.led_fake_label.height())
-        log.debug("self.width() :%d ", self.width())
-        log.debug("self.height() : %d ", self.height())
 
     ''' slot function for start drag'''
     def start_drag(self, drag_label, start_offset):
@@ -188,17 +168,10 @@ class LedLayoutWindow(QWidget):
             width = self.single_cabinet_labels[i].width() * scale_factor
             height = self.single_cabinet_labels[i].height() * scale_factor
             self.single_cabinet_labels[i].setGeometry(start_x, start_y, width, height)
-            # self.single_cabinet_labels[i].resize(int(self.single_cabinet_labels[i].width() * scale_factor),
-            #                             int(self.single_cabinet_labels[i].height() * scale_factor))
 
         self.led_fake_label.resize(int(self.led_fake_label.width() * scale_factor),
                                    int(self.led_fake_label.height() * scale_factor))
-        # self.led_fake_label.resize(int(self.width()), int(self.height()))
 
-        # log.debug("single_cabinet_label width : %d", self.single_cabinet_label.width())
-        # log.debug("single_cabinet_label height : %d", self.single_cabinet_label.height())
-        # log.debug("led_fake_label width : %d", self.led_fake_label.width())
-        # log.debug("led_fake_label height : %d", self.led_fake_label.height())
         a0.accept()
 
     def change_led_wall_res(self, led_wall_w, led_wall_h, margin):
