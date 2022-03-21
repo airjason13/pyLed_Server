@@ -57,9 +57,6 @@ if __name__ == '__main__':
     server = jqlocalserver.Server()
     server.dataReceived.connect(gui.parser_cmd_from_qlocalserver)
 
-
-
-
     #   Preparing parameters for flask to be given in the thread
     #   so that it doesn't collide with main thread
     #kwargs = {'host': '0.0.0.0', 'port': 5000, 'threaded': True, 'use_reloader': False, 'debug': False}

@@ -7,14 +7,15 @@ import utils.log_utils
 
 log = utils.log_utils.logging_init(__file__)
 
+
 class Worker(QThread):
     def __init__(self, parent=None, method=None, **kwargs):
         super(Worker, self).__init__(parent)
         self.method = method
-        #print("kwargs:", kwargs)
+        # print("kwargs:", kwargs)
         self.kwargs = kwargs
         # self.count = 0
-        #self.loop = loop(method= self.method)
+        # self.loop = loop(method= self.method)
 
     def run(self):
         while True:
@@ -23,14 +24,13 @@ class Worker(QThread):
             self.method(self.kwargs)
 
 
-
 class loop(object):
 
     def __init__(self, method=None):
         self.count = 0
         self.method = method
 
-    def methodA(self):
+    '''def methodA(self):
         while True:
             time.sleep(3)
-            self.method()
+            self.method()'''

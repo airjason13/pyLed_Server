@@ -15,6 +15,7 @@ still_image_video_period = 600
 preview_start_time = 3
 preview_period = 1
 
+
 def neo_ffmpy_execute(video_path, brightness, contrast, red_bias, green_bias, blue_bias,
                       image_period=still_image_video_period, width=80, height=96):
     ff = None
@@ -144,6 +145,7 @@ def neo_ffmpy_execute(video_path, brightness, contrast, red_bias, green_bias, bl
 
     return ff.process
 
+
 def neo_ffmpy_execute_hdmi_in(video_path, video_dst,brightness, contrast, red_bias, green_bias, blue_bias,
                       width=80, height=96):
     ff = None
@@ -189,7 +191,7 @@ def neo_ffmpy_execute_hdmi_in(video_path, video_dst,brightness, contrast, red_bi
         ff = ffmpy.FFmpeg(
             global_options=global_opts,
             inputs={
-                #video_path: ["-f", "v4l2", "-pix_fmt", "mjpeg", "-s", input_res]
+                # video_path: ["-f", "v4l2", "-pix_fmt", "mjpeg", "-s", input_res]
                 video_path: ["-f", "v4l2", "-s", input_res]
             },
             outputs=output,
@@ -227,6 +229,7 @@ def neo_ffmpy_execute_hdmi_in(video_path, video_dst,brightness, contrast, red_bi
     log.debug("ff.process pid : %d", ff.process.pid)
 
     return ff.process
+
 
 def neo_ffmpy_cast_video_v4l2(video_path, cast_dst, brightness, contrast, red_bias, green_bias, blue_bias, width=80, height=96):
     if len(cast_dst) == 0 or cast_dst is None:
@@ -496,8 +499,7 @@ def gen_webp_from_video(file_folder, video):
 
 
 def gen_webp_from_video_threading(file_folder, video):
-    threads = []
-    threads.append(threading.Thread(target=gen_webp_from_video, args=(file_folder, video,)))
+    threads = [threading.Thread(target=gen_webp_from_video, args=(file_folder, video,))]
     threads[0].start()
 
 
@@ -549,6 +551,7 @@ def ffmpy_draw_text(text):
     context.destroy()
     context.term()
 
+
 def ffmpy_crop_enable(crop_x, crop_y, crop_w, crop_h, led_w, led_h):
     context = zmq.Context()
     log.debug("Connecting to server...")
@@ -556,7 +559,7 @@ def ffmpy_crop_enable(crop_x, crop_y, crop_w, crop_h, led_w, led_h):
     socket.connect("tcp://localhost:%s" % 5555)
 
     socket.send(("Parsed_crop_4 w " + str(crop_w)).encode())
-    data = socket.recv(1024)
+    data = (socket.recv(1024))
     log.debug("recv data = %s", data.decode())
     if 'Success' not in data.decode():
         socket.disconnect("tcp://localhost:%s" % 5555)
@@ -565,7 +568,7 @@ def ffmpy_crop_enable(crop_x, crop_y, crop_w, crop_h, led_w, led_h):
         log.debug("Error")
         return False
     socket.send(("Parsed_crop_4 h " + str(crop_h)).encode())
-    data = socket.recv(1024)
+    data = (socket.recv(1024))
     if 'Success' not in data.decode():
         socket.disconnect("tcp://localhost:%s" % 5555)
         context.destroy()
@@ -676,6 +679,7 @@ def ffmpy_crop_disable(led_w, led_h):
 
 def ffmpy_crop_enable_depreciated(crop_x, crop_y, crop_w, crop_h, led_w, led_h):
     context = zmq.Context()
+
     log.debug("Connecting to server...")
 
     cmd_w = "Parsed_crop_4 w " + str(crop_w)
@@ -713,6 +717,7 @@ def ffmpy_crop_enable_depreciated(crop_x, crop_y, crop_w, crop_h, led_w, led_h):
 
     context.destroy()
     context.term()
+
 
 def ffmpy_crop_disable_depreciated(led_w, led_h):
     context = zmq.Context()
@@ -753,6 +758,7 @@ def ffmpy_crop_disable_depreciated(led_w, led_h):
 
     context.destroy()
     context.term()
+
 
 '''def ffmpy_set_brightness_level(level):
     context = zmq.Context()

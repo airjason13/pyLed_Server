@@ -507,11 +507,16 @@ class MainUi(QMainWindow):
 
     """ handle the command from qlocalserver"""
     def parser_cmd_from_qlocalserver(self, data):
-        log.debug("data : ", data)
-        pass
+        log.debug("data : %s", data)
+        if data.get("play_file"):
+            log.debug("play single file : %s!", data.get("play_file"))
+            self.medialist_page.right_clicked_select_file_uri = internal_media_folder + "/" + data.get("play_file")
+            log.debug("file_uri :%s", self.medialist_page.right_clicked_select_file_uri)
+            self.media_engine.play_single_file(self.medialist_page.right_clicked_select_file_uri)
+        elif data.get("play_playlist"):
+            log.debug("play playlist")
 
     def check_client(self, ip, data):
-
         is_found = False
         tmp_client = None
         c_version = ""
@@ -784,7 +789,6 @@ class MainUi(QMainWindow):
     def stop_media_set(self):
         log.debug("")
         self.media_engine.stop_play()
-
 
     def pause_media_trigger(self):
         """check the popen subprocess is alive or not"""
@@ -1134,9 +1138,6 @@ class MainUi(QMainWindow):
         self.media_engine.refresh_internal_medialist()
 
         self.medialist_page.refresh_internal_medialist()
-
-
-
 
     def slot_new_playlist(self, new_playlist_name):
         log.debug("")

@@ -9,10 +9,9 @@ import utils.log_utils
 log = utils.log_utils.logging_init(__file__)
 
 
-
 def send_message(**data):
     socket = QtNetwork.QLocalSocket()
-    #log("in send message, SERVER:", get_server_name())
+    # log("in send message, SERVER:", get_server_name())
     socket.connectToServer(get_server_name(), QtCore.QIODevice.WriteOnly)
     if socket.waitForConnected(500):
         socket.write(json.dumps(data).encode('utf-8'))

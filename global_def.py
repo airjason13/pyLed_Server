@@ -25,6 +25,10 @@ if platform.machine() in ('arm', 'arm64', 'aarch64'):
     internal_media_folder = "/home/root/Videos"
 else:
     internal_media_folder = "/home/venom/Videos"
+    mp4_extends = "/home/venom/Videos/*.mp4"
+    jpeg_extends = "/home/venom/Videos/*.jpeg"
+    jpg_extends = "/home/venom/Videos/*.jpg"
+    png_extends = "/home/venom/Videos/*.png"
     webp_extends = '/home/venom/Videos/.thumbnails/*.webp'
 
 ThumbnailFileFolder = "/.thumbnails/"

@@ -10,8 +10,10 @@ import qdarkstyle, requests, sys, time, random, json, datetime, re
 
 log = utils.log_utils.logging_init(__file__)
 
+
 class NewPlaylistDialog(QWidget):
     signal_new_playlist_generate = pyqtSignal(str)
+
     def __init__(self, playlist_exists):
         super(NewPlaylistDialog, self).__init__()
         self.setStyleSheet(qdarkstyle.load_stylesheet_pyqt5() + \
@@ -29,7 +31,6 @@ class NewPlaylistDialog(QWidget):
         self.error_message_box = QMessageBox()
 
         self.error_message_box.setStyleSheet(qdarkstyle.load_stylesheet_pyqt5())
-
 
     def init_ui(self):
         self.setFixedSize(400, 100)

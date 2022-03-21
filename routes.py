@@ -8,16 +8,34 @@ import traceback
 from flask_wtf import Form
 from wtforms import validators, RadioField, SubmitField, IntegerField
 import utils.log_utils
-
-log = utils.log_utils.logging_init(__file__)
+import hashlib
 import os
+log = utils.log_utils.logging_init(__file__)
+
+
 SECRET_KEY = os.urandom(32)
 app.config['SECRET_KEY'] = SECRET_KEY
 
 
 def find_maps():
     maps = {}
-    #print("type(maps) :", type(maps))
+    for fname in sorted(glob.glob(mp4_extends)):
+        if os.path.isfile(fname):
+            key = fname
+            list_file_url = fname.split("/")
+            tmp_video_name = list_file_url[len(list_file_url) - 1]
+            prefix_video_name = tmp_video_name.split(".")[0]
+            # log.debug("video_extension = %s", video_extension)
+            preview_file_name = hashlib.md5(prefix_video_name.encode('utf-8')).hexdigest() + ".webp"
+            maps[key] = preview_file_name
+
+    print("maps :", maps)
+
+    return maps
+
+
+def find_maps_depreciated():
+    maps = {}
     for fname in sorted(glob.glob(webp_extends)):
         if os.path.isfile(fname):
             # key = fname
@@ -42,6 +60,14 @@ def get_nest_maps(maps):
         dict_list.append(fl_dic)
     print("nest_dict :", dict_list)
     return dict_list
+
+
+@app.route('/play/<filename>')
+def play(filename):
+    print("route play filename :", filename)
+    fname = filename
+    send_message(play_file=fname)
+    return redirect(url_for('index'))
 
 
 @app.route('/get_thumbnail/<filename>')
