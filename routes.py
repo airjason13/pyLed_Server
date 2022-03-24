@@ -21,9 +21,10 @@ def find_maps():
     maps = {}
     for fname in sorted(glob.glob(mp4_extends)):
         if os.path.isfile(fname):
-            key = fname
+            #key = fname
             list_file_url = fname.split("/")
             tmp_video_name = list_file_url[len(list_file_url) - 1]
+            key = tmp_video_name
             prefix_video_name = tmp_video_name.split(".")[0]
             # log.debug("video_extension = %s", video_extension)
             preview_file_name = hashlib.md5(prefix_video_name.encode('utf-8')).hexdigest() + ".webp"
@@ -62,12 +63,22 @@ def get_nest_maps(maps):
     return dict_list
 
 
-@app.route('/play/<filename>')
-def play(filename):
+@app.route('/play_with_refresh_page/<filename>')
+def play_with_refresh_page(filename):
     print("route play filename :", filename)
     fname = filename
     send_message(play_file=fname)
     return redirect(url_for('index'))
+
+
+@app.route('/play/<filename>', methods=['POST', 'GET'])
+def play(filename):
+    print("route play filename :", filename)
+    fname = filename
+    send_message(play_file=fname)
+    status_code = Response(status=200)
+    return status_code
+    # return redirect(url_for('index'))
 
 
 @app.route('/get_thumbnail/<filename>')

@@ -1,19 +1,63 @@
 {% extends 'base.html' %}
 {% block content %}
+<link rel="stylesheet" href="{{ url_for('static',    filename='css/template.css') }}">
 
-    <thead>
-        <!--<tr><th>File Name </th><th class="number">Size MB</th></tr>-->
-    </thead>
-    <tbody>
-        {% for k,v in files.items() %}
-            <p>
-            <tr><td>
-                <form action="/play/{{k}}" method="GET">
-                    <button type="submit" style="float: left;" width="320" height="240"><img src="./get_thumbnail/{{v}}"></button>
-                </form>
+<!--防右鍵-->
+<script>
+document.oncontextmenu = new Function("return false");
+oncontextmenu="return false;"
+</script>
 
-                </td>
-            </p>
-        {% endfor %}
-    </tbody>
+<script src="https://cdn.bootcss.com/jquery/1.10.2/jquery.min.js"></script>
+<script>
+var cot=0;//設置一個計數器，初始值為0；作用是用來監聽點擊切換的時候哪一個圖片應該隱藏或者顯示
+var max_cot=0;
+function nex(){
+    if(cot<=90){
+        $('.inputs input').eq(cot).animate({'margin-left':'-95vw'},500);
+        cot++;
+    }
+}
+function pre(){
+    if(cot>0){
+        cot--;
+        $('.inputs input').eq(cot).animate({'margin-left':'0'},500);
+    }
+}
+
+function play_with_refresh_page(data){
+    alert(data );
+    var url = "/play/" + data;
+    javascript:window.location.href = url;
+}
+
+function play(data){
+    alert(data );
+    var url = "/play/" + data;
+    $.post(url, {
+        javascript_data: data
+        });
+
+}
+</script>
+
+</head>
+<body style="background-color:#000000;">
+    <input name="left_scroll" id="left_scroll" type="image" src="/static/left_arrow.webp" onclick="pre()" style="float:left"/>
+    <div style="width:80vw;margin:auto;overflow:hidden;float:left"> <!-- 這個最外圍的容器div寬度為95vw(vew width)，每張圖寬為300px，所以只顯示3張，剩下的圖超出容器隱藏起來 -->
+        <div class="img" style="width:600000px;">
+            <div class="inputs" style="width:500000px;"><!--這個div的作用是讓所有的圖片都排在同一水平上，這樣子切換的時候效果會更好-->
+                    {% for k,v in files.items() %}
+                        <input name="{{k}}" id="test_play" type="image" src="./get_thumbnail/{{v}}" onclick="play(name)"/>
+                    {% endfor %}
+            </div>
+        </div>
+    </div>
+    <input name="right_scroll" id="right_scroll" type="image" src="/static/right_arrow.webp" onclick="nex()" style="float:left"/>
+
+
+
+</body>
+
+
 {% endblock %}

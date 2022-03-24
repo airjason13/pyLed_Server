@@ -1,0 +1,58 @@
+/* 整體*/
+body {
+    margin: auto;
+    max-width: 580px;
+    font-size: 14px;
+    font-family: Helvetica, Arial, sans-serif;
+}
+
+/* 頁腳*/
+footer {
+    color: #888;
+    margin-top: 15px;
+    text-align: center;
+    padding: 10px;
+}
+
+.container{
+        width:1000px;
+        height: 240px;
+        margin:20px auto;
+        overflow: hidden;
+        position: relative;
+        border: 1px solid red;
+    }
+    .container .imgcss{
+        animation:scoll 6s linear 0s infinite;
+    }
+    .container .textcss {
+        animation:textScroll 6s linear 0s infinite;
+    }
+    .container ul {
+        width:4000px;
+        left:0;
+        top:0;
+        position: absolute;
+    }
+    .container ul:hover {
+        animation-play-state: paused;
+    }
+    .container ul li{
+        float:left;
+    }
+    @keyframes scoll{
+        from{
+            left:0;
+        }
+        to{
+            left:-960px;
+        }
+    }
+    @keyframes textScroll{
+        from{
+            left:0;
+        }
+        to{
+            left:-986px;
+        }
+    }
