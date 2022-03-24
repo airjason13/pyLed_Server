@@ -1,20 +1,20 @@
 /* 整體*/
-body {
+/*body {
     margin: auto;
     max-width: 580px;
     font-size: 14px;
     font-family: Helvetica, Arial, sans-serif;
-}
+}*/
 
 /* 頁腳*/
-footer {
+/*footer {
     color: #888;
     margin-top: 15px;
     text-align: center;
     padding: 10px;
-}
+}*/
 
-.container{
+/*.container{
         width:1000px;
         height: 240px;
         margin:20px auto;
@@ -55,4 +55,4 @@ footer {
         to{
             left:-986px;
         }
-    }
+    }*/
