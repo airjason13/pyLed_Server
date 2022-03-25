@@ -1,7 +1,7 @@
 import enum
 import platform
 """Software version"""
-version = "LS220301601"
+version = "LS220302501"
 
 """Network relative"""
 multicast_group = "239.11.11.11"
