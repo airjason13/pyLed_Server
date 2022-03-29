@@ -515,6 +515,7 @@ class MainUi(QMainWindow):
             self.media_engine.play_single_file(self.medialist_page.right_clicked_select_file_uri)
         elif data.get("play_playlist"):
             log.debug("play playlist")
+            self.media_engine.play_playlsit(data.get("play_playlist"))
 
     def check_client(self, ip, data):
         is_found = False
@@ -863,7 +864,7 @@ class MainUi(QMainWindow):
                 return
             else:
                 self.media_preview_widget.setGeometry(self.medialist_page.file_tree.x() + event.x(),
-                                                      self.medialist_page.file_tree.y() + event.y(), 640, 480)
+                                                      self.medialist_page.file_tree.y() + event.y(), 320, 240)
 
                 self.movie = QMovie(
                     internal_media_folder + ThumbnailFileFolder + thumbnail_file_name)

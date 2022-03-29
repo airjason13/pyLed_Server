@@ -447,7 +447,7 @@ class media_page(QObject):
 
         pop_menu.exec_(pos)
 
-    '''處理playlist, 目前只有一個menu --> del'''
+    '''處理playlist'''
     def show_playlist_pop_menu(self, pos):
         pop_menu = QMenu()
         set_qstyle_dark(pop_menu)
@@ -551,7 +551,6 @@ class media_page(QObject):
             log.debug("image period changed!")
             media_processor.set_image_period_value(int(self.image_period_edit.text()))
 
-
         clients = self.mainwindow.clients
         if video_params.frame_brightness != int(self.client_brightness_edit.text()):
             # video_params.frame_brightness = int(self.client_brightness_edit.text())
@@ -561,7 +560,6 @@ class media_page(QObject):
                 c.send_cmd(cmd_set_frame_brightness,
                            self.mainwindow.cmd_seq_id_increase(),
                             str(video_params.frame_brightness))
-
 
         if video_params.frame_br_divisor != int(self.client_br_divisor_edit.text()):
             # video_params.frame_br_divisor = int(self.client_br_divisor_edit.text())
@@ -586,7 +584,6 @@ class media_page(QObject):
                 c.send_cmd(cmd_set_frame_gamma,
                            self.mainwindow.cmd_seq_id_increase(),
                            str(video_params.frame_gamma))
-
 
         if self.mainwindow.engineer_mode is True:
             self.refresh_max_brightness_label()

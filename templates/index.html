@@ -19,17 +19,12 @@ function nex(){
         cot++;
     }
 }
+
 function pre(){
     if(cot>0){
         cot--;
         $('.inputs input').eq(cot).animate({'margin-left':'0'},500);
     }
-}
-
-function play_with_refresh_page(data){
-    alert(data );
-    var url = "/play/" + data;
-    javascript:window.location.href = url;
 }
 
 function play(data){
@@ -38,26 +33,56 @@ function play(data){
     $.post(url, {
         javascript_data: data
         });
-
 }
+
+function play_playlist(data){
+    alert(data );
+    var url = "/play_playlist/" + data;
+    $.post(url, {
+        javascript_data: data
+        });
+}
+
+function play_with_refresh_page(data){
+    alert(data );
+    var url = "/play/" + data;
+    javascript:window.location.href = url;
+}
+
+
 </script>
 
 </head>
 <body style="background-color:#000000;">
-    <input name="left_scroll" id="left_scroll" type="image" src="/static/left_arrow.webp" onclick="pre()" style="float:left"/>
-    <div style="width:80vw;margin:auto;overflow:hidden;float:left"> <!-- 這個最外圍的容器div寬度為95vw(vew width)，每張圖寬為300px，所以只顯示3張，剩下的圖超出容器隱藏起來 -->
-        <div class="img" style="width:600000px;">
-            <div class="inputs" style="width:500000px;"><!--這個div的作用是讓所有的圖片都排在同一水平上，這樣子切換的時候效果會更好-->
-                    {% for k,v in files.items() %}
-                        <input name="{{k}}" id="test_play" type="image" src="./get_thumbnail/{{v}}" onclick="play(name)"/>
-                    {% endfor %}
+    <div class="div_files_preview">
+        <input name="left_scroll" id="left_scroll" type="image" src="/static/left_arrow.webp" onclick="pre()" style="float:left"/>
+        <div style="width:80vw;height:240px;margin:auto;overflow:hidden;float:left"> <!-- 這個最外圍的容器div寬度為95vw(vew width) -->
+            <div class="img" style="width:600000px;">
+                <div class="inputs" style="width:500000px;"><!--這個div的作用是讓所有的圖片都排在同一水平上，這樣子切換的時候效果會更好-->
+                        {% for k,v in files.items() %}
+                            <input name="{{k}}" id="test_play" type="image" src="./get_thumbnail/{{v}}" onclick="play(name)"/>
+                        {% endfor %}
+                </div>
             </div>
         </div>
-    </div>
-    <input name="right_scroll" id="right_scroll" type="image" src="/static/right_arrow.webp" onclick="nex()" style="float:left"/>
-
-
-
+        <input name="right_scroll" id="right_scroll" type="image" src="/static/right_arrow.webp" onclick="nex()" style="float:left"/>
+        </div>
+    <div class="div_playlist">
+        <h2><font color="#0000FF">Playlist</font></h2>
+            {% for k,v in playlist_nest_dict.items() %}
+                <div style="width:80vw;margin:auto;overflow:hidden;float:left"> <!-- 這個最外圍的容器div寬度為95vw(vew width) -->
+                    <div class="img" style="width:600000px;">
+                    <h3><font color="#0000FF">{{k}}</font></h3>
+                        <div class="inputs" style="width:500000px;">
+                            {% for ki,vi in v.items() %}
+                                <input name="{{k}}" id="playlist_file" type="image" src="./get_thumbnail/{{vi}}" width="48" height="48" onclick="play_playlist(name)" />
+                                <!--<h4><font color="#0000FF">{{ki}}</font></h4>-->
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
 </body>
 
 

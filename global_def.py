@@ -26,16 +26,17 @@ if platform.machine() in ('arm', 'arm64', 'aarch64'):
 else:
     internal_media_folder = "/home/venom/Videos"
 
+ThumbnailFileFolder = "/.thumbnails/"
+PlaylistFolder = "/.playlists/"
+init_config_file = "/.config_video_param"
+subtitle_file_name = "/.subtitle"
+
 mp4_extends = internal_media_folder + "/*.mp4"
 jpeg_extends = internal_media_folder + "/*.jpeg"
 jpg_extends = internal_media_folder + "/*.jpg"
 png_extends = internal_media_folder + "/*.png"
 webp_extends = internal_media_folder + '/*.webp'
-
-ThumbnailFileFolder = "/.thumbnails/"
-PlaylistFolder = "/.playlists/"
-init_config_file = "/.config_video_param"
-subtitle_file_name = "/.subtitle"
+playlist_extends = internal_media_folder + PlaylistFolder + "*.playlist"
 
 class play_type(enum.IntEnum):
     play_none = 0

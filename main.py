@@ -37,32 +37,13 @@ if __name__ == '__main__':
     utils.log_utils.set_logging_level(global_debug_level)
 
     '''Insert signal handler'''
-    log.info("Insert signal")
-    '''for sig in dir(signal):
-        if sig.startswith("SIG"):
-            try:
-                signum = getattr(signal, sig)
-                signal.signal(signum, sighandler)
-            except: 
-                log.info("Skip %s", sig)'''
-
     signal.signal(signal.SIGSEGV, sighandler)
 
-    log.info("Insert signal down")
-
     qt_app = QApplication(sys.argv)
-
     gui = MainUi()
     gui.show()
     server = jqlocalserver.Server()
     server.dataReceived.connect(gui.parser_cmd_from_qlocalserver)
-
-    #   Preparing parameters for flask to be given in the thread
-    #   so that it doesn't collide with main thread
-    #kwargs = {'host': '0.0.0.0', 'port': 5000, 'threaded': True, 'use_reloader': False, 'debug': False}
-
-    #   running flask thread
-    #flaskThread = Thread(target=app_.run, daemon=True, kwargs=kwargs).start()
 
     flask_app = ApplicationPlugin(app_=app)
     flask_app.start()

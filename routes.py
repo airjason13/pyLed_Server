@@ -17,8 +17,10 @@ SECRET_KEY = os.urandom(32)
 app.config['SECRET_KEY'] = SECRET_KEY
 
 
-def find_maps():
+def find_file_maps():
     maps = {}
+    log.debug("mp4_extends = %s", mp4_extends)
+    # need to add png/jpg/jpeg
     for fname in sorted(glob.glob(mp4_extends)):
         if os.path.isfile(fname):
             #key = fname
@@ -29,11 +31,33 @@ def find_maps():
             # log.debug("video_extension = %s", video_extension)
             preview_file_name = hashlib.md5(prefix_video_name.encode('utf-8')).hexdigest() + ".webp"
             maps[key] = preview_file_name
-
     print("maps :", maps)
-
     return maps
 
+
+def find_playlist_maps():
+    playlist_nest_dict = {}
+    log.debug("playlist_extends = %s", playlist_extends)
+    for playlist_tmp in sorted(glob.glob(playlist_extends)):
+        log.debug("playlist_tmp = %s", playlist_tmp)
+        if os.path.isfile(playlist_tmp):
+            playlist_name_list = playlist_tmp.split("/")
+            playlist_name = playlist_name_list[len(playlist_name_list) - 1]
+            playlist_nest_dict[playlist_name] = {}
+            f = open(playlist_tmp)
+            lines = f.readlines()
+            for line in lines:
+                line = line.strip("\n")
+                fname_url = line.split("/")
+                fname = fname_url[len(fname_url) - 1]
+                prefix_video_name = fname.split(".")[0]
+                # log.debug("video_extension = %s", video_extension)
+                preview_file_name = hashlib.md5(prefix_video_name.encode('utf-8')).hexdigest() + ".webp"
+                playlist_nest_dict[playlist_name][fname] = preview_file_name
+
+    print(playlist_nest_dict)
+
+    return playlist_nest_dict
 
 def find_maps_depreciated():
     maps = {}
@@ -71,26 +95,35 @@ def play_with_refresh_page(filename):
     return redirect(url_for('index'))
 
 
-@app.route('/play/<filename>', methods=['POST', 'GET'])
+@app.route('/play/<filename>', methods=['POST'])
 def play(filename):
     print("route play filename :", filename)
     fname = filename
     send_message(play_file=fname)
     status_code = Response(status=200)
     return status_code
-    # return redirect(url_for('index'))
+
+@app.route('/play_playlist/<playlist>', methods=['POST'])
+def play_playlist(playlist):
+    print("route play playlist :", playlist)
+    fname = playlist
+    send_message(play_playlist=fname)
+    status_code = Response(status=200)
+    return status_code
 
 
 @app.route('/get_thumbnail/<filename>')
 def route_get_thumbnail(filename):
-    log.debug("fname = %s", filename)
+    # log.debug("fname = %s", filename)
     return send_from_directory(internal_media_folder + ThumbnailFileFolder, filename, as_attachment=True)
 
 
 @app.route("/")
 def index():
-    maps = find_maps()
-    return render_template("index.html", files=maps)
+    maps = find_file_maps()
+    playlist_nest_dict = find_playlist_maps()
+    log.debug("playlist_maps = %s", playlist_nest_dict)
+    return render_template("index.html", files=maps, playlist_nest_dict=playlist_nest_dict)
 
 
 

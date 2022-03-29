@@ -1,4 +1,18 @@
 /* 整體*/
+.div_files_preview {
+  position: absolute;
+  top: 80px;
+  left: 0;
+  height: 240px;
+}
+.div_playlist {
+  position: absolute;
+  top: 320px;
+  left: 0;
+
+  /*height: 200px;*/
+}
+
 /*body {
     margin: auto;
     max-width: 580px;
