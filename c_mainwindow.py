@@ -160,6 +160,23 @@ class MainUi(QMainWindow):
 
         self.lcd1602 = LCD1602("LCD_TAG_VERSION_INFO", "LED SERVER", version, 5000)
         self.lcd1602.start()
+
+        for i in range(5):
+            # initial subtitle_blank.jpg
+            try:
+                ori_text_blank_jpg_uri = internal_media_folder + SubtitleFolder + subtitle_blank_jpg
+                neo_text_blank_jpg_uri = internal_media_folder + subtitle_blank_jpg
+                log.debug("%d", self.led_wall_width)
+                log.debug("%d", self.led_wall_height)
+                utils.ffmpy_utils.neo_ffmpy_scale(ori_text_blank_jpg_uri, neo_text_blank_jpg_uri,
+                                                  self.led_wall_width, self.led_wall_height)
+            except Exception as e:
+                log.debug(e)
+            if utils.ffmpy_utils.check_media_res(neo_text_blank_jpg_uri, self.led_wall_width, self.led_wall_height):
+                log.debug("neo_text_blank_jpg_uri check ok!")
+                break
+
+
         log.debug("self.geo x : %d", self.geometry().x())
         log.debug("self.geo y : %d", self.geometry().y())
 
@@ -306,6 +323,8 @@ class MainUi(QMainWindow):
         self.led_res_check_btn = QPushButton()
         self.led_res_check_btn.clicked.connect(self.set_led_wall_size)
         self.led_res_check_btn.setText("Confirm")
+
+
 
         # led brightness setting
         self.led_brightness_textlabel = QLabel(self.right_frame)
@@ -974,11 +993,16 @@ class MainUi(QMainWindow):
         self.led_wall_height = int(self.led_setting_height_editbox.text())
         log.debug("%d", self.led_wall_width)
         log.debug("%d", self.led_wall_height)
-        try:
-            utils.ffmpy_utils.neo_ffmpy_scale(ori_text_blank_jpg_uri, neo_text_blank_jpg_uri,
-                                              self.led_wall_width, self.led_wall_height)
-        except Exception as e:
-            log.debug(e)
+        for i in range(5):
+            try:
+                utils.ffmpy_utils.neo_ffmpy_scale(ori_text_blank_jpg_uri, neo_text_blank_jpg_uri,
+                                                  self.led_wall_width, self.led_wall_height)
+            except Exception as e:
+                log.debug(e)
+
+            if utils.ffmpy_utils.check_media_res(neo_text_blank_jpg_uri, self.led_wall_width, self.led_wall_height):
+                log.debug("neo_text_blank_jpg_uri check ok!")
+                break
 
         self.led_config.set_led_wall_res(self.led_wall_width, self.led_wall_height)
         self.media_engine.media_processor.output_width = int(self.led_setting_width_editbox.text())

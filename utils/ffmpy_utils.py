@@ -1,3 +1,6 @@
+import subprocess
+import time
+
 import ffmpy
 from time import sleep
 import threading
@@ -7,6 +10,7 @@ import os
 import zmq
 import utils.log_utils
 import hashlib
+import subprocess
 
 log = utils.log_utils.logging_init(__file__)
 
@@ -269,6 +273,7 @@ def neo_ffmpy_cast_video_v4l2(video_path, cast_dst, brightness, contrast, red_bi
         log.debug("ffmpy_hdmi_in_cast_process is alive")
     return ff.process
 
+
 def neo_ffmpy_cast_video_h264(video_path, cast_dst, brightness, contrast, red_bias, green_bias, blue_bias, width=80, height=96):
     if len(cast_dst) == 0 or cast_dst is None:
         return -1
@@ -331,35 +336,43 @@ def neo_ffmpy_cast_video_h264(video_path, cast_dst, brightness, contrast, red_bi
 
 
 def neo_ffmpy_scale(input_path, output_path, output_width, output_height, force=True):
-    ff = None
-    global_opts = '-hide_banner -loglevel error'
-    # output_res_param = "scale=" + str(output_width) + ":" + str(output_height)
-    output_res_param = str(output_width) + "x" + str(output_height)
-    force_str = ""
-    if force is True:
-        force_str = "-y"
-    ff = ffmpy.FFmpeg(
-        global_options=global_opts,
-        inputs={
-                input_path: [force_str, "-s", output_res_param]
-        },
-        outputs={
-            output_path: []
-        },
-    )
-    log.debug("%s", ff.cmd)
     try:
-        thread_1 = threading.Thread(target=ff.run)
-        thread_1.start()
-        while not ff.process:
-            sleep(0.05)
+        ff = None
+        global_opts = '-hide_banner -loglevel error'
+        output_res_param = "scale=" + str(output_width) + ":" + str(output_height)
+        output_res = str(output_width) + "x" + str(output_height)
+        force_str = ""
+        if force is True:
+            force_str = "-y"
+        ff = ffmpy.FFmpeg(
+            global_options=global_opts,
+            inputs={
+                input_path: [force_str, ]
+            },
+            outputs={
+                output_path: ["-vf", output_res_param]
+            },
+        )
+        log.debug("ff.cmd : %s", ff.cmd)
+        ff.run()
+
     except RuntimeError as e:
         log.error(e)
 
-    log.debug("ff.process : %s", ff.process)
-    log.debug("ff.process pid : %d", ff.process.pid)
 
-    return ff.process
+    return 0
+
+def check_media_res(output_path, width, height):
+
+    pipe_result = os.popen(
+        "/usr/bin/ffprobe -v error -select_streams v -show_entries stream=width,height -of csv=p=0:s=x " + output_path).read()
+    log.debug("result = %s", pipe_result)
+
+    if str(width) + "x" + str(height) in pipe_result:
+        log.debug("good")
+        return True
+
+    return False
 
 
 def neo_ffmpy_cast_video_depreciated(video_path, cast_dst_0, cast_dst_1, width=80, height=96):
@@ -390,98 +403,6 @@ def neo_ffmpy_cast_video_depreciated(video_path, cast_dst_0, cast_dst_1, width=8
     log.debug("ff.process pid : %d", ff.process.pid)
 
     return ff.process
-
-
-# deprecated
-'''def ffmpy_execute(QObject, video_path, width=80, height=96):
-    global_opts = '-hide_banner -loglevel error'
-    scale_params = "scale=" + str(width) + ":" + str(height)
-    eq_params = "zmq,eq=brightness=0.0" + "," + scale_params
-
-    if platform.machine() in ('arm', 'arm64', 'aarch64'):
-        ff = ffmpy.FFmpeg(
-            global_options=global_opts,
-            inputs={
-                video_path: ["-re"]
-            },
-            outputs={
-                udp_sink: ["-preset", "ultrafast", "-vcodec", "libx264", '--filter_complex', eq_params, "-f", "h264",
-                           "-localaddr", "192.168.0.3"]
-                # udp_sink: ["-preset", "ultrafast", "-vcodec", "libx264", '-vf', scale_params, "-f", "h264",
-                #           "-localaddr", "192.168.0.3"]
-            },
-
-        )
-    else:
-        ff = ffmpy.FFmpeg(
-            global_options=global_opts,
-            inputs={video_path: ["-re"]},
-            outputs={
-                udp_sink: ["-preset", "ultrafast", "-vcodec", "libx264", '-filter_complex', eq_params, "-f", "h264",
-                           "-localaddr", "192.168.0.2"]
-            }
-        )
-
-    log.debug("%s", ff.cmd)
-    try:
-        thread_1 = threading.Thread(target=ff.run)
-        thread_1.start()
-        while not ff.process:
-            sleep(0.05)
-    except RuntimeError as e:
-        log.error(e)
-
-    mainUI = QObject
-    mainUI.ffmpy_running = play_status.playing
-    mainUI.ff_process = ff.process
-    log.debug("ffmpy_running : %d", mainUI.ffmpy_running)
-    log.debug("ff.process : %s", ff.process)
-    log.debug("ff.process pid : %d", ff.process.pid)
-
-    return ff.process'''
-
-
-# deprecated
-'''def ffmpy_execute_list(QObject, video_path_list):
-    mainUI = QObject
-
-    while True:
-        for videoparam in video_path_list:
-            try:
-                """ No ff_process"""
-                if mainUI.ff_process is None:
-                    mainUI.ffmpy_running = play_status.stop
-                else:
-                    """ a ff_process is running , wait process done"""
-                    while True:
-                        sleep(2)
-                        if mainUI.play_type == play_type.play_none:
-                            return
-                        if mainUI.ff_process.poll() is not None:
-                            mainUI.ffmpy_running = play_status.stop
-                            break
-
-                if mainUI.ffmpy_running == play_status.stop:
-                    log.debug("playing %s", videoparam.file_uri)
-                    video_path = videoparam.file_uri
-                    thread_1 = threading.Thread(target=ffmpy_execute, args=(QObject, video_path,))
-                    thread_1.start()
-                    sleep(2)
-                # else:
-                #    while True:
-                #        if mainUI.ff_process.poll() is None:
-                #            break;
-
-
-            except RuntimeError as e:
-                log.error(e)
-
-        if mainUI.play_option_repeat != repeat_option.repeat_all:
-            log.debug("No Repeat All")
-            break
-
-        if mainUI.play_type == play_type.play_none:
-            return'''
 
 
 def gen_webp_from_video(file_folder, video):
