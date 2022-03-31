@@ -1,7 +1,7 @@
 import enum
 import platform
 """Software version"""
-version = "LS22033001"
+version = "LS22033002"
 
 """Network relative"""
 multicast_group = "239.11.11.11"
@@ -31,8 +31,8 @@ PlaylistFolder = "/.playlists/"
 SubtitleFolder = "/.subtitle_data"
 
 init_config_file = "/.config_video_param"
-subtitle_blank_jpg = "/.subtitle_blank.jpg"
-subtitle_file_name = "/.subtitle"
+subtitle_blank_jpg = "/subtitle_blank.jpg"
+subtitle_file_name = "/subtitle.dat"
 
 mp4_extends = internal_media_folder + "/*.mp4"
 jpeg_extends = internal_media_folder + "/*.jpeg"
