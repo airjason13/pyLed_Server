@@ -28,7 +28,10 @@ else:
 
 ThumbnailFileFolder = "/.thumbnails/"
 PlaylistFolder = "/.playlists/"
+SubtitleFolder = "/.subtitle_data"
+
 init_config_file = "/.config_video_param"
+subtitle_blank_jpg = "/.subtitle_blank.jpg"
 subtitle_file_name = "/.subtitle"
 
 mp4_extends = internal_media_folder + "/*.mp4"

@@ -29,18 +29,21 @@ def neo_ffmpy_execute(video_path, brightness, contrast, red_bias, green_bias, bl
     blue_bias_params = "bomin=" + str(blue_bias)
     crop_str = "crop=iw:ih:0:0"
     color_level_str = "colorlevels=" + red_bias_params + ":" + green_bias_params + ":" + blue_bias_params
+    font_size = 16
+    fontsize_str_prefix = "fontsize=" + str(font_size)
     content_line = ""
     # add TEXT
     if "blank" in video_path:
-        config_file = open(internal_media_folder + subtitle_file_name, 'r')
+        config_file = open(internal_media_folder + SubtitleFolder + subtitle_file_name, 'r')
         content_line = config_file.readline()
         log.debug("content_line = %s", content_line)
-        drawtext_str = "drawtext=fontfile=" + internal_media_folder + \
-                       "/fonts/msjhbd.ttc:text='" + content_line + "':x=10*w/80-20*t:y=10:fontsize=16*h/80:fontcolor=white"
         # drawtext_str = "drawtext=fontfile=" + internal_media_folder + \
-        #              "/fonts/msjhbd.ttc:text='歡迎明基蒞臨指導':x=10*w/80-20*t:y=10:fontsize=16*h/80:fontcolor=white"
+        #               "/fonts/msjhbd.ttc:text='" + content_line + "':x=10*w/80-20*t:y=10:fontsize=16*h/80:fontcolor=white"
+        drawtext_str = "drawtext=fontfile=" + internal_media_folder + \
+                       "/fonts/msjhbd.ttc:text='" + content_line + "':x=10*w/80-20*t:y=10:" + \
+                       fontsize_str_prefix + "*h/" + str(height) + ":fontcolor=white"
 
-        filter_params = "zmq," + eq_str + "," + color_level_str + "," + drawtext_str + "," + drawtext_str + "," + scale_params
+        filter_params = "zmq," + eq_str + "," + color_level_str + "," + drawtext_str + "," + scale_params
     else:
         drawtext_str = "drawtext=fontfile=" + internal_media_folder + \
                        "/fonts/msjhbd.ttc:text='':x=10:y=20:fontsize=24*h/96:fontcolor=black"
@@ -324,6 +327,38 @@ def neo_ffmpy_cast_video_h264(video_path, cast_dst, brightness, contrast, red_bi
         ff.process = None
     else:
         log.debug("ffmpy_hdmi_in_cast_process is alive")
+    return ff.process
+
+
+def neo_ffmpy_scale(input_path, output_path, output_width, output_height, force=True):
+    ff = None
+    global_opts = '-hide_banner -loglevel error'
+    # output_res_param = "scale=" + str(output_width) + ":" + str(output_height)
+    output_res_param = str(output_width) + "x" + str(output_height)
+    force_str = ""
+    if force is True:
+        force_str = "-y"
+    ff = ffmpy.FFmpeg(
+        global_options=global_opts,
+        inputs={
+                input_path: [force_str, "-s", output_res_param]
+        },
+        outputs={
+            output_path: []
+        },
+    )
+    log.debug("%s", ff.cmd)
+    try:
+        thread_1 = threading.Thread(target=ff.run)
+        thread_1.start()
+        while not ff.process:
+            sleep(0.05)
+    except RuntimeError as e:
+        log.error(e)
+
+    log.debug("ff.process : %s", ff.process)
+    log.debug("ff.process pid : %d", ff.process.pid)
+
     return ff.process
 
 

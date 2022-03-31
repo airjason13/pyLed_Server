@@ -174,7 +174,7 @@ class MainUi(QMainWindow):
         os.system("pkill ffmpeg")
 
     def init_ui(self):
-        self.setFixedSize(960, 800)
+        self.setFixedSize(960, 920)
 
         pagelayout = QGridLayout()
         """Left UI Start"""
@@ -968,10 +968,18 @@ class MainUi(QMainWindow):
                 self.led_layout_window.hide()
 
     def set_led_wall_size(self):
+        ori_text_blank_jpg_uri = internal_media_folder + SubtitleFolder + subtitle_blank_jpg
+        neo_text_blank_jpg_uri = internal_media_folder + subtitle_blank_jpg
         self.led_wall_width = int(self.led_setting_width_editbox.text())
         self.led_wall_height = int(self.led_setting_height_editbox.text())
         log.debug("%d", self.led_wall_width)
         log.debug("%d", self.led_wall_height)
+        try:
+            utils.ffmpy_utils.neo_ffmpy_scale(ori_text_blank_jpg_uri, neo_text_blank_jpg_uri,
+                                              self.led_wall_width, self.led_wall_height)
+        except Exception as e:
+            log.debug(e)
+
         self.led_config.set_led_wall_res(self.led_wall_width, self.led_wall_height)
         self.media_engine.media_processor.output_width = int(self.led_setting_width_editbox.text())
         self.media_engine.media_processor.output_height = int(self.led_setting_height_editbox.text())

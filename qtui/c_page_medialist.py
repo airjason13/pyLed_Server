@@ -298,8 +298,6 @@ class media_page(QObject):
         self.video_params_crop_disable.setFixedWidth(100)
         self.video_params_crop_disable.clicked.connect(self.video_crop_disable)
 
-
-
         video_params_layout.addWidget(self.redgain_label, 0, 0)
         video_params_layout.addWidget(self.redgain_edit, 0, 1)
         video_params_layout.addWidget(self.greengain_label, 0, 2)
@@ -334,7 +332,6 @@ class media_page(QObject):
         video_params_layout.addWidget(self.video_params_crop_h_edit, 6, 3)
         video_params_layout.addWidget(self.video_params_crop_enable, 6, 5)
         video_params_layout.addWidget(self.video_params_crop_disable, 6, 4)
-
 
         video_params_layout.addWidget(self.video_params_pinch_btn, 3, 4)
         video_params_layout.addWidget(self.video_params_confirm_btn, 3, 5)
