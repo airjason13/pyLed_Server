@@ -1,15 +1,20 @@
 /* 整體*/
 .div_files_preview {
   position: absolute;
-  top: 80px;
+  top: 360px;
   left: 0;
   height: 240px;
 }
 .div_playlist {
   position: absolute;
-  top: 320px;
+  top: 600px;
   left: 0;
-
+  /*height: 200px;*/
+}
+.div_drawtext {
+  position: relative;
+  top: 0px;
+  left: 0;
   /*height: 200px;*/
 }
 

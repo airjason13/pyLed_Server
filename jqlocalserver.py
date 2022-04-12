@@ -41,7 +41,7 @@ class Server(QtNetwork.QLocalServer):
         if socket is not None:
             if socket.waitForReadyRead(2000):
                 data = json.loads(str(socket.readAll().data(), 'utf-8'))
-                print("data : ", data)
+                log.debug("data : ", data)
                 socket.disconnectFromServer()
             socket.deleteLater()
 
@@ -50,5 +50,5 @@ class Server(QtNetwork.QLocalServer):
             self.removeServer(self.fullServerName())
             QtWidgets.qApp.quit()
         else:
-            print("data : ", data)
+            log.debug("data : ", data)
             self.dataReceived.emit(data)

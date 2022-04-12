@@ -21,6 +21,7 @@ from qtui.c_page_hdmi_in import *
 from qtui.c_page_medialist import *
 from PyQt5.QtCore import QThread, pyqtSignal, QDateTime, QObject
 
+
 log = utils.log_utils.logging_init(__file__)
 
 
@@ -103,6 +104,8 @@ class MainUi(QMainWindow):
         self.play_type = play_type.play_none
         self.ff_process = None
         self.play_option_repeat = repeat_option.repeat_all
+        import routes
+        routes.route_set_repeat_option(self.play_option_repeat)
 
         # get eth0 ip and set it to server_ip
         self.server_ip = net_utils.get_ip_address()
@@ -535,6 +538,15 @@ class MainUi(QMainWindow):
         elif data.get("play_playlist"):
             log.debug("play playlist")
             self.media_engine.play_playlsit(data.get("play_playlist"))
+        elif data.get("play_hdmi_in"):
+            log.debug("play_hdmi_in")
+            self.hdmi_in_page.play_action_btn.click()
+        elif data.get("play_text"):
+            log.debug("play_text")
+        elif data.get("set_text_size"):
+            log.debug("set_text_size")
+
+
 
     def check_client(self, ip, data):
         is_found = False
@@ -828,6 +840,8 @@ class MainUi(QMainWindow):
     def repeat_option_set(self, repeat_value):
         self.play_option_repeat = repeat_value
         self.media_engine.media_processor.set_repeat_option(self.play_option_repeat)
+        import routes
+        routes.route_set_repeat_option(self.play_option_repeat)
         log.debug("self.play_option_repeat : %d", self.play_option_repeat)
 
     def mouseMoveEvent(self, event):

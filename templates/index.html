@@ -49,40 +49,108 @@ function play_with_refresh_page(data){
     javascript:window.location.href = url;
 }
 
+function submit_text_content(data1, data2){
+    alert(data1 + ",size :" + data2);
+
+    var url = "/set_text_size/" + data2;
+    $.post(url, {
+        javascript_data: data2
+        });
+
+    var url = "/play_text/" + data1;
+    $.post(url, {
+        javascript_data: data1
+        });
+}
+
+function submit_hdmi_in(){
+    alert("hdmi in")
+    var data = "hdmi_in_start"
+    var url = "/play_hdmi_in/" + data;
+    $.post(url, {
+        javascript_data: data
+        });
+}
+
+function submit_repeat_option(){
+    alert("submit_repeat_option")
+
+}
 
 </script>
 
-</head>
-<body style="background-color:#000000;">
+<!--</head>-->
+
+<body > <!--style="background-color:#000000;">-->
+    <div class="div_total_frame">
+    <div class="div_drawtext">
+        <label for="text_context" style="font-size:36px" ><font color="#0000FF">Play Text Option:</font></label><br>
+        <label for="text_context" style="font-size:24px" ><font color="#0000FF">Font Size:</font></label>
+        <input type="number" id="text_font_size" name="text_font_size" size="2" style="font-size:24px"><br><br>
+        <label for="text_context" style="font-size:24px" ><font color="#0000FF">Text Context:</font></label>
+        <input type="text" id="text_context" name="text_context" size="50" style="font-size:24px">
+        <input type="submit" style="font-size:24px" value="Submit" onclick=
+                "submit_text_content(document.getElementById('text_context').value, document.getElementById('text_font_size').value)"><br><br>
+    </div>
+
+
+    <div class="div_hdmi_in">
+        <input type="submit" style="font-size:24px" value="HDMI-In" onclick="submit_hdmi_in()">
+        <input type="submit" style="font-size:24px" value={{ repeat_option }} onclick="submit_repeat_option()">
+    </div>
+
+    <!--<div>
+        <p style="font-size:24px">Select File Play Option {{ repeat_option }}</p>
+        <div>
+          <input type="radio" id="repeat_none" name="repeat_option" value="RepeatNone">
+          <label for="repeat_none">Repeat None</label>
+
+          <input type="radio" id="repeat_one" name="repeat_option" value="RepeatOne">
+          <label for="repeat_one">Repeat One</label>
+
+          <input type="radio" id="repeat_all" name="repeat_option" value="RepeatAll">
+          <label for="repeat_all">Repeat All</label>
+
+        </div>
+        <div>
+            <button onclick="submit_repeat_option()">Submit</button>
+        </div>
+    </div>-->
+
+
     <div class="div_files_preview">
         <input name="left_scroll" id="left_scroll" type="image" src="/static/left_arrow.webp" onclick="pre()" style="float:left"/>
-        <div style="width:80vw;height:240px;margin:auto;overflow:hidden;float:left"> <!-- 這個最外圍的容器div寬度為95vw(vew width) -->
+        <div style="width:80vw;height:240px;margin:auto;overflow:hidden;float:left">
             <div class="img" style="width:600000px;">
-                <div class="inputs" style="width:500000px;"><!--這個div的作用是讓所有的圖片都排在同一水平上，這樣子切換的時候效果會更好-->
+                <div class="inputs" style="width:500000px;">
                         {% for k,v in files.items() %}
                             <input name="{{k}}" id="test_play" type="image" src="./get_thumbnail/{{v}}" onclick="play(name)"/>
                         {% endfor %}
                 </div>
             </div>
         </div>
-        <input name="right_scroll" id="right_scroll" type="image" src="/static/right_arrow.webp" onclick="nex()" style="float:left"/>
-        </div>
+        <input class="img" name="right_scroll" id="right_scroll" type="image" src="/static/right_arrow.webp" onclick="nex()" style="float:left"/>
+    </div>
+
     <div class="div_playlist">
+
         <h2><font color="#0000FF">Playlist</font></h2>
             {% for k,v in playlist_nest_dict.items() %}
-                <div style="width:80vw;margin:auto;overflow:hidden;float:left"> <!-- 這個最外圍的容器div寬度為95vw(vew width) -->
+                <div style="width:80vw;margin:auto;overflow:hidden;float:left">
                     <div class="img" style="width:600000px;">
                     <h3><font color="#0000FF">{{k}}</font></h3>
                         <div class="inputs" style="width:500000px;">
                             {% for ki,vi in v.items() %}
                                 <input name="{{k}}" id="playlist_file" type="image" src="./get_thumbnail/{{vi}}" width="48" height="48" onclick="play_playlist(name)" />
-                                <!--<h4><font color="#0000FF">{{ki}}</font></h4>-->
                             {% endfor %}
                         </div>
                     </div>
                 </div>
             {% endfor %}
-        </div>
+    </div>
+    </div>
+
+
 </body>
 
 
