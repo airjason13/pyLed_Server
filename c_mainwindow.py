@@ -516,9 +516,8 @@ class MainUi(QMainWindow):
         self.medialist_page.client_brightness_edit.setText(str(i))
         self.medialist_page.video_params_confirm_btn_clicked()
 
-
     ''' test divisor '''
-    def test_timer_A_handler(self):
+    '''def test_timer_A_handler(self):
         log.debug("AA")
         log.debug("self.medialist_page.client_br_divisor_edit.text() = %s", self.medialist_page.client_br_divisor_edit.text())
         i = int(self.medialist_page.client_br_divisor_edit.text())
@@ -533,7 +532,7 @@ class MainUi(QMainWindow):
         log.debug("self.medialist_page.client_br_divisor_edit.text() = %s",
                   self.medialist_page.client_br_divisor_edit.text())
         self.medialist_page.video_params_confirm_btn_clicked()
-        #utils.ffmpy_utils.ffmpy_draw_text(str(i))
+        #utils.ffmpy_utils.ffmpy_draw_text(str(i))'''
 
     """ handle the command from qlocalserver"""
     def parser_cmd_from_qlocalserver(self, data):
@@ -552,6 +551,9 @@ class MainUi(QMainWindow):
         elif data.get("play_text"):
             log.debug("play_text")
             utils.file_utils.change_text_content(data.get("play_text"))
+            self.medialist_page.right_clicked_select_file_uri = internal_media_folder + subtitle_blank_jpg
+            log.debug("file_uri :%s", self.medialist_page.right_clicked_select_file_uri)
+            self.media_engine.play_single_file(self.medialist_page.right_clicked_select_file_uri)
         elif data.get("set_text_size"):
             log.debug("set_text_size")
             utils.file_utils.change_text_size(data.get("set_text_size"))
