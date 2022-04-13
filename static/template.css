@@ -18,6 +18,10 @@
   /*height: 200px;*/
 }
 
+#number {
+  width: 3em;
+}
+
 /*body {
     margin: auto;
     max-width: 580px;

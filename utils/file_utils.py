@@ -48,6 +48,17 @@ def get_mount_points(devices=None):
                 mount_points.append(p.mountpoint)
     return mount_points
 
+def change_text_content(content):
+    config_file = open(internal_media_folder + SubtitleFolder + subtitle_file_name, 'w')
+    config_file.write(content)
+    os.system("sync")
+
+def change_text_size(size):
+    config_file = open(internal_media_folder + SubtitleFolder + subtitle_size_file_name, 'w')
+    config_file.write(size)
+    os.system("sync")
+
+
 
 
 

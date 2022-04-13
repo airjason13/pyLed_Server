@@ -34,12 +34,17 @@ def neo_ffmpy_execute(video_path, brightness, contrast, red_bias, green_bias, bl
     crop_str = "crop=iw:ih:0:0"
     color_level_str = "colorlevels=" + red_bias_params + ":" + green_bias_params + ":" + blue_bias_params
     font_size = 16
-    fontsize_str_prefix = "fontsize=" + str(font_size)
-    content_line = ""
+    # fontsize_str_prefix = "fontsize=" + str(font_size)
+    # content_line = ""
     # add TEXT
     if "blank" in video_path:
         config_file = open(internal_media_folder + SubtitleFolder + subtitle_file_name, 'r')
         content_line = config_file.readline()
+        config_file.close()
+        font_size_config_file = open(internal_media_folder + SubtitleFolder + subtitle_size_file_name, 'r')
+        font_size = font_size_config_file.readline()
+        font_size_config_file.close()
+        fontsize_str_prefix = "fontsize=" + str(font_size)
         log.debug("content_line = %s", content_line)
         # drawtext_str = "drawtext=fontfile=" + internal_media_folder + \
         #               "/fonts/msjhbd.ttc:text='" + content_line + "':x=10*w/80-20*t:y=10:fontsize=16*h/80:fontcolor=white"

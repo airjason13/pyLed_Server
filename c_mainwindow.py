@@ -106,6 +106,14 @@ class MainUi(QMainWindow):
         self.play_option_repeat = repeat_option.repeat_all
         import routes
         routes.route_set_repeat_option(self.play_option_repeat)
+        font_size_config_file = open(internal_media_folder + SubtitleFolder + subtitle_size_file_name, 'r')
+        font_size = font_size_config_file.readline()
+        routes.route_set_text_size(font_size)
+        font_size_config_file.close()
+        config_file = open(internal_media_folder + SubtitleFolder + subtitle_file_name, 'r')
+        content_line = config_file.readline()
+        routes.route_set_text_content(content_line)
+        config_file.close()
 
         # get eth0 ip and set it to server_ip
         self.server_ip = net_utils.get_ip_address()
@@ -543,10 +551,25 @@ class MainUi(QMainWindow):
             self.hdmi_in_page.play_action_btn.click()
         elif data.get("play_text"):
             log.debug("play_text")
+            utils.file_utils.change_text_content(data.get("play_text"))
         elif data.get("set_text_size"):
             log.debug("set_text_size")
-
-
+            utils.file_utils.change_text_size(data.get("set_text_size"))
+        elif data.get("set_repeat_option"):
+            log.debug("set_repeat_option")
+            if data.get("set_repeat_option") == "Repeat_Random":
+                self.medialist_page.play_option_repeat = repeat_option.repeat_random
+                self.medialist_page.btn_repeat.setText("Repeat Random")
+            elif data.get("set_repeat_option") == "Repeat_All":
+                self.medialist_page.play_option_repeat = repeat_option.repeat_all
+                self.medialist_page.btn_repeat.setText("Repeat All")
+            elif data.get("set_repeat_option") == "Repeat_One":
+                self.medialist_page.play_option_repeat = repeat_option.repeat_one
+                self.medialist_page.btn_repeat.setText("Repeat One")
+            elif data.get("set_repeat_option") == "Repeat_None":
+                self.medialist_page.play_option_repeat = repeat_option.repeat_none
+                self.medialist_page.btn_repeat.setText("Repeat None")
+            self.mainwindow.repeat_option_set(self.medialist_page.play_option_repeat)
 
     def check_client(self, ip, data):
         is_found = False

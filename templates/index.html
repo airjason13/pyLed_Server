@@ -28,7 +28,7 @@ function pre(){
 }
 
 function play(data){
-    alert(data );
+    /*alert(data );*/
     var url = "/play/" + data;
     $.post(url, {
         javascript_data: data
@@ -36,7 +36,7 @@ function play(data){
 }
 
 function play_playlist(data){
-    alert(data );
+    /*alert(data );*/
     var url = "/play_playlist/" + data;
     $.post(url, {
         javascript_data: data
@@ -50,7 +50,7 @@ function play_with_refresh_page(data){
 }
 
 function submit_text_content(data1, data2){
-    alert(data1 + ",size :" + data2);
+    /*alert(data1 + ",size :" + data2);*/
 
     var url = "/set_text_size/" + data2;
     $.post(url, {
@@ -64,7 +64,7 @@ function submit_text_content(data1, data2){
 }
 
 function submit_hdmi_in(){
-    alert("hdmi in")
+    /*alert("hdmi in")*/
     var data = "hdmi_in_start"
     var url = "/play_hdmi_in/" + data;
     $.post(url, {
@@ -72,23 +72,40 @@ function submit_hdmi_in(){
         });
 }
 
-function submit_repeat_option(){
-    alert("submit_repeat_option")
-
+function submit_repeat_option(data){
+    /*alert(data);*/
+    var option;
+    if (data.includes("All") == true){
+        option="Repeat_Random";
+        /*alert(option);*/
+    } else if (data.includes("Random") == true){
+        option="Repeat_None";
+        /*alert(option);*/
+    } else if (data.includes("None") == true){
+        option="Repeat_One";
+    } else if (data.includes("One") == true){
+        option="Repeat_All";
+    }
+    document.getElementById("btn_repeat").value=option;
+    var url = "/set_repeat_option/" + option;
+    $.post(url, {
+        javascript_data: option
+        });
 }
+
 
 </script>
 
-<!--</head>-->
 
-<body > <!--style="background-color:#000000;">-->
+
+<body style="background-color:#000000;">
     <div class="div_total_frame">
     <div class="div_drawtext">
         <label for="text_context" style="font-size:36px" ><font color="#0000FF">Play Text Option:</font></label><br>
         <label for="text_context" style="font-size:24px" ><font color="#0000FF">Font Size:</font></label>
-        <input type="number" id="text_font_size" name="text_font_size" size="2" style="font-size:24px"><br><br>
+        <input id="number" type="number" id="text_font_size" name="text_font_size" size="2" style="font-size:24px" value={{ text_size }}><br><br>
         <label for="text_context" style="font-size:24px" ><font color="#0000FF">Text Context:</font></label>
-        <input type="text" id="text_context" name="text_context" size="50" style="font-size:24px">
+        <input type="text" id="text_context" name="text_context" size="50" style="font-size:24px" value={{ text_content }}>
         <input type="submit" style="font-size:24px" value="Submit" onclick=
                 "submit_text_content(document.getElementById('text_context').value, document.getElementById('text_font_size').value)"><br><br>
     </div>
@@ -96,7 +113,8 @@ function submit_repeat_option(){
 
     <div class="div_hdmi_in">
         <input type="submit" style="font-size:24px" value="HDMI-In" onclick="submit_hdmi_in()">
-        <input type="submit" style="font-size:24px" value={{ repeat_option }} onclick="submit_repeat_option()">
+        <input type="submit" id="btn_repeat" name="btn_repeat" style="font-size:24px" value={{ repeat_option }} onclick="submit_repeat_option(value)">
+        <!--<input onclick="submit_repeat_option(value)" type="button" value={{ repeat_option }} id="myButton1"></input>-->
     </div>
 
     <!--<div>
