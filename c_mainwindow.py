@@ -32,6 +32,9 @@ class MainUi(QMainWindow):
 
     signal_right_page_changed = pyqtSignal(int, int)  # pre_idx, current_idx
 
+    option_btn_width = 240
+    option_btn_height = 60
+
     def __init__(self):
         super().__init__()
         pg.setConfigOptions(antialias=True)
@@ -106,14 +109,16 @@ class MainUi(QMainWindow):
         self.play_option_repeat = repeat_option.repeat_all
         import routes
         routes.route_set_repeat_option(self.play_option_repeat)
-        font_size_config_file = open(internal_media_folder + SubtitleFolder + subtitle_size_file_name, 'r')
-        font_size = font_size_config_file.readline()
+        # font_size_config_file = open(internal_media_folder + SubtitleFolder + subtitle_size_file_name, 'r')
+        # font_size = font_size_config_file.readline()
+        font_size = utils.file_utils.get_text_size()
         routes.route_set_text_size(font_size)
-        font_size_config_file.close()
-        config_file = open(internal_media_folder + SubtitleFolder + subtitle_file_name, 'r')
-        content_line = config_file.readline()
+        # font_size_config_file.close()
+        # config_file = open(internal_media_folder + SubtitleFolder + subtitle_file_name, 'r')
+        # content_line = config_file.readline()
+        content_line = utils.file_utils.get_text_content()
         routes.route_set_text_content(content_line)
-        config_file.close()
+        # config_file.close()
 
         # get eth0 ip and set it to server_ip
         self.server_ip = net_utils.get_ip_address()
@@ -202,7 +207,7 @@ class MainUi(QMainWindow):
         os.system("pkill ffmpeg")
 
     def init_ui(self):
-        self.setFixedSize(960, 920)
+        self.setFixedSize(1280, 960)
 
         pagelayout = QGridLayout()
         """Left UI Start"""
@@ -234,28 +239,33 @@ class MainUi(QMainWindow):
         connect_btn = QPushButton(top_left_frame)
         connect_btn.setMouseTracking(True)
         # connect_btn.setStyleSheet('QPushButton {background-color: #A3C1DA; color: orange;}')
-        connect_btn.setFixedSize(200, 30), connect_btn.setText("Connect Client")
+        connect_btn.setFixedSize(self.option_btn_width, self.option_btn_height), connect_btn.setText("Connect Client")
+        connect_btn.setFont(QFont(qfont_style_default, qfont_style_size_large))
         connect_btn.clicked.connect(self.fun_connect_clients)
         button_layout.addWidget(connect_btn)
         connect_btn.setMouseTracking(True)
 
         content_btn = QPushButton(top_left_frame)
-        content_btn.setFixedSize(200, 30), content_btn.setText("Play Content")
+        content_btn.setFixedSize(self.option_btn_width, self.option_btn_height), content_btn.setText("Play Content")
+        content_btn.setFont(QFont(qfont_style_default, qfont_style_size_large))
         content_btn.clicked.connect(self.func_file_contents)
         button_layout.addWidget(content_btn)
 
         hdmi_in_btn = QPushButton(top_left_frame)
-        hdmi_in_btn.setFixedSize(200, 30), hdmi_in_btn.setText("HDMI-in")
+        hdmi_in_btn.setFixedSize(self.option_btn_width, self.option_btn_height), hdmi_in_btn.setText("HDMI-in")
+        hdmi_in_btn.setFont(QFont(qfont_style_default, qfont_style_size_large))
         hdmi_in_btn.clicked.connect(self.func_hdmi_in_contents)
         button_layout.addWidget(hdmi_in_btn)
 
         test_btn = QPushButton(top_left_frame)
-        test_btn.setFixedSize(200, 30), test_btn.setText("LED Setting")
+        test_btn.setFixedSize(self.option_btn_width, self.option_btn_height), test_btn.setText("LED Setting")
+        test_btn.setFont(QFont(qfont_style_default, qfont_style_size_large))
         test_btn.clicked.connect(self.func_led_setting)
         button_layout.addWidget(test_btn)
 
         test2_btn = QPushButton(top_left_frame)
-        test2_btn.setFixedSize(200, 30), test2_btn.setText("TestB")
+        test2_btn.setFixedSize(self.option_btn_width, self.option_btn_height), test2_btn.setText("TestB")
+        test2_btn.setFont(QFont(qfont_style_default, qfont_style_size_large))
         test2_btn.clicked.connect(self.func_testB)
         button_layout.addWidget(test2_btn)
         """Left UI End"""
@@ -281,8 +291,8 @@ class MainUi(QMainWindow):
 
         self.splitter1 = QSplitter(Qt.Vertical)
         self.splitter1.setMouseTracking(True)
-        top_left_frame.setFixedHeight(250)
-        top_left_frame.setFixedWidth(250)
+        top_left_frame.setFixedHeight(360)
+        top_left_frame.setFixedWidth(260)
         self.splitter1.addWidget(top_left_frame)
         self.splitter1.addWidget(btm_left_frame)
 

@@ -59,6 +59,32 @@ def change_text_size(size):
     os.system("sync")
 
 
+def get_text_size():
+    if os.path.exists(internal_media_folder + SubtitleFolder) is False:
+        os.mkdir(internal_media_folder + SubtitleFolder)
+    if os.path.exists(internal_media_folder + SubtitleFolder + subtitle_size_file_name) is False:
+        text_font_size = str(text_font_size_default)
+        text_font_size_config_file = open(internal_media_folder + SubtitleFolder + subtitle_size_file_name, 'w')
+        text_font_size_config_file.write(text_font_size)
+        text_font_size_config_file.close()
+        return text_font_size
+    else:
+        text_font_size_config_file = open(internal_media_folder + SubtitleFolder + subtitle_size_file_name, 'r')
+        text_font_size = text_font_size_config_file.readline()
+        text_font_size_config_file.close()
+    return text_font_size
 
-
-
+def get_text_content():
+    if os.path.exists(internal_media_folder + SubtitleFolder) is False:
+        os.mkdir(internal_media_folder + SubtitleFolder)
+    try:
+        if os.path.exists(internal_media_folder + SubtitleFolder + subtitle_file_name) is False:
+            with open(internal_media_folder + SubtitleFolder + subtitle_file_name, 'w') as f:
+                text_content = text_content_default
+                f.write(text_content)
+        else:
+            with open(internal_media_folder + SubtitleFolder + subtitle_file_name, 'r') as f:
+                text_content = f.readline()
+    except Exception as e:
+        log.debug("%s", e)
+    return text_content

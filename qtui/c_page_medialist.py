@@ -16,6 +16,8 @@ log = utils.log_utils.logging_init(__file__)
 
 class media_page(QObject):
     signal_refresh_internal_medialist = pyqtSignal()
+    media_btn_width = 180
+    media_btn_height = 30
 
     def __init__(self, mainwindow, **kwargs):
         super(media_page, self).__init__(**kwargs)
@@ -121,13 +123,17 @@ class media_page(QObject):
         """play singal file btn"""
         self.btn_play_select_file = QPushButton(self.mainwindow.right_frame)
         self.btn_play_select_file.setText("Play Select File")
-        self.btn_play_select_file.setFixedWidth(media_btn_width)
+        self.btn_play_select_file.setFont(QFont(qfont_style_default, qfont_style_size_medium))
+        # self.btn_play_select_file.setFixedWidth(media_btn_width)
+        self.btn_play_select_file.setFixedSize(self.media_btn_width, self.media_btn_height)
         self.btn_play_select_file.setDisabled(True)
 
         """play playlist btn"""
         self.btn_play_playlist = QPushButton(self.mainwindow.right_frame)
         self.btn_play_playlist.setText("Play Playlist")
-        self.btn_play_playlist.setFixedWidth(media_btn_width)
+        # self.btn_play_playlist.setFixedWidth(media_btn_width)
+        self.btn_play_playlist.setFont(QFont(qfont_style_default, qfont_style_size_medium))
+        self.btn_play_playlist.setFixedSize(self.media_btn_width, self.media_btn_height)
         # if len(self.media_play_list) == 0:
         #    self.btn_play_playlist.setDisabled(True)
         self.btn_play_playlist.clicked.connect(self.mainwindow.play_playlist_trigger)
@@ -135,13 +141,17 @@ class media_page(QObject):
         """stop btn"""
         self.btn_stop = QPushButton(self.mainwindow.right_frame)
         self.btn_stop.setText("Stop")
-        self.btn_stop.setFixedWidth(media_btn_width)
+        # self.btn_stop.setFixedWidth(media_btn_width)
+        self.btn_stop.setFont(QFont(qfont_style_default, qfont_style_size_medium))
+        self.btn_stop.setFixedSize(self.media_btn_width, self.media_btn_height)
         self.btn_stop.clicked.connect(self.stop_media_trigger)
         self.btn_stop.clicked.connect(self.mainwindow.stop_media_set)
 
         self.btn_pause = QPushButton(self.mainwindow.right_frame)
         self.btn_pause.setText("Pause")
-        self.btn_pause.setFixedWidth(media_btn_width)
+        self.btn_pause.setFont(QFont(qfont_style_default, qfont_style_size_medium))
+        self.btn_pause.setFixedSize(self.media_btn_width, self.media_btn_height)
+        # self.btn_pause.setFixedWidth(media_btn_width)
         self.btn_pause.clicked.connect(self.pause_media_trigger)
 
         self.btn_repeat = QPushButton(self.mainwindow.right_frame)
@@ -154,7 +164,9 @@ class media_page(QObject):
         else:
             self.btn_repeat.setText("Repeat unknown")
 
-        self.btn_repeat.setFixedWidth(media_btn_width)
+        # self.btn_repeat.setFixedWidth(media_btn_width)
+        self.btn_repeat.setFont(QFont(qfont_style_default, qfont_style_size_medium))
+        self.btn_repeat.setFixedSize(self.media_btn_width, self.media_btn_height)
         self.btn_repeat.clicked.connect(self.repeat_option_trigger)
 
         self.play_option_widget = QWidget(self.mainwindow.right_frame)
@@ -170,6 +182,7 @@ class media_page(QObject):
         # brightness
         self.brightness_label = QLabel(self.mainwindow.right_frame)
         self.brightness_label.setText("Brightness:")
+        self.brightness_label.setFont(QFont(qfont_style_default, qfont_style_size_medium))
         self.brightness_edit = QLineEdit(self.mainwindow.right_frame)
         self.brightness_edit.setFixedWidth(100)
         self.brightness_edit.setText(str(self.mainwindow.media_engine.media_processor.video_params.video_brightness))
@@ -177,6 +190,7 @@ class media_page(QObject):
         # contrast
         self.contrast_label = QLabel(self.mainwindow.right_frame)
         self.contrast_label.setText("Contrast:")
+        self.contrast_label.setFont(QFont(qfont_style_default, qfont_style_size_medium))
         self.contrast_edit = QLineEdit(self.mainwindow.right_frame)
         self.contrast_edit.setFixedWidth(100)
         self.contrast_edit.setText(str(self.mainwindow.media_engine.media_processor.video_params.video_contrast))
@@ -184,6 +198,7 @@ class media_page(QObject):
         # contrast
         self.image_period_label = QLabel(self.mainwindow.right_frame)
         self.image_period_label.setText("Image Period:")
+        self.image_period_label.setFont(QFont(qfont_style_default, qfont_style_size_medium))
         self.image_period_edit = QLineEdit(self.mainwindow.right_frame)
         self.image_period_edit.setFixedWidth(100)
         self.image_period_edit.setText(str(self.mainwindow.media_engine.media_processor.video_params.image_period))
@@ -191,6 +206,7 @@ class media_page(QObject):
         # red gain
         self.redgain_label = QLabel(self.mainwindow.right_frame)
         self.redgain_label.setText("Red Gain:")
+        self.redgain_label.setFont(QFont(qfont_style_default, qfont_style_size_medium))
         self.redgain_edit = QLineEdit(self.mainwindow.right_frame)
         self.redgain_edit.setFixedWidth(100)
         self.redgain_edit.setText(str(self.mainwindow.media_engine.media_processor.video_params.video_red_bias))
@@ -198,6 +214,7 @@ class media_page(QObject):
         # green gain
         self.greengain_label = QLabel(self.mainwindow.right_frame)
         self.greengain_label.setText("Green Gain:")
+        self.greengain_label.setFont(QFont(qfont_style_default, qfont_style_size_medium))
         self.greengain_edit = QLineEdit(self.mainwindow.right_frame)
         self.greengain_edit.setFixedWidth(100)
         self.greengain_edit.setText(str(self.mainwindow.media_engine.media_processor.video_params.video_green_bias))
@@ -205,6 +222,7 @@ class media_page(QObject):
         # blue gain
         self.blugain_label = QLabel(self.mainwindow.right_frame)
         self.blugain_label.setText("Blue Gain:")
+        self.blugain_label.setFont(QFont(qfont_style_default, qfont_style_size_medium))
         self.bluegain_edit = QLineEdit(self.mainwindow.right_frame)
         self.bluegain_edit.setFixedWidth(100)
         self.bluegain_edit.setText(str(self.mainwindow.media_engine.media_processor.video_params.video_blue_bias))
@@ -212,6 +230,7 @@ class media_page(QObject):
         #client brightness adjust
         self.client_brightness_label = QLabel(self.mainwindow.right_frame)
         self.client_brightness_label.setText("Client Br:")
+        self.client_brightness_label.setFont(QFont(qfont_style_default, qfont_style_size_medium))
         self.client_brightness_edit = QLineEdit(self.mainwindow.right_frame)
         self.client_brightness_edit.setFixedWidth(100)
         self.client_brightness_edit.setText(
@@ -220,6 +239,7 @@ class media_page(QObject):
         # client brightness adjust
         self.client_br_divisor_label = QLabel(self.mainwindow.right_frame)
         self.client_br_divisor_label.setText("Client BrDivisor:")
+        self.client_br_divisor_label.setFont(QFont(qfont_style_default, qfont_style_size_medium))
         self.client_br_divisor_edit = QLineEdit(self.mainwindow.right_frame)
         self.client_br_divisor_edit.setFixedWidth(100)
         self.client_br_divisor_edit.setText(
@@ -228,6 +248,7 @@ class media_page(QObject):
         # client contrast(black level) adjust
         self.client_contrast_label = QLabel(self.mainwindow.right_frame)
         self.client_contrast_label.setText("Client Black-Lv:")
+        self.client_contrast_label.setFont(QFont(qfont_style_default, qfont_style_size_medium))
         self.client_contrast_edit = QLineEdit(self.mainwindow.right_frame)
         self.client_contrast_edit.setFixedWidth(100)
         self.client_contrast_edit.setText(
@@ -236,6 +257,7 @@ class media_page(QObject):
         # client gamma adjust
         self.client_gamma_label = QLabel(self.mainwindow.right_frame)
         self.client_gamma_label.setText("Client Gamma:")
+        self.client_gamma_label.setFont(QFont(qfont_style_default, qfont_style_size_medium))
         self.client_gamma_edit = QLineEdit(self.mainwindow.right_frame)
         self.client_gamma_edit.setFixedWidth(100)
         self.client_gamma_edit.setText(
@@ -247,17 +269,20 @@ class media_page(QObject):
 
         self.video_params_confirm_btn = QPushButton(self.mainwindow.right_frame)
         self.video_params_confirm_btn.setText("Set")
+        self.video_params_confirm_btn.setFont(QFont(qfont_style_default, qfont_style_size_medium))
         self.video_params_confirm_btn.setFixedWidth(100)
         self.video_params_confirm_btn.clicked.connect(self.video_params_confirm_btn_clicked)
 
         self.video_params_pinch_btn = QPushButton(self.mainwindow.right_frame)
         self.video_params_pinch_btn.setText("P5")
+        self.video_params_pinch_btn.setFont(QFont(qfont_style_default, qfont_style_size_medium))
         self.video_params_pinch_btn.setFixedWidth(100)
         self.video_params_pinch_btn.clicked.connect(self.video_params_pinch_btn_clicked)
 
         #crop params
         self.video_params_crop_x_label = QLabel(self.mainwindow.right_frame)
         self.video_params_crop_x_label.setText("Crop_Start_X:")
+        self.video_params_crop_x_label.setFont(QFont(qfont_style_default, qfont_style_size_medium))
         self.video_params_crop_x_label.setFixedWidth(100)
 
         self.video_params_crop_x_edit = QLineEdit(self.mainwindow.right_frame)
@@ -266,6 +291,7 @@ class media_page(QObject):
 
         self.video_params_crop_y_label = QLabel(self.mainwindow.right_frame)
         self.video_params_crop_y_label.setText("Crop_Start_Y:")
+        self.video_params_crop_y_label.setFont(QFont(qfont_style_default, qfont_style_size_medium))
         self.video_params_crop_y_label.setFixedWidth(100)
 
         self.video_params_crop_y_edit = QLineEdit(self.mainwindow.right_frame)
@@ -274,6 +300,7 @@ class media_page(QObject):
 
         self.video_params_crop_w_label = QLabel(self.mainwindow.right_frame)
         self.video_params_crop_w_label.setText("Crop_W:")
+        self.video_params_crop_w_label.setFont(QFont(qfont_style_default, qfont_style_size_medium))
         self.video_params_crop_w_label.setFixedWidth(100)
 
         self.video_params_crop_w_edit = QLineEdit(self.mainwindow.right_frame)
@@ -282,6 +309,7 @@ class media_page(QObject):
 
         self.video_params_crop_h_label = QLabel(self.mainwindow.right_frame)
         self.video_params_crop_h_label.setText("Crop_H:")
+        self.video_params_crop_h_label.setFont(QFont(qfont_style_default, qfont_style_size_medium))
         self.video_params_crop_h_label.setFixedWidth(100)
 
         self.video_params_crop_h_edit = QLineEdit(self.mainwindow.right_frame)
@@ -291,11 +319,13 @@ class media_page(QObject):
         self.video_params_crop_enable = QPushButton(self.mainwindow.right_frame)
         self.video_params_crop_enable.setText("Crop Enable")
         self.video_params_crop_enable.setFixedWidth(100)
+        self.video_params_crop_enable.setFont(QFont(qfont_style_default, qfont_style_size_medium))
         self.video_params_crop_enable.clicked.connect(self.video_crop_enable)
 
         self.video_params_crop_disable = QPushButton(self.mainwindow.right_frame)
         self.video_params_crop_disable.setText("Crop Disable")
         self.video_params_crop_disable.setFixedWidth(100)
+        self.video_params_crop_disable.setFont(QFont(qfont_style_default, qfont_style_size_medium))
         self.video_params_crop_disable.clicked.connect(self.video_crop_disable)
 
         video_params_layout.addWidget(self.redgain_label, 0, 0)

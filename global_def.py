@@ -15,7 +15,7 @@ cv2_preview_v4l2_sink = "/dev/video5"
 hdmi_in_h264_src = "udp://127.0.0.1:10012"
 cmd_timeout = 2
 g_client_udp_cmd_port = 11335
-flask_server_port = 9090
+flask_server_port = 9098
 
 
 SIZE_MB = 1024*1024
@@ -94,6 +94,14 @@ still_image_video_period = 600
 preview_start_time = 3
 preview_period = 3
 
+"""ffmpeg default text font size & content"""
+text_font_size_default = 16
+text_content_default = 12345678
 
 """lcd1602 server address"""
 lcd1602_server_address = '/tmp/uds_socket_i2clcd7'
+
+"""QFont style & size"""
+qfont_style_default = "Times"
+qfont_style_size_large = 18
+qfont_style_size_medium = 16
