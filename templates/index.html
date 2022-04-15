@@ -10,6 +10,7 @@ oncontextmenu="return false;"
 
 <script src="https://cdn.bootcss.com/jquery/1.10.2/jquery.min.js"></script>
 <script>window.jQuery || document.write('<script src="static/jquery.min.js"><\/script>')</script>
+<script src="static/script.js" defer></script>
 <script>
 var cot=0;//設置一個計數器，初始值為0；作用是用來監聽點擊切換的時候哪一個圖片應該隱藏或者顯示
 var max_cot=0;
@@ -98,7 +99,7 @@ function submit_repeat_option(data){
 
 
 
-<body style="background-color:#000000;">
+<body ><!--style="background-color:#000000;">-->
     <div class="div_total_frame">
     <div class="div_drawtext">
         <label for="text_context" style="font-size:36px" ><font color="#0000FF">Play Text Option:</font></label><br>
@@ -134,10 +135,28 @@ function submit_repeat_option(data){
             <button onclick="submit_repeat_option()">Submit</button>
         </div>
     </div>-->
-
-
-    <div class="div_files_preview">
+    <div class="row">
+        <div class="header">
+          <h3 class="title">Media Files</h3>
+          <div class="progress-bar"></div>
+        </div>
+        <div class="container">
+            <button class="handle left-handle">
+                <div class="text">&#8249;</div>
+            </button>
+            <div class="slider">
+                {% for k,v in files.items() %}
+                        <input name="{{k}}" id="test_play" type="image" src="./get_thumbnail/{{v}}" onclick="play(name)"/>
+                {% endfor %}
+            </div>
+            <button class="handle right-handle">
+                <div class="text">&#8250;</div>
+            </button>
+        </div>
+    </div>
+    <!--<div class="div_files_preview">
         <input name="left_scroll" id="left_scroll" type="image" src="/static/left_arrow.webp" onclick="pre()" style="float:left"/>
+
         <div style="width:80vw;height:240px;margin:auto;overflow:hidden;float:left">
             <div class="img" style="width:600000px;">
                 <div class="inputs" style="width:500000px;">
@@ -148,18 +167,18 @@ function submit_repeat_option(data){
             </div>
         </div>
         <input class="img" name="right_scroll" id="right_scroll" type="image" src="/static/right_arrow.webp" onclick="nex()" style="float:left"/>
-    </div>
+    </div>-->
 
     <div class="div_playlist">
 
-        <h2><font color="#0000FF">Playlist</font></h2>
+        <h3 class="title">Playlists</h3>
             {% for k,v in playlist_nest_dict.items() %}
                 <div style="width:80vw;margin:auto;overflow:hidden;float:left">
                     <div class="img" style="width:600000px;">
                     <h3><font color="#0000FF">{{k}}</font></h3>
                         <div class="inputs" style="width:500000px;">
                             {% for ki,vi in v.items() %}
-                                <input name="{{k}}" id="playlist_file" type="image" src="./get_thumbnail/{{vi}}" width="48" height="48" onclick="play_playlist(name)" />
+                                <input name="{{k}}" id="playlist_file" type="image" src="./get_thumbnail/{{vi}}" width="96" height="96" onclick="play_playlist(name)" />
                             {% endfor %}
                         </div>
                     </div>
