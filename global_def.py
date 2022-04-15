@@ -103,5 +103,5 @@ lcd1602_server_address = '/tmp/uds_socket_i2clcd7'
 
 """QFont style & size"""
 qfont_style_default = "Times"
-qfont_style_size_large = 18
-qfont_style_size_medium = 16
+qfont_style_size_large = 24
+qfont_style_size_medium = 18

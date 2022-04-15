@@ -1,9 +1,11 @@
 from PyQt5 import QtWidgets
 from PyQt5.QtCore import QObject, Qt
+from PyQt5.QtGui import QFont
 from PyQt5.QtWidgets import QTreeWidget, QTableWidget, QWidget, QVBoxLayout, QTableWidgetItem
-
+from global_def import *
 import utils.log_utils
 log = utils.log_utils.logging_init(__file__)
+
 
 class clients_page(QObject):
     def __init__(self, mainwindow, clients, **kwargs):
@@ -16,8 +18,10 @@ class clients_page(QObject):
         self.client_table.setColumnCount(4)
         self.client_table.setRowCount(0)
         self.client_table.setMouseTracking(True)
-        self.client_table.setHorizontalHeaderLabels(['IP', 'ID', 'Status', 'Version'])
+        self.client_table.horizontalHeader().setFont(QFont(qfont_style_default, qfont_style_size_medium))
+        self.client_table.setHorizontalHeaderLabels(['IP', 'ID', 'STATUS', 'VERSION'])
         self.client_table.setColumnWidth(0, 200)  # IP Column width:200
+        self.client_table.setColumnWidth(2, 200)  # Version Column width:200
         self.client_table.setColumnWidth(3, 200)  # Version Column width:200
         client_widget = QWidget(self.mainwindow.right_frame)
         client_layout = QVBoxLayout()

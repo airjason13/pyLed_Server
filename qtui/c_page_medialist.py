@@ -270,20 +270,20 @@ class media_page(QObject):
         self.video_params_confirm_btn = QPushButton(self.mainwindow.right_frame)
         self.video_params_confirm_btn.setText("Set")
         self.video_params_confirm_btn.setFont(QFont(qfont_style_default, qfont_style_size_medium))
-        self.video_params_confirm_btn.setFixedWidth(100)
+        self.video_params_confirm_btn.setFixedWidth(150)
         self.video_params_confirm_btn.clicked.connect(self.video_params_confirm_btn_clicked)
 
         self.video_params_pinch_btn = QPushButton(self.mainwindow.right_frame)
         self.video_params_pinch_btn.setText("P5")
         self.video_params_pinch_btn.setFont(QFont(qfont_style_default, qfont_style_size_medium))
-        self.video_params_pinch_btn.setFixedWidth(100)
+        self.video_params_pinch_btn.setFixedWidth(150)
         self.video_params_pinch_btn.clicked.connect(self.video_params_pinch_btn_clicked)
 
         #crop params
         self.video_params_crop_x_label = QLabel(self.mainwindow.right_frame)
         self.video_params_crop_x_label.setText("Crop_Start_X:")
         self.video_params_crop_x_label.setFont(QFont(qfont_style_default, qfont_style_size_medium))
-        self.video_params_crop_x_label.setFixedWidth(100)
+        self.video_params_crop_x_label.setFixedWidth(160)
 
         self.video_params_crop_x_edit = QLineEdit(self.mainwindow.right_frame)
         self.video_params_crop_x_edit.setText(str(self.media_engine.media_processor.video_params.crop_start_x))
@@ -292,7 +292,7 @@ class media_page(QObject):
         self.video_params_crop_y_label = QLabel(self.mainwindow.right_frame)
         self.video_params_crop_y_label.setText("Crop_Start_Y:")
         self.video_params_crop_y_label.setFont(QFont(qfont_style_default, qfont_style_size_medium))
-        self.video_params_crop_y_label.setFixedWidth(100)
+        self.video_params_crop_y_label.setFixedWidth(160)
 
         self.video_params_crop_y_edit = QLineEdit(self.mainwindow.right_frame)
         self.video_params_crop_y_edit.setText(str(self.media_engine.media_processor.video_params.crop_start_y))
@@ -301,7 +301,7 @@ class media_page(QObject):
         self.video_params_crop_w_label = QLabel(self.mainwindow.right_frame)
         self.video_params_crop_w_label.setText("Crop_W:")
         self.video_params_crop_w_label.setFont(QFont(qfont_style_default, qfont_style_size_medium))
-        self.video_params_crop_w_label.setFixedWidth(100)
+        self.video_params_crop_w_label.setFixedWidth(160)
 
         self.video_params_crop_w_edit = QLineEdit(self.mainwindow.right_frame)
         self.video_params_crop_w_edit.setText(str(self.media_engine.media_processor.video_params.crop_w))
@@ -310,7 +310,7 @@ class media_page(QObject):
         self.video_params_crop_h_label = QLabel(self.mainwindow.right_frame)
         self.video_params_crop_h_label.setText("Crop_H:")
         self.video_params_crop_h_label.setFont(QFont(qfont_style_default, qfont_style_size_medium))
-        self.video_params_crop_h_label.setFixedWidth(100)
+        self.video_params_crop_h_label.setFixedWidth(160)
 
         self.video_params_crop_h_edit = QLineEdit(self.mainwindow.right_frame)
         self.video_params_crop_h_edit.setText(str(self.media_engine.media_processor.video_params.crop_h))
@@ -318,13 +318,13 @@ class media_page(QObject):
 
         self.video_params_crop_enable = QPushButton(self.mainwindow.right_frame)
         self.video_params_crop_enable.setText("Crop Enable")
-        self.video_params_crop_enable.setFixedWidth(100)
+        self.video_params_crop_enable.setFixedWidth(150)
         self.video_params_crop_enable.setFont(QFont(qfont_style_default, qfont_style_size_medium))
         self.video_params_crop_enable.clicked.connect(self.video_crop_enable)
 
         self.video_params_crop_disable = QPushButton(self.mainwindow.right_frame)
         self.video_params_crop_disable.setText("Crop Disable")
-        self.video_params_crop_disable.setFixedWidth(100)
+        self.video_params_crop_disable.setFixedWidth(150)
         self.video_params_crop_disable.setFont(QFont(qfont_style_default, qfont_style_size_medium))
         self.video_params_crop_disable.clicked.connect(self.video_crop_disable)
 

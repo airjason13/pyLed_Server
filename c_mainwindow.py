@@ -20,7 +20,7 @@ from qtui.c_page_client import *
 from qtui.c_page_hdmi_in import *
 from qtui.c_page_medialist import *
 from PyQt5.QtCore import QThread, pyqtSignal, QDateTime, QObject
-
+from str_define import *
 
 log = utils.log_utils.logging_init(__file__)
 
@@ -192,7 +192,6 @@ class MainUi(QMainWindow):
                 log.debug("neo_text_blank_jpg_uri check ok!")
                 break
 
-
         log.debug("self.geo x : %d", self.geometry().x())
         log.debug("self.geo y : %d", self.geometry().y())
 
@@ -239,32 +238,32 @@ class MainUi(QMainWindow):
         connect_btn = QPushButton(top_left_frame)
         connect_btn.setMouseTracking(True)
         # connect_btn.setStyleSheet('QPushButton {background-color: #A3C1DA; color: orange;}')
-        connect_btn.setFixedSize(self.option_btn_width, self.option_btn_height), connect_btn.setText("Connect Client")
+        connect_btn.setFixedSize(self.option_btn_width, self.option_btn_height), connect_btn.setText(STR_CLIENT_INFO)
         connect_btn.setFont(QFont(qfont_style_default, qfont_style_size_large))
         connect_btn.clicked.connect(self.fun_connect_clients)
         button_layout.addWidget(connect_btn)
         connect_btn.setMouseTracking(True)
 
         content_btn = QPushButton(top_left_frame)
-        content_btn.setFixedSize(self.option_btn_width, self.option_btn_height), content_btn.setText("Play Content")
+        content_btn.setFixedSize(self.option_btn_width, self.option_btn_height), content_btn.setText(STR_MEDIA_CONTENT)
         content_btn.setFont(QFont(qfont_style_default, qfont_style_size_large))
         content_btn.clicked.connect(self.func_file_contents)
         button_layout.addWidget(content_btn)
 
         hdmi_in_btn = QPushButton(top_left_frame)
-        hdmi_in_btn.setFixedSize(self.option_btn_width, self.option_btn_height), hdmi_in_btn.setText("HDMI-in")
+        hdmi_in_btn.setFixedSize(self.option_btn_width, self.option_btn_height), hdmi_in_btn.setText(STR_HDMI_IN)
         hdmi_in_btn.setFont(QFont(qfont_style_default, qfont_style_size_large))
         hdmi_in_btn.clicked.connect(self.func_hdmi_in_contents)
         button_layout.addWidget(hdmi_in_btn)
 
         test_btn = QPushButton(top_left_frame)
-        test_btn.setFixedSize(self.option_btn_width, self.option_btn_height), test_btn.setText("LED Setting")
+        test_btn.setFixedSize(self.option_btn_width, self.option_btn_height), test_btn.setText(STR_LED_SETTING)
         test_btn.setFont(QFont(qfont_style_default, qfont_style_size_large))
         test_btn.clicked.connect(self.func_led_setting)
         button_layout.addWidget(test_btn)
 
         test2_btn = QPushButton(top_left_frame)
-        test2_btn.setFixedSize(self.option_btn_width, self.option_btn_height), test2_btn.setText("TestB")
+        test2_btn.setFixedSize(self.option_btn_width, self.option_btn_height), test2_btn.setText(STR_TEST_B)
         test2_btn.setFont(QFont(qfont_style_default, qfont_style_size_large))
         test2_btn.clicked.connect(self.func_testB)
         button_layout.addWidget(test2_btn)
@@ -333,23 +332,27 @@ class MainUi(QMainWindow):
         ''' led resolution setting'''
         self.led_setting_width_textlabel = QLabel(self.right_frame)
         self.led_setting_width_textlabel.setText('LED Wall Width:')
+        self.led_setting_width_textlabel.setFont(QFont(qfont_style_default, qfont_style_size_medium))
         self.led_setting_width_editbox = QLineEdit(self.right_frame)
         self.led_setting_width_editbox.setFixedWidth(100)
         self.led_setting_width_editbox.setText(str(self.led_wall_width))
         self.led_setting_height_textlabel = QLabel(self.right_frame)
         self.led_setting_height_textlabel.setText('LED Wall Height:')
+        self.led_setting_height_textlabel.setFont(QFont(qfont_style_default, qfont_style_size_medium))
         self.led_setting_height_editbox = QLineEdit(self.right_frame)
         self.led_setting_height_editbox.setFixedWidth(100)
         self.led_setting_height_editbox.setText(str(self.led_wall_height))
         self.led_res_check_btn = QPushButton()
         self.led_res_check_btn.clicked.connect(self.set_led_wall_size)
         self.led_res_check_btn.setText("Confirm")
+        self.led_res_check_btn.setFont(QFont(qfont_style_default, qfont_style_size_medium))
 
 
 
         # led brightness setting
         self.led_brightness_textlabel = QLabel(self.right_frame)
         self.led_brightness_textlabel.setText('LED Brightness:')
+        self.led_brightness_textlabel.setFont(QFont(qfont_style_default, qfont_style_size_medium))
         self.led_brightness_editbox = QLineEdit(self.right_frame)
         self.led_brightness_editbox.setFixedWidth(100)
         self.led_brightness_editbox.setText(str(self.led_wall_brightness))
@@ -357,6 +360,7 @@ class MainUi(QMainWindow):
         # led contrast setting
         self.led_contrast_textlabel = QLabel(self.right_frame)
         self.led_contrast_textlabel.setText('LED Contrast:')
+        self.led_contrast_textlabel.setFont(QFont(qfont_style_default, qfont_style_size_medium))
         self.led_contrast_editbox = QLineEdit(self.right_frame)
         self.led_contrast_editbox.setFixedWidth(100)
         self.led_contrast_editbox.setText(str(self.led_wall_brightness))
@@ -364,18 +368,21 @@ class MainUi(QMainWindow):
         # rgb gain
         self.led_redgain_textlabel = QLabel(self.right_frame)
         self.led_redgain_textlabel.setText('Red Gain:')
+        self.led_redgain_textlabel.setFont(QFont(qfont_style_default, qfont_style_size_medium))
         self.led_redgain_editbox = QLineEdit(self.right_frame)
         self.led_redgain_editbox.setFixedWidth(80)
         self.led_redgain_editbox.setText(str(self.led_wall_brightness))
 
         self.led_greengain_textlabel = QLabel(self.right_frame)
         self.led_greengain_textlabel.setText('Red Gain:')
+        self.led_greengain_textlabel.setFont(QFont(qfont_style_default, qfont_style_size_medium))
         self.led_greengain_editbox = QLineEdit(self.right_frame)
         self.led_greengain_editbox.setFixedWidth(80)
         self.led_greengain_editbox.setText(str(self.led_wall_brightness))
 
         self.led_bluegain_textlabel = QLabel(self.right_frame)
         self.led_bluegain_textlabel.setText('Red Gain:')
+        self.led_bluegain_textlabel.setFont(QFont(qfont_style_default, qfont_style_size_medium))
         self.led_bluegain_editbox = QLineEdit(self.right_frame)
         self.led_bluegain_editbox.setFixedWidth(80)
         self.led_bluegain_editbox.setText(str(self.led_wall_brightness))
@@ -383,6 +390,7 @@ class MainUi(QMainWindow):
         self.led_brightness_check_btn = QPushButton()
         self.led_brightness_check_btn.clicked.connect(self.set_led_wall_brightness)
         self.led_brightness_check_btn.setText("Confirm")
+        self.led_brightness_check_btn.setFont(QFont(qfont_style_default, qfont_style_size_medium))
 
         self.led_setting_layout = QGridLayout()
 
@@ -418,6 +426,7 @@ class MainUi(QMainWindow):
 
         self.led_client_layout_tree.setColumnCount(1)
         self.led_client_layout_tree.setColumnWidth(0, 300)
+        self.led_client_layout_tree.header().setFont(QFont(qfont_style_default, qfont_style_size_medium))
         self.led_client_layout_tree.headerItem().setText(0, "Client Layout")
 
 

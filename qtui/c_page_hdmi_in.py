@@ -16,12 +16,15 @@ import utils.ffmpy_utils
 from g_defs.c_cv2_camera import CV2Camera
 import signal
 from g_defs.c_tc358743 import TC358743
+from str_define import *
+
 import hashlib
 log = utils.log_utils.logging_init(__file__)
 
 class Hdmi_In_Page(QObject):
     def __init__(self, mainwindow, **kwargs):
         super(Hdmi_In_Page, self).__init__(**kwargs)
+
         self.ffmpy_hdmi_in_cast_process = None
         self.mainwindow = mainwindow
         self.media_engine = mainwindow.media_engine
@@ -40,11 +43,13 @@ class Hdmi_In_Page(QObject):
 
         self.preview_label = QLabel(self.preview_widget)
         self.preview_label.setText("HDMI-in Preview")
+        self.preview_label.setFont(QFont(qfont_style_default, qfont_style_size_medium))
         self.preview_label.setFixedHeight(320)
         self.preview_label.setScaledContents(True)
 
         self.play_action_btn = QPushButton(self.preview_widget)
         self.play_action_btn.setText("Start Play")
+        self.play_action_btn.setFont(QFont(qfont_style_default, qfont_style_size_medium))
         self.play_action_btn.clicked.connect(self.send_to_led)
         self.preview_widget_layout.addWidget(self.preview_label, 0, 0)
         self.preview_widget_layout.addWidget(self.play_action_btn, 1, 0)
@@ -57,41 +62,56 @@ class Hdmi_In_Page(QObject):
         # width/height/fps
         self.hdmi_in_info_width_label = QLabel(self.info_widget)
         self.hdmi_in_info_width_label.setText("HDMI_In Width:")
+        self.hdmi_in_info_width_label.setFont(QFont(qfont_style_default, qfont_style_size_medium))
         self.hdmi_in_info_width_res_label = QLabel(self.info_widget)
         self.hdmi_in_info_width_res_label.setText("NA")
+        self.hdmi_in_info_width_res_label.setFont(QFont(qfont_style_default, qfont_style_size_medium))
 
         self.hdmi_in_info_height_label = QLabel(self.info_widget)
         self.hdmi_in_info_height_label.setText("HDMI_In Height:")
+        self.hdmi_in_info_height_label.setFont(QFont(qfont_style_default, qfont_style_size_medium))
         self.hdmi_in_info_height_res_label = QLabel(self.info_widget)
         self.hdmi_in_info_height_res_label.setText("NA")
+        self.hdmi_in_info_height_res_label.setFont(QFont(qfont_style_default, qfont_style_size_medium))
 
         self.hdmi_in_info_fps_label = QLabel(self.info_widget)
         self.hdmi_in_info_fps_label.setText("HDMI_In FPS:")
+        self.hdmi_in_info_fps_label.setFont(QFont(qfont_style_default, qfont_style_size_medium))
         self.hdmi_in_info_fps_res_label = QLabel(self.info_widget)
         self.hdmi_in_info_fps_res_label.setText("NA")
+        self.hdmi_in_info_fps_res_label.setFont(QFont(qfont_style_default, qfont_style_size_medium))
 
         self.hdmi_in_crop_status_label = QLabel(self.info_widget)
         self.hdmi_in_crop_status_label.setText("Crop Disable")
+        self.hdmi_in_crop_status_label.setFont(QFont(qfont_style_default, qfont_style_size_medium))
 
         self.hdmi_in_crop_status_x_label = QLabel(self.info_widget)
         self.hdmi_in_crop_status_x_label.setText("Crop Start X:")
+        self.hdmi_in_crop_status_x_label.setFont(QFont(qfont_style_default, qfont_style_size_medium))
         self.hdmi_in_crop_status_x_res_label = QLabel(self.info_widget)
         self.hdmi_in_crop_status_x_res_label.setText("NA")
+        self.hdmi_in_crop_status_x_res_label.setFont(QFont(qfont_style_default, qfont_style_size_medium))
 
         self.hdmi_in_crop_status_y_label = QLabel(self.info_widget)
         self.hdmi_in_crop_status_y_label.setText("Crop Start Y:")
+        self.hdmi_in_crop_status_y_label.setFont(QFont(qfont_style_default, qfont_style_size_medium))
         self.hdmi_in_crop_status_y_res_label = QLabel(self.info_widget)
         self.hdmi_in_crop_status_y_res_label.setText("NA")
+        self.hdmi_in_crop_status_y_res_label.setFont(QFont(qfont_style_default, qfont_style_size_medium))
 
         self.hdmi_in_crop_status_w_label = QLabel(self.info_widget)
         self.hdmi_in_crop_status_w_label.setText("Crop Width:")
+        self.hdmi_in_crop_status_w_label.setFont(QFont(qfont_style_default, qfont_style_size_medium))
         self.hdmi_in_crop_status_w_res_label = QLabel(self.info_widget)
         self.hdmi_in_crop_status_w_res_label.setText("NA")
+        self.hdmi_in_crop_status_w_res_label.setFont(QFont(qfont_style_default, qfont_style_size_medium))
 
         self.hdmi_in_crop_status_h_label = QLabel(self.info_widget)
         self.hdmi_in_crop_status_h_label.setText("Crop Height:")
+        self.hdmi_in_crop_status_h_label.setFont(QFont(qfont_style_default, qfont_style_size_medium))
         self.hdmi_in_crop_status_h_res_label = QLabel(self.info_widget)
         self.hdmi_in_crop_status_h_res_label.setText("NA")
+        self.hdmi_in_crop_status_h_res_label.setFont(QFont(qfont_style_default, qfont_style_size_medium))
 
 
         self.info_widget_layout.addWidget(self.hdmi_in_info_width_label, 0, 0)
@@ -120,36 +140,47 @@ class Hdmi_In_Page(QObject):
 
         self.hdmi_in_crop_x_label = QLabel(self.crop_setting_widget)
         self.hdmi_in_crop_x_label.setText("Crop Start X:")
+        self.hdmi_in_crop_x_label.setFont(QFont(qfont_style_default, qfont_style_size_medium))
         self.hdmi_in_crop_x_lineedit = QLineEdit(self.crop_setting_widget)
         self.hdmi_in_crop_x_lineedit.setFixedWidth(100)
         self.hdmi_in_crop_x_lineedit.setText("NA")
+        self.hdmi_in_crop_x_lineedit.setFont(QFont(qfont_style_default, qfont_style_size_medium))
+
 
         self.hdmi_in_crop_y_label = QLabel(self.crop_setting_widget)
         self.hdmi_in_crop_y_label.setText("Crop Start Y:")
+        self.hdmi_in_crop_y_label.setFont(QFont(qfont_style_default, qfont_style_size_medium))
         self.hdmi_in_crop_y_lineedit = QLineEdit(self.crop_setting_widget)
         self.hdmi_in_crop_y_lineedit.setFixedWidth(100)
         self.hdmi_in_crop_y_lineedit.setText("NA")
+        self.hdmi_in_crop_y_lineedit.setFont(QFont(qfont_style_default, qfont_style_size_medium))
 
         self.hdmi_in_crop_w_label = QLabel(self.crop_setting_widget)
         self.hdmi_in_crop_w_label.setText("Crop Width:")
+        self.hdmi_in_crop_w_label.setFont(QFont(qfont_style_default, qfont_style_size_medium))
         self.hdmi_in_crop_w_lineedit = QLineEdit(self.crop_setting_widget)
         self.hdmi_in_crop_w_lineedit.setFixedWidth(100)
         self.hdmi_in_crop_w_lineedit.setText("NA")
+        self.hdmi_in_crop_w_lineedit.setFont(QFont(qfont_style_default, qfont_style_size_medium))
 
         self.hdmi_in_crop_h_label = QLabel(self.crop_setting_widget)
         self.hdmi_in_crop_h_label.setText("Crop Height:")
+        self.hdmi_in_crop_h_label.setFont(QFont(qfont_style_default, qfont_style_size_medium))
         self.hdmi_in_crop_h_lineedit = QLineEdit(self.crop_setting_widget)
         self.hdmi_in_crop_h_lineedit.setFixedWidth(100)
         self.hdmi_in_crop_h_lineedit.setText("NA")
+        self.hdmi_in_crop_h_lineedit.setFont(QFont(qfont_style_default, qfont_style_size_medium))
 
         self.hdmi_in_crop_disable_btn = QPushButton(self.crop_setting_widget)
         self.hdmi_in_crop_disable_btn.setFixedWidth(100)
         self.hdmi_in_crop_disable_btn.setText("Disable")
+        self.hdmi_in_crop_disable_btn.setFont(QFont(qfont_style_default, qfont_style_size_medium))
         self.hdmi_in_crop_disable_btn.clicked.connect(self.hdmi_in_crop_disable)
 
         self.hdmi_in_crop_enable_btn = QPushButton(self.crop_setting_widget)
         self.hdmi_in_crop_enable_btn.setFixedWidth(100)
         self.hdmi_in_crop_enable_btn.setText("Enable")
+        self.hdmi_in_crop_enable_btn.setFont(QFont(qfont_style_default, qfont_style_size_medium))
         self.hdmi_in_crop_enable_btn.clicked.connect(self.hdmi_in_crop_enable)
 
         self.hdmi_in_crop_dummy_label = QLabel(self.crop_setting_widget)
@@ -177,74 +208,95 @@ class Hdmi_In_Page(QObject):
         # brightness
         self.brightness_label = QLabel(self.setting_widget)
         self.brightness_label.setText("Brightness:")
+        self.brightness_label.setFont(QFont(qfont_style_default, qfont_style_size_medium))
         self.brightness_edit = QLineEdit(self.setting_widget)
         self.brightness_edit.setFixedWidth(100)
         self.brightness_edit.setText(str(self.mainwindow.media_engine.media_processor.video_params.video_brightness))
+        self.brightness_edit.setFont(QFont(qfont_style_default, qfont_style_size_medium))
 
         # contrast
         self.contrast_label = QLabel(self.setting_widget)
         self.contrast_label.setText("Contrast:")
+        self.contrast_label.setFont(QFont(qfont_style_default, qfont_style_size_medium))
         self.contrast_edit = QLineEdit(self.setting_widget)
         self.contrast_edit.setFixedWidth(100)
         self.contrast_edit.setText(str(self.mainwindow.media_engine.media_processor.video_params.video_contrast))
+        self.contrast_edit.setFont(QFont(qfont_style_default, qfont_style_size_medium))
 
         # red gain
         self.redgain_label = QLabel(self.setting_widget)
         self.redgain_label.setText("Red Gain:")
+        self.redgain_label.setFont(QFont(qfont_style_default, qfont_style_size_medium))
+
         self.redgain_edit = QLineEdit(self.setting_widget)
         self.redgain_edit.setFixedWidth(100)
         self.redgain_edit.setText(str(self.mainwindow.media_engine.media_processor.video_params.video_red_bias))
+        self.redgain_edit.setFont(QFont(qfont_style_default, qfont_style_size_medium))
 
         # green gain
         self.greengain_label = QLabel(self.setting_widget)
         self.greengain_label.setText("Green Gain:")
+        self.greengain_label.setFont(QFont(qfont_style_default, qfont_style_size_medium))
         self.greengain_edit = QLineEdit(self.setting_widget)
         self.greengain_edit.setFixedWidth(100)
         self.greengain_edit.setText(str(self.mainwindow.media_engine.media_processor.video_params.video_green_bias))
+        self.greengain_edit.setFont(QFont(qfont_style_default, qfont_style_size_medium))
 
         # blue gain
         self.blugain_label = QLabel(self.setting_widget)
         self.blugain_label.setText("Blue Gain:")
+        self.blugain_label.setFont(QFont(qfont_style_default, qfont_style_size_medium))
+
         self.bluegain_edit = QLineEdit(self.setting_widget)
         self.bluegain_edit.setFixedWidth(100)
         self.bluegain_edit.setText(str(self.mainwindow.media_engine.media_processor.video_params.video_blue_bias))
+        self.bluegain_edit.setFont(QFont(qfont_style_default, qfont_style_size_medium))
 
         # client brightness adjust
         self.client_brightness_label = QLabel(self.setting_widget)
         self.client_brightness_label.setText("Client Br:")
+        self.client_brightness_label.setFont(QFont(qfont_style_default, qfont_style_size_medium))
         self.client_brightness_edit = QLineEdit(self.setting_widget)
         self.client_brightness_edit.setFixedWidth(100)
         self.client_brightness_edit.setText(
             str(self.mainwindow.media_engine.media_processor.video_params.frame_brightness))
+        self.client_brightness_edit.setFont(QFont(qfont_style_default, qfont_style_size_medium))
 
         # client brightness adjust
         self.client_br_divisor_label = QLabel(self.setting_widget)
         self.client_br_divisor_label.setText("Client BrDivisor:")
+        self.client_br_divisor_label.setFont(QFont(qfont_style_default, qfont_style_size_medium))
         self.client_br_divisor_edit = QLineEdit(self.setting_widget)
         self.client_br_divisor_edit.setFixedWidth(100)
         self.client_br_divisor_edit.setText(
             str(self.mainwindow.media_engine.media_processor.video_params.frame_br_divisor))
+        self.client_br_divisor_edit.setFont(QFont(qfont_style_default, qfont_style_size_medium))
 
         # client contrast(black level) adjust
         self.client_contrast_label = QLabel(self.setting_widget)
         self.client_contrast_label.setText("Client Black-Lv:")
+        self.client_contrast_label.setFont(QFont(qfont_style_default, qfont_style_size_medium))
         self.client_contrast_edit = QLineEdit(self.setting_widget)
         self.client_contrast_edit.setFixedWidth(100)
         self.client_contrast_edit.setText(
             str(self.mainwindow.media_engine.media_processor.video_params.frame_contrast))
+        self.client_contrast_edit.setFont(QFont(qfont_style_default, qfont_style_size_medium))
 
         # client gamma adjust
         self.client_gamma_label = QLabel(self.setting_widget)
         self.client_gamma_label.setText("Client Gamma:")
+        self.client_gamma_label.setFont(QFont(qfont_style_default, qfont_style_size_medium))
         self.client_gamma_edit = QLineEdit(self.setting_widget)
         self.client_gamma_edit.setFixedWidth(100)
         self.client_gamma_edit.setText(
             str(self.mainwindow.media_engine.media_processor.video_params.frame_gamma))
+        self.client_gamma_label.setFont(QFont(qfont_style_default, qfont_style_size_medium))
 
         self.video_params_confirm_btn = QPushButton(self.setting_widget)
         self.video_params_confirm_btn.setText("Set")
         self.video_params_confirm_btn.setFixedWidth(100)
         self.video_params_confirm_btn.clicked.connect(self.video_params_confirm_btn_clicked)
+        self.video_params_confirm_btn.setFont(QFont(qfont_style_default, qfont_style_size_medium))
 
         #self.setting_widget_layout.addWidget(self.test_btn, 0, 0)
         self.setting_widget_layout.addWidget(self.redgain_label, 0, 0)
