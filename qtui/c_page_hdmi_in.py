@@ -582,4 +582,4 @@ class Hdmi_In_Page(QObject):
             media_processor.set_hdmi_in_crop_h_value(int(self.hdmi_in_crop_h_lineedit.text()))
         if self.media_engine.media_processor.play_hdmi_in_worker is not None:
             utils.ffmpy_utils.ffmpy_crop_disable(self.mainwindow.led_wall_width,
-                                     self.mainwindow.led_wall_height)
+                                                 self.mainwindow.led_wall_height)

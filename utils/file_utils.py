@@ -87,4 +87,5 @@ def get_text_content():
                 text_content = f.readline()
     except Exception as e:
         log.debug("%s", e)
+    log.debug("text_content = %s", text_content)
     return text_content
