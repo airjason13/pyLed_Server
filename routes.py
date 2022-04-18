@@ -154,9 +154,34 @@ def play_playlist(playlist):
 
 @app.route('/play_hdmi_in/<cmd>', methods=['POST'])
 def play_hdmi_in(cmd):
-    print("route hdmi_in cmd :", cmd)
-
+    log.debug("route hdmi_in cmd : %s ", cmd)
     send_message(play_hdmi_in=cmd)
+    status_code = Response(status=200)
+    return status_code
+
+
+@app.route('/configure_wifi/<data>', methods=['POST'])
+def configure_wifi(data):
+    log.debug("configure_wifi data : %s ", data)
+    band = ""
+    channel = ""
+
+    if os.path.exists("/usr/bin/configure_hotspot_alfa.sh") is False:
+        log.debug("alfa hotspot configure script is not exist")
+    else:
+        if "2.4G" in data:
+            band = "bg"
+        elif "5G" in data:
+            band = "a"
+        else:
+            return Response(status=200)
+
+        tmp = str(data).split("=")
+        channel = tmp[len(tmp) - 1]
+        cmd = "configure_hotspot_alfa.sh " + band + " " + channel
+
+        os.system(cmd)
+
     status_code = Response(status=200)
     return status_code
 

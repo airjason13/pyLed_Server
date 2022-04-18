@@ -132,11 +132,19 @@ body {
   height: 240px;
 }
 .div_playlist {
-  position: absolute;
+  /*position: absolute;*/
   /*top: 600px;*/
   left: 0;
   /*height: 200px;*/
 }
+
+.div_wifioption {
+  /*position: absolute;*/
+  /*top: 600px;*/
+  left: 0;
+  /*height: 200px;*/
+}
+
 .div_drawtext {
   position: relative;
   top: 0px;

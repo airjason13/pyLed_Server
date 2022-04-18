@@ -51,7 +51,6 @@ function play_with_refresh_page(data){
 }
 
 function submit_text_content(data1, data2){
-    /*alert(data1 + ",size :" + data2);*/
 
     var url = "/set_text_size/" + data2;
     $.post(url, {
@@ -64,10 +63,22 @@ function submit_text_content(data1, data2){
         });
 }
 
-function submit_hdmi_in(){
-    alert(document.getElementById("btn_hdmi_in").innerHTML)
-    var data = "hdmi_in_start"
+function submit_hdmi_in(data){
+    /*var data = "hdmi_in_start"*/
+    /*alert(data);*/
     var url = "/play_hdmi_in/" + data;
+    $.post(url, {
+        javascript_data: data
+        });
+}
+
+function submit_wifi_configure(){
+    console.log(document.getElementById("wifi_bands"))
+    var bands_data = document.getElementById("wifi_bands").value;
+    var channels_data = document.getElementById("wifi_channels").value;
+    var data = "band=" + bands_data + "_" + "channel=" + channels_data
+    /*alert(data);*/
+    var url = "/configure_wifi/" + data;
     $.post(url, {
         javascript_data: data
         });
@@ -113,10 +124,58 @@ function submit_repeat_option(data){
 
 
     <div class="div_hdmi_in">
-        <!--<input type="submit" style="font-size:24px" value="HDMI-In" onclick="submit_hdmi_in()">-->
-        <button class="button-84" id="btn_hdmi_in" role="button" onclick="submit_hdmi_in()" >HDMI-In Start</button>
+        <button class="button-84" id="btn_hdmi_in_start" value="btn_hdmi_in_start"
+                role="button" onclick="submit_hdmi_in(value)" >
+            HDMI-In Start
+        </button>
+        <button class="button-84" id="btn_hdmi_in_stop" value="btn_hdmi_in_stop"
+                role="button" onclick="submit_hdmi_in(value)" >
+            HDMI-In Stop
+        </button>
         <input class="button-84" type="submit" id="btn_repeat" name="btn_repeat" value={{ repeat_option }} onclick="submit_repeat_option(value)">
-        <!--<input onclick="submit_repeat_option(value)" type="button" value={{ repeat_option }} id="myButton1"></input>-->
+    </div>
+
+    <div class="div_wifioption">
+        <label class="label_h1" style="font-size:36px" ><font color="#0000FF">Wifi Options: </font></label><br>
+        <label class="label_h1" style="font-size:24px" ><font color="#0000FF">Wifi Bands: </font></label>
+        <select id="wifi_bands" name="Wifi Bands" style="font-size:24px">
+        　<option value="2.4G">2.4G</option>
+        　<option value="5G">5G</option>
+        </select>
+        <label class="label_h1" style="font-size:24px" ><font color="#0000FF">Wifi Channels: </font></label>
+        <select id="wifi_channels" name="Wifi Channels" style="font-size:24px">
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+            <option value="6">6</option>
+            <option value="7">7</option>
+            <option value="8">8</option>
+            <option value="9">9</option>
+            <option value="10">10</option>
+            <option value="11">11</option>
+            <option value="12">12</option>
+            <option value="13">13</option>
+            <option value="14">14</option>
+            <option value="36">36</option>
+            <option value="40">40</option>
+            <option value="44">44</option>
+            <option value="48">48</option>
+            <option value="52">52</option>
+            <option value="56">56</option>
+            <option value="60">60</option>
+            <option value="64">64</option>
+            <option value="100">100</option>
+            <option value="116">116</option>
+            <option value="132">132</option>
+            <option value="149">149</option>
+            <option value="165">165</option>
+        </select>
+        <button class="button-84" id="btn_wifi_configure"
+                role="button" onclick="submit_wifi_configure()" >
+            Wifi Configure
+        </button>
     </div>
 
     <!--<div>
@@ -158,7 +217,6 @@ function submit_repeat_option(data){
 
 
     <div class="div_playlist">
-
         <label class="label_h1" style="font-size:36px" ><font color="#0000FF">Playlists</font></label><br>
             {% for k,v in playlist_nest_dict.items() %}
                 <div style="width:80vw;margin:auto;overflow:hidden;float:left">
@@ -175,6 +233,8 @@ function submit_repeat_option(data){
             {% endfor %}
     </div>
     </div>
+
+
 
 
 </body>

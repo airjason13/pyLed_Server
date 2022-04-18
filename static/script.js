@@ -17,6 +17,7 @@ window.addEventListener("resize", throttleProgressBar)
 document.querySelectorAll(".progress-bar").forEach(calculateProgressBar)
 
 function calculateProgressBar(progressBar) {
+
     progressBar.innerHTML = ""
     const slider = progressBar.closest(".row").querySelector(".slider")
     const itemCount = slider.children.length
