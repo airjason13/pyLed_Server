@@ -132,7 +132,7 @@ def get_nest_maps(maps):
 
 @app.route('/play_with_refresh_page/<filename>')
 def play_with_refresh_page(filename):
-    log.debug("route play filename :", filename)
+    log.debug("route play filename : %s", filename)
     fname = filename
     send_message(play_file=fname)
     return redirect(url_for('index'))
@@ -140,7 +140,7 @@ def play_with_refresh_page(filename):
 
 @app.route('/play/<filename>', methods=['POST'])
 def play(filename):
-    log.debug("route play filename :", filename)
+    log.debug("route play filename :%s", filename)
     fname = filename
     send_message(play_file=fname)
     status_code = Response(status=200)

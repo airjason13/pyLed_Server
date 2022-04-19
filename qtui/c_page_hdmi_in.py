@@ -447,10 +447,17 @@ class Hdmi_In_Page(QObject):
             log.debug("frame_gamma changed!")
             media_processor.set_frame_gamma_value(int(self.client_gamma_edit.text()))
 
-
     def send_to_led(self):
+        log.debug("")
+        if self.media_engine.media_processor.play_single_file_worker is not None:
+            log.debug("play single file stop")
+            self.media_engine.stop_play()
 
-        if self.media_engine.media_processor.ffmpy_process is None:
+        if self.media_engine.media_processor.play_playlist_worker is not None:
+            log.debug("play playlist stop")
+            self.media_engine.stop_play()
+        
+        if self.media_engine.media_processor.ffmpy_process  is None:
             log.debug("Start streaming to led")
             video_src = "/dev/video6"
             streaming_sink = [udp_sink]
@@ -458,6 +465,7 @@ class Hdmi_In_Page(QObject):
         else:
             log.debug("Stop streaming to led")
             self.media_engine.media_processor.play_hdmi_in_worker.stop()
+            # self.media_engine.media_processor.play_hdmi_in_worker = None
 
     def play_hdmi_in_start_ret(self):
         log.debug("")
@@ -465,7 +473,7 @@ class Hdmi_In_Page(QObject):
 
     def play_hdmi_in_finish_ret(self):
         log.debug("")
-        self.play_action_btn.setText("START")
+        self.play_action_btn.setText("Start Play")
 
     def cv2_read_or_open_fail(self):
         # handle re-init tc358743

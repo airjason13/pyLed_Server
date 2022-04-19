@@ -558,17 +558,21 @@ class MainUi(QMainWindow):
     def parser_cmd_from_qlocalserver(self, data):
         log.debug("data : %s", data)
         if data.get("play_file"):
+            self.func_file_contents()
             log.debug("play single file : %s!", data.get("play_file"))
             self.medialist_page.right_clicked_select_file_uri = internal_media_folder + "/" + data.get("play_file")
             log.debug("file_uri :%s", self.medialist_page.right_clicked_select_file_uri)
             self.media_engine.play_single_file(self.medialist_page.right_clicked_select_file_uri)
         elif data.get("play_playlist"):
+            self.func_file_contents()
             log.debug("play playlist")
             self.media_engine.play_playlsit(data.get("play_playlist"))
         elif data.get("play_hdmi_in"):
+            self.func_hdmi_in_contents()
             log.debug("play_hdmi_in")
             self.hdmi_in_page.play_action_btn.click()
         elif data.get("play_text"):
+            self.func_file_contents()
             log.debug("play_text")
             utils.file_utils.change_text_content(data.get("play_text"))
             self.medialist_page.right_clicked_select_file_uri = internal_media_folder + subtitle_blank_jpg

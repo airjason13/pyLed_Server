@@ -296,6 +296,7 @@ class media_processor(QObject):
             try:
                 if self.ffmpy_process is not None:
                     os.kill(self.ffmpy_process.pid, signal.SIGTERM)
+                    self.ffmpy_process = None
                 if self.play_single_file_worker is not None:
                     self.play_single_file_worker.stop()
                 if self.play_playlist_worker is not None:
@@ -615,7 +616,6 @@ class media_processor(QObject):
         finished = pyqtSignal()
         progress = pyqtSignal(int)
 
-
         def __init__(self, QObject, file_uri, n):
             super().__init__()
             self.media_processor = QObject
@@ -640,7 +640,8 @@ class media_processor(QObject):
                     except Exception as e:
                         log.debug(e)
 
-                # log.debug("self.media_processor.video_params.image_period : %d", self.media_processor.video_params.image_period)
+                # log.debug("self.media_processor.video_params.image_period : %d",
+                # self.media_processor.video_params.image_period)
                 self.media_processor.ffmpy_process = \
                     neo_ffmpy_execute(self.file_uri,
                        self.media_processor.video_params.get_translated_brightness(),
@@ -680,6 +681,7 @@ class media_processor(QObject):
     class play_hdmi_in_work(QObject):
         signal_play_hdmi_in_finish = pyqtSignal()
         signal_play_hdmi_in_start = pyqtSignal()
+
         def __init__(self, QObject, video_src, cast_dst):
             super().__init__()
             self.media_processor = QObject
@@ -688,6 +690,7 @@ class media_processor(QObject):
             log.debug("cast_dst :%s", cast_dst)
             self.force_stop = False
             self.worker_status = 0
+
         def run(self):
             self.media_processor.play_type = play_type.play_hdmi_in
             while True:
@@ -704,7 +707,6 @@ class media_processor(QObject):
                         log.debug("kill")
                     except Exception as e:
                         log.debug(e)
-
 
                 self.media_processor.ffmpy_process = \
                     neo_ffmpy_cast_video_h264(self.video_src, self.cast_dst, 
