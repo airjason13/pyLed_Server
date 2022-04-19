@@ -352,8 +352,8 @@ class media_processor(QObject):
             if self.play_playlist_worker.get_task_status() == 1:
                 self.stop_playing()
                 self.play_playlist_worker.stop()
-                self.play_playlist_worker.quit()
-                self.play_playlist_worker.wait()
+                self.play_playlist_thread.quit()
+                self.play_playlist_thread.wait()
 
         self.play_playlist_thread = QThread()
         self.play_playlist_worker = self.play_playlist_work(self, playlist, 5)
@@ -372,8 +372,8 @@ class media_processor(QObject):
                 self.stop_playing()
                 try:
                     self.play_hdmi_in_worker.stop()
-                    self.play_hdmi_in_worker.quit()
-                    self.play_hdmi_in_worker.wait()
+                    self.play_hdmi_in_thread.quit()
+                    self.play_hdmi_in_thread.wait()
                 except Exception as e:
                     log.debug(e)
 
