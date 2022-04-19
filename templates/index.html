@@ -111,7 +111,7 @@ function submit_repeat_option(data){
 
 
 <body ><!--style="background-color:#000000;">-->
-    <div class="div_total_frame">
+    <!--<div class="div_total_frame">-->
     <div class="div_drawtext">
         <label class="label_h1" for="text_context" style="font-size:36px" ><font color="#0000FF">Play Text Option</font></label><br>
         <label class="label_h1" for="text_context" style="font-size:24px" ><font color="#0000FF">Font Size:</font></label>
@@ -133,6 +133,57 @@ function submit_repeat_option(data){
             HDMI-In Stop
         </button>
         <input class="button-84" type="submit" id="btn_repeat" name="btn_repeat" value={{ repeat_option }} onclick="submit_repeat_option(value)">
+    </div>
+
+
+
+
+    <div class="row">
+        <div class="header">
+          <label class="label_h1" style="font-size:36px" ><font color="#0000FF">Media Files</font></label>
+          <div class="progress-bar"></div>
+        </div>
+        <div class="container">
+            <button class="handle left-handle">
+                <div class="text">&#8249;</div>
+            </button>
+            <div class="slider">
+                {% for k,v in files.items() %}
+                        <input name="{{k}}" id="test_play" type="image" src="./get_thumbnail/{{v}}" onclick="play(name)"/>
+                {% endfor %}
+            </div>
+            <button class="handle right-handle">
+                <div class="text">&#8250;</div>
+            </button>
+        </div>
+    </div>
+
+
+    <div class="div_playlist">
+        <div >
+            <label style="font-size:36px" ><font color="#0000FF">Playlists</font></label><br>
+        </div>
+        <div>
+            {% for k,v in playlist_nest_dict.items() %}
+                <div class="row">
+                    <div class="header">
+                        <label class="label_h1" style="font-size:36px" ><font color="#0000FF">{{k}}</font></label>
+                    <div class="progress-bar"></div>
+                </div>
+                <div class="container">
+                    <button class="handle left-handle">
+                        <div class="text">&#8249;</div>
+                    </button>
+                        <div class="slider" style="--items-per-screen: 7">
+                            {% for ki,vi in v.items() %}
+                                <input name="{{k}}" id="playlist_file" type="image" src="./get_thumbnail/{{vi}}" width="96" height="96" onclick="play_playlist(name)" />
+                            {% endfor %}
+                        </div>
+                    <button class="handle right-handle">
+                        <div class="text">&#8250;</div>
+                    </button>
+                </div>
+            {% endfor %}
     </div>
 
     <div class="div_wifioption">
@@ -177,63 +228,6 @@ function submit_repeat_option(data){
             Wifi Configure
         </button>
     </div>
-
-    <!--<div>
-        <p style="font-size:24px">Select File Play Option {{ repeat_option }}</p>
-        <div>
-          <input type="radio" id="repeat_none" name="repeat_option" value="RepeatNone">
-          <label for="repeat_none">Repeat None</label>
-
-          <input type="radio" id="repeat_one" name="repeat_option" value="RepeatOne">
-          <label for="repeat_one">Repeat One</label>
-
-          <input type="radio" id="repeat_all" name="repeat_option" value="RepeatAll">
-          <label for="repeat_all">Repeat All</label>
-
-        </div>
-        <div>
-            <button onclick="submit_repeat_option()">Submit</button>
-        </div>
-    </div>-->
-    <div class="row">
-        <div class="header">
-          <label class="label_h1" style="font-size:36px" ><font color="#0000FF">Media Files</font></label>
-          <div class="progress-bar"></div>
-        </div>
-        <div class="container">
-            <button class="handle left-handle">
-                <div class="text">&#8249;</div>
-            </button>
-            <div class="slider">
-                {% for k,v in files.items() %}
-                        <input name="{{k}}" id="test_play" type="image" src="./get_thumbnail/{{v}}" onclick="play(name)"/>
-                {% endfor %}
-            </div>
-            <button class="handle right-handle">
-                <div class="text">&#8250;</div>
-            </button>
-        </div>
-    </div>
-
-
-    <div class="div_playlist">
-        <label class="label_h1" style="font-size:36px" ><font color="#0000FF">Playlists</font></label><br>
-            {% for k,v in playlist_nest_dict.items() %}
-                <div style="width:80vw;margin:auto;overflow:hidden;float:left">
-                    <div class="img" style="width:600000px;">
-                    <label class="label_h1" style="font-size:24px" ><font color="#0000FF">{{k}}</font></label>
-                    <!--<h3><font color="#0000FF">{{k}}</font></h3>-->
-                        <div class="inputs" style="width:500000px;">
-                            {% for ki,vi in v.items() %}
-                                <input name="{{k}}" id="playlist_file" type="image" src="./get_thumbnail/{{vi}}" width="96" height="96" onclick="play_playlist(name)" />
-                            {% endfor %}
-                        </div>
-                    </div>
-                </div>
-            {% endfor %}
-    </div>
-    </div>
-
 
 
 

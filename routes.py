@@ -145,7 +145,7 @@ def play(filename):
 
 @app.route('/play_playlist/<playlist>', methods=['POST'])
 def play_playlist(playlist):
-    log.debug("route play playlist :", playlist)
+    log.debug("route play playlist : %s", playlist)
     fname = playlist
     send_message(play_playlist=fname)
     status_code = Response(status=200)
