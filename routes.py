@@ -27,6 +27,8 @@ def route_set_text_size(size):
 
 
 def route_set_text_content(content):
+    log.debug("content:%s", content)
+    log.debug("type(content) :%s", type(content))
     global route_text_content
     route_text_content = content
 
@@ -126,6 +128,8 @@ def get_nest_maps(maps):
 
     )
 '''
+
+
 @app.route('/play_with_refresh_page/<filename>')
 def play_with_refresh_page(filename):
     log.debug("route play filename :", filename)

@@ -369,9 +369,12 @@ class media_processor(QObject):
         if self.play_hdmi_in_worker is not None:
             if self.play_hdmi_in_worker.get_task_status() == 1:
                 self.stop_playing()
-                self.play_hdmi_in_worker.stop()
-                self.play_hdmi_in_worker.quit()
-                self.play_hdmi_in_worker.wait()
+                try:
+                    self.play_hdmi_in_worker.stop()
+                    self.play_hdmi_in_worker.quit()
+                    self.play_hdmi_in_worker.wait()
+                except Exception as e:
+                    log.debug(e)
 
         # if self.play_hdmi_in_thread is not None:
         #    self.play_hdmi_in_thread.finished()
@@ -477,6 +480,8 @@ class media_processor(QObject):
             ffmpy_set_video_param_level('blue_gain', self.video_params.get_translated_bluegain())
 
     def set_image_period_value(self, value):
+        log.debug("value type: %s", type(value))
+        log.debug("value : %d", value)
         self.video_params.set_image_peroid(value)
 
     def set_frame_brightness_value(self, value):
@@ -492,6 +497,7 @@ class media_processor(QObject):
         self.video_params.set_frame_gamma(value)
 
     def set_crop_start_x_value(self, value):
+
         self.video_params.set_crop_start_x(value)
 
     def set_crop_start_y_value(self, value):
@@ -634,7 +640,7 @@ class media_processor(QObject):
                     except Exception as e:
                         log.debug(e)
 
-                log.debug("test")
+                # log.debug("self.media_processor.video_params.image_period : %d", self.media_processor.video_params.image_period)
                 self.media_processor.ffmpy_process = \
                     neo_ffmpy_execute(self.file_uri,
                        self.media_processor.video_params.get_translated_brightness(),
@@ -655,7 +661,8 @@ class media_processor(QObject):
                             break
                         time.sleep(0.5)
 
-                if self.media_processor.repeat_option != repeat_option.repeat_one:
+                if self.media_processor.repeat_option == repeat_option.repeat_none :
+                    log.debug("stop play")
                     break
                 if self.force_stop is True:
                     break

@@ -117,6 +117,7 @@ class MainUi(QMainWindow):
         # config_file = open(internal_media_folder + SubtitleFolder + subtitle_file_name, 'r')
         # content_line = config_file.readline()
         content_line = utils.file_utils.get_text_content()
+        log.debug("content_line:%s", content_line)
         routes.route_set_text_content(content_line)
         # config_file.close()
 

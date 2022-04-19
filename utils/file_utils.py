@@ -75,6 +75,7 @@ def get_text_size():
     return text_font_size
 
 def get_text_content():
+    text_content = ""
     if os.path.exists(internal_media_folder + SubtitleFolder) is False:
         os.mkdir(internal_media_folder + SubtitleFolder)
     try:
@@ -84,7 +85,9 @@ def get_text_content():
                 f.write(text_content)
         else:
             with open(internal_media_folder + SubtitleFolder + subtitle_file_name, 'r') as f:
-                text_content = f.readline()
+                text_contents = f.readlines()
+                for i in text_contents:
+                    text_content += i
     except Exception as e:
         log.debug("%s", e)
     log.debug("text_content = %s", text_content)

@@ -33,23 +33,21 @@ def neo_ffmpy_execute(video_path, brightness, contrast, red_bias, green_bias, bl
     blue_bias_params = "bomin=" + str(blue_bias)
     crop_str = "crop=iw:ih:0:0"
     color_level_str = "colorlevels=" + red_bias_params + ":" + green_bias_params + ":" + blue_bias_params
-    font_size = 16
+    # font_size = 16
     # fontsize_str_prefix = "fontsize=" + str(font_size)
     # content_line = ""
     # add TEXT
     if "blank" in video_path:
-        config_file = open(internal_media_folder + SubtitleFolder + subtitle_file_name, 'r')
-        content_line = config_file.readline()
-        config_file.close()
-        font_size_config_file = open(internal_media_folder + SubtitleFolder + subtitle_size_file_name, 'r')
-        font_size = font_size_config_file.readline()
-        font_size_config_file.close()
+        content_line = utils.file_utils.get_text_content()
+        font_size = utils.file_utils.get_text_size()
         fontsize_str_prefix = "fontsize=" + str(font_size)
+        # content_line = "皇冠大車隊\n" + "多元計程車\n" + "   55168\n"
         log.debug("content_line = %s", content_line)
+        image_period = int(2.5 * len(content_line))
         # drawtext_str = "drawtext=fontfile=" + internal_media_folder + \
         #               "/fonts/msjhbd.ttc:text='" + content_line + "':x=10*w/80-20*t:y=10:fontsize=16*h/80:fontcolor=white"
         drawtext_str = "drawtext=fontfile=" + internal_media_folder + \
-                       "/fonts/msjhbd.ttc:text='" + content_line + "':x=10*w/80-20*t:y=10:" + \
+                       "/fonts/msjhbd.ttc:text='" + content_line + "':x=w-20*t:y=0:" + \
                        fontsize_str_prefix + "*h/" + str(height) + ":fontcolor=white"
 
         filter_params = "zmq," + eq_str + "," + color_level_str + "," + drawtext_str + "," + scale_params
@@ -82,7 +80,7 @@ def neo_ffmpy_execute(video_path, brightness, contrast, red_bias, green_bias, bl
             ff = ffmpy.FFmpeg(
                 global_options=global_opts,
                 inputs={
-                    video_path: ["-loop", str(still_image_loop_cnt), "-t", str(image_period), "-re"]
+                    video_path: ["-loop", str(image_period), "-t", str(image_period), "-re"]
                 },
                 outputs={
                     udp_sink: ["-vcodec", video_encoder, '-filter_complex', filter_params, "-b:v", "2000k", "-f",
