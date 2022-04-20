@@ -298,11 +298,28 @@ class media_processor(QObject):
                     os.kill(self.ffmpy_process.pid, signal.SIGTERM)
                     self.ffmpy_process = None
                 if self.play_single_file_worker is not None:
+                    # self.play_single_file_thread.quit()
+                    self.play_single_file_worker.finished.emit()
+                    self.play_single_file_thread.exit(0)
                     self.play_single_file_worker.stop()
+                    del self.play_single_file_worker
+                    del self.play_single_file_thread
+                    self.play_single_file_worker = None
                 if self.play_playlist_worker is not None:
+                    # self.play_playlist_thread.quit()
+                    self.play_playlist_worker.finished.emit()
+                    self.play_playlist_thread.exit(0)
                     self.play_playlist_worker.stop()
+                    del self.play_playlist_worker
+                    self.play_playlist_worker = None
                 if self.play_hdmi_in_worker is not None:
+                    # self.play_hdmi_in_thread.quit()
+                    self.play_hdmi_in_worker.signal_play_hdmi_in_finish.emit()
+                    self.play_hdmi_in_thread.exit(0)
                     self.play_hdmi_in_worker.stop()
+                    del self.play_hdmi_in_worker
+                    self.play_hdmi_in_worker = None
+
             except Exception as e:
                 log.debug(e)
 
@@ -337,11 +354,13 @@ class media_processor(QObject):
         self.play_single_file_thread = QThread()
         self.play_single_file_worker = self.play_single_file_work(self, file_uri, 5)
         self.play_single_file_worker.moveToThread(self.play_single_file_thread)
+
         self.play_single_file_thread.started.connect(self.play_single_file_worker.run)
         self.play_single_file_worker.finished.connect(self.play_single_file_thread.quit)
         self.play_single_file_worker.finished.connect(self.play_single_file_worker.deleteLater)
         self.play_single_file_thread.finished.connect(self.play_single_file_thread.deleteLater)
         self.play_single_file_thread.start()
+        self.play_single_file_thread.exec()
 
     def playlist_play(self, playlist):
         log.debug("")
@@ -363,6 +382,7 @@ class media_processor(QObject):
         self.play_playlist_worker.finished.connect(self.play_playlist_worker.deleteLater)
         self.play_playlist_thread.finished.connect(self.play_playlist_thread.deleteLater)
         self.play_playlist_thread.start()
+        self.play_playlist_thread.exec()
 
     def hdmi_in_play(self, video_src, video_dst):
         log.debug("%s", video_dst)
@@ -391,6 +411,7 @@ class media_processor(QObject):
         self.play_hdmi_in_worker.signal_play_hdmi_in_finish.connect(self.play_hdmi_in_worker.deleteLater)
         self.play_hdmi_in_thread.finished.connect(self.play_hdmi_in_thread.deleteLater)
         self.play_hdmi_in_thread.start()
+        self.play_hdmi_in_thread.exec()
 
     def play_hdmi_in_start_ret(self):
         self.signal_play_hdmi_in_start_ret.emit()
@@ -743,3 +764,5 @@ class media_processor(QObject):
 
         def get_task_status(self):
             return self.worker_status
+
+

@@ -450,21 +450,34 @@ class Hdmi_In_Page(QObject):
     def send_to_led(self):
         log.debug("")
         if self.media_engine.media_processor.play_single_file_worker is not None:
+            print("before play_single_file_worker.get_task_status() = ", self.media_engine.media_processor.play_single_file_worker.get_task_status())
             log.debug("play single file stop")
             self.media_engine.stop_play()
 
         if self.media_engine.media_processor.play_playlist_worker is not None:
+            print("before play_playlist_worker.get_task_status() = ", self.media_engine.media_processor.play_playlist_worker.get_task_status())
             log.debug("play playlist stop")
             self.media_engine.stop_play()
+        if self.media_engine.media_processor.play_hdmi_in_worker is not None: 
+            print("play_hdmi_in_worker.get_task_status() = ", self.media_engine.media_processor.play_hdmi_in_worker.get_task_status())
         
-        if self.media_engine.media_processor.ffmpy_process  is None:
+        if self.media_engine.media_processor.play_single_file_worker is not None:
+            print("after play_single_file_worker.get_task_status() = ", self.media_engine.media_processor.play_single_file_worker.get_task_status())
+        if self.media_engine.media_processor.play_playlist_worker is not None:
+            print("after play_playlist_worker.get_task_status() = ", self.media_engine.media_processor.play_playlist_worker.get_task_status())
+        
+        print("ffmpy_process=", self.media_engine.media_processor.ffmpy_process)
+        # if self.media_engine.media_processor.ffmpy_process is None:
+        if self.media_engine.media_processor.play_hdmi_in_worker is None:
             log.debug("Start streaming to led")
             video_src = "/dev/video6"
             streaming_sink = [udp_sink]
             self.media_engine.media_processor.hdmi_in_play(video_src, streaming_sink)
         else:
             log.debug("Stop streaming to led")
-            self.media_engine.media_processor.play_hdmi_in_worker.stop()
+            self.media_engine.stop_play()
+            # self.media_engine.media_processor.play_hdmi_in_worker.stop()
+            # del self.media_engine.media_processor.play_hdmi_in_worker
             # self.media_engine.media_processor.play_hdmi_in_worker = None
 
     def play_hdmi_in_start_ret(self):

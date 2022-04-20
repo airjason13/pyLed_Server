@@ -205,6 +205,7 @@ class MainUi(QMainWindow):
     def closeEvent(self, event):
         log.debug("close")
         os.system("pkill ffmpeg")
+        exit()
 
     def init_ui(self):
         self.setFixedSize(1280, 960)
