@@ -483,10 +483,13 @@ class MainUi(QMainWindow):
         log.debug("")
         if pre_idx != page_hdmi_in_content_idx and going_idx == page_hdmi_in_content_idx:
             log.debug("start hdmi-in preview")
+            self.media_engine.stop_play()
             self.hdmi_in_page.start_hdmi_in_preview()
         if pre_idx == page_hdmi_in_content_idx and going_idx != page_hdmi_in_content_idx:
             log.debug("stop hdmi-in preview")
+            self.hdmi_in_page.stop_hdmi_in_streaming()
             self.hdmi_in_page.stop_hdmi_in_preview()
+            # self.hdmi_in_page.cv2camera.close()
 
         self.pre_page_idx = self.page_idx
         self.page_idx = going_idx

@@ -46,6 +46,7 @@ class CV2Camera(QtCore.QThread):  # 繼承 QtCore.QThread 來建立 Camera 類�
         # 當正常連接攝影機才能進入迴圈
         # while self.running and self.connect:
         while True:
+
             if self.cam is None or not self.cam.isOpened():
                 log.debug("A")
                 if not self.connect:

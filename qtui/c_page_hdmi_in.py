@@ -367,6 +367,7 @@ class Hdmi_In_Page(QObject):
     def stop_hdmi_in_preview(self):
         log.debug("")
         self.cv2camera.stop()  # 關閉
+        self.cv2camera.close()  # 關閉
         self.stop_hdmi_in_cast()
 
     def getRaw(self, data):  # data 為接收到的影像
@@ -479,6 +480,12 @@ class Hdmi_In_Page(QObject):
             # self.media_engine.media_processor.play_hdmi_in_worker.stop()
             # del self.media_engine.media_processor.play_hdmi_in_worker
             # self.media_engine.media_processor.play_hdmi_in_worker = None
+
+    def stop_hdmi_in_streaming(self):
+        if self.media_engine.media_processor.play_hdmi_in_worker is not None:
+            log.debug("Stop streaming to led")
+            self.media_engine.stop_play()
+
 
     def play_hdmi_in_start_ret(self):
         log.debug("")
