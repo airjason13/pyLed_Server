@@ -531,7 +531,7 @@ class Hdmi_In_Page(QObject):
                 self.hdmi_in_crop_x_lineedit.setText(str(video_params.get_hdmi_in_crop_start_x()))
                 self.hdmi_in_crop_y_lineedit.setText(str(video_params.get_hdmi_in_crop_start_y()))
                 self.hdmi_in_crop_w_lineedit.setText(str(video_params.get_hdmi_in_crop_w()))
-                self.hdmi_in_crop_h_lineedit.setText(str(video_params.get_hdmi_in_crop_w()))
+                self.hdmi_in_crop_h_lineedit.setText(str(video_params.get_hdmi_in_crop_h()))
 
                 
         else:
@@ -542,7 +542,7 @@ class Hdmi_In_Page(QObject):
             self.hdmi_in_crop_x_lineedit.setText(str(video_params.get_hdmi_in_crop_start_x()))
             self.hdmi_in_crop_y_lineedit.setText(str(video_params.get_hdmi_in_crop_start_y()))
             self.hdmi_in_crop_w_lineedit.setText(str(video_params.get_hdmi_in_crop_w()))
-            self.hdmi_in_crop_h_lineedit.setText(str(video_params.get_hdmi_in_crop_w()))
+            self.hdmi_in_crop_h_lineedit.setText(str(video_params.get_hdmi_in_crop_h()))
 
     def hdmi_in_crop_disable(self):
         self.b_hdmi_in_crop_enable = False

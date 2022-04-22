@@ -28,7 +28,7 @@ def get_mount_points(devices=None):
 
     mount_points = []
     # 分割磁區的pen drive
-    removable = [device for device in context.list_devices(subsystem='block', devtype='partition') if
+    removable = [device for device in context.list_devices(subsystem='block', DEVTYPE='disk') if
                  device.attributes.asstring('removable') == "1"]
     for device in removable:
         partitions = [device.device_node for device in
