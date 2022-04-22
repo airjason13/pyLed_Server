@@ -45,23 +45,37 @@ def neo_ffmpy_execute(video_path, brightness, contrast, red_bias, green_bias, bl
         # content_line = "皇冠大車隊\n" + "多元計程車\n" + "   55168\n"
         log.debug("content_line = %s", content_line)
         image_period = utils.file_utils.get_text_period()
+        #log.debug("image_period : %s", image_period)
         text_position = utils.file_utils.get_text_position()
+        #log.debug("text_position : %s", text_position)
+        #log.debug("text_position_high : %s", text_font_position_high)
+        #log.debug("text_position_low : %s", text_font_position_low)
         text_y = 10
-        if text_position == text_font_position_high:
+        if text_font_position_high in text_position:
+            log.debug("position high")
             text_y = 10
-        elif text_position == text_font_position_medium:
+        elif text_font_position_medium in text_position:
+            log.debug("position medium")
             text_y = 10 + height/3
-        elif text_position == text_font_position_low:
+        elif text_font_position_low in text_position:
+            log.debug("position low")
             text_y = 10 + 2 * (height/3)
+        else:
+            log.debug("unknown position")
 
         text_speed = utils.file_utils.get_text_speed()
-        text_time_factor = "40*t"
-        if text_speed == text_font_speed_slow:
-            text_time_factor = "20*t"
-        elif text_speed == text_font_speed_medium:
+        text_time_factor = "80*t"
+        if text_font_speed_slow in text_speed:
+            log.debug("Slow speed")
             text_time_factor = "40*t"
-        elif text_speed == text_font_speed_fast:
-            text_time_factor = "60*t"
+        elif text_font_speed_medium in text_speed:
+            log.debug("Medium speed")
+            text_time_factor = "80*t"
+        elif text_font_speed_fast in text_speed:
+            log.debug("Fast speed")
+            text_time_factor = "120*t"
+        else:
+            log.debug("unknow speed")
 
         '''drawtext_str = "drawtext=fontfile=" + internal_media_folder + \
                        "/fonts/msjhbd.ttc:text='" + content_line + "':x=w-20*t:y=0:" + \

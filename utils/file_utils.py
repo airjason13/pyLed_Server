@@ -116,12 +116,12 @@ def get_text_position():
         os.mkdir(internal_media_folder + SubtitleFolder)
     if os.path.exists(internal_media_folder + SubtitleFolder + subtitle_position_file_name) is False:
         text_font_position = text_font_position_default
-        text_font_position_config_file = open(internal_media_folder + SubtitleFolder + subtitle_speed_file_name, 'w')
+        text_font_position_config_file = open(internal_media_folder + SubtitleFolder + subtitle_position_file_name, 'w')
         text_font_position_config_file.write(text_font_position)
         text_font_position_config_file.close()
         return text_font_position
     else:
-        text_font_position_config_file = open(internal_media_folder + SubtitleFolder + subtitle_speed_file_name, 'r')
+        text_font_position_config_file = open(internal_media_folder + SubtitleFolder + subtitle_position_file_name, 'r')
         text_font_position = text_font_position_config_file.readline()
         text_font_position_config_file.close()
     return text_font_position

@@ -1,7 +1,7 @@
 import enum
 import platform
 """Software version"""
-version = "LS22042204"
+version = "LS22042205"
 
 """Network relative"""
 multicast_group = "239.11.11.11"
@@ -110,7 +110,7 @@ text_font_speed_fast = "Fast"
 
 text_font_position_high = "High"
 text_font_position_medium = "Medium"
-text_font_position_low = "low"
+text_font_position_low = "Low"
 
 """lcd1602 server address"""
 lcd1602_server_address = '/tmp/uds_socket_i2clcd7'
