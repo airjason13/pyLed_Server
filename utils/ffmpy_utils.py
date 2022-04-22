@@ -59,7 +59,7 @@ def neo_ffmpy_execute(video_path, brightness, contrast, red_bias, green_bias, bl
     video_encoder = "libx264"
 
     if platform.machine() in ('arm', 'arm64', 'aarch64'):
-        if width > 320 and height > 240:
+        if width > 640 and height > 480:
             video_encoder = "h264_v4l2m2m"
         else:
             video_encoder = "libx264"
@@ -184,7 +184,7 @@ def neo_ffmpy_execute_hdmi_in(video_path, video_dst,brightness, contrast, red_bi
     video_encoder = "libx264"
 
     if platform.machine() in ('arm', 'arm64', 'aarch64'):
-        if width > 320 and height > 240:
+        if width > 640 and height > 480:
             video_encoder = "h264_v4l2m2m"
         else:
             video_encoder = "libx264"
@@ -298,7 +298,7 @@ def neo_ffmpy_cast_video_h264(video_path, cast_dst, brightness, contrast, red_bi
 
     output = {}
     if platform.machine() in ('arm', 'arm64', 'aarch64'):
-        if width >= 320 and height >= 240:
+        if width >= 640 and height >= 480:
             video_encoder = "h264_v4l2m2m"
         else:
             video_encoder = "libx264"
@@ -306,7 +306,7 @@ def neo_ffmpy_cast_video_h264(video_path, cast_dst, brightness, contrast, red_bi
         video_encoder = "libx264"
     for i in cast_dst:
         output[i] = ["-vcodec", video_encoder, '-filter_complex', filter_params, "-b:v", "2000k", "-f",
-                                 "h264", "-pix_fmt", "yuv420p", "-localaddr", "192.168.0.3"]
+                                 "h264", "-preset", "ultrafast", "-pix_fmt", "yuv420p", "-localaddr", "192.168.0.3"]
 
     ff = ffmpy.FFmpeg(
         global_options=global_opts,

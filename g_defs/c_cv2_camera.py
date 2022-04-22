@@ -73,7 +73,7 @@ class CV2Camera(QtCore.QThread):  # 繼承 QtCore.QThread 來建立 Camera 類�
 
             if ret:
                 self.preview_frame_count += 1
-                if self.preview_frame_count % 1 == 0:
+                if self.preview_frame_count % 5 == 0:
                     #img = cv2.resize(img, (160, 120))
                     self.signal_get_rawdata.emit(img)    # 發送影像
             else:    # 例外處理
