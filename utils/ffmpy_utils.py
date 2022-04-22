@@ -10,6 +10,7 @@ import os
 import zmq
 import utils.log_utils
 import hashlib
+import utils.file_utils
 import subprocess
 
 log = utils.log_utils.logging_init(__file__)
@@ -43,12 +44,31 @@ def neo_ffmpy_execute(video_path, brightness, contrast, red_bias, green_bias, bl
         fontsize_str_prefix = "fontsize=" + str(font_size)
         # content_line = "皇冠大車隊\n" + "多元計程車\n" + "   55168\n"
         log.debug("content_line = %s", content_line)
-        image_period = int(2.5 * len(content_line))
-        # drawtext_str = "drawtext=fontfile=" + internal_media_folder + \
-        #               "/fonts/msjhbd.ttc:text='" + content_line + "':x=10*w/80-20*t:y=10:fontsize=16*h/80:fontcolor=white"
-        drawtext_str = "drawtext=fontfile=" + internal_media_folder + \
+        image_period = utils.file_utils.get_text_period()
+        text_position = utils.file_utils.get_text_position()
+        text_y = 10
+        if text_position == text_font_position_high:
+            text_y = 10
+        elif text_position == text_font_position_medium:
+            text_y = 10 + height/3
+        elif text_position == text_font_position_low:
+            text_y = 10 + 2 * (height/3)
+
+        text_speed = utils.file_utils.get_text_speed()
+        text_time_factor = "40*t"
+        if text_speed == text_font_speed_slow:
+            text_time_factor = "20*t"
+        elif text_speed == text_font_speed_medium:
+            text_time_factor = "40*t"
+        elif text_speed == text_font_speed_fast:
+            text_time_factor = "60*t"
+
+        '''drawtext_str = "drawtext=fontfile=" + internal_media_folder + \
                        "/fonts/msjhbd.ttc:text='" + content_line + "':x=w-20*t:y=0:" + \
-                       fontsize_str_prefix + "*h/" + str(height) + ":fontcolor=white"
+                       fontsize_str_prefix + "*h/" + str(height) + ":fontcolor=white"'''
+        drawtext_str = "drawtext=fontfile=" + internal_media_folder + \
+                       "/fonts/msjhbd.ttc:text='" + content_line + "':x=w-" + text_time_factor + ":y=" + str(text_y) + \
+                       ":" + fontsize_str_prefix + "*h/" + str(height) + ":fontcolor=white"
 
         filter_params = "zmq," + eq_str + "," + color_level_str + "," + drawtext_str + "," + scale_params
     else:

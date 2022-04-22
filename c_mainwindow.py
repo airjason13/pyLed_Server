@@ -585,6 +585,15 @@ class MainUi(QMainWindow):
         elif data.get("set_text_size"):
             log.debug("set_text_size")
             utils.file_utils.change_text_size(data.get("set_text_size"))
+        elif data.get("set_text_speed"):
+            log.debug("set_text_speed")
+            utils.file_utils.change_text_speed(data.get("set_text_speed"))
+        elif data.get("set_text_position"):
+            log.debug("set_text_position")
+            utils.file_utils.change_text_position(data.get("set_text_position"))
+        elif data.get("set_text_period"):
+            log.debug("set_text_period")
+            utils.file_utils.change_text_period(data.get("set_text_period"))
         elif data.get("set_repeat_option"):
             log.debug("set_repeat_option")
             if data.get("set_repeat_option") == "Repeat_Random":

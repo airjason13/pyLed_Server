@@ -23,8 +23,11 @@ route_text_content = ""
 
 def route_set_text_size(size):
     global route_text_size
-    route_text_size = int(size)
-
+    try:
+        route_text_size = int(size)
+    except Exception as e:
+        log.debug(e)
+        route_text_size = 16
 
 def route_set_text_content(content):
     log.debug("content:%s", content)
@@ -197,6 +200,28 @@ def set_text_size(size):
     status_code = Response(status=200)
     return status_code
 
+@app.route('/set_text_speed/<speed>', methods=['POST'])
+def set_text_speed(speed):
+    log.debug("route set_text_speed speed : %s", str(speed))
+    send_message(set_text_speed=str(speed))
+    status_code = Response(status=200)
+    return status_code
+
+
+@app.route('/set_text_position/<position>', methods=['POST'])
+def set_text_position(position):
+    log.debug("route set_text_position position : %s", str(position))
+    send_message(set_text_position=str(position))
+    status_code = Response(status=200)
+    return status_code
+
+@app.route('/set_text_period/<period>', methods=['POST'])
+def set_text_period(period):
+    log.debug("route set_text_period period : %s", str(period))
+    send_message(set_text_period=str(period))
+    status_code = Response(status=200)
+    return status_code
+
 
 @app.route('/play_text/<data>', methods=['POST'])
 def play_text(data):
@@ -205,6 +230,7 @@ def play_text(data):
     send_message(play_text=data)
     status_code = Response(status=200)
     return status_code
+
 
 @app.route('/set_repeat_option/<data>', methods=['POST'])
 def set_repeat_option(data):
@@ -230,7 +256,7 @@ def index():
 
     return render_template("index.html", files=maps, playlist_nest_dict=playlist_nest_dict,
                            repeat_option=routes_repeat_option, text_size=route_text_size,
-                           text_content=route_text_content)
+                           text_content=route_text_content, text_period=20)
 
 
 

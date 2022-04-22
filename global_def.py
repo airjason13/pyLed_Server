@@ -1,7 +1,7 @@
 import enum
 import platform
 """Software version"""
-version = "LS22042203"
+version = "LS22042204"
 
 """Network relative"""
 multicast_group = "239.11.11.11"
@@ -34,6 +34,9 @@ init_config_file = "/.config_video_param"
 subtitle_blank_jpg = "/subtitle_blank.jpg"
 subtitle_file_name = "/subtitle.dat"
 subtitle_size_file_name = "/subtitle_size.dat"
+subtitle_speed_file_name = "/subtitle_speed.dat"
+subtitle_position_file_name = "/subtitle_position.dat"
+subtitle_period_file_name = "/subtitle_period.dat"
 
 mp4_extends = internal_media_folder + "/*.mp4"
 jpeg_extends = internal_media_folder + "/*.jpeg"
@@ -96,7 +99,18 @@ preview_period = 3
 
 """ffmpeg default text font size & content"""
 text_font_size_default = 16
+text_font_speed_default = "Medium"
+text_font_position_default = "Medium"
+text_font_period_default = 20
 text_content_default = 12345678
+
+text_font_speed_slow = "Slow"
+text_font_speed_medium = "Medium"
+text_font_speed_fast = "Fast"
+
+text_font_position_high = "High"
+text_font_position_medium = "Medium"
+text_font_position_low = "low"
 
 """lcd1602 server address"""
 lcd1602_server_address = '/tmp/uds_socket_i2clcd7'

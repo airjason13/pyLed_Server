@@ -51,10 +51,27 @@ function play_with_refresh_page(data){
 }
 
 function submit_text_content(data1, data2){
-
+    alert("submit_text_content")
     var url = "/set_text_size/" + data2;
     $.post(url, {
         javascript_data: data2
+        });
+    var text_speed = document.getElementById("text_speed").value;
+    var text_position = document.getElementById("text_position").value;
+    var text_period = document.getElementById("text_period").value;
+    var url = "/set_text_speed/" + text_speed;
+    $.post(url, {
+        javascript_data: text_speed
+        });
+
+    var url = "/set_text_position/" + text_position;
+    $.post(url, {
+        javascript_data: text_position
+        });
+
+    var url = "/set_text_period/" + text_period;
+    $.post(url, {
+        javascript_data: text_period
         });
 
     var url = "/play_text/" + data1;
@@ -115,7 +132,22 @@ function submit_repeat_option(data){
     <div class="div_drawtext">
         <label class="label_h1" for="text_context" style="font-size:36px" ><font color="#0000FF">Play Text Option</font></label><br>
         <label class="label_h1" for="text_context" style="font-size:24px" ><font color="#0000FF">Font Size:</font></label>
-        <input id="text_font_size" type="number" id="text_font_size" name="text_font_size" size="2" style="font-size:24px" value={{ text_size }}><br><br>
+        <input id="text_font_size" type="number" id="text_font_size" name="text_font_size" size="6" style="font-size:24px" value={{ text_size }}>
+        <label class="label_h1" style="font-size:24px" ><font color="#0000FF">Text Speed: </font></label>
+        <select id="text_speed" name="Text_Speed" style="font-size:24px">
+        　   <option value="Slow">Slow</option>
+        　   <option value="Medium">Medium</option>
+             <option value="Fast">Fast</option>
+        </select>
+        <label class="label_h1" style="font-size:24px" ><font color="#0000FF">Text Position: </font></label>
+        <select id="text_position" name="Text_Positoin" style="font-size:24px">
+        　   <option value="High">High</option>
+        　   <option value="Medium">Medium</option>
+             <option value="Low">Low</option>
+        </select>
+        <label class="label_h1" for="text_context" style="font-size:24px" ><font color="#0000FF">Text Period:</font></label>
+        <input id="text_period" type="number" name="text_period" size="6" style="font-size:24px" value={{ text_period }}>
+        <br><br>
         <label class="label_h1" for="text_context" style="font-size:24px" ><font color="#0000FF">Text Context:</font></label>
         <input type="text" id="text_context" name="text_context" size="50" style="font-size:24px" value={{ text_content }}>
         <input class="button-84" type="submit" value="Submit" onclick=

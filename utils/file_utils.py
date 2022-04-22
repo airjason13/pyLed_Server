@@ -51,11 +51,31 @@ def get_mount_points(devices=None):
 def change_text_content(content):
     config_file = open(internal_media_folder + SubtitleFolder + subtitle_file_name, 'w')
     config_file.write(content)
+    config_file.close()
     os.system("sync")
 
 def change_text_size(size):
     config_file = open(internal_media_folder + SubtitleFolder + subtitle_size_file_name, 'w')
     config_file.write(size)
+    config_file.close()
+    os.system("sync")
+
+def change_text_speed(speed):
+    config_file = open(internal_media_folder + SubtitleFolder + subtitle_speed_file_name, 'w')
+    config_file.write(speed)
+    config_file.close()
+    os.system("sync")
+
+def change_text_position(speed):
+    config_file = open(internal_media_folder + SubtitleFolder + subtitle_position_file_name, 'w')
+    config_file.write(speed)
+    config_file.close()
+    os.system("sync")
+
+def change_text_period(period):
+    config_file = open(internal_media_folder + SubtitleFolder + subtitle_period_file_name, 'w')
+    config_file.write(period)
+    config_file.close()
     os.system("sync")
 
 
@@ -73,6 +93,54 @@ def get_text_size():
         text_font_size = text_font_size_config_file.readline()
         text_font_size_config_file.close()
     return text_font_size
+
+
+def get_text_speed():
+    if os.path.exists(internal_media_folder + SubtitleFolder) is False:
+        os.mkdir(internal_media_folder + SubtitleFolder)
+    if os.path.exists(internal_media_folder + SubtitleFolder + subtitle_speed_file_name) is False:
+        text_font_speed = text_font_speed_medium
+        text_font_speed_config_file = open(internal_media_folder + SubtitleFolder + subtitle_speed_file_name, 'w')
+        text_font_speed_config_file.write(text_font_speed)
+        text_font_speed_config_file.close()
+        return text_font_speed
+    else:
+        text_font_speed_config_file = open(internal_media_folder + SubtitleFolder + subtitle_speed_file_name, 'r')
+        text_font_speed = text_font_speed_config_file.readline()
+        text_font_speed_config_file.close()
+    return text_font_speed
+
+
+def get_text_position():
+    if os.path.exists(internal_media_folder + SubtitleFolder) is False:
+        os.mkdir(internal_media_folder + SubtitleFolder)
+    if os.path.exists(internal_media_folder + SubtitleFolder + subtitle_position_file_name) is False:
+        text_font_position = text_font_position_default
+        text_font_position_config_file = open(internal_media_folder + SubtitleFolder + subtitle_speed_file_name, 'w')
+        text_font_position_config_file.write(text_font_position)
+        text_font_position_config_file.close()
+        return text_font_position
+    else:
+        text_font_position_config_file = open(internal_media_folder + SubtitleFolder + subtitle_speed_file_name, 'r')
+        text_font_position = text_font_position_config_file.readline()
+        text_font_position_config_file.close()
+    return text_font_position
+
+def get_text_period():
+    if os.path.exists(internal_media_folder + SubtitleFolder) is False:
+        os.mkdir(internal_media_folder + SubtitleFolder)
+    if os.path.exists(internal_media_folder + SubtitleFolder + subtitle_period_file_name) is False:
+        text_font_period = text_font_period_default
+        text_font_period_config_file = open(internal_media_folder + SubtitleFolder + subtitle_period_file_name, 'w')
+        text_font_period_config_file.write(str(text_font_period))
+        text_font_period_config_file.close()
+        return text_font_period
+    else:
+        text_font_period_config_file = open(internal_media_folder + SubtitleFolder + subtitle_period_file_name, 'r')
+        text_font_period = text_font_period_config_file.readline()
+        text_font_period_config_file.close()
+    return text_font_period
+
 
 def get_text_content():
     text_content = ""

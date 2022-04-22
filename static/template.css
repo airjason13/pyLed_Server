@@ -235,6 +235,9 @@ body {
   }
 }
 
+input[type='number']{
+    width: 80px;
+}
 
 /*body {
     margin: auto;
