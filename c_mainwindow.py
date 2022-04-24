@@ -610,6 +610,18 @@ class MainUi(QMainWindow):
                 self.medialist_page.play_option_repeat = repeat_option.repeat_none
                 self.medialist_page.btn_repeat.setText("Repeat None")
             self.mainwindow.repeat_option_set(self.medialist_page.play_option_repeat)
+        elif data.get("set_frame_brightness_option"):
+            log.debug("set_frame_brightness_option")
+            self.media_engine.media_processor.set_frame_brightness_value(int(data.get("set_frame_brightness_option")))
+            print("type(self.media_engine.media_processor.video_params.get_frame_brightness()):", self.media_engine.media_processor.video_params.get_frame_brightness())
+            self.hdmi_in_page.client_brightness_edit.setText(str(self.media_engine.media_processor.video_params.get_frame_brightness()))
+            self.medialist_page.client_brightness_edit.setText(str(self.media_engine.media_processor.video_params.get_frame_brightness()))
+
+            clients = self.mainwindow.clients
+            for c in clients:
+                c.send_cmd(cmd_set_frame_brightness,
+                           self.mainwindow.cmd_seq_id_increase(),
+                           str(self.media_engine.media_processor.video_params.frame_brightness))
 
     def check_client(self, ip, data):
         is_found = False

@@ -101,6 +101,15 @@ function submit_wifi_configure(){
         });
 }
 
+function submit_frame_brightness_option(){
+
+    var f_br = document.getElementById("frame_brightness").value;
+    var url = "/set_frame_brightness_option/" + f_br;
+    $.post(url, {
+        javascript_data: f_br
+        });
+}
+
 function submit_repeat_option(data){
     /*alert(data);*/
     var option;
@@ -220,6 +229,13 @@ function submit_repeat_option(data){
                 </div>
             {% endfor %}
     </div>
+
+    <div>
+        <label class="label_h1" for="text_context" style="font-size:24px" ><font color="#0000FF">Frame Brightness:</font></label>
+        <input id="frame_brightness" type="number" id="frame_brightness" name="frame_brightness" size="6" style="font-size:24px" value=50>
+        <input class="button-84" type="submit" id="frame_brightness_confirm" name="frame_brightness_confirm" value="Set" onclick="submit_frame_brightness_option()">
+    </div>
+
 
     <div class="div_wifioption">
         <label class="label_h1" style="font-size:36px" ><font color="#0000FF">Wifi Options: </font></label><br>

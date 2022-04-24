@@ -189,6 +189,12 @@ def configure_wifi(data):
 
         os.system(cmd)
 
+        cmd = "sync"
+        os.system(cmd)
+
+        cmd = "reboot"
+        os.system(cmd)
+
     status_code = Response(status=200)
     return status_code
 
@@ -239,6 +245,16 @@ def set_repeat_option(data):
     send_message(set_repeat_option=data)
     status_code = Response(status=200)
     return status_code
+
+
+@app.route('/set_frame_brightness_option/<data>', methods=['POST'])
+def set_frame_brightness_option(data):
+    log.debug("route set_frame_brightness_option data : %s", data)
+
+    send_message(set_frame_brightness_option=data)
+    status_code = Response(status=200)
+    return status_code
+
 
 
 @app.route('/get_thumbnail/<filename>')
