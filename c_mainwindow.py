@@ -617,10 +617,10 @@ class MainUi(QMainWindow):
             self.hdmi_in_page.client_brightness_edit.setText(str(self.media_engine.media_processor.video_params.get_frame_brightness()))
             self.medialist_page.client_brightness_edit.setText(str(self.media_engine.media_processor.video_params.get_frame_brightness()))
 
-            clients = self.mainwindow.clients
+            clients = self.clients
             for c in clients:
                 c.send_cmd(cmd_set_frame_brightness,
-                           self.mainwindow.cmd_seq_id_increase(),
+                           self.cmd_seq_id_increase(),
                            str(self.media_engine.media_processor.video_params.frame_brightness))
 
     def check_client(self, ip, data):
