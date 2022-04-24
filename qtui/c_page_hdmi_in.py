@@ -437,16 +437,16 @@ class Hdmi_In_Page(QObject):
             media_processor.set_blue_bias_level(int(self.bluegain_edit.text()))
         if video_params.frame_brightness != int(self.client_brightness_edit.text()):
             log.debug("frame_brightness changed!")
-            media_processor.set_frame_brightness_value(int(self.client_brightness_edit.text()))
+            # media_processor.set_frame_brightness_value(int(self.client_brightness_edit.text()))
         if video_params.frame_br_divisor != int(self.client_br_divisor_edit.text()):
             log.debug("frame_br_divisor changed!")
-            media_processor.set_frame_br_divisor_value(int(self.client_br_divisor_edit.text()))
+            # media_processor.set_frame_br_divisor_value(int(self.client_br_divisor_edit.text()))
         if video_params.frame_contrast != int(self.client_contrast_edit.text()):
             log.debug("frame_contrast changed!")
-            media_processor.set_frame_contrast_value(int(self.client_contrast_edit.text()))
+            # media_processor.set_frame_contrast_value(int(self.client_contrast_edit.text()))
         if video_params.frame_gamma != float(self.client_gamma_edit.text()):
             log.debug("frame_gamma changed!")
-            media_processor.set_frame_gamma_value(float(self.client_gamma_edit.text()))
+            # media_processor.set_frame_gamma_value(float(self.client_gamma_edit.text()))
 
         clients = self.mainwindow.clients
         if video_params.frame_brightness != int(self.client_brightness_edit.text()):
