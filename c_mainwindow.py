@@ -678,6 +678,8 @@ class MainUi(QMainWindow):
         data = arg.get("data")
         port = arg.get("port")
 
+        data_append = ";br:" + self.media_engine.media_processor.video_params.frame_brightness
+
         ip = net_utils.get_ip_address()
         utils.net_utils.force_set_eth_ip()
 

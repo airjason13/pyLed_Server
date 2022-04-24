@@ -354,7 +354,6 @@ class media_processor(QObject):
         self.play_single_file_thread = QThread()
         self.play_single_file_worker = self.play_single_file_work(self, file_uri, 5)
         self.play_single_file_worker.moveToThread(self.play_single_file_thread)
-
         self.play_single_file_thread.started.connect(self.play_single_file_worker.run)
         self.play_single_file_worker.finished.connect(self.play_single_file_thread.quit)
         self.play_single_file_worker.finished.connect(self.play_single_file_worker.deleteLater)
@@ -683,7 +682,7 @@ class media_processor(QObject):
                             break
                         time.sleep(0.5)
 
-                if self.media_processor.repeat_option == repeat_option.repeat_none :
+                if self.media_processor.repeat_option == repeat_option.repeat_none:
                     log.debug("stop play")
                     break
                 if self.force_stop is True:

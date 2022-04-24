@@ -346,7 +346,8 @@ def neo_ffmpy_cast_video_h264(video_path, cast_dst, brightness, contrast, red_bi
         global_options=global_opts,
         inputs={
             # video_path: ["-f", "v4l2", "-s", out_res, "-framerate", "30"]
-            video_path: ["-f", "v4l2", "-framerate", "30"]
+            # video_path: ["-f", "v4l2", "-framerate", "30"]
+            video_path: ["-f", "v4l2", "-re"]
         },
         outputs=output,
     )

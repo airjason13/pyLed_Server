@@ -444,9 +444,9 @@ class Hdmi_In_Page(QObject):
         if video_params.frame_contrast != int(self.client_contrast_edit.text()):
             log.debug("frame_contrast changed!")
             media_processor.set_frame_contrast_value(int(self.client_contrast_edit.text()))
-        if video_params.frame_gamma != int(self.client_gamma_edit.text()):
+        if video_params.frame_gamma != float(self.client_gamma_edit.text()):
             log.debug("frame_gamma changed!")
-            media_processor.set_frame_gamma_value(int(self.client_gamma_edit.text()))
+            media_processor.set_frame_gamma_value(float(self.client_gamma_edit.text()))
 
     def send_to_led(self):
         log.debug("")
