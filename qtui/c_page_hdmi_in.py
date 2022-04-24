@@ -448,6 +448,40 @@ class Hdmi_In_Page(QObject):
             log.debug("frame_gamma changed!")
             media_processor.set_frame_gamma_value(float(self.client_gamma_edit.text()))
 
+        clients = self.mainwindow.clients
+        if video_params.frame_brightness != int(self.client_brightness_edit.text()):
+            # video_params.frame_brightness = int(self.client_brightness_edit.text())
+            media_processor.set_frame_brightness_value(int(self.client_brightness_edit.text()))
+            for c in clients:
+                log.debug("c.client_ip = %s", c.client_ip)
+                c.send_cmd(cmd_set_frame_brightness,
+                           self.mainwindow.cmd_seq_id_increase(),
+                           str(video_params.frame_brightness))
+
+        if video_params.frame_br_divisor != int(self.client_br_divisor_edit.text()):
+            # video_params.frame_br_divisor = int(self.client_br_divisor_edit.text())
+            media_processor.set_frame_br_divisor_value(int(self.client_br_divisor_edit.text()))
+            for c in clients:
+                c.send_cmd(cmd_set_frame_br_divisor,
+                           self.mainwindow.cmd_seq_id_increase(),
+                           str(video_params.frame_br_divisor))
+
+        if video_params.frame_contrast != int(self.client_contrast_edit.text()):
+            # video_params.frame_contrast = int(self.client_contrast_edit.text())
+            media_processor.set_frame_contrast_value(int(self.client_contrast_edit.text()))
+            for c in clients:
+                c.send_cmd(cmd_set_frame_contrast,
+                           self.mainwindow.cmd_seq_id_increase(),
+                           str(video_params.frame_contrast))
+
+        if video_params.frame_gamma != float(self.client_gamma_edit.text()):
+            # video_params.frame_gamma = float(self.client_gamma_edit.text())
+            media_processor.set_frame_gamma_value(float(self.client_gamma_edit.text()))
+            for c in clients:
+                c.send_cmd(cmd_set_frame_gamma,
+                           self.mainwindow.cmd_seq_id_increase(),
+                           str(video_params.frame_gamma))
+
     def send_to_led(self):
         log.debug("")
         if self.media_engine.media_processor.play_single_file_worker is not None:
