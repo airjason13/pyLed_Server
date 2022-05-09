@@ -38,6 +38,7 @@ class Hdmi_In_Page(QObject):
         self.mainwindow.right_layout.addWidget(self.hdmi_in_widget)
 
         self.preview_widget = QWidget(self.hdmi_in_widget)
+
         self.preview_widget_layout = QGridLayout()
         self.preview_widget.setLayout(self.preview_widget_layout)
 
@@ -55,9 +56,18 @@ class Hdmi_In_Page(QObject):
         self.stop_action_btn.setText("Stop Play")
         self.stop_action_btn.setFont(QFont(qfont_style_default, qfont_style_size_medium))
         self.stop_action_btn.clicked.connect(self.stop_send_to_led)
-        self.preview_widget_layout.addWidget(self.preview_label, 0, 0, 2, 0)
-        self.preview_widget_layout.addWidget(self.play_action_btn, 1, 0)
-        self.preview_widget_layout.addWidget(self.stop_action_btn, 1, 1)
+        self.hdmi_in_play_status_label = QLabel(self.preview_widget)
+        self.hdmi_in_play_status_label.setFont(QFont(qfont_style_default, qfont_style_size_medium))
+        self.hdmi_in_play_status_label.setText("Non-Streaming")
+        self.ffmpy_pid_label = QLabel(self.preview_widget)
+        self.ffmpy_pid_label.setFont(QFont(qfont_style_default, qfont_style_size_medium))
+        self.ffmpy_pid_label.setText("ffmpy pid:None")
+
+        self.preview_widget_layout.addWidget(self.preview_label, 0, 0, 1, 2)
+        self.preview_widget_layout.addWidget(self.play_action_btn, 2, 0)
+        self.preview_widget_layout.addWidget(self.stop_action_btn, 2, 1)
+        self.preview_widget_layout.addWidget(self.hdmi_in_play_status_label, 3, 0)
+        self.preview_widget_layout.addWidget(self.ffmpy_pid_label, 3, 1)
 
         # infomation of hdmi in
         self.info_widget = QWidget(self.hdmi_in_widget)
@@ -541,10 +551,11 @@ class Hdmi_In_Page(QObject):
             log.debug("Stop streaming to led")
             self.media_engine.stop_play()
 
-
     def play_hdmi_in_start_ret(self):
         log.debug("")
-        self.play_action_btn.setText("STOP")
+        self.play_action_btn.setText("Pause")
+        self.hdmi_in_play_status_label.setText("Streaming")
+        self.ffmpy_pid_label.setText("ffmpy pic:" + str(self.media_engine.media_processor.ffmpy_process.pid))
 
     def play_hdmi_in_finish_ret(self):
         log.debug("")
