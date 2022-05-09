@@ -528,6 +528,12 @@ class Hdmi_In_Page(QObject):
     def send_to_led_parser(self):
         if "Start" in self.play_action_btn.text():
             self.start_send_to_led()
+        elif "Pause" in self.play_action_btn.text():
+            self.media_engine.pause_play()
+            self.play_action_btn.setText("Resume")
+        elif "Resume" in self.play_action_btn.text():
+            self.media_engine.resume_play()
+            self.play_action_btn.setText("Pause")
 
     def start_send_to_led(self):
         self.media_engine.stop_play()
@@ -555,11 +561,13 @@ class Hdmi_In_Page(QObject):
         log.debug("")
         self.play_action_btn.setText("Pause")
         self.hdmi_in_play_status_label.setText("Streaming")
-        self.ffmpy_pid_label.setText("ffmpy pic:" + str(self.media_engine.media_processor.ffmpy_process.pid))
+        self.ffmpy_pid_label.setText("ffmpy pid:" + str(self.media_engine.media_processor.ffmpy_process.pid))
 
     def play_hdmi_in_finish_ret(self):
         log.debug("")
         self.play_action_btn.setText("Start Play")
+        self.hdmi_in_play_status_label.setText("Non-Streaming")
+        self.ffmpy_pid_label.setText("ffmpy pid:None")
 
     def cv2_read_or_open_fail(self):
         # handle re-init tc358743
