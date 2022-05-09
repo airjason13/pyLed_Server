@@ -22,6 +22,8 @@ from qtui.c_page_medialist import *
 from PyQt5.QtCore import QThread, pyqtSignal, QDateTime, QObject
 from str_define import *
 
+from qlocalmessage import send_message
+
 log = utils.log_utils.logging_init(__file__)
 
 
@@ -195,6 +197,19 @@ class MainUi(QMainWindow):
 
         log.debug("self.geo x : %d", self.geometry().x())
         log.debug("self.geo y : %d", self.geometry().y())
+
+        # QTimer.singleShot(5000, self.demo_start_hdmi_in)
+        # QTimer.singleShot(5000, self.demo_start_playlist)
+
+    def demo_start_hdmi_in(self):
+        self.func_hdmi_in_contents()
+        log.debug("demo_start play_hdmi_in")
+        self.hdmi_in_page.send_to_led()
+
+    def demo_start_playlist(self):
+        self.func_file_contents()
+        log.debug("play playlist")
+        self.media_engine.play_playlsit("TTDemo.playlist")
 
     # enter engineer mode
     def ctrl_e_trigger(self):
@@ -564,9 +579,12 @@ class MainUi(QMainWindow):
         if data.get("play_file"):
             self.func_file_contents()
             log.debug("play single file : %s!", data.get("play_file"))
-            self.medialist_page.right_clicked_select_file_uri = internal_media_folder + "/" + data.get("play_file")
-            log.debug("file_uri :%s", self.medialist_page.right_clicked_select_file_uri)
-            self.media_engine.play_single_file(self.medialist_page.right_clicked_select_file_uri)
+            self.medialist_page.right_clicked_select_file_uri = \
+                internal_media_folder + "/" + data.get("play_file")
+            log.debug("file_uri :%s",
+                      self.medialist_page.right_clicked_select_file_uri)
+            self.media_engine.play_single_file(
+                self.medialist_page.right_clicked_select_file_uri)
         elif data.get("play_playlist"):
             self.func_file_contents()
             log.debug("play playlist")

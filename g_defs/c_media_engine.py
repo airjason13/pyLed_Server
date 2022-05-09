@@ -745,7 +745,8 @@ class media_processor(QObject):
                         if self.media_processor.play_status == play_status.stop:
                             break
                         if self.force_stop is True:
-                            os.kill(self.media_processor.ffmpy_process.pid, signal.SIGTERM)
+                            if self.media_processor.ffmpy_process is not None:
+                                os.kill(self.media_processor.ffmpy_process.pid, signal.SIGTERM)
                             break
                         time.sleep(0.5)
 

@@ -50,9 +50,14 @@ class Hdmi_In_Page(QObject):
         self.play_action_btn = QPushButton(self.preview_widget)
         self.play_action_btn.setText("Start Play")
         self.play_action_btn.setFont(QFont(qfont_style_default, qfont_style_size_medium))
-        self.play_action_btn.clicked.connect(self.send_to_led)
-        self.preview_widget_layout.addWidget(self.preview_label, 0, 0)
+        self.play_action_btn.clicked.connect(self.send_to_led_parser)
+        self.stop_action_btn = QPushButton(self.preview_widget)
+        self.stop_action_btn.setText("Stop Play")
+        self.stop_action_btn.setFont(QFont(qfont_style_default, qfont_style_size_medium))
+        self.stop_action_btn.clicked.connect(self.stop_send_to_led)
+        self.preview_widget_layout.addWidget(self.preview_label, 0, 0, 2, 0)
         self.preview_widget_layout.addWidget(self.play_action_btn, 1, 0)
+        self.preview_widget_layout.addWidget(self.stop_action_btn, 1, 1)
 
         # infomation of hdmi in
         self.info_widget = QWidget(self.hdmi_in_widget)
@@ -482,7 +487,7 @@ class Hdmi_In_Page(QObject):
                            self.mainwindow.cmd_seq_id_increase(),
                            str(video_params.frame_gamma))
 
-    def send_to_led(self):
+    def send_to_led_depreciated(self):
         log.debug("")
         if self.media_engine.media_processor.play_single_file_worker is not None:
             print("before play_single_file_worker.get_task_status() = ", self.media_engine.media_processor.play_single_file_worker.get_task_status())
@@ -495,12 +500,7 @@ class Hdmi_In_Page(QObject):
             self.media_engine.stop_play()
         if self.media_engine.media_processor.play_hdmi_in_worker is not None: 
             print("play_hdmi_in_worker.get_task_status() = ", self.media_engine.media_processor.play_hdmi_in_worker.get_task_status())
-        
-        if self.media_engine.media_processor.play_single_file_worker is not None:
-            print("after play_single_file_worker.get_task_status() = ", self.media_engine.media_processor.play_single_file_worker.get_task_status())
-        if self.media_engine.media_processor.play_playlist_worker is not None:
-            print("after play_playlist_worker.get_task_status() = ", self.media_engine.media_processor.play_playlist_worker.get_task_status())
-        
+
         print("ffmpy_process=", self.media_engine.media_processor.ffmpy_process)
         # if self.media_engine.media_processor.ffmpy_process is None:
         if self.media_engine.media_processor.play_hdmi_in_worker is None:
@@ -514,6 +514,27 @@ class Hdmi_In_Page(QObject):
             # self.media_engine.media_processor.play_hdmi_in_worker.stop()
             # del self.media_engine.media_processor.play_hdmi_in_worker
             # self.media_engine.media_processor.play_hdmi_in_worker = None
+
+    def send_to_led_parser(self):
+        if "Start" in self.play_action_btn.text():
+            self.start_send_to_led()
+
+    def start_send_to_led(self):
+        self.media_engine.stop_play()
+        if self.media_engine.media_processor.play_hdmi_in_worker is None:
+            log.debug("Start streaming to led")
+            video_src = "/dev/video6"
+            streaming_sink = [udp_sink]
+            self.media_engine.media_processor.hdmi_in_play(video_src, streaming_sink)
+
+    def pause_send_to_led(self):
+        log.debug("")
+        if self.media_engine.media_processor.play_hdmi_in_worker is not None:
+            log.debug("hdmi-in worker is alive")
+
+    def stop_send_to_led(self):
+        log.debug("Stop streaming to led")
+        self.media_engine.stop_play()
 
     def stop_hdmi_in_streaming(self):
         if self.media_engine.media_processor.play_hdmi_in_worker is not None:
