@@ -550,6 +550,7 @@ class Hdmi_In_Page(QObject):
 
     def stop_send_to_led(self):
         log.debug("Stop streaming to led")
+        self.media_engine.resume_play()
         self.media_engine.stop_play()
 
     def stop_hdmi_in_streaming(self):
