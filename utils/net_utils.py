@@ -22,15 +22,17 @@ def get_ip_address():
             struct.pack('256s', ifname[:15].encode())
         )[20:24])
     except Exception as e:
-        #log.error(e)
+
         ip = ""
     finally:
         return ip
+
 
 def get_ip_address_by_nic(ifname):
     ni.ifaddresses(ifname)
     ip = ni.ifaddresses(ifname)[ni.AF_INET][0]['addr']
     print(ip)
+
 
 #def send_udp_cmd( server_ip, client_ip, client_port, cmd, cmd_seq_id, param, cb):
 def send_udp_cmd(*args, **kwargs):
@@ -70,6 +72,7 @@ def send_udp_cmd(*args, **kwargs):
         cb(False, cmd )
     finally:
         sock.close()
+
 
 def force_set_eth_ip():
     ip = get_ip_address()

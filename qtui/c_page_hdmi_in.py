@@ -1,7 +1,7 @@
 import time
 
 from PyQt5 import QtWidgets
-from PyQt5.QtCore import QObject, Qt
+from PyQt5.QtCore import QObject, Qt, QThread
 from PyQt5.QtGui import QPalette, QColor, QBrush, QFont, QImage
 from PyQt5.QtWidgets import QTreeWidget, QTableWidget, QWidget, QVBoxLayout, QTableWidgetItem, QAbstractItemView, \
                             QTreeWidgetItem, QPushButton, QHBoxLayout, QMenu, QAction
@@ -20,6 +20,7 @@ from str_define import *
 
 import hashlib
 log = utils.log_utils.logging_init(__file__)
+
 
 class Hdmi_In_Page(QObject):
     def __init__(self, mainwindow, **kwargs):
@@ -378,7 +379,6 @@ class Hdmi_In_Page(QObject):
                 self.cv2camera.open()  # 影像讀取功能開啟
                 self.cv2camera.start()  # 在子緒啟動影像讀取
 
-
     def stop_hdmi_in_preview(self):
         log.debug("")
         self.cv2camera.stop()  # 關閉
@@ -536,6 +536,11 @@ class Hdmi_In_Page(QObject):
             self.play_action_btn.setText("Pause")
 
     def start_send_to_led(self):
+        for i in range(3):
+            video_ok = self.check_video_src_is_ok("/dev/video6")
+            log.debug("video_ok : %d", video_ok)
+            if video_ok == 0:
+                break
         self.media_engine.stop_play()
         if self.media_engine.media_processor.play_hdmi_in_worker is None:
             log.debug("Start streaming to led")
@@ -578,7 +583,6 @@ class Hdmi_In_Page(QObject):
             self.media_engine.media_processor.play_hdmi_in_work.force_stop = True
             os.kill(self.ffmpy_hdmi_in_cast_process.pid, signal.SIGTERM)
             self.ffmpy_hdmi_in_cast_process = None
-
 
         if self.tc358743.get_tc358743_hdmi_connected_status() is False:
             # run a timer to check???
@@ -661,7 +665,6 @@ class Hdmi_In_Page(QObject):
                                          self.mainwindow.led_wall_width,
                                          self.mainwindow.led_wall_height)
 
-
     def video_crop_disable(self):
         log.debug("crop_disable")
         self.hdmi_in_crop_status_label.setText("Crop Disable")
@@ -686,3 +689,39 @@ class Hdmi_In_Page(QObject):
         if self.media_engine.media_processor.play_hdmi_in_worker is not None:
             utils.ffmpy_utils.ffmpy_crop_disable(self.mainwindow.led_wall_width,
                                                  self.mainwindow.led_wall_height)
+
+    def check_video_src_is_ok(self):
+        res = -1
+        cmd = "ffprobe" + " " + self.video_src
+        ffprobe_res = os.popen(cmd).read()
+        if "Invalid argument" in ffprobe_res:
+            log.debug("%s is not ready", self.video_src)
+        else:
+            log.debug("%s is ready", self.video_src)
+            res = 0
+        return res
+
+class CheckVideoSrcThread(QThread):
+    def __init__(self, video_src):
+        super().__init__()
+        self.video_src = video_src
+
+    def run(self):
+        video_src_ok = -1
+        for i in range(3):
+            log.debug('WorkerThread::run %s' + str(i))
+            time.sleep(0.5)
+            video_src_ok = self.check_video_src_is_ok()
+            if video_src_ok == 0:
+                break
+
+    def check_video_src_is_ok(self):
+        res = -1
+        cmd = "ffprobe" + " " + self.video_src
+        ffprobe_res = os.popen(cmd).read()
+        if "Invalid argument" in ffprobe_res:
+            log.debug("%s is not ready", self.video_src)
+        else:
+            log.debug("%s is ready", self.video_src)
+            res = 0
+        return res
