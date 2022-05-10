@@ -206,6 +206,7 @@ def set_text_size(size):
     status_code = Response(status=200)
     return status_code
 
+
 @app.route('/set_text_speed/<speed>', methods=['POST'])
 def set_text_speed(speed):
     log.debug("route set_text_speed speed : %s", str(speed))
@@ -220,6 +221,7 @@ def set_text_position(position):
     send_message(set_text_position=str(position))
     status_code = Response(status=200)
     return status_code
+
 
 @app.route('/set_text_period/<period>', methods=['POST'])
 def set_text_period(period):
@@ -254,7 +256,6 @@ def set_frame_brightness_option(data):
     send_message(set_frame_brightness_option=data)
     status_code = Response(status=200)
     return status_code
-
 
 
 @app.route('/get_thumbnail/<filename>')

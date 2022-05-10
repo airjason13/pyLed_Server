@@ -555,24 +555,6 @@ class MainUi(QMainWindow):
         self.medialist_page.client_brightness_edit.setText(str(i))
         self.medialist_page.video_params_confirm_btn_clicked()
 
-    ''' test divisor '''
-    '''def test_timer_A_handler(self):
-        log.debug("AA")
-        log.debug("self.medialist_page.client_br_divisor_edit.text() = %s", self.medialist_page.client_br_divisor_edit.text())
-        i = int(self.medialist_page.client_br_divisor_edit.text())
-        j = i*2
-        if j > 255:
-            j = 1
-        utils.ffmpy_utils.ffmpy_draw_text(str(j))
-        i = i*2
-        if i > 255:
-            i = 1
-        self.medialist_page.client_br_divisor_edit.setText(str(i))
-        log.debug("self.medialist_page.client_br_divisor_edit.text() = %s",
-                  self.medialist_page.client_br_divisor_edit.text())
-        self.medialist_page.video_params_confirm_btn_clicked()
-        #utils.ffmpy_utils.ffmpy_draw_text(str(i))'''
-
     """ handle the command from qlocalserver"""
     def parser_cmd_from_qlocalserver(self, data):
         log.debug("data : %s", data)
@@ -592,8 +574,11 @@ class MainUi(QMainWindow):
         elif data.get("play_hdmi_in"):
             self.func_hdmi_in_contents()
             log.debug("play_hdmi_in")
-            #self.hdmi_in_page.play_action_btn.click()
-            self.hdmi_in_page.send_to_led()
+            if "start" in data.get("play_hdmi_in"):
+                # self.hdmi_in_page.play_action_btn.click()
+                self.hdmi_in_page.send_to_led_parser()
+            elif "stop" in data.get("play_hdmi_in"):
+                self.hdmi_in_page.stop_hdmi_in_streaming()
         elif data.get("play_text"):
             self.func_file_contents()
             log.debug("play_text")
