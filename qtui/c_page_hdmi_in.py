@@ -692,8 +692,11 @@ class Hdmi_In_Page(QObject):
 
     def check_video_src_is_ok(self, video_src):
         res = -1
-        cmd = "ffprobe" + " " + video_src
+        cmd = "ffprobe -hide_banner" + " " + video_src
         ffprobe_res = os.popen(cmd).read()
+        log.debug("++++++++++++")
+        log.debug("ffprobe_res : %s", ffprobe_res)
+        log.debug("------------")
         if "Stream" in ffprobe_res:
             log.debug("%s is ready", video_src)
             res = 0
@@ -702,6 +705,7 @@ class Hdmi_In_Page(QObject):
 
         return res
 
+'''
 class CheckVideoSrcThread(QThread):
     def __init__(self, video_src):
         super().__init__()
@@ -725,4 +729,4 @@ class CheckVideoSrcThread(QThread):
         else:
             log.debug("%s is ready", self.video_src)
             res = 0
-        return res
+        return res'''
