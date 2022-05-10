@@ -574,11 +574,12 @@ class MainUi(QMainWindow):
             self.media_engine.play_playlsit(data.get("play_playlist"))
         elif data.get("play_hdmi_in"):
             self.func_hdmi_in_contents()
-            log.debug("play_hdmi_in")
             if "start" in data.get("play_hdmi_in"):
+                log.debug("play_hdmi_in start")
                 # self.hdmi_in_page.play_action_btn.click()
                 self.hdmi_in_page.send_to_led_parser()
             elif "stop" in data.get("play_hdmi_in"):
+                log.debug("play_hdmi_in stop")
                 self.hdmi_in_page.stop_send_to_led()
         elif data.get("play_text"):
             self.func_file_contents()

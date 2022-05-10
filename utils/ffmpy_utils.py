@@ -290,7 +290,7 @@ def neo_ffmpy_cast_video_v4l2(video_path, cast_dst, brightness, contrast, red_bi
         },
         outputs=output,
     )
-    log.debug("%s", ff.cmd)
+    # log.debug("%s", ff.cmd)
     try:
         thread_1 = threading.Thread(target=ff.run)
         thread_1.start()
