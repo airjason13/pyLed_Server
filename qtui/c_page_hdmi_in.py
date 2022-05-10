@@ -694,11 +694,12 @@ class Hdmi_In_Page(QObject):
         res = -1
         cmd = "ffprobe" + " " + video_src
         ffprobe_res = os.popen(cmd).read()
-        if "Invalid argument" in ffprobe_res:
-            log.debug("%s is not ready", video_src)
-        else:
+        if "Stream" in ffprobe_res:
             log.debug("%s is ready", video_src)
             res = 0
+        else:
+            log.debug("%s is not ready", video_src)
+
         return res
 
 class CheckVideoSrcThread(QThread):
