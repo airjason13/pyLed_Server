@@ -700,7 +700,7 @@ class Hdmi_In_Page(QObject):
         log.debug("ffprobe_stdout : %s", ffprobe_stdout.decode())
         log.debug("ffprobe_stderr : %s", ffprobe_stderr.decode())
         log.debug("------------")
-        if "Stream" in ffprobe_stderr:
+        if "Stream" in ffprobe_stderr.decode():
             log.debug("%s is ready", video_src)
             res = 0
         else:
