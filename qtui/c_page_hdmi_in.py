@@ -17,7 +17,7 @@ from g_defs.c_cv2_camera import CV2Camera
 import signal
 from g_defs.c_tc358743 import TC358743
 from str_define import *
-
+from subprocess import PIPE, Popen
 import hashlib
 log = utils.log_utils.logging_init(__file__)
 
@@ -693,11 +693,14 @@ class Hdmi_In_Page(QObject):
     def check_video_src_is_ok(self, video_src):
         res = -1
         cmd = "ffprobe -hide_banner" + " " + video_src
-        ffprobe_res = os.popen(cmd).read()
+        # ffprobe_res = os.popen(cmd).read()
+        p = Popen(cmd, shell=True, stdout=PIPE, stderr=PIPE)
+        ffprobe_stdout, ffprobe_stderr = p.communicate()
         log.debug("++++++++++++")
-        log.debug("ffprobe_res : %s", ffprobe_res)
+        log.debug("ffprobe_stdout : %s", ffprobe_stdout.decode())
+        log.debug("ffprobe_stderr : %s", ffprobe_stderr.decode())
         log.debug("------------")
-        if "Stream" in ffprobe_res:
+        if "Stream" in ffprobe_stderr:
             log.debug("%s is ready", video_src)
             res = 0
         else:
