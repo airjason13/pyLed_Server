@@ -690,14 +690,14 @@ class Hdmi_In_Page(QObject):
             utils.ffmpy_utils.ffmpy_crop_disable(self.mainwindow.led_wall_width,
                                                  self.mainwindow.led_wall_height)
 
-    def check_video_src_is_ok(self):
+    def check_video_src_is_ok(self, video_src):
         res = -1
-        cmd = "ffprobe" + " " + self.video_src
+        cmd = "ffprobe" + " " + video_src
         ffprobe_res = os.popen(cmd).read()
         if "Invalid argument" in ffprobe_res:
-            log.debug("%s is not ready", self.video_src)
+            log.debug("%s is not ready", video_src)
         else:
-            log.debug("%s is ready", self.video_src)
+            log.debug("%s is ready", video_src)
             res = 0
         return res
 
