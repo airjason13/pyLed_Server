@@ -531,9 +531,11 @@ class Hdmi_In_Page(QObject):
         elif "Pause" in self.play_action_btn.text():
             self.media_engine.pause_play()
             self.play_action_btn.setText("Resume")
+            self.hdmi_in_play_status_label.setText("Streaming-Pause")
         elif "Resume" in self.play_action_btn.text():
             self.media_engine.resume_play()
             self.play_action_btn.setText("Pause")
+            self.hdmi_in_play_status_label.setText("Streaming")
 
     def start_send_to_led(self):
         for i in range(3):
