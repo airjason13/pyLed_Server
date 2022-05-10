@@ -538,11 +538,16 @@ class Hdmi_In_Page(QObject):
             self.hdmi_in_play_status_label.setText("Streaming")
 
     def start_send_to_led(self):
+        video_src_ok = -1
         for i in range(3):
-            video_ok = self.check_video_src_is_ok("/dev/video6")
-            log.debug("video_ok : %d", video_ok)
-            if video_ok == 0:
+            video_src_ok = self.check_video_src_is_ok("/dev/video6")
+
+            if video_src_ok == 0:
                 break
+
+        if video_src_ok != 0: # /dev/video6 is not ok!
+            log.debug("video_src got some problems")
+            return
         self.media_engine.stop_play()
         if self.media_engine.media_processor.play_hdmi_in_worker is None:
             log.debug("Start streaming to led")
