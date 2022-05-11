@@ -683,7 +683,7 @@ class MainUi(QMainWindow):
 
     def sync_cabinet_params(self, cab_params):
         ''' change led setting page treewidget'''
-        log.debug("")
+        # log.debug("")
         finditems = self.led_client_layout_tree.findItems(cab_params.client_ip, Qt.MatchContains, 1)
         for item in finditems:
             log.debug("%s", item.text(0))
@@ -1007,7 +1007,7 @@ class MainUi(QMainWindow):
         if self.cmd_send_seq_id >= 65535:
             self.cmd_send_seq_id = 0
         self.cmd_seq_id_unlock()
-        log.debug("self.cmd_send_seq_id :%d", self.cmd_send_seq_id)
+        # log.debug("self.cmd_send_seq_id :%d", self.cmd_send_seq_id)
         return self.cmd_send_seq_id
 
     def cmd_reply_callback(self, ret, recvData=None, client_ip=None, client_reply_port=None):
@@ -1064,8 +1064,8 @@ class MainUi(QMainWindow):
                             param_str = "port_id:" + str(0)
                             c.send_cmd(cmd=cmd_get_cabinet_params, cmd_seq_id=self.cmd_seq_id_increase(),
                                        param=param_str)'''
-            log.debug('send_cmd : %s', send_cmd)
-            log.debug('recv_data : %s', recv_data)
+            # log.debug('send_cmd : %s', send_cmd)
+            # log.debug('recv_data : %s', recv_data)
             pass
 
     def page_status_change(self):

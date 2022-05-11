@@ -36,7 +36,7 @@ def get_ip_address_by_nic(ifname):
 
 #def send_udp_cmd( server_ip, client_ip, client_port, cmd, cmd_seq_id, param, cb):
 def send_udp_cmd(*args, **kwargs):
-    log.debug("kwargs : %s", kwargs)
+    # log.debug("kwargs : %s", kwargs)
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     client_ip = kwargs.get('client_ip')
     server_ip = kwargs.get('server_ip')
@@ -50,13 +50,13 @@ def send_udp_cmd(*args, **kwargs):
         cmd_str = 'cmd_seq_id:' + str(cmd_seq_id) + cmd_spliter + "cmd:" + cmd + cmd_spliter + "param:" + param
 
         sendDataLen = sock.sendto(cmd_str.encode(), (client_ip, client_udp_cmd_port))
-        log.debug("send cmd len : %d", sendDataLen)
+        # log.debug("send cmd len : %d", sendDataLen)
         sock.settimeout(cmd_timeout)
 
         revcData, (remoteHost, remotePort) = sock.recvfrom(1024)
-        log.debug("recv from [%s:%s] " % (remoteHost, remotePort))
+        # log.debug("recv from [%s:%s] " % (remoteHost, remotePort))
         recv_cmd_seq_id = revcData.decode().split(";")[0].split(":")[1]
-        log.debug("recv_cmd_seq_id %s", recv_cmd_seq_id)
+        # log.debug("recv_cmd_seq_id %s", recv_cmd_seq_id)
         if int(recv_cmd_seq_id) != cmd_seq_id:
             log.fatal("cmd_seq_id error")
             log.fatal("cmd_seq_id : %d", cmd_seq_id)

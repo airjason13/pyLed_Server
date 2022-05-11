@@ -44,13 +44,8 @@ class client(QObject):
             cabinet_setting = cabinet_params(self.client_ip, self.client_id, i, 0, 0, 0, 1, 1)
             self.cabinets_setting.append(cabinet_setting)
 
-
-
-
-
-
     def send_cmd(self,  cmd, cmd_seq_id, param):
-        log.debug("client send_cmd")
+        # log.debug("client send_cmd")
         thread_cmd = threading.Thread(target=utils.net_utils.send_udp_cmd,
                                       kwargs={'cmd':cmd, 'cmd_seq_id':cmd_seq_id, 'param': param,
                                               'client_ip': self.client_ip, 'client_udp_cmd_port': self.client_udp_cmd_port,

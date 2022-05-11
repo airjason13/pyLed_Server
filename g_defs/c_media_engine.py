@@ -469,8 +469,8 @@ class media_processor(QObject):
     def check_play_status(self):
 
         if self.play_status != self.pre_play_status:
-            log.debug("self.play_status = %d", self.play_status )
-            log.debug("self.pre_play_status = %d", self.pre_play_status)
+            # log.debug("self.play_status = %d", self.play_status )
+            # log.debug("self.pre_play_status = %d", self.pre_play_status)
             self.signal_media_play_status_changed.emit(True, self.play_status)
             self.pre_play_status = self.play_status
             pass
