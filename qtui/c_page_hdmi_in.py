@@ -605,6 +605,8 @@ class Hdmi_In_Page(QObject):
                     self.cv2camera.set_hdmi_in_cast(True)
                 else:
                     log.debug("self.ffmpy_hdmi_in_cast_process is None")
+            else:
+                log.debug("set_tc358743_dv_bt_timing is False")
 
     def refresh_tc358743_param(self, connected, width, height, fps):
         log.debug("connected = %d", connected)
