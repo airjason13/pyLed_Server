@@ -719,9 +719,12 @@ class media_processor(QObject):
                     ''' kill other streaming ffmpy instance first'''
                     try:
                         if self.media_processor.ffmpy_process is not None:
-                            if self.media_processor.play_status == play_status.pausing:
-                                os.kill(self.media_processor.ffmpy_process.pid, signal.SIGCONT)
+                            try:
+                                if self.media_processor.play_status == play_status.pausing:
+                                    os.kill(self.media_processor.ffmpy_process.pid, signal.SIGCONT)
                                 # time.sleep(1)
+                            except Exception as e:
+                                log.debug(e)
                         os.kill(self.media_processor.ffmpy_process.pid, signal.SIGTERM)
                         # time.sleep(1)
                         log.debug("kill")

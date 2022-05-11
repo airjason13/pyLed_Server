@@ -427,8 +427,11 @@ class Hdmi_In_Page(QObject):
         return ffmpy_hdmi_in_cast_process
 
     def stop_hdmi_in_cast(self):
-        if self.ffmpy_hdmi_in_cast_process is not None:
-            os.kill(self.ffmpy_hdmi_in_cast_process.pid, signal.SIGTERM)
+        try:
+            if self.ffmpy_hdmi_in_cast_process is not None:
+                os.kill(self.ffmpy_hdmi_in_cast_process.pid, signal.SIGTERM)
+        except Exception as e:
+            log.debug(e)
         self.ffmpy_hdmi_in_cast_process = None
         # self.ffmpy_hdmi_in_cast_pid = None
 
