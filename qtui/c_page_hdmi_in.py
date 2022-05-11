@@ -60,6 +60,9 @@ class Hdmi_In_Page(QObject):
         self.hdmi_in_play_status_label = QLabel(self.preview_widget)
         self.hdmi_in_play_status_label.setFont(QFont(qfont_style_default, qfont_style_size_medium))
         self.hdmi_in_play_status_label.setText("Non-Streaming")
+        self.cast_pid_label = QLabel(self.preview_widget)
+        self.cast_pid_label.setFont(QFont(qfont_style_default, qfont_style_size_medium))
+        self.cast_pid_label.setText("ff cast pid:None")
         self.ffmpy_pid_label = QLabel(self.preview_widget)
         self.ffmpy_pid_label.setFont(QFont(qfont_style_default, qfont_style_size_medium))
         self.ffmpy_pid_label.setText("ffmpy pid:None")
@@ -67,8 +70,9 @@ class Hdmi_In_Page(QObject):
         self.preview_widget_layout.addWidget(self.preview_label, 0, 0, 1, 2)
         self.preview_widget_layout.addWidget(self.play_action_btn, 2, 0)
         self.preview_widget_layout.addWidget(self.stop_action_btn, 2, 1)
-        self.preview_widget_layout.addWidget(self.hdmi_in_play_status_label, 3, 0)
-        self.preview_widget_layout.addWidget(self.ffmpy_pid_label, 3, 1)
+        self.preview_widget_layout.addWidget(self.cast_pid_label, 3, 1)
+        self.preview_widget_layout.addWidget(self.hdmi_in_play_status_label, 4, 0)
+        self.preview_widget_layout.addWidget(self.ffmpy_pid_label, 4, 1)
 
         # infomation of hdmi in
         self.info_widget = QWidget(self.hdmi_in_widget)
@@ -161,7 +165,6 @@ class Hdmi_In_Page(QObject):
         self.hdmi_in_crop_x_lineedit.setFixedWidth(100)
         self.hdmi_in_crop_x_lineedit.setText("NA")
         self.hdmi_in_crop_x_lineedit.setFont(QFont(qfont_style_default, qfont_style_size_medium))
-
 
         self.hdmi_in_crop_y_label = QLabel(self.crop_setting_widget)
         self.hdmi_in_crop_y_label.setText("Crop Start Y:")
@@ -379,11 +382,17 @@ class Hdmi_In_Page(QObject):
                 self.cv2camera.open()  # 影像讀取功能開啟
                 self.cv2camera.start()  # 在子緒啟動影像讀取
 
+        self.cast_pid_label.setText("ff cast pid:" + str(self.ffmpy_hdmi_in_cast_process.pid))
+
     def stop_hdmi_in_preview(self):
         log.debug("")
         self.cv2camera.stop()  # 關閉
         self.cv2camera.close()  # 關閉
         self.stop_hdmi_in_cast()
+        if self.ffmpy_hdmi_in_cast_process is not None:
+            self.cast_pid_label.setText("ff cast pid:" + str(self.ffmpy_hdmi_in_cast_process.pid))
+        else:
+            self.cast_pid_label.setText("ff cast pid:None")
 
     def getRaw(self, data):  # data 為接收到的影像
         """ 取得影像 """
@@ -422,7 +431,7 @@ class Hdmi_In_Page(QObject):
             self.preview_label.setText("Please Check HDMI-in Dongle")
         else:
             log.debug("ffmpy_hdmi_in_cast_process is alive")
-            self.preview_label.setText("Please Wait for singal")
+            self.preview_label.setText("Please Wait for signal")
 
         return ffmpy_hdmi_in_cast_process
 
@@ -430,6 +439,8 @@ class Hdmi_In_Page(QObject):
         try:
             if self.ffmpy_hdmi_in_cast_process is not None:
                 os.kill(self.ffmpy_hdmi_in_cast_process.pid, signal.SIGTERM)
+            else:
+                log.debug("self.ffmpy_hdmi_in_cast_process is None")
         except Exception as e:
             log.debug(e)
         self.ffmpy_hdmi_in_cast_process = None
@@ -542,7 +553,7 @@ class Hdmi_In_Page(QObject):
 
     def start_send_to_led(self):
         video_src_ok = -1
-        for i in range(3):
+        for i in range(10):
             video_src_ok = self.check_video_src_is_ok("/dev/video6")
 
             if video_src_ok == 0:
