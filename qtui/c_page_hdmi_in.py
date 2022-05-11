@@ -381,8 +381,10 @@ class Hdmi_In_Page(QObject):
                 self.cv2camera.set_hdmi_in_cast(True)
                 self.cv2camera.open()  # 影像讀取功能開啟
                 self.cv2camera.start()  # 在子緒啟動影像讀取
-
-        self.cast_pid_label.setText("ff cast pid:" + str(self.ffmpy_hdmi_in_cast_process.pid))
+        if self.ffmpy_hdmi_in_cast_process is not None:
+            self.cast_pid_label.setText("ff cast pid:" + str(self.ffmpy_hdmi_in_cast_process.pid))
+        else:
+            self.cast_pid_label.setText("ff cast pid:None" )
 
     def stop_hdmi_in_preview(self):
         log.debug("")
