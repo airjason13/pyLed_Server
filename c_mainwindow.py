@@ -197,7 +197,7 @@ class MainUi(QMainWindow):
 
         log.debug("self.geo x : %d", self.geometry().x())
         log.debug("self.geo y : %d", self.geometry().y())
-        self.web_ui_mutex = QMutex()
+        self.page_ui_mutex = QMutex()
         # QTimer.singleShot(5000, self.demo_start_hdmi_in)
         # QTimer.singleShot(5000, self.demo_start_playlist)
 
@@ -495,6 +495,7 @@ class MainUi(QMainWindow):
         self.lcd1602.add_data("LCD_TAG_PLAY_STATUS_INFO", d0_str, d1_str)
 
     def right_page_change_index(self, pre_idx, going_idx):
+        self.page_ui_mutex.lock()
         log.debug("")
         if pre_idx != page_hdmi_in_content_idx and going_idx == page_hdmi_in_content_idx:
             log.debug("start hdmi-in preview")
@@ -510,6 +511,7 @@ class MainUi(QMainWindow):
         self.pre_page_idx = self.page_idx
         self.page_idx = going_idx
         self.right_layout.setCurrentIndex(self.page_idx)
+        self.page_ui_mutex.unlock()
 
     def fun_connect_clients(self):
         log.debug("connect clients")
@@ -558,7 +560,7 @@ class MainUi(QMainWindow):
 
     """ handle the command from qlocalserver"""
     def parser_cmd_from_qlocalserver(self, data):
-        log.debug("data : %s", data)
+
         self.web_ui_mutex.lock()
         if data.get("play_file"):
             self.func_file_contents()
@@ -628,8 +630,8 @@ class MainUi(QMainWindow):
                 c.send_cmd(cmd_set_frame_brightness,
                            self.cmd_seq_id_increase(),
                            str(self.media_engine.media_processor.video_params.frame_brightness))
-        self.web_ui_mutex.unlock()
-        
+
+
     def check_client(self, ip, data):
         is_found = False
         tmp_client = None
