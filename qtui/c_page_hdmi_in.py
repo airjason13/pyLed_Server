@@ -546,7 +546,8 @@ class Hdmi_In_Page(QObject):
                 break
 
         if video_src_ok != 0: # /dev/video6 is not ok!
-            log.debug("video_src got some problems")
+            log.fatal("video_src got some problems")
+            exit(0)
             return
         self.media_engine.stop_play()
         if self.media_engine.media_processor.play_hdmi_in_worker is None:
@@ -703,10 +704,12 @@ class Hdmi_In_Page(QObject):
         # ffprobe_res = os.popen(cmd).read()
         p = Popen(cmd, shell=True, stdout=PIPE, stderr=PIPE)
         ffprobe_stdout, ffprobe_stderr = p.communicate()
+
         log.debug("++++++++++++")
         log.debug("ffprobe_stdout : %s", ffprobe_stdout.decode())
         log.debug("ffprobe_stderr : %s", ffprobe_stderr.decode())
         log.debug("------------")
+        p.kill()
         if "Stream" in ffprobe_stderr.decode():
             log.debug("%s is ready", video_src)
             res = 0

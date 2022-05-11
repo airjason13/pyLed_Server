@@ -33,6 +33,8 @@ if __name__ == '__main__':
     log = utils.log_utils.logging_init(__file__)
     log.info('Main')
 
+    sys.setrecursionlimit(100000)
+
     global_debug_level = logging.FATAL
     utils.log_utils.set_logging_level(global_debug_level)
 

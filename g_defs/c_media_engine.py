@@ -567,7 +567,7 @@ class media_processor(QObject):
                             if self.media_processor.play_status == play_status.pausing:
                                 os.kill(self.media_processor.ffmpy_process.pid, signal.SIGCONT)
                                 # time.sleep(1)
-                        os.kill(self.ffmpy_process.pid, signal.SIGTERM)
+                        os.kill(self.media_processor.ffmpy_process.pid, signal.SIGTERM)
                         # time.sleep(1)
                         log.debug("kill")
                     except Exception as e:
@@ -654,7 +654,7 @@ class media_processor(QObject):
                             if self.media_processor.play_status == play_status.pausing:
                                 os.kill(self.media_processor.ffmpy_process.pid, signal.SIGCONT)
                                 # time.sleep(1)
-                        os.kill(self.ffmpy_process.pid, signal.SIGTERM)
+                        os.kill(self.media_processor.ffmpy_process.pid, signal.SIGTERM)
                         # time.sleep(1)
                         log.debug("kill")
                     except Exception as e:
@@ -722,7 +722,7 @@ class media_processor(QObject):
                             if self.media_processor.play_status == play_status.pausing:
                                 os.kill(self.media_processor.ffmpy_process.pid, signal.SIGCONT)
                                 # time.sleep(1)
-                        os.kill(self.ffmpy_process.pid, signal.SIGTERM)
+                        os.kill(self.media_processor.ffmpy_process.pid, signal.SIGTERM)
                         # time.sleep(1)
                         log.debug("kill")
                     except Exception as e:
