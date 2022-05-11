@@ -563,7 +563,9 @@ class Hdmi_In_Page(QObject):
 
         if video_src_ok != 0: # /dev/video6 is not ok!
             log.fatal("video_src got some problems")
-            exit(0)
+            log.debug("re-start preview in v4l2")
+            self.stop_hdmi_in_cast()
+            self.start_hdmi_in_preview()
             return
         self.media_engine.stop_play()
         if self.media_engine.media_processor.play_hdmi_in_worker is None:
