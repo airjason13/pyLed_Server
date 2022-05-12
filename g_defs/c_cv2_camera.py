@@ -33,6 +33,7 @@ class CV2Camera(QtCore.QThread):  # 繼承 QtCore.QThread 來建立 Camera 類�
         self.hdmi_in_cast = False
         self.connect = False
         self.running = False
+        self.force_quit = False
         self.cam = None
 
     def run(self):
@@ -46,7 +47,8 @@ class CV2Camera(QtCore.QThread):  # 繼承 QtCore.QThread 來建立 Camera 類�
         # 當正常連接攝影機才能進入迴圈
         # while self.running and self.connect:
         while True:
-
+            if self.force_quit is True:
+                break
             if self.cam is None or not self.cam.isOpened():
                 log.debug("A")
                 if not self.connect:
@@ -54,7 +56,7 @@ class CV2Camera(QtCore.QThread):  # 繼承 QtCore.QThread 來建立 Camera 類�
                     self.cam = self.open_tc358743_cam()
                     if self.cam is None:
                         log.debug("C")
-                        self.signal_cv2_read_fail.emit()
+                        # self.signal_cv2_read_fail.emit()
                         time.sleep(2)
                         continue
 
@@ -75,7 +77,6 @@ class CV2Camera(QtCore.QThread):  # 繼承 QtCore.QThread 來建立 Camera 類�
             if ret:
                 self.preview_frame_count += 1
                 if self.preview_frame_count % 5 == 0:
-                    #img = cv2.resize(img, (160, 120))
                     self.signal_get_rawdata.emit(img)    # 發送影像
             else:    # 例外處理
                 log.debug("No frame read!!!")
@@ -84,9 +85,12 @@ class CV2Camera(QtCore.QThread):  # 繼承 QtCore.QThread 來建立 Camera 類�
                 self.hdmi_in_cast = False
                 self.cam.release()
                 self.cam = None
-                self.signal_cv2_read_fail.emit()
+                # self.signal_cv2_read_fail.emit()
             time.sleep(0.1)
         log.debug("stop to run")
+        if self.cam is not None:
+            self.cam.release()
+            self.cam = None
 
     def open(self):
         """ 開啟攝影機影像讀取功能 """
@@ -104,6 +108,8 @@ class CV2Camera(QtCore.QThread):  # 繼承 QtCore.QThread 來建立 Camera 類�
             self.running = False    # 關閉讀取狀態
             time.sleep(1)
             self.cam.release()      # 釋放攝影機
+
+        self.force_quit = True
 
     def fps_counter(self):
         self.fps = self.preview_frame_count

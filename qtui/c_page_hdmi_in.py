@@ -364,11 +364,13 @@ class Hdmi_In_Page(QObject):
             self.play_hdmi_in_finish_ret)
 
     def start_hdmi_in_preview(self):
+
         if self.tc358743.hdmi_connected is False:
             # 故意讓cv2 重開
             self.cv2camera.set_hdmi_in_cast(False)
             self.cv2camera.open()  # 影像讀取功能開啟
             self.cv2camera.start()  # 在子緒啟動影像讀取
+
         else:
             if self.ffmpy_hdmi_in_cast_process is None:
                 if self.hdmi_in_cast_type == "v4l2":
@@ -390,6 +392,7 @@ class Hdmi_In_Page(QObject):
         log.debug("")
         self.cv2camera.stop()  # 關閉
         self.cv2camera.close()  # 關閉
+
         self.stop_hdmi_in_cast()
         if self.ffmpy_hdmi_in_cast_process is not None:
             self.cast_pid_label.setText("ff cast pid:" + str(self.ffmpy_hdmi_in_cast_process.pid))
