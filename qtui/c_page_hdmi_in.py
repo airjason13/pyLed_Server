@@ -374,14 +374,13 @@ class Hdmi_In_Page(QObject):
                 log.fatal("still got ffmpeg process")
                 k = os.popen("pkill ffmpeg")
                 k.close()
-            p.close()
 
         if self.tc358743.hdmi_connected is False:
             # 故意讓cv2 重開
-            self.cv2camera.set_hdmi_in_cast(False)
-            self.cv2camera.open()  # 影像讀取功能開啟
-            self.cv2camera.start()  # 在子緒啟動影像讀取
-
+            # self.cv2camera.set_hdmi_in_cast(False)
+            # self.cv2camera.open()  # 影像讀取功能開啟
+            # self.cv2camera.start()  # 在子緒啟動影像讀取
+            pass
         else:
             if self.ffmpy_hdmi_in_cast_process is None:
                 if self.hdmi_in_cast_type == "v4l2":
@@ -392,8 +391,12 @@ class Hdmi_In_Page(QObject):
             if self.ffmpy_hdmi_in_cast_process is not None:
                 # self.ffmpy_hdmi_in_cast_pid = self.ffmpy_hdmi_in_cast_process.pid
                 self.cv2camera.set_hdmi_in_cast(True)
-                self.cv2camera.open()  # 影像讀取功能開啟
-                self.cv2camera.start()  # 在子緒啟動影像讀取
+                if self.cv2camera is None:
+                    self.cv2camera = CV2Camera(cv2_preview_v4l2_sink, self.hdmi_in_cast_type)
+                    self.cv2camera.signal_get_rawdata.connect(self.getRaw)
+                    self.cv2camera.open()  # 影像讀取功能開啟
+                    self.cv2camera.start()  # 在子緒啟動影像讀取
+
         if self.ffmpy_hdmi_in_cast_process is not None:
             self.cast_pid_label.setText("ff cast pid:" + str(self.ffmpy_hdmi_in_cast_process.pid))
         else:
@@ -403,12 +406,14 @@ class Hdmi_In_Page(QObject):
         log.debug("")
         self.cv2camera.stop()  # 關閉
         self.cv2camera.close()  # 關閉
+        self.cv2camera = None
 
         self.stop_hdmi_in_cast()
         if self.ffmpy_hdmi_in_cast_process is not None:
             self.cast_pid_label.setText("ff cast pid:" + str(self.ffmpy_hdmi_in_cast_process.pid))
         else:
             self.cast_pid_label.setText("ff cast pid:None")
+
 
     def getRaw(self, data):  # data 為接收到的影像
         """ 取得影像 """
@@ -457,6 +462,11 @@ class Hdmi_In_Page(QObject):
                 os.kill(self.ffmpy_hdmi_in_cast_process.pid, signal.SIGTERM)
             else:
                 log.debug("self.ffmpy_hdmi_in_cast_process is None")
+                p = os.popen("pgrep ffmpeg").read()
+                if p is not None:
+                    log.fatal("still got ffmpeg process")
+                    k = os.popen("pkill ffmpeg")
+                    k.close()
         except Exception as e:
             log.debug(e)
         self.ffmpy_hdmi_in_cast_process = None
