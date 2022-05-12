@@ -2,7 +2,7 @@ import cv2
 import numpy as np
 import time
 from PyQt5 import QtCore
-from PyQt5.QtCore import QTimer
+from PyQt5.QtCore import QTimer, QMutex
 import utils.log_utils
 
 log = utils.log_utils.logging_init(__file__)
@@ -35,6 +35,7 @@ class CV2Camera(QtCore.QThread):  # 繼承 QtCore.QThread 來建立 Camera 類�
         self.running = False
         self.force_quit = False
         self.cam = None
+        self.cam_mutex = QMutex()
 
     def run(self):
         """ 執行多執行緒
@@ -49,11 +50,11 @@ class CV2Camera(QtCore.QThread):  # 繼承 QtCore.QThread 來建立 Camera 類�
         # 當正常連接攝影機才能進入迴圈
         # while self.running and self.connect:
         # while True:
-        while self.cam.isOpened(): 
+        while self.cam.isOpened():
+            self.cam_mutex.lock()
             if self.force_quit is True:
+                self.cam_mutex.lock()
                 break
-            
-
             ret, img = self.cam.read()    # 讀取影像
 
             if ret:
@@ -68,12 +69,14 @@ class CV2Camera(QtCore.QThread):  # 繼承 QtCore.QThread 來建立 Camera 類�
                 self.cam.release()
                 self.cam = None
                 # self.signal_cv2_read_fail.emit()
+            self.cam_mutex.unlock()
             time.sleep(0.1)
         log.debug("stop to run")
+        self.cam_mutex.lock()
         if self.cam is not None:
             self.cam.release()
             self.cam = None
-
+        self.cam_mutex.unlock()
     def open(self):
         """ 開啟攝影機影像讀取功能 """
         if self.connect:
@@ -89,9 +92,11 @@ class CV2Camera(QtCore.QThread):  # 繼承 QtCore.QThread 來建立 Camera 類�
         if self.connect:
             self.running = False    # 關閉讀取狀態
             time.sleep(1)
+            self.cam_mutex.lock()
             if self.cam is not None:
                 self.cam.release()      # 釋放攝影機
                 self.cam = None
+            self.cam_mutex.unlock()
         self.force_quit = True
 
     def fps_counter(self):
@@ -99,15 +104,19 @@ class CV2Camera(QtCore.QThread):  # 繼承 QtCore.QThread 來建立 Camera 類�
         self.preview_frame_count = 0
 
     def open_tc358743_cam(self):
-        cam = None
-        if self.hdmi_in_cast is True:
-            cam = cv2.VideoCapture(self.video_src)
-        return cam
-
-    def close_tc358743_cam(self):
+        self.cam_mutex.lock()
         if self.cam is not None:
             self.cam.release()
             self.cam = None
+            self.cam = cv2.VideoCapture(self.video_src)
+        self.cam_mutex.unlock()
+
+    def close_tc358743_cam(self):
+        self.cam_mutex.lock()
+        if self.cam is not None:
+            self.cam.release()
+            self.cam = None
+        self.cam_mutex.unlock()
 
     def set_hdmi_in_cast(self, b_value):
         self.hdmi_in_cast = b_value
