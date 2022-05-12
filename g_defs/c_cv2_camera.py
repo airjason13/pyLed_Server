@@ -51,29 +51,35 @@ class CV2Camera(QtCore.QThread):  # 繼承 QtCore.QThread 來建立 Camera 類�
         # 當正常連接攝影機才能進入迴圈
         # while self.running and self.connect:
         # while True:
-        while self.cam.isOpened():
-            self.cam_mutex.lock()
-            if self.force_quit is True:
-                self.cam_mutex.lock()
-                break
-            ret, img = self.cam.read()    # 讀取影像
 
-            if ret:
-                self.preview_frame_count += 1
-                if self.preview_frame_count % 5 == 0:
-                    self.signal_get_rawdata.emit(img)    # 發送影像
-            else:    # 例外處理
-                log.debug("No frame read!!!")
-                # self.connect = False
-                # self.hdmi_in_cast = False
-                self.cam.release()
-                for i in range(50):
-                    if self.cam.isOpened() is False:
-                        break
-                    log.debug("cam is still open %d", i)
-                self.cam = None
-                # self.signal_cv2_read_fail.emit()
-            self.cam_mutex.unlock()
+        while self.cam.isOpened():
+
+            self.cam_mutex.lock()
+            try:
+                if self.force_quit is True:
+                    self.cam_mutex.unlock()
+                    break
+                ret, img = self.cam.read()    # 讀取影像
+
+                if ret:
+                    self.preview_frame_count += 1
+                    if self.preview_frame_count % 5 == 0:
+                        self.signal_get_rawdata.emit(img)    # 發送影像
+                else:    # 例外處理
+                    log.debug("No frame read!!!")
+                    # self.connect = False
+                    # self.hdmi_in_cast = False
+                    self.cam.release()
+                    for i in range(50):
+                        if self.cam.isOpened() is False:
+                            break
+                        log.debug("cam is still open %d", i)
+                    self.cam = None
+                    # self.signal_cv2_read_fail.emit()
+            except Exception as e:
+                log.debug(e)
+            finally:
+                self.cam_mutex.unlock()
             time.sleep(0.1)
         log.debug("stop to run")
         self.cam_mutex.lock()
@@ -101,6 +107,7 @@ class CV2Camera(QtCore.QThread):  # 繼承 QtCore.QThread 來建立 Camera 類�
         self.cam_mutex.lock()
         if self.cam is not None:
             self.cam.release()      # 釋放攝影機
+
             for i in range(50):
                 if self.cam.isOpened() is False:
                     break
