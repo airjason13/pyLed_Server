@@ -458,6 +458,7 @@ class Hdmi_In_Page(QObject):
 
     def select_preview_v4l2_device(self):
         num = self.preview_count % 3
+        self.preview_count += 1
         if num == 0:
             self.cv2_preview_v4l2_sink = "/dev/video3"
             return ["/dev/video3", "/dev/video6"]
