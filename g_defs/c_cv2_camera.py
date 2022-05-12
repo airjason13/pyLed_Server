@@ -50,9 +50,9 @@ class CV2Camera(QtCore.QThread):  # 繼承 QtCore.QThread 來建立 Camera 類�
             if self.force_quit is True:
                 break
             if self.cam is None or not self.cam.isOpened():
-                log.debug("A")
+                log.debug("A %d", self.thread().currentThreadId())
                 if not self.connect:
-                    log.debug("B")
+                    log.debug("B %d", self.thread().currentThreadId())
                     self.cam = self.open_tc358743_cam()
                     if self.cam is None:
                         log.debug("C")
