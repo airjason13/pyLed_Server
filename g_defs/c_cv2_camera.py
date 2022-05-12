@@ -110,7 +110,7 @@ class CV2Camera(QtCore.QThread):  # 繼承 QtCore.QThread 來建立 Camera 類�
             if self.cam is not None:
                 self.cam.release()      # 釋放攝影機
                 self.cam = None
-        self.force_quit = True
+        # self.force_quit = True
 
     def fps_counter(self):
         self.fps = self.preview_frame_count
@@ -121,6 +121,10 @@ class CV2Camera(QtCore.QThread):  # 繼承 QtCore.QThread 來建立 Camera 類�
         if self.hdmi_in_cast is True:
             cam = cv2.VideoCapture(self.video_src)
         return cam
+
+    def close_tc358743_cam(self):
+        if self.cam is not None:
+            self.cam.release()
 
     def set_hdmi_in_cast(self, b_value):
         self.hdmi_in_cast = b_value
