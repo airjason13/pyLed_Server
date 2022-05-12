@@ -454,8 +454,26 @@ class Hdmi_In_Page(QObject):
             self.preview_label.setText("Please Wait for singal")
         return ffmpy_hdmi_in_cast_process
 
+    def select_preview_v4l2_device(self):
+        for i in range(3, 5):
+            v4l2_dev = None
+            v4l2_dev_node = "/dev/video" + str(i)
+            log.debug("v4l2_dev = %s", v4l2_dev_node)
+            try:
+                v4l2_dev = open(v4l2_dev_node)
+            except Exception as e:
+                log.debug("%s open fail", v4l2_dev_node)
+
+            if v4l2_dev is not None:
+                v4l2_dev.close()
+                break
+
+        return v4l2_dev_node
+
     def start_hdmi_in_cast_v4l2(self):
+
         hdmi_in_cast_out = ["/dev/video5", "/dev/video6"]
+
 
         ffmpy_hdmi_in_cast_process = self.media_engine.start_hdmi_in_v4l2("/dev/video0", hdmi_in_cast_out)
         if ffmpy_hdmi_in_cast_process is None:

@@ -200,6 +200,7 @@ class MainUi(QMainWindow):
         self.page_ui_mutex = QMutex()
         # QTimer.singleShot(5000, self.demo_start_hdmi_in)
         # QTimer.singleShot(5000, self.demo_start_playlist)
+        self.select_preview_v4l2_device()
 
 
     def demo_start_hdmi_in(self):
@@ -1285,6 +1286,21 @@ class MainUi(QMainWindow):
             if self.media_preview_widget.isVisible() is True:
                 self.media_preview_widget.hide()
 
+    def select_preview_v4l2_device(self):
+        for i in range(3, 6):
+            v4l2_dev = None
+            v4l2_dev_node = "/dev/video" + str(i)
+            log.debug("v4l2_dev = %s", v4l2_dev_node)
+            try:
+                v4l2_dev = open(v4l2_dev_node)
+            except Exception as e:
+                log.debug("%s open fail", v4l2_dev_node)
+
+            if v4l2_dev is not None:
+                v4l2_dev.close()
+                break
+
+        return v4l2_dev_node
 
 class MyDelegate(QItemDelegate):
     def __init__(self):
