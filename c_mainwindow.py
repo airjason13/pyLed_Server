@@ -201,6 +201,7 @@ class MainUi(QMainWindow):
         # QTimer.singleShot(5000, self.demo_start_hdmi_in)
         # QTimer.singleShot(5000, self.demo_start_playlist)
 
+
     def demo_start_hdmi_in(self):
         self.func_hdmi_in_contents()
         log.debug("demo_start play_hdmi_in")

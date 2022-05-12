@@ -7,6 +7,7 @@ import utils.log_utils
 
 log = utils.log_utils.logging_init(__file__)
 
+
 class CV2Camera(QtCore.QThread):  # 繼承 QtCore.QThread 來建立 Camera 類別
     signal_get_rawdata = QtCore.pyqtSignal(np.ndarray)  # 建立傳遞信號，需設定傳遞型態為 np.ndarray
     signal_cv2_read_fail = QtCore.pyqtSignal()
@@ -30,9 +31,9 @@ class CV2Camera(QtCore.QThread):  # 繼承 QtCore.QThread 來建立 Camera 類�
         self.fps_timer.start(1000)
         # 建立 cv2 的攝影機物件
 
-        self.hdmi_in_cast = False
-        self.connect = False
-        self.running = False
+        # self.hdmi_in_cast = False
+        # self.connect = False
+        # self.running = False
         self.force_quit = False
         self.cam = None
         self.cam_mutex = QMutex()
@@ -63,10 +64,13 @@ class CV2Camera(QtCore.QThread):  # 繼承 QtCore.QThread 來建立 Camera 類�
                     self.signal_get_rawdata.emit(img)    # 發送影像
             else:    # 例外處理
                 log.debug("No frame read!!!")
-                self.connect = False
-
-                self.hdmi_in_cast = False
+                # self.connect = False
+                # self.hdmi_in_cast = False
                 self.cam.release()
+                for i in range(50):
+                    if self.cam.isOpened() is False:
+                        break
+                    log.debug("cam is still open %d", i)
                 self.cam = None
                 # self.signal_cv2_read_fail.emit()
             self.cam_mutex.unlock()
@@ -75,28 +79,35 @@ class CV2Camera(QtCore.QThread):  # 繼承 QtCore.QThread 來建立 Camera 類�
         self.cam_mutex.lock()
         if self.cam is not None:
             self.cam.release()
+            for i in range(50):
+                if self.cam.isOpened() is False:
+                    break
+                log.debug("cam is still open %d", i)
             self.cam = None
         self.cam_mutex.unlock()
-    def open(self):
-        """ 開啟攝影機影像讀取功能 """
-        if self.connect:
-            self.running = True    # 啟動讀取狀態
 
-    def stop(self):
+    '''def open(self):
+        """ 開啟攝影機影像讀取功能 """
+        # if self.connect:
+        #    self.running = True    # 啟動讀取狀態'''
+
+    '''def stop(self):
         """ 暫停攝影機影像讀取功能 """
         if self.connect:
-            self.running = False    # 關閉讀取狀態
+            self.running = False    # 關閉讀取狀態'''
 
     def close(self):
         """ 關閉攝影機功能 """
-        if self.connect:
-            self.running = False    # 關閉讀取狀態
-            time.sleep(1)
-            self.cam_mutex.lock()
-            if self.cam is not None:
-                self.cam.release()      # 釋放攝影機
-                self.cam = None
-            self.cam_mutex.unlock()
+        self.cam_mutex.lock()
+        if self.cam is not None:
+            self.cam.release()      # 釋放攝影機
+            for i in range(50):
+                if self.cam.isOpened() is False:
+                    break
+                log.debug("cam is still open %d", i)
+
+            self.cam = None
+        self.cam_mutex.unlock()
         self.force_quit = True
 
     def fps_counter(self):
@@ -107,6 +118,10 @@ class CV2Camera(QtCore.QThread):  # 繼承 QtCore.QThread 來建立 Camera 類�
         self.cam_mutex.lock()
         if self.cam is not None:
             self.cam.release()
+            for i in range(50):
+                if self.cam.isOpened() is False:
+                    break
+                log.debug("cam is still open %d", i)
             self.cam = None
             self.cam = cv2.VideoCapture(self.video_src)
         self.cam_mutex.unlock()
@@ -115,8 +130,14 @@ class CV2Camera(QtCore.QThread):  # 繼承 QtCore.QThread 來建立 Camera 類�
         self.cam_mutex.lock()
         if self.cam is not None:
             self.cam.release()
+            for i in range(50):
+                if self.cam.isOpened() is False:
+                    break
+                log.debug("cam is still open %d", i)
             self.cam = None
         self.cam_mutex.unlock()
 
     def set_hdmi_in_cast(self, b_value):
-        self.hdmi_in_cast = b_value
+        log.debug("depreciated")
+
+        # self.hdmi_in_cast = b_value

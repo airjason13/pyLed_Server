@@ -371,12 +371,14 @@ class Hdmi_In_Page(QObject):
         else:
             # find any ffmpeg process
             p = os.popen("pgrep ffmpeg").read()
+            log.debug("pgrep ffmpeg, res = %s", p)
             if p is not None:
                 log.fatal("still got ffmpeg process")
                 k = os.popen("pkill ffmpeg")
                 k.close()
 
         if self.tc358743.hdmi_connected is False:
+            # 這方法不行,會有其他線程影響,得改用Timer或是其他
             # 故意讓cv2 重開
             # self.cv2camera.set_hdmi_in_cast(False)
             # self.cv2camera.open()  # 影像讀取功能開啟
@@ -396,7 +398,7 @@ class Hdmi_In_Page(QObject):
                     self.cv2camera.signal_get_rawdata.connect(self.getRaw)
                 else:
                     log.debug("Still got cv2camera")
-                self.cv2camera.open()  # 影像讀取功能開啟
+                # self.cv2camera.open()  # 影像讀取功能開啟
                 self.cv2camera.start()  # 在子緒啟動影像讀取
                 # self.cv2camera.exec()
                 self.cv2camera.set_hdmi_in_cast(True)
@@ -411,7 +413,7 @@ class Hdmi_In_Page(QObject):
         if self.cv2camera is not None:
             self.cv2camera.close_tc358743_cam()
             self.cv2camera.close()  # 關閉
-            self.cv2camera.stop()  # 關閉
+            # self.cv2camera.stop()  # 關閉
             self.cv2camera.quit()
             # self.cv2camera.wait()
             # self.cv2camera.close()  # 關閉
