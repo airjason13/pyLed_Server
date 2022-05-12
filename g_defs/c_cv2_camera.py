@@ -52,11 +52,17 @@ class CV2Camera(QtCore.QThread):  # 繼承 QtCore.QThread 來建立 Camera 類�
         # while self.running and self.connect:
         # while True:
 
-        while self.cam.isOpened():
+        while True:
 
             self.cam_mutex.lock()
             try:
+                if self.cam is None:
+                    log.debug("self.cam is None")
+                    self.cam_mutex.unlock()
+                    break
+
                 if self.force_quit is True:
+                    log.debug("self.force_quit")
                     self.cam_mutex.unlock()
                     break
                 ret, img = self.cam.read()    # 讀取影像
