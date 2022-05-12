@@ -391,7 +391,6 @@ class Hdmi_In_Page(QObject):
 
             if self.ffmpy_hdmi_in_cast_process is not None:
                 # self.ffmpy_hdmi_in_cast_pid = self.ffmpy_hdmi_in_cast_process.pid
-
                 if self.cv2camera is None:
                     self.cv2camera = CV2Camera(cv2_preview_v4l2_sink, self.hdmi_in_cast_type)
                     self.cv2camera.signal_get_rawdata.connect(self.getRaw)
@@ -399,6 +398,7 @@ class Hdmi_In_Page(QObject):
                     log.debug("Still got cv2camera")
                 self.cv2camera.open()  # 影像讀取功能開啟
                 self.cv2camera.start()  # 在子緒啟動影像讀取
+                self.cv2camera.exec()
                 self.cv2camera.set_hdmi_in_cast(True)
 
         if self.ffmpy_hdmi_in_cast_process is not None:
