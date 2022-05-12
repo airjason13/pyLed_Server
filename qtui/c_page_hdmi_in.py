@@ -353,6 +353,7 @@ class Hdmi_In_Page(QObject):
         # self.cv2camera.signal_get_rawdata.connect(self.getRaw)
         # self.cv2camera.signal_cv2_read_fail.connect(self.cv2_read_or_open_fail)
         self.cv2camera = None
+        self.preview_count = 0
 
         # self.ffmpy_hdmi_in_cast_pid = None
 
@@ -455,7 +456,15 @@ class Hdmi_In_Page(QObject):
         return ffmpy_hdmi_in_cast_process
 
     def select_preview_v4l2_device(self):
-        for i in range(3, 5):
+        num = self.preview_count % 3
+        if num == 0:
+            return ["/dev/video3", "/dev/video6"]
+        elif num == 1:
+            return ["/dev/video4", "/dev/video6"]
+        elif num == 2:
+            return ["/dev/video5", "/dev/video6"]
+
+        '''for i in range(3, 5):
             v4l2_dev = None
             v4l2_dev_node = "/dev/video" + str(i)
             log.debug("v4l2_dev = %s", v4l2_dev_node)
@@ -468,12 +477,12 @@ class Hdmi_In_Page(QObject):
                 v4l2_dev.close()
                 break
 
-        return v4l2_dev_node
+        return v4l2_dev_node'''
 
     def start_hdmi_in_cast_v4l2(self):
 
-        hdmi_in_cast_out = ["/dev/video5", "/dev/video6"]
-
+        # hdmi_in_cast_out = ["/dev/video5", "/dev/video6"]
+        hdmi_in_cast_out = self.select_preview_v4l2_device()
 
         ffmpy_hdmi_in_cast_process = self.media_engine.start_hdmi_in_v4l2("/dev/video0", hdmi_in_cast_out)
         if ffmpy_hdmi_in_cast_process is None:
