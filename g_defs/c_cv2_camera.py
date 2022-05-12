@@ -107,8 +107,9 @@ class CV2Camera(QtCore.QThread):  # 繼承 QtCore.QThread 來建立 Camera 類�
         if self.connect:
             self.running = False    # 關閉讀取狀態
             time.sleep(1)
-            self.cam.release()      # 釋放攝影機
-
+            if self.cam is not None:
+                self.cam.release()      # 釋放攝影機
+                self.cam = None
         self.force_quit = True
 
     def fps_counter(self):

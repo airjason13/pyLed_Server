@@ -345,13 +345,13 @@ class Hdmi_In_Page(QObject):
         self.hdmi_in_layout.addWidget(self.crop_setting_widget)
         self.hdmi_in_layout.addWidget(self.setting_widget)
         
-        #self.hdmi_in_cast_type = "h264"
+        # self.hdmi_in_cast_type = "h264"
         self.hdmi_in_cast_type = "v4l2"
 
-        #self.cv2camera = CV2Camera(cv2_preview_h264_sink, self.hdmi_in_cast_type)
+        # self.cv2camera = CV2Camera(cv2_preview_h264_sink, self.hdmi_in_cast_type)
         self.cv2camera = CV2Camera(cv2_preview_v4l2_sink, self.hdmi_in_cast_type)
         self.cv2camera.signal_get_rawdata.connect(self.getRaw)
-        self.cv2camera.signal_cv2_read_fail.connect(self.cv2_read_or_open_fail)
+        # self.cv2camera.signal_cv2_read_fail.connect(self.cv2_read_or_open_fail)
 
         # self.ffmpy_hdmi_in_cast_pid = None
 
@@ -364,6 +364,17 @@ class Hdmi_In_Page(QObject):
             self.play_hdmi_in_finish_ret)
 
     def start_hdmi_in_preview(self):
+        # check previous ffmpeg cast process
+        if self.ffmpy_hdmi_in_cast_process is not None:
+            os.kill(self.ffmpy_hdmi_in_cast_process.pid, signal.SIGTERM)
+        else:
+            # find any ffmpeg process
+            p = os.popen("pgrep ffmpeg").read()
+            if p is not None:
+                log.fatal("still got ffmpeg process")
+                k = os.popen("pkill ffmpeg")
+                k.close()
+            p.close()
 
         if self.tc358743.hdmi_connected is False:
             # 故意讓cv2 重開
