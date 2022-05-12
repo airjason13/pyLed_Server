@@ -44,33 +44,15 @@ class CV2Camera(QtCore.QThread):  # 繼承 QtCore.QThread 來建立 Camera 類�
         """
         log.debug("start to run")
         log.debug("self.video_src = %s", self.video_src)
+        self.cam = cv2.VideoCapture(self.video_src)
+
         # 當正常連接攝影機才能進入迴圈
         # while self.running and self.connect:
-        while True:
+        # while True:
+        while self.cam.isOpened(): 
             if self.force_quit is True:
                 break
-            if self.cam is None or not self.cam.isOpened():
-                log.debug("A %d", self.thread().currentThreadId())
-                if not self.connect:
-                    log.debug("B %d", self.thread().currentThreadId())
-                    self.cam = self.open_tc358743_cam()
-                    if self.cam is None:
-                        log.debug("C")
-                        # self.signal_cv2_read_fail.emit()
-                        time.sleep(2)
-                        continue
-
-                if self.cam is None or not self.cam.isOpened():
-                    self.connect = False
-                    self.running = False
-                else:
-                    self.connect = True
-                    self.running = True
-
-            if self.running is False:
-                log.debug("waiting for start to read")
-                time.sleep(1)
-                continue
+            
 
             ret, img = self.cam.read()    # 讀取影像
 
@@ -110,7 +92,7 @@ class CV2Camera(QtCore.QThread):  # 繼承 QtCore.QThread 來建立 Camera 類�
             if self.cam is not None:
                 self.cam.release()      # 釋放攝影機
                 self.cam = None
-        # self.force_quit = True
+        self.force_quit = True
 
     def fps_counter(self):
         self.fps = self.preview_frame_count
@@ -125,6 +107,7 @@ class CV2Camera(QtCore.QThread):  # 繼承 QtCore.QThread 來建立 Camera 類�
     def close_tc358743_cam(self):
         if self.cam is not None:
             self.cam.release()
+            self.cam = None
 
     def set_hdmi_in_cast(self, b_value):
         self.hdmi_in_cast = b_value
