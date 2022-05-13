@@ -18,7 +18,6 @@ import signal
 from g_defs.c_tc358743 import TC358743
 from str_define import *
 from subprocess import PIPE, Popen
-from hdmi_preview_server import *
 import hashlib
 log = utils.log_utils.logging_init(__file__)
 
@@ -356,9 +355,7 @@ class Hdmi_In_Page(QObject):
         self.cv2camera = None
         self.preview_count = 0
         self.cv2_preview_v4l2_sink = None
-        self.hdmi_preview_srver = PreviewServer()
-        self.hdmi_preview_srver.signal_preview_data_received.connect(self.getRaw)
-        self.preview_subprocess = None
+
         # self.ffmpy_hdmi_in_cast_pid = None
 
         self.tc358743 = TC358743()
@@ -370,10 +367,10 @@ class Hdmi_In_Page(QObject):
             self.play_hdmi_in_finish_ret)
 
     def start_hdmi_in_preview(self):
-        '''if self.cv2camera is not None:
+        if self.cv2camera is not None:
             log.debug("cv2 camera is going to quit")
             self.cv2camera.quit()
-            self.cv2camera = None'''
+            self.cv2camera = None
         # check previous ffmpeg cast process
         if self.ffmpy_hdmi_in_cast_process is not None:
             os.kill(self.ffmpy_hdmi_in_cast_process.pid, signal.SIGTERM)
@@ -401,11 +398,7 @@ class Hdmi_In_Page(QObject):
                     self.ffmpy_hdmi_in_cast_process = self.start_hdmi_in_cast_h264()
 
             if self.ffmpy_hdmi_in_cast_process is not None:
-
-                preview_subprocess_cmd = "/usr/bin/python3 /home/root/pyLedServer/c_cv2_camera.py /dev/video3 " + \
-                                         self.hdmi_preview_srver.get_preview_server_full_name() + " " + "5" + " " + "1"
-                self.preview_subprocess = Popen(preview_subprocess_cmd, shell=True, stdout=PIPE)
-                '''# self.ffmpy_hdmi_in_cast_pid = self.ffmpy_hdmi_in_cast_process.pid
+                # self.ffmpy_hdmi_in_cast_pid = self.ffmpy_hdmi_in_cast_process.pid
                 if self.cv2camera is None:
                     self.cv2camera = CV2Camera(self.cv2_preview_v4l2_sink, self.hdmi_in_cast_type)
                     self.cv2camera.signal_get_rawdata.connect(self.getRaw)
@@ -414,8 +407,7 @@ class Hdmi_In_Page(QObject):
                 # self.cv2camera.open()  # 影像讀取功能開啟
                 self.cv2camera.start()  # 在子緒啟動影像讀取
                 # self.cv2camera.exec()
-                self.cv2camera.set_hdmi_in_cast(True)'''
-
+                self.cv2camera.set_hdmi_in_cast(True)
 
         if self.ffmpy_hdmi_in_cast_process is not None:
             self.cast_pid_label.setText("ff cast pid:" + str(self.ffmpy_hdmi_in_cast_process.pid))

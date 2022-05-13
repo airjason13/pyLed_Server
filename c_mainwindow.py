@@ -200,10 +200,7 @@ class MainUi(QMainWindow):
         self.page_ui_mutex = QMutex()
         # QTimer.singleShot(5000, self.demo_start_hdmi_in)
         # QTimer.singleShot(5000, self.demo_start_playlist)
-
-        preview_subprocess_cmd = "/usr/bin/python3 /home/venom/PyProject/pyLed_Server/c_cv2_camera.py" + " " + "/dev/video3" + \
-                                 " " + "/tmp/test" + " " + "5" + " " + "1"
-        self.preview_subprocess = Popen(preview_subprocess_cmd, shell=True, stdout=PIPE)
+        # self.select_preview_v4l2_device()
 
 
     def demo_start_hdmi_in(self):
