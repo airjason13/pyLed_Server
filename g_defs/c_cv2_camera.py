@@ -12,19 +12,15 @@ class CV2Camera(QtCore.QThread):  # 繼承 QtCore.QThread 來建立 Camera 類�
     signal_get_rawdata = QtCore.pyqtSignal(np.ndarray)  # 建立傳遞信號，需設定傳遞型態為 np.ndarray
     signal_cv2_read_fail = QtCore.pyqtSignal()
 
-    def __init__(self, video_src, video_type, parent=None):
-        """ 初始化
-            - 執行 QtCore.QThread 的初始化
-            - 建立 cv2 的 VideoCapture 物件
-            - 設定屬性來確認狀態
-              - self.connect：連接狀態
-              - self.running：讀取狀態
-        """
+    # def __init__(self, video_src, video_type, parent=None):
+    def __init__(self, video_src, preview_server, preview_fps, show_window):
+
         # 將父類初始化
-        super().__init__(parent)
+        super().__init__()
         self.video_src = video_src
-        self.video_type = video_type
+        self.preview_server = preview_server
         self.preview_frame_count = 0
+        self.show_window = show_window
         self.fps_timer = QTimer(self)
         self.fps_timer.timeout.connect(self.fps_counter)
         self.fps = 0
@@ -45,35 +41,34 @@ class CV2Camera(QtCore.QThread):  # 繼承 QtCore.QThread 來建立 Camera 類�
         self.cam = cv2.VideoCapture(self.video_src)
 
         while True:
-
             self.cam_mutex.lock()
             try:
                 if self.cam is None:
                     log.debug("self.cam is None")
                     self.cam_mutex.unlock()
                     break
-
                 if self.force_quit is True:
                     log.debug("self.force_quit")
                     self.cam_mutex.unlock()
                     break
                 ret, img = self.cam.read()    # 讀取影像
-
                 if ret:
                     self.preview_frame_count += 1
                     if self.preview_frame_count % 5 == 0:
                         self.signal_get_rawdata.emit(img)    # 發送影像
+                        if self.show_window is True:
+                            cv2.imshow(img)
+
                 else:    # 例外處理
                     log.debug("No frame read!!!")
-                    # self.connect = False
-                    # self.hdmi_in_cast = False
+
                     self.cam.release()
                     for i in range(50):
                         if self.cam.isOpened() is False:
                             break
                         log.debug("cam is still open %d", i)
                     self.cam = None
-                    # self.signal_cv2_read_fail.emit()
+
             except Exception as e:
                 log.debug(e)
             finally:
@@ -149,18 +144,26 @@ class CV2Camera(QtCore.QThread):  # 繼承 QtCore.QThread 來建立 Camera 類�
 
         # self.hdmi_in_cast = b_value
 
+
 def main(argv):
-    if len(argv) != 3:
+    if len(argv) != 5:
         log.debug("cv2 camera argv error!")
         return
 
     video_src = argv[1]
     preview_server = argv[2]
-    preview_fps = int(argv[3])
-
+    i_preview_fps = int(argv[3])
+    i_show_window = int(argv[4])
     log.debug("video_src = %s", video_src)
     log.debug("preview_server = %s", preview_server)
-    log.debug("preview_fps = %s", preview_fps)
+    log.debug("preview_fps = %d", i_preview_fps)
+    log.debug("preview_fps = %s", i_show_window)
+    if i_show_window == 1:
+        cam = CV2Camera(video_src, preview_server, i_preview_fps, show_window=True)
+    else:
+        cam = CV2Camera(video_src, preview_server, i_preview_fps, show_window=False)
+    cam.start()
+
 
 if __name__ == "__main__":
     main(sys.argv)
