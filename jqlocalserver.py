@@ -9,22 +9,25 @@ SERVER = "OrHCSZBAQz"
 
 def get_server_name():
     global SERVER
-
     return SERVER
 
 
 class Server(QtNetwork.QLocalServer):
     dataReceived = QtCore.pyqtSignal(object)
+
     def __init__(self):
         super().__init__()
+
         if self.isListening():
             log.info("listening")
         else:
             log.debug("not listening")
+
         if self.hasPendingConnections():
             log.info("has Pending Connections")
         else:
             log.debug("No Pending Connections")
+
         self.newConnection.connect(self.handle_connection)
         self.removeServer(get_server_name())
         if not self.listen(get_server_name()):

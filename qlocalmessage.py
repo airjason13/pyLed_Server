@@ -8,7 +8,6 @@ import utils.log_utils
 
 log = utils.log_utils.logging_init(__file__)
 
-
 def send_message(**data):
     socket = QtNetwork.QLocalSocket()
     # log("in send message, SERVER:", get_server_name())
@@ -20,11 +19,11 @@ def send_message(**data):
                   socket.errorString())
         socket.disconnectFromServer()
     elif socket.error() == QtNetwork.QAbstractSocket.HostNotFoundError:
-        global _tries
+        #global _tries
+        _tries = 0
         if _tries < 10:
             if not _tries:
-                if QtCore.QProcess.startDetached(
-                    'python', [os.path.abspath(__file__)]):
+                if QtCore.QProcess.startDetached('python', [os.path.abspath(__file__)]):
                     atexit.register(lambda: send_message(shutdown=True))
                 else:
                     raise RuntimeError('could not start dialog server')
@@ -32,8 +31,7 @@ def send_message(**data):
             QtCore.QThread.msleep(100)
             send_message(**data)
         else:
-            raise RuntimeError('could not connect to server: %s' %
-                socket.errorString())
+            raise RuntimeError('could not connect to server: %s' % socket.errorString())
     else:
         raise RuntimeError('could not send data: %s' % socket.errorString())
 

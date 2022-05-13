@@ -1,12 +1,12 @@
 import cv2
 import numpy as np
 import time
+import sys
 from PyQt5 import QtCore
 from PyQt5.QtCore import QTimer, QMutex
 import utils.log_utils
 
 log = utils.log_utils.logging_init(__file__)
-
 
 class CV2Camera(QtCore.QThread):  # 繼承 QtCore.QThread 來建立 Camera 類別
     signal_get_rawdata = QtCore.pyqtSignal(np.ndarray)  # 建立傳遞信號，需設定傳遞型態為 np.ndarray
@@ -29,11 +29,7 @@ class CV2Camera(QtCore.QThread):  # 繼承 QtCore.QThread 來建立 Camera 類�
         self.fps_timer.timeout.connect(self.fps_counter)
         self.fps = 0
         self.fps_timer.start(1000)
-        # 建立 cv2 的攝影機物件
 
-        # self.hdmi_in_cast = False
-        # self.connect = False
-        # self.running = False
         self.force_quit = False
         self.cam = None
         self.cam_mutex = QMutex()
@@ -47,10 +43,6 @@ class CV2Camera(QtCore.QThread):  # 繼承 QtCore.QThread 來建立 Camera 類�
         log.debug("start to run")
         log.debug("self.video_src = %s", self.video_src)
         self.cam = cv2.VideoCapture(self.video_src)
-
-        # 當正常連接攝影機才能進入迴圈
-        # while self.running and self.connect:
-        # while True:
 
         while True:
 
@@ -156,3 +148,19 @@ class CV2Camera(QtCore.QThread):  # 繼承 QtCore.QThread 來建立 Camera 類�
         log.debug("depreciated")
 
         # self.hdmi_in_cast = b_value
+
+def main(argv):
+    if len(argv) != 3:
+        log.debug("cv2 camera argv error!")
+        return
+
+    video_src = argv[1]
+    preview_server = argv[2]
+    preview_fps = int(argv[3])
+
+    log.debug("video_src = %s", video_src)
+    log.debug("preview_server = %s", preview_server)
+    log.debug("preview_fps = %s", preview_fps)
+
+if __name__ == "__main__":
+    main(sys.argv)
