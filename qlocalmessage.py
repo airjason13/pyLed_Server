@@ -4,6 +4,7 @@ import json
 import atexit
 import os
 from jqlocalserver import get_server_name
+from hdmi_preview_server import get_preview_server_name
 import utils.log_utils
 
 log = utils.log_utils.logging_init(__file__)
@@ -36,7 +37,7 @@ def send_message(**data):
         raise RuntimeError('could not send data: %s' % socket.errorString())
 
 
-def send_message(**data):
+def send_preview_frame(**data):
     socket = QtNetwork.QLocalSocket()
     # log("in send message, SERVER:", get_server_name())
     socket.connectToServer(get_preview_server_name(), QtCore.QIODevice.WriteOnly)

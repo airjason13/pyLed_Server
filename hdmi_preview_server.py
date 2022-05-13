@@ -7,7 +7,7 @@ log = utils.log_utils.logging_init(__file__)
 SERVER = "hdmi_in_preview_server"
 
 
-def get_server_name():
+def get_preview_server_name():
     global SERVER
     return SERVER
 
@@ -29,9 +29,9 @@ class PreviewServer(QtNetwork.QLocalServer):
             log.debug("No Pending Connections")
 
         self.newConnection.connect(self.handle_connection)
-        self.removeServer(get_server_name())
+        self.removeServer(get_preview_server_name())
 
-        if not self.listen(get_server_name()):
+        if not self.listen(get_preview_server_name()):
             raise RuntimeError(self.errorString())
 
     def handle_connection(self):

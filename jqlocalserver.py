@@ -12,6 +12,7 @@ def get_server_name():
     return SERVER
 
 
+
 class Server(QtNetwork.QLocalServer):
     dataReceived = QtCore.pyqtSignal(object)
 

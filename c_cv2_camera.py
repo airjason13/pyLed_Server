@@ -7,6 +7,8 @@ from PyQt5.QtCore import QTimer, QMutex
 import utils.log_utils
 from PyQt5.QtWidgets import QApplication, QMainWindow
 
+from qlocalmessage import send_preview_frame
+
 log = utils.log_utils.logging_init(__file__)
 
 class CV2Camera(QtCore.QThread):  # 繼承 QtCore.QThread 來建立 Camera 類別
@@ -56,7 +58,7 @@ class CV2Camera(QtCore.QThread):  # 繼承 QtCore.QThread 來建立 Camera 類�
                 if ret:
                     self.preview_frame_count += 1
                     if self.preview_frame_count % 5 == 0:
-                        self.signal_get_rawdata.emit(img)    # 發送影像
+                        send_preview_frame(img)    # 發送影像
                         log.debug("send preview frame")
                         '''if self.show_window is True:
                             cv2.imshow("preview", img)
