@@ -20,7 +20,6 @@ class CV2Camera(QtCore.QThread):  # 繼承 QtCore.QThread 來建立 Camera 類�
         super().__init__()
         self.video_src = video_src
         self.preview_server = preview_server
-        self.preview_fps = preview_fps
         self.preview_frame_count = 0
         self.show_window = show_window
         self.fps_timer = QTimer(self)
@@ -41,7 +40,7 @@ class CV2Camera(QtCore.QThread):  # 繼承 QtCore.QThread 來建立 Camera 類�
         log.debug("start to run")
         log.debug("self.video_src = %s", self.video_src)
         self.cam = cv2.VideoCapture(self.video_src)
-
+        log.debug("self.cam : %s", self.cam)
         while True:
             self.cam_mutex.lock()
             try:
@@ -58,8 +57,10 @@ class CV2Camera(QtCore.QThread):  # 繼承 QtCore.QThread 來建立 Camera 類�
                     self.preview_frame_count += 1
                     if self.preview_frame_count % 5 == 0:
                         self.signal_get_rawdata.emit(img)    # 發送影像
-                        if self.show_window is True:
-                            cv2.imshow(img)
+                        log.debug("send preview frame")
+                        '''if self.show_window is True:
+                            cv2.imshow("preview", img)
+                            self.preview_frame_count = 0'''
 
                 else:    # 例外處理
                     log.debug("No frame read!!!")
@@ -150,8 +151,9 @@ class CV2Camera(QtCore.QThread):  # 繼承 QtCore.QThread 來建立 Camera 類�
 class MainUi(QMainWindow):
     def __init__(self, video_src, preview_server, preview_fps, show_window):
         super().__init__()
-        cam = CV2Camera(video_src, preview_server, preview_fps, show_window=True)
-        cam.start()
+        self.setFixedSize(0, 0)
+        self.cam = CV2Camera(video_src, preview_server, preview_fps, show_window=True)
+        self.cam.start()
 
 def main(argv):
     if len(argv) != 5:
@@ -168,7 +170,7 @@ def main(argv):
     log.debug("preview_fps = %s", i_show_window)
 
     qt_app = QApplication(argv)
-    gui = MainUi(video_src, preview_server, i_preview_fps, show_window=True)
+    gui = MainUi(video_src, preview_server, i_preview_fps, True)
     gui.show()
     #cam = CV2Camera(video_src, preview_server, i_preview_fps, show_window=True)
 
