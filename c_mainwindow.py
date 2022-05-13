@@ -497,6 +497,8 @@ class MainUi(QMainWindow):
         self.lcd1602.add_data("LCD_TAG_PLAY_STATUS_INFO", d0_str, d1_str)
 
     def right_page_change_index(self, pre_idx, going_idx):
+        if pre_idx == going_idx:
+            return
         self.page_ui_mutex.lock()
         log.debug("")
         if pre_idx != page_hdmi_in_content_idx and going_idx == page_hdmi_in_content_idx:

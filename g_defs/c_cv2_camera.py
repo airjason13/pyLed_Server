@@ -97,6 +97,8 @@ class CV2Camera(QtCore.QThread):  # 繼承 QtCore.QThread 來建立 Camera 類�
                 log.debug("cam is still open %d", i)
             self.cam = None
         self.cam_mutex.unlock()
+        self.quit()
+
 
     '''def open(self):
         """ 開啟攝影機影像讀取功能 """

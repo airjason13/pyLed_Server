@@ -367,6 +367,10 @@ class Hdmi_In_Page(QObject):
             self.play_hdmi_in_finish_ret)
 
     def start_hdmi_in_preview(self):
+        if self.cv2camera is not None:
+            log.debug("cv2 camera is going to quit")
+            self.cv2camera.quit()
+            self.cv2camera = None
         # check previous ffmpeg cast process
         if self.ffmpy_hdmi_in_cast_process is not None:
             os.kill(self.ffmpy_hdmi_in_cast_process.pid, signal.SIGTERM)
@@ -416,10 +420,10 @@ class Hdmi_In_Page(QObject):
             self.cv2camera.close_tc358743_cam()
             self.cv2camera.close()  # 關閉
             # self.cv2camera.stop()  # 關閉
-            self.cv2camera.quit()
+            # self.cv2camera.quit()
             # self.cv2camera.wait()
             # self.cv2camera.close()  # 關閉
-            self.cv2camera = None
+            # self.cv2camera = None
 
         self.stop_hdmi_in_cast()
         if self.ffmpy_hdmi_in_cast_process is not None:
