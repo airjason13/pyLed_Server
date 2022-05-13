@@ -402,9 +402,9 @@ class Hdmi_In_Page(QObject):
 
             if self.ffmpy_hdmi_in_cast_process is not None:
 
-                preview_subprocess_cmd = "python3 /home/root/pyLedServer/c_cv2_camera.py /dev/video3 " + \
+                preview_subprocess_cmd = "/usr/bin/python3 /home/root/pyLedServer/c_cv2_camera.py /dev/video3 " + \
                                          self.hdmi_preview_srver.get_preview_server_full_name() + " " + "5" + " " + "1"
-                self.preview_subprocess = Popen(preview_subprocess_cmd)
+                self.preview_subprocess = Popen(preview_subprocess_cmd, shell=True, stdout=PIPE)
                 '''# self.ffmpy_hdmi_in_cast_pid = self.ffmpy_hdmi_in_cast_process.pid
                 if self.cv2camera is None:
                     self.cv2camera = CV2Camera(self.cv2_preview_v4l2_sink, self.hdmi_in_cast_type)
