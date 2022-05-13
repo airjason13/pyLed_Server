@@ -5,6 +5,7 @@ import sys
 from PyQt5 import QtCore
 from PyQt5.QtCore import QTimer, QMutex
 import utils.log_utils
+from PyQt5.QtWidgets import QApplication, QMainWindow
 
 log = utils.log_utils.logging_init(__file__)
 
@@ -145,6 +146,12 @@ class CV2Camera(QtCore.QThread):  # 繼承 QtCore.QThread 來建立 Camera 類�
         # self.hdmi_in_cast = b_value
 
 
+class MainUi(QMainWindow):
+    def __init__(self, video_src, preview_server, preview_fps, show_window):
+        super().__init__()
+        cam = CV2Camera(video_src, preview_server, preview_fps, show_window=True)
+        cam.start()
+
 def main(argv):
     if len(argv) != 5:
         log.debug("cv2 camera argv error!")
@@ -158,11 +165,13 @@ def main(argv):
     log.debug("preview_server = %s", preview_server)
     log.debug("preview_fps = %d", i_preview_fps)
     log.debug("preview_fps = %s", i_show_window)
-    if i_show_window == 1:
-        cam = CV2Camera(video_src, preview_server, i_preview_fps, show_window=True)
-    else:
-        cam = CV2Camera(video_src, preview_server, i_preview_fps, show_window=False)
-    cam.start()
+
+    qt_app = QApplication(argv)
+    gui = MainUi(argv)
+    gui.show()
+    #cam = CV2Camera(video_src, preview_server, i_preview_fps, show_window=True)
+
+    sys.exit(qt_app.exec_())
 
 
 if __name__ == "__main__":
