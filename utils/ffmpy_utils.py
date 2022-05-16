@@ -361,15 +361,16 @@ def neo_ffmpy_cast_video_h264(video_path, cast_dst, brightness, contrast, red_bi
     except RuntimeError as e:
         log.error(e)
 
-    log.debug("ff.process : %s", ff.process)
-    log.debug("ff.process pid : %d", ff.process.pid)
+    #log.debug("ff.process : %s", ff.process)
+    #log.debug("ff.process pid : %d", ff.process.pid)
     try:
         os.kill(ff.process.pid, 0)
     except:
         log.debug("ffmpy_hdmi_in_cast_process is gone")
         ff.process = None
     else:
-        log.debug("ffmpy_hdmi_in_cast_process is alive")
+        pass
+        #log.debug("ffmpy_hdmi_in_cast_process is alive")
     return ff.process
 
 

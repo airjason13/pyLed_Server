@@ -384,7 +384,7 @@ class media_processor(QObject):
         self.play_playlist_thread.exec()
 
     def hdmi_in_play(self, video_src, video_dst):
-        log.debug("%s", video_dst)
+        #log.debug("%s", video_dst)
 
         if self.play_hdmi_in_worker is not None:
             if self.play_hdmi_in_worker.get_task_status() == 1:
@@ -654,9 +654,10 @@ class media_processor(QObject):
                             if self.media_processor.play_status == play_status.pausing:
                                 os.kill(self.media_processor.ffmpy_process.pid, signal.SIGCONT)
                                 # time.sleep(1)
-                        os.kill(self.media_processor.ffmpy_process.pid, signal.SIGTERM)
-                        # time.sleep(1)
-                        log.debug("kill")
+                        if self.media_processor.ffmppy_process is not None:
+                            os.kill(self.media_processor.ffmpy_process.pid, signal.SIGTERM)
+                            # time.sleep(1)
+                            log.debug("kill")
                     except Exception as e:
                         log.debug(e)
 
@@ -707,7 +708,7 @@ class media_processor(QObject):
             self.media_processor = QObject
             self.video_src = video_src
             self.cast_dst = cast_dst
-            log.debug("cast_dst :%s", cast_dst)
+            #log.debug("cast_dst :%s", cast_dst)
             self.force_stop = False
             self.worker_status = 0
 
@@ -725,9 +726,10 @@ class media_processor(QObject):
                                 # time.sleep(1)
                             except Exception as e:
                                 log.debug(e)
-                        os.kill(self.media_processor.ffmpy_process.pid, signal.SIGTERM)
-                        # time.sleep(1)
-                        log.debug("kill")
+                        if self.media_processor.ffmpy_process is not None:
+                            os.kill(self.media_processor.ffmpy_process.pid, signal.SIGTERM)
+                            # time.sleep(1)
+                            log.debug("kill")
                     except Exception as e:
                         log.debug(e)
 

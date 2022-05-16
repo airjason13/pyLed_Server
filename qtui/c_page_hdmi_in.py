@@ -1,7 +1,7 @@
 import time
 
 from PyQt5 import QtWidgets
-from PyQt5.QtCore import QObject, Qt, QThread
+from PyQt5.QtCore import QObject, Qt, QThread, QMutex
 from PyQt5.QtGui import QPalette, QColor, QBrush, QFont, QImage
 from PyQt5.QtWidgets import QTreeWidget, QTableWidget, QWidget, QVBoxLayout, QTableWidgetItem, QAbstractItemView, \
                             QTreeWidgetItem, QPushButton, QHBoxLayout, QMenu, QAction
@@ -355,7 +355,11 @@ class Hdmi_In_Page(QObject):
         self.cv2camera = None
         self.preview_count = 0
         self.cv2_preview_v4l2_sink = None
-
+        self.video6_check_count = 0
+        self.cv2_check_count = 0
+        self.v4l2loopback_dev_open_count = 0
+        self.preview_mutex = QMutex()
+        self.preview_videosink_check_count = 0
         # self.ffmpy_hdmi_in_cast_pid = None
 
         self.tc358743 = TC358743()
@@ -367,6 +371,13 @@ class Hdmi_In_Page(QObject):
             self.play_hdmi_in_finish_ret)
 
     def start_hdmi_in_preview(self):
+        self.preview_mutex.lock()
+        if self.preview_status is True:
+            log.debug("self.preview_status is True")
+            self.preview_mutex.unlock()
+
+            return
+        # p = Popen("modprobe v4l2loopback video_nr=3,4,5,6", shell=True, stdout=PIPE)
         if self.cv2camera is not None:
             log.debug("cv2 camera is going to quit")
             self.cv2camera.quit()
@@ -384,11 +395,6 @@ class Hdmi_In_Page(QObject):
                 k.close()
 
         if self.tc358743.hdmi_connected is False:
-            # 這方法不行,會有其他線程影響,得改用Timer或是其他
-            # 故意讓cv2 重開
-            # self.cv2camera.set_hdmi_in_cast(False)
-            # self.cv2camera.open()  # 影像讀取功能開啟
-            # self.cv2camera.start()  # 在子緒啟動影像讀取
             pass
         else:
             if self.ffmpy_hdmi_in_cast_process is None:
@@ -399,6 +405,17 @@ class Hdmi_In_Page(QObject):
 
             if self.ffmpy_hdmi_in_cast_process is not None:
                 # self.ffmpy_hdmi_in_cast_pid = self.ffmpy_hdmi_in_cast_process.pid
+                
+                preview_videosink_check_count = 0
+                for i in range(100):
+                    video_src_ok = self.check_video_src_is_ok(self.cv2_preview_v4l2_sink)
+                    preview_videosink_check_count = i
+                    if video_src_ok == 0:
+                        # log.debug("check /dev/video6 status count : %d", i)
+                        break
+                if preview_videosink_check_count > self.preview_videosink_check_count:
+                    self.preview_videosink_check_count = preview_videosink_check_count
+                    log.debug("self.preview_videosink_check_count = %d", self.preview_videosink_check_count)
                 if self.cv2camera is None:
                     self.cv2camera = CV2Camera(self.cv2_preview_v4l2_sink, self.hdmi_in_cast_type)
                     self.cv2camera.signal_get_rawdata.connect(self.getRaw)
@@ -408,6 +425,8 @@ class Hdmi_In_Page(QObject):
                 self.cv2camera.start()  # 在子緒啟動影像讀取
                 # self.cv2camera.exec()
                 self.cv2camera.set_hdmi_in_cast(True)
+                self.preview_status = True
+        self.preview_mutex.unlock()
 
         if self.ffmpy_hdmi_in_cast_process is not None:
             self.cast_pid_label.setText("ff cast pid:" + str(self.ffmpy_hdmi_in_cast_process.pid))
@@ -416,16 +435,37 @@ class Hdmi_In_Page(QObject):
 
     def stop_hdmi_in_preview(self):
         log.debug("")
+        self.preview_mutex.lock()
         if self.cv2camera is not None:
             self.cv2camera.close_tc358743_cam()
             self.cv2camera.close()  # 關閉
-            # self.cv2camera.stop()  # 關閉
-            # self.cv2camera.quit()
-            # self.cv2camera.wait()
-            # self.cv2camera.close()  # 關閉
-            # self.cv2camera = None
+        log.debug("start to check cv2camera status")
+        cv2_check_count = 0
 
+        while True:
+            time.sleep(0.5)
+            if self.cv2camera.isRunning() == 0 and self.cv2camera.isFinished() == 1:
+                # pass
+                self.cv2camera.quit()
+                self.cv2camera = None
+                break
+            else:
+                cv2_check_count += 1
+                if cv2_check_count > 100:
+                    log.fatal("cv2 hang")
+                    log.debug("self.cv2_check_count :%d", self.cv2_check_count)
+                    log.debug("max /dev/video6 status count : %d", self.video6_check_count)
+                    exit(0)
+                # log.debug("cv2 is running: %d", self.cv2camera.isRunning())
+                # log.debug("cv2 is Finished: %d", self.cv2camera.isFinished())
+        if cv2_check_count > self.cv2_check_count:
+            self.cv2_check_count = cv2_check_count
+        log.debug("self.cv2_check_count :%d", self.cv2_check_count)
         self.stop_hdmi_in_cast()
+        # p = Popen("modprobe -rf v4l2loopback", shell=True, stdout=PIPE)
+        self.preview_status = False
+        self.preview_mutex.unlock()
+
         if self.ffmpy_hdmi_in_cast_process is not None:
             self.cast_pid_label.setText("ff cast pid:" + str(self.ffmpy_hdmi_in_cast_process.pid))
         else:
@@ -626,17 +666,36 @@ class Hdmi_In_Page(QObject):
 
     def start_send_to_led(self):
         video_src_ok = -1
-        for i in range(10):
+        video6_check_count = 0
+        for i in range(100):
             video_src_ok = self.check_video_src_is_ok("/dev/video6")
-
+            video6_check_count = i
             if video_src_ok == 0:
+                # log.debug("check /dev/video6 status count : %d", i)
                 break
-
+        if video6_check_count > self.video6_check_count:
+            self.video6_check_count = video6_check_count
+        self.v4l2loopback_dev_open_count += 1
+        log.debug("check /dev/video6 status count : %d", video6_check_count)
+        log.debug("max /dev/video6 status count : %d", self.video6_check_count)
+        log.debug("v4l2loopback device open count: %d", self.v4l2loopback_dev_open_count)
         if video_src_ok != 0: # /dev/video6 is not ok!
             log.fatal("video_src got some problems")
-            log.debug("re-start preview in v4l2")
+            # log.debug("re-start preview in v4l2")
+            # check ffmpy hdmi-in cast process
+            '''if self.cv2camera is not None:
+                self.cv2camera.close_tc358743_cam()
+                self.cv2camera.close()  # 關閉
+            while True:
+                if self.cv2camera.isRunning() == 0 and self.cv2camera.isFinished() == 1:
+                    # pass
+                    break
+                else:
+                    log.debug("cv2 is running: %d", self.cv2camera.isRunning())
+                    log.debug("cv2 is Finished: %d", self.cv2camera.isFinished())
+            
             self.stop_hdmi_in_cast()
-            self.start_hdmi_in_preview()
+            self.start_hdmi_in_preview()'''
             return
         self.media_engine.stop_play()
         if self.media_engine.media_processor.play_hdmi_in_worker is None:
@@ -796,16 +855,17 @@ class Hdmi_In_Page(QObject):
         p = Popen(cmd, shell=True, stdout=PIPE, stderr=PIPE)
         ffprobe_stdout, ffprobe_stderr = p.communicate()
 
-        log.debug("++++++++++++")
+        '''log.debug("++++++++++++")
         log.debug("ffprobe_stdout : %s", ffprobe_stdout.decode())
         log.debug("ffprobe_stderr : %s", ffprobe_stderr.decode())
-        log.debug("------------")
+        log.debug("------------")'''
         p.kill()
         if "Stream" in ffprobe_stderr.decode():
             log.debug("%s is ready", video_src)
             res = 0
         else:
-            log.debug("%s is not ready", video_src)
+            pass
+            # log.debug("%s is not ready", video_src)
 
         return res
 

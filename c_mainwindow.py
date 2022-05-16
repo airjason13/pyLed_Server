@@ -201,7 +201,7 @@ class MainUi(QMainWindow):
         # QTimer.singleShot(5000, self.demo_start_hdmi_in)
         # QTimer.singleShot(5000, self.demo_start_playlist)
         # self.select_preview_v4l2_device()
-
+        utils.file_utils.find_ffmpeg_process()
 
     def demo_start_hdmi_in(self):
         self.func_hdmi_in_contents()
@@ -497,8 +497,8 @@ class MainUi(QMainWindow):
         self.lcd1602.add_data("LCD_TAG_PLAY_STATUS_INFO", d0_str, d1_str)
 
     def right_page_change_index(self, pre_idx, going_idx):
-        if pre_idx == going_idx:
-            return
+        '''if pre_idx == going_idx:
+            return'''
         self.page_ui_mutex.lock()
         log.debug("")
         if pre_idx != page_hdmi_in_content_idx and going_idx == page_hdmi_in_content_idx:

@@ -1,10 +1,12 @@
 import cv2
 import numpy as np
 import time
+import os
 from PyQt5 import QtCore
 from PyQt5.QtCore import QTimer, QMutex
 import utils.log_utils
-
+import ctypes
+import utils.file_utils
 log = utils.log_utils.logging_init(__file__)
 
 
@@ -37,6 +39,7 @@ class CV2Camera(QtCore.QThread):  # 繼承 QtCore.QThread 來建立 Camera 類�
         self.force_quit = False
         self.cam = None
         self.cam_mutex = QMutex()
+        self.release_cam = False
 
     def run(self):
         """ 執行多執行緒
@@ -44,53 +47,79 @@ class CV2Camera(QtCore.QThread):  # 繼承 QtCore.QThread 來建立 Camera 類�
             - 發送影像
             - 簡易異常處理
         """
+        os.environ['OPENCV_VIDEO_PRIORITY_MSMF'] = '0'
         log.debug("start to run")
         log.debug("self.video_src = %s", self.video_src)
-        self.cam = cv2.VideoCapture(self.video_src)
+        try:
+            self.cam = cv2.VideoCapture(self.video_src, cv2.CAP_V4L2)
+        except Exception as e:
+            log.fatal(e)
 
         # 當正常連接攝影機才能進入迴圈
         # while self.running and self.connect:
         # while True:
 
+        no_frame_read_count = 0
         while True:
-
             self.cam_mutex.lock()
+            ret = False
             try:
                 if self.cam is None:
                     log.debug("self.cam is None")
                     self.cam_mutex.unlock()
                     break
-
-                if self.force_quit is True:
-                    log.debug("self.force_quit")
-                    self.cam_mutex.unlock()
-                    break
                 ret, img = self.cam.read()    # 讀取影像
-
-                if ret:
-                    self.preview_frame_count += 1
-                    if self.preview_frame_count % 5 == 0:
-                        self.signal_get_rawdata.emit(img)    # 發送影像
-                else:    # 例外處理
-                    log.debug("No frame read!!!")
-                    # self.connect = False
-                    # self.hdmi_in_cast = False
+                
+                if self.release_cam is True:
+                    log.debug("cv2 release cam")
                     self.cam.release()
                     for i in range(50):
                         if self.cam.isOpened() is False:
                             break
                         log.debug("cam is still open %d", i)
                     self.cam = None
+                    self.cam_mutex.unlock()
+                    break
+
+                if ret:
+                    no_frame_read_count = 0
+                    self.preview_frame_count += 1
+                    if self.preview_frame_count % 10 == 0:
+                        # img = cv2.resize(img, (320, 240))
+                        self.signal_get_rawdata.emit(img)    # 發送影像
+                        self.preview_frame_count = 0
+                else:    # 例外處理
+                    # log.debug("No frame read @%s", self.video_src)
+                    no_frame_read_count += 1
+                    if no_frame_read_count > 5:
+                        log.debug("No frame read @%s", self.video_src)
+                        # utils.file_utils.find_ffmpeg_process()
+                        # test release cam
+                        # self.release_cam = True
+
+
+                    # self.connect = False
+                    # self.hdmi_in_cast = False
+                    '''self.cam.release()
+                    for i in range(50):
+                        if self.cam.isOpened() is False:
+                            break
+                        log.debug("cam is still open %d", i)
+                    self.cam = None'''
                     # self.signal_cv2_read_fail.emit()
             except Exception as e:
                 log.debug(e)
-            finally:
+            finally: 
                 self.cam_mutex.unlock()
             time.sleep(0.1)
         log.debug("stop to run")
         self.cam_mutex.lock()
         if self.cam is not None:
-            self.cam.release()
+            try:
+                self.cam.release()
+            except Exception as e:
+                log.fatal(e)
+
             for i in range(50):
                 if self.cam.isOpened() is False:
                     break
@@ -113,7 +142,8 @@ class CV2Camera(QtCore.QThread):  # 繼承 QtCore.QThread 來建立 Camera 類�
     def close(self):
         """ 關閉攝影機功能 """
         self.cam_mutex.lock()
-        if self.cam is not None:
+        self.release_cam = True
+        '''if self.cam is not None:
             self.cam.release()      # 釋放攝影機
 
             for i in range(50):
@@ -121,9 +151,9 @@ class CV2Camera(QtCore.QThread):  # 繼承 QtCore.QThread 來建立 Camera 類�
                     break
                 log.debug("cam is still open %d", i)
 
-            self.cam = None
+            self.cam = None'''
         self.cam_mutex.unlock()
-        self.force_quit = True
+        # self.force_quit = True
 
     def fps_counter(self):
         self.fps = self.preview_frame_count
@@ -143,13 +173,15 @@ class CV2Camera(QtCore.QThread):  # 繼承 QtCore.QThread 來建立 Camera 類�
 
     def close_tc358743_cam(self):
         self.cam_mutex.lock()
-        if self.cam is not None:
+        self.release_cam = True
+
+        """if self.cam is not None:
             self.cam.release()
             for i in range(50):
                 if self.cam.isOpened() is False:
                     break
                 log.debug("cam is still open %d", i)
-            self.cam = None
+            self.cam = None"""
         self.cam_mutex.unlock()
 
     def set_hdmi_in_cast(self, b_value):

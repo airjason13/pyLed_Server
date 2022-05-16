@@ -5,7 +5,7 @@ import pyudev
 import psutil
 import pyinotify
 from global_def import *
-
+from subprocess import Popen, PIPE
 from subprocess import check_output, CalledProcessError
 
 log = utils.log_utils.logging_init(__file__)
@@ -160,3 +160,10 @@ def get_text_content():
         log.debug("%s", e)
     log.debug("text_content = %s", text_content)
     return text_content
+
+def find_ffmpeg_process():
+    p = Popen("pgrep ffmpeg -a", shell=True, stdout=PIPE, stderr=PIPE)
+    p_stdout, p_stderr=p.communicate()
+    log.debug("p_stdout: %s", p_stdout.decode())
+    log.debug("p_stderr:%s", p_stderr.decode())
+

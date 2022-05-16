@@ -13,6 +13,9 @@ import logging
 from flask import Flask
 from application_plugin import *
 from threading import Thread
+import faulthandler
+
+faulthandler.enable()
 
 app = Flask(__name__)
 from routes import *
@@ -32,6 +35,9 @@ def sighandler(signum, frame):
 if __name__ == '__main__':
     log = utils.log_utils.logging_init(__file__)
     log.info('Main')
+
+    with open("/home/root/crash.log", encoding="utf8") as f:
+        faulthandler.dump_traceback(f, all_threads=True)
 
     sys.setrecursionlimit(100000)
 
