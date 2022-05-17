@@ -1,7 +1,7 @@
 import time
 
 from PyQt5 import QtWidgets
-from PyQt5.QtCore import QObject, Qt, QThread, QMutex
+from PyQt5.QtCore import QObject, Qt, QThread, QMutex, QTimer
 from PyQt5.QtGui import QPalette, QColor, QBrush, QFont, QImage
 from PyQt5.QtWidgets import QTreeWidget, QTableWidget, QWidget, QVBoxLayout, QTableWidgetItem, QAbstractItemView, \
                             QTreeWidgetItem, QPushButton, QHBoxLayout, QMenu, QAction
@@ -360,7 +360,11 @@ class Hdmi_In_Page(QObject):
         self.v4l2loopback_dev_open_count = 0
         self.preview_mutex = QMutex()
         self.preview_videosink_check_count = 0
-        # self.ffmpy_hdmi_in_cast_pid = None
+        self.check_tc358743_interval = 2000
+        self.check_tc358743_timer = QTimer(self)
+        self.check_tc358743_timer.timeout.connect(self.check_tc358743_timer_event)
+        self.going_to_open_preview = False # 如果True則表示目前頁面處於hdmi-in, 因為一進來hdmi-in頁面就要開始preview
+        self.check_tc358743_timer.start(self.check_tc358743_interval)
 
         self.tc358743 = TC358743()
         self.tc358743.signal_refresh_tc358743_param.connect(self.refresh_tc358743_param)
@@ -370,12 +374,30 @@ class Hdmi_In_Page(QObject):
         self.media_engine.media_processor.signal_play_hdmi_in_finish_ret.connect(
             self.play_hdmi_in_finish_ret)
 
+    def check_tc358743_timer_event(self):
+
+        self.preview_mutex.lock()
+        if self.going_to_open_preview is False:
+            log.debug("Not in hdmi-in page")
+            self.preview_mutex.unlock()
+            return
+        tmp_preview_status = self.preview_status
+        self.preview_mutex.unlock()
+        if tmp_preview_status is True:
+            if self.tc358743.get_tc358743_hdmi_connected_status() is False:
+                self.stop_hdmi_in_preview()
+        else:
+            if self.tc358743.get_tc358743_hdmi_connected_status() is True:
+                self.start_hdmi_in_preview()
+
+
     def start_hdmi_in_preview(self):
         self.preview_mutex.lock()
+
+        self.going_to_open_preview = True
         if self.preview_status is True:
             log.debug("self.preview_status is True")
             self.preview_mutex.unlock()
-
             return
         # p = Popen("modprobe v4l2loopback video_nr=3,4,5,6", shell=True, stdout=PIPE)
         if self.cv2camera is not None:
@@ -389,7 +411,8 @@ class Hdmi_In_Page(QObject):
             # find any ffmpeg process
             p = os.popen("pgrep ffmpeg").read()
             log.debug("pgrep ffmpeg, res = %s", p)
-            if p is not None:
+            log.debug("p.len() = %d", len(p))
+            if len(p) != 0:
                 log.fatal("still got ffmpeg process")
                 k = os.popen("pkill ffmpeg")
                 k.close()
@@ -436,6 +459,8 @@ class Hdmi_In_Page(QObject):
     def stop_hdmi_in_preview(self):
         log.debug("")
         self.preview_mutex.lock()
+        self.going_to_open_preview = False
+
         if self.cv2camera is not None:
             self.cv2camera.close_tc358743_cam()
             self.cv2camera.close()  # 關閉
