@@ -363,7 +363,7 @@ class Hdmi_In_Page(QObject):
         self.check_tc358743_interval = 2000
         self.check_tc358743_timer = QTimer(self)
         self.check_tc358743_timer.timeout.connect(self.check_tc358743_timer_event)
-        self.going_to_open_preview = False # 如果True則表示目前頁面處於hdmi-in, 因為一進來hdmi-in頁面就要開始preview
+        # self.going_to_open_preview = False # 如果True則表示目前頁面處於hdmi-in, 因為一進來hdmi-in頁面就要開始preview
         self.check_tc358743_timer.start(self.check_tc358743_interval)
 
         self.tc358743 = TC358743()
@@ -377,7 +377,7 @@ class Hdmi_In_Page(QObject):
     def check_tc358743_timer_event(self):
 
         self.preview_mutex.lock()
-        if self.going_to_open_preview is False:
+        if self.mainwindow.page_idx != page_hdmi_in_content_idx:
             log.debug("Not in hdmi-in page")
             self.preview_mutex.unlock()
             return
@@ -394,7 +394,7 @@ class Hdmi_In_Page(QObject):
     def start_hdmi_in_preview(self):
         self.preview_mutex.lock()
 
-        self.going_to_open_preview = True
+
         if self.preview_status is True:
             log.debug("self.preview_status is True")
             self.preview_mutex.unlock()
@@ -459,7 +459,6 @@ class Hdmi_In_Page(QObject):
     def stop_hdmi_in_preview(self):
         log.debug("")
         self.preview_mutex.lock()
-        self.going_to_open_preview = False
 
         if self.cv2camera is not None:
             self.cv2camera.close_tc358743_cam()
@@ -468,7 +467,7 @@ class Hdmi_In_Page(QObject):
         cv2_check_count = 0
 
         while True:
-            time.sleep(0.5)
+            time.sleep(0.05)
             if self.cv2camera.isRunning() == 0 and self.cv2camera.isFinished() == 1:
                 # pass
                 self.cv2camera.quit()
@@ -476,11 +475,11 @@ class Hdmi_In_Page(QObject):
                 break
             else:
                 cv2_check_count += 1
-                if cv2_check_count > 100:
+                if cv2_check_count > 10:
                     log.fatal("cv2 hang")
                     log.debug("self.cv2_check_count :%d", self.cv2_check_count)
                     log.debug("max /dev/video6 status count : %d", self.video6_check_count)
-                    exit(0)
+                    break
                 # log.debug("cv2 is running: %d", self.cv2camera.isRunning())
                 # log.debug("cv2 is Finished: %d", self.cv2camera.isFinished())
         if cv2_check_count > self.cv2_check_count:
