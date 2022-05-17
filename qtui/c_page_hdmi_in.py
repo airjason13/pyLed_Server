@@ -32,6 +32,10 @@ class Hdmi_In_Page(QObject):
         self.preview_status = False
         self.b_hdmi_in_crop_enable = False
 
+        Popen("v4l2-ctl -d /dev/video3 -c timeout=600", shell=True, stdout=PIPE)
+        Popen("v4l2-ctl -d /dev/video4 -c timeout=600", shell=True, stdout=PIPE)
+        Popen("v4l2-ctl -d /dev/video5 -c timeout=600", shell=True, stdout=PIPE)
+
         self.hdmi_in_widget = QWidget(self.mainwindow.right_frame)
         self.hdmi_in_layout = QVBoxLayout()
         self.hdmi_in_widget.setLayout(self.hdmi_in_layout)

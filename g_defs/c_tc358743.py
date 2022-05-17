@@ -70,7 +70,7 @@ class TC358743(QObject):
 		connected = False
 		dv_timings = os.popen("v4l2-ctl --query-dv-timings").read()
 		list_dv_timings = dv_timings.split("\n")
-		log.debug("list_dv_timings=%s", list_dv_timings)
+		# log.debug("list_dv_timings=%s", list_dv_timings)
 		if 'fail' in list_dv_timings[0]:
 			log.debug("not connected")
 			connected = False

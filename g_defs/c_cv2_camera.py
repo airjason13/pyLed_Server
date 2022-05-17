@@ -48,6 +48,7 @@ class CV2Camera(QtCore.QThread):  # 繼承 QtCore.QThread 來建立 Camera 類�
             - 簡易異常處理
         """
         os.environ['OPENCV_VIDEO_PRIORITY_MSMF'] = '0'
+        os.environ['OPENCV_V4L2_CAPTURE_OPTION'] = 'timeout:10'
         log.debug("start to run")
         log.debug("self.video_src = %s", self.video_src)
         try:
