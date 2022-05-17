@@ -95,7 +95,7 @@ class CV2Camera(QtCore.QThread):  # 繼承 QtCore.QThread 來建立 Camera 類�
                         log.debug("No frame read @%s", self.video_src)
                         # utils.file_utils.find_ffmpeg_process()
                         # test release cam
-                        # self.release_cam = True
+                        self.release_cam = True
 
 
                     # self.connect = False
