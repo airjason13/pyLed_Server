@@ -388,6 +388,8 @@ class Hdmi_In_Page(QObject):
                 self.stop_hdmi_in_preview()
         else:
             if self.tc358743.get_tc358743_hdmi_connected_status() is True:
+                if self.tc358743.set_tc358743_dv_bt_timing() is True:
+                    self.tc358743.reinit_tc358743_dv_timing()
                 self.start_hdmi_in_preview()
 
 
