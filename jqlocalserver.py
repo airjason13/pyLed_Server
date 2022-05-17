@@ -15,6 +15,7 @@ def get_server_name():
 
 class Server(QtNetwork.QLocalServer):
     dataReceived = QtCore.pyqtSignal(object)
+
     def __init__(self):
         super().__init__()
         if self.isListening():
@@ -37,6 +38,8 @@ class Server(QtNetwork.QLocalServer):
             if socket.waitForReadyRead(2000):
                 data = json.loads(str(socket.readAll().data(), 'utf-8'))
                 # log.debug("data : %s", data)
+                socket.write("OK".encode())
+                socket.flush()
                 socket.disconnectFromServer()
             socket.deleteLater()
         if 'shutdown' in data:
@@ -46,3 +49,5 @@ class Server(QtNetwork.QLocalServer):
         else:
             # log.debug("data : %s", data)
             self.dataReceived.emit(data)
+
+

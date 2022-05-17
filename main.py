@@ -28,16 +28,13 @@ from routes import *
 #    return render_template('index.html')
 
 def sighandler(signum, frame):
-    log.fatal("Caough signal %d", signum)
+    log.fatal("Catch signal %d", signum)
     traceback.print_stack(frame)
 
 
 if __name__ == '__main__':
     log = utils.log_utils.logging_init(__file__)
     log.info('Main')
-
-    with open("/home/root/crash.log", encoding="utf8") as f:
-        faulthandler.dump_traceback(f, all_threads=True)
 
     sys.setrecursionlimit(100000)
 
