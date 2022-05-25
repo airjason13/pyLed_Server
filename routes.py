@@ -264,6 +264,10 @@ def route_get_thumbnail(filename):
     return send_from_directory(internal_media_folder + ThumbnailFileFolder, filename, as_attachment=True)
 
 
+@app.route("/test_page")
+def test_page():
+    return render_template("test_page.html")
+
 @app.route("/")
 def index():
     maps = find_file_maps()

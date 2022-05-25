@@ -1,0 +1,48 @@
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static',    filename='test_page.css') }}" xmlns="http://www.w3.org/1999/html">
+
+<!--防右鍵-->
+<script>
+document.oncontextmenu = new Function("return false");
+oncontextmenu="return false;"
+</script>
+
+<script src="https://cdn.bootcss.com/jquery/1.10.2/jquery.min.js"></script>
+<script>window.jQuery || document.write('<script src="static/jquery.min.js"><\/script>')</script>
+<script src="static/script.js" defer></script>
+
+
+
+<body>
+    <div class="logo">
+        <h1>GIS LED Test</h1>
+    </div>
+    <div >
+    <div class="colortest">
+        <span id="RedRangeValue">0</span>
+        <Input class="range" type="range" name="" value="0" min="0" max="255" onChange="RedRangeSlide(this.value)"
+               onmousemove="RedRangeSlide(this.value)"></Input>
+        <span id="GreenRangeValue">0</span>
+        <Input class="range" type="range" name="" value="0" min="0" max="255" onChange="GreenRangeSlide(this.value)"
+               onmousemove="GreenRangeSlide(this.value)"></Input>
+        <span id="BlueRangeValue">0</span>
+        <Input class="range" type="range" name="" value="0" min="0" max="255" onChange="BlueRangeSlide(this.value)"
+               onmousemove="BlueRangeSlide(this.value)"></Input>
+    </div>
+    </div>
+    <script type="text/javascript">
+        function RedRangeSlide(value) {
+            document.getElementById('RedRangeValue').innerHTML = value;
+        }
+        function GreenRangeSlide(value) {
+            document.getElementById('GreenRangeValue').innerHTML = value;
+        }
+        function BlueRangeSlide(value) {
+            document.getElementById('BlueRangeValue').innerHTML = value;
+        }
+    </script>
+</body>
+
+
+{% endblock %}

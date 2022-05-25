@@ -382,7 +382,7 @@ class Hdmi_In_Page(QObject):
 
         self.preview_mutex.lock()
         if self.mainwindow.page_idx != page_hdmi_in_content_idx:
-            log.debug("Not in hdmi-in page")
+            # log.debug("Not in hdmi-in page")
             self.preview_mutex.unlock()
             return
         tmp_preview_status = self.preview_status
