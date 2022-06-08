@@ -39,7 +39,7 @@ oncontextmenu="return false;"
             Start Test
         </button>
         <button class="button-84" id="btn_stop_test" value="StopTest"
-                role="button" onclick="submit_set_color()" >
+                role="button" onclick="stop_set_color()" >
             Stop Test
         </button>
     </div>
@@ -64,7 +64,7 @@ oncontextmenu="return false;"
               val.value = 255;
             }
             redrangeslider = document.getElementById("RedRangeSlider");
-            redrangeslider.value = val.value
+            redrangeslider.value = val.value;
             document.getElementById('RedRangeValue').innerHTML = val.value;
         }
         function GreenChangeHandler(val)
@@ -73,7 +73,7 @@ oncontextmenu="return false;"
               val.value = 255;
             }
             greenrangeslider = document.getElementById("GreenRangeSlider");
-            greenrangeslider.value = val.value
+            greenrangeslider.value = val.value;
             document.getElementById('GreenRangeValue').innerHTML = val.value;
         }
         function BlueChangeHandler(val)
@@ -82,8 +82,19 @@ oncontextmenu="return false;"
               val.value = 255;
             }
             bluerangeslider = document.getElementById("BlueRangeSlider");
-            bluerangeslider.value = val.value
+            bluerangeslider.value = val.value;
             document.getElementById('BlueRangeValue').innerHTML = val.value;
+        }
+        function submit_set_color(){
+            var red_value = document.getElementById('RedRangeValue').innerHTML;
+            var green_value = document.getElementById('GreenRangeValue').innerHTML;
+            var blue_value = document.getElementById('BlueRangeValue').innerHTML;
+            var color_value = (red_value) << 16 | (green_value) << 8 | (blue_value);
+            alert("color_value :" + color_value);
+            var url = "/start_color_test/" + color_value;
+            $.post(url, {
+                        javascript_data: color_value
+                    });
         }
     </script>
 </body>

@@ -634,6 +634,13 @@ class MainUi(QMainWindow):
                 c.send_cmd(cmd_set_frame_brightness,
                            self.cmd_seq_id_increase(),
                            str(self.media_engine.media_processor.video_params.frame_brightness))
+        elif data.get("start_color_test"):
+            log.debug("start_color_test")
+            clients = self.clients
+            for c in clients:
+                c.send_cmd(cmd_set_test_color,
+                           self.cmd_seq_id_increase(),
+                           int(data.get("start_color_test")))
 
     def check_client(self, ip, data):
         is_found = False

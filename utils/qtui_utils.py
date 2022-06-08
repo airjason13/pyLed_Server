@@ -284,9 +284,9 @@ def gen_led_cabinet_pixmap_with_cabinet_params(c_params, margin=0,
                                   margin + int(c_params.cabinet_width/scale_factor), margin + line_interval)
         elif c_params.layout_type == 1:
             if c_params.cabinet_height % 2 == 0:
-                pixmap_paint.drawLine(margin, margin + i - line_interval,
+                pixmap_paint.drawLine(int(margin), int(margin + i - line_interval),
                                       margin + int(c_params.cabinet_width / scale_factor), margin + i )
-                pixmap_paint.drawLine(margin, margin + i + (line_interval),
+                pixmap_paint.drawLine(int(margin), int(margin + i + (line_interval)),
                                       margin + int(c_params.cabinet_width / scale_factor), margin + i )
             elif c_params.cabinet_height % 2 == 1:
                 pixmap_paint.drawLine(margin + ((c_params.cabinet_width - 1) * scale_factor ) , margin + i - line_interval,

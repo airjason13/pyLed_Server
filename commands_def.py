@@ -19,5 +19,6 @@ cmd_set_frame_gamma = 'set_frame_gamma'
 cmd_set_led_blank = 'set_led_blank'
 cmd_set_pixel_interval = 'set_pixel_interval'
 cmd_set_client_id = 'set_client_id'
-
+'''test mode'''
+cmd_set_test_color = 'set_test_color'
 cmd_spec_test = 'spec_test'

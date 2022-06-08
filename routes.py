@@ -230,6 +230,12 @@ def set_text_period(period):
     status_code = Response(status=200)
     return status_code
 
+@app.route('/start_color_test/<data>', methods=['POST'])
+def start_color_test(data):
+    send_message(start_color_test=data)
+    status_code = Response(status=200)
+    return status_code
+
 
 @app.route('/play_text/<data>', methods=['POST'])
 def play_text(data):
