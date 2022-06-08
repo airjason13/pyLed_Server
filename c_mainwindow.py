@@ -640,7 +640,15 @@ class MainUi(QMainWindow):
             for c in clients:
                 c.send_cmd(cmd_set_test_color,
                            self.cmd_seq_id_increase(),
-                           int(data.get("start_color_test")))
+                           str(data.get("start_color_test")))
+        elif data.get("stop_color_test"):
+            log.debug("stop_color_test")
+            clients = self.clients
+            for c in clients:
+                c.send_cmd(cmd_set_test_color,
+                           self.cmd_seq_id_increase(),
+                           str(data.get("stop_color_test")))
+
 
     def check_client(self, ip, data):
         is_found = False
