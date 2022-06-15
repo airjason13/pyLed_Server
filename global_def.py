@@ -1,14 +1,31 @@
 import enum
 import platform
+import os
 """Software version"""
 version = "LS22051201"
+
+def get_led_role():
+    if os.path.exists("/home/root/led_role.conf"):
+        with open('/home/root/led_role.conf') as f:
+            lines = f.readlines()
+        if "AIO" in lines:
+            led_role = "AIO"
+    else:
+        led_role = "Server"
+    return led_role
 
 """Network relative"""
 multicast_group = "239.11.11.11"
 server_broadcast_port = 11334
 server_broadcast_message = "ABCDE;Server:192.168.0.3;Cmd_Port:11335;Alive_Port:11333"
 alive_report_port = 11333
-udp_sink = "udp://239.11.11.11:15000"
+if "Server" in get_led_role():
+    udp_sink = "udp://239.11.11.11:15000"
+elif "AIO" in get_led_role():
+    udp_sink = "udp://127.0.0.1:15000"
+else:
+    udp_sink = "udp://239.11.11.11:15000"
+
 local_sink = "udp://127.0.0.1:15001"
 cv2_preview_h264_sink = "udp://127.0.0.1:10011"
 cv2_preview_v4l2_sink = "/dev/video5"

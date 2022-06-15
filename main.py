@@ -20,12 +20,7 @@ faulthandler.enable()
 app = Flask(__name__)
 from routes import *
 
-#app_ = Flask(__name__)
-#from routes import *
-#   setting our root
-#@app_.route('/')
-#def index():
-#    return render_template('index.html')
+
 
 def sighandler(signum, frame):
     log.fatal("Catch signal %d", signum)
@@ -40,6 +35,8 @@ if __name__ == '__main__':
 
     global_debug_level = logging.FATAL
     utils.log_utils.set_logging_level(global_debug_level)
+
+
 
     '''Insert signal handler'''
     signal.signal(signal.SIGSEGV, sighandler)
