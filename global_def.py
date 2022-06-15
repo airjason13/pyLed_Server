@@ -1,17 +1,21 @@
 import enum
 import platform
 import os
+from pathlib import Path
 """Software version"""
 version = "LS22051201"
 
 def get_led_role():
-    if os.path.exists("/home/root/led_role.conf"):
-        with open('/home/root/led_role.conf') as f:
-            lines = f.readlines()
-        if "AIO" in lines:
-            led_role = "AIO"
+    led_role = "Server"
+    
+    if os.path.exists("/home/root/AIO_now"):
+        print("AIO")
+        led_role = "AIO"
+        print("Aled_role = ", led_role)
+        return led_role
     else:
         led_role = "Server"
+    print("Bled_role = ", led_role)
     return led_role
 
 """Network relative"""
@@ -21,10 +25,20 @@ server_broadcast_message = "ABCDE;Server:192.168.0.3;Cmd_Port:11335;Alive_Port:1
 alive_report_port = 11333
 if "Server" in get_led_role():
     udp_sink = "udp://239.11.11.11:15000"
+    if platform.machine() in ('arm', 'arm64', 'aarch64'):
+        localaddr = "192.168.0.3"
+    else:
+        localaddr = "192.168.0.2"
+
 elif "AIO" in get_led_role():
     udp_sink = "udp://127.0.0.1:15000"
+    localaddr = "127.0.0.1"
 else:
     udp_sink = "udp://239.11.11.11:15000"
+    if platform.machine() in ('arm', 'arm64', 'aarch64'):
+        localaddr = "192.168.0.3"
+    else:
+        localaddr = "192.168.0.2"
 
 local_sink = "udp://127.0.0.1:15001"
 cv2_preview_h264_sink = "udp://127.0.0.1:10011"
