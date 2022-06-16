@@ -279,9 +279,9 @@ def gen_led_cabinet_pixmap_with_cabinet_params(c_params, margin=0,
         '''draw arrow'''
         if c_params.layout_type == 0:
             pixmap_paint.drawLine(margin, margin ,
-                                  margin + int(c_params.cabinet_width/scale_factor), margin + line_interval)
-            pixmap_paint.drawLine(margin, margin + (2*line_interval),
-                                  margin + int(c_params.cabinet_width/scale_factor), margin + line_interval)
+                                  margin + int(c_params.cabinet_width/scale_factor), int(margin + line_interval))
+            pixmap_paint.drawLine(margin, int(margin + (2*line_interval)),
+                                  margin + int(c_params.cabinet_width/scale_factor), int(margin + line_interval))
         elif c_params.layout_type == 1:
             if c_params.cabinet_height % 2 == 0:
                 pixmap_paint.drawLine(int(margin), int(margin + i - line_interval),
