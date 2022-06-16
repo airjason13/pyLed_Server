@@ -32,7 +32,7 @@ function play(data){
     /*alert(data );*/
     var url = "/play/" + data;
     $.post(url, {
-        javascript_data: data
+        /*javascript_data: data*/
         });
 }
 
@@ -40,7 +40,7 @@ function play_playlist(data){
     /*alert(data );*/
     var url = "/play_playlist/" + data;
     $.post(url, {
-        javascript_data: data
+        /*javascript_data: data*/
         });
 }
 
@@ -54,29 +54,29 @@ function submit_text_content(data1, data2){
     alert("submit_text_content")
     var url = "/set_text_size/" + data2;
     $.post(url, {
-        javascript_data: data2
+        /*javascript_data: data2*/
         });
     var text_speed = document.getElementById("text_speed").value;
     var text_position = document.getElementById("text_position").value;
     var text_period = document.getElementById("text_period").value;
     var url = "/set_text_speed/" + text_speed;
     $.post(url, {
-        javascript_data: text_speed
+        /*javascript_data: text_speed*/
         });
 
     var url = "/set_text_position/" + text_position;
     $.post(url, {
-        javascript_data: text_position
+        /*javascript_data: text_position*/
         });
 
     var url = "/set_text_period/" + text_period;
     $.post(url, {
-        javascript_data: text_period
+        /*javascript_data: text_period*/
         });
 
     var url = "/play_text/" + data1;
     $.post(url, {
-        javascript_data: data1
+        /*javascript_data: data1*/
         });
 }
 
@@ -85,7 +85,7 @@ function submit_hdmi_in(data){
     /*alert(data);*/
     var url = "/play_hdmi_in/" + data;
     $.post(url, {
-        javascript_data: data
+        /*javascript_data: data*/
         });
 }
 
@@ -97,7 +97,7 @@ function submit_wifi_configure(){
     /*alert(data);*/
     var url = "/configure_wifi/" + data;
     $.post(url, {
-        javascript_data: data
+        /*javascript_data: data*/
         });
 }
 
@@ -106,7 +106,7 @@ function submit_frame_brightness_option(){
     var f_br = document.getElementById("frame_brightness").value;
     var url = "/set_frame_brightness_option/" + f_br;
     $.post(url, {
-        javascript_data: f_br
+        /*javascript_data: f_br*/
         });
 }
 
@@ -127,7 +127,7 @@ function submit_repeat_option(data){
     document.getElementById("btn_repeat").value=option;
     var url = "/set_repeat_option/" + option;
     $.post(url, {
-        javascript_data: option
+        /*javascript_data: option*/
         });
 }
 
