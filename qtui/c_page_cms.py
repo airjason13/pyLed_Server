@@ -48,10 +48,14 @@ class CmsPage(QObject):
 	def launch_chromium(self):
 		try:
 			if self.browser_process is not None:
-				os.pkill(self.browser_process.pid)
-			autoplay_cmd = "--autoplay-policy=no-user-gesture-required "
+				os.kill(self.browser_process.pid)
+				self.browser_process = None
+			autoplay_param = "--autoplay-policy=no-user-gesture-required "
+			window_size_param = "--window-size=320,240 "
+			window_pos_param = "--window-position=10,10 "
 			file_uri = "/home/venom/LocalHtmlTest/index.html"
-			open_chromium_cmd = "/usr/bin/chromium " + autoplay_cmd + "--app=file://" + file_uri
+			open_chromium_cmd = "/usr/bin/chromium " + window_size_param + window_pos_param + \
+			                    autoplay_param + "--app=file://" + file_uri
 			self.browser_process = subprocess.Popen(open_chromium_cmd, shell=True)
 			log.debug("self.browser_process.pid = %d", self.browser_process.pid)
 		except Exception as e:
@@ -59,3 +63,5 @@ class CmsPage(QObject):
 
 	def start_play_cms(self):
 		self.launch_chromium()
+
+		
