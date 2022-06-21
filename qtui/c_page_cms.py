@@ -52,7 +52,7 @@ class CmsPage(QObject):
 			autoplay_cmd = "--autoplay-policy=no-user-gesture-required "
 			file_uri = "/home/venom/LocalHtmlTest/index.html"
 			open_chromium_cmd = "/usr/bin/chromium " + autoplay_cmd + "--app=file://" + file_uri
-			self.browser_process = subprocess.Popen(open_chromium_cmd)
+			self.browser_process = subprocess.Popen(open_chromium_cmd, shell=True)
 			log.debug("self.browser_process.pid = %d", self.browser_process.pid)
 		except Exception as e:
 			log.error(e)
