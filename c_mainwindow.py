@@ -18,6 +18,7 @@ from g_defs.c_media_engine import media_engine
 from pyqt_worker import Worker
 from qtui.c_page_client import *
 from qtui.c_page_hdmi_in import *
+from qtui.c_page_cms import *
 from qtui.c_page_medialist import *
 from PyQt5.QtCore import QThread, pyqtSignal, QDateTime, QObject
 from str_define import *
@@ -284,7 +285,7 @@ class MainUi(QMainWindow):
         test2_btn = QPushButton(top_left_frame)
         test2_btn.setFixedSize(self.option_btn_width, self.option_btn_height), test2_btn.setText(STR_TEST_B)
         test2_btn.setFont(QFont(qfont_style_default, qfont_style_size_large))
-        test2_btn.clicked.connect(self.func_testB)
+        test2_btn.clicked.connect(self.func_cmd_setting)
         button_layout.addWidget(test2_btn)
         """Left UI End"""
 
@@ -306,6 +307,9 @@ class MainUi(QMainWindow):
 
         """QTreeWidget for LED Setting"""
         self.initial_led_layout_page()
+
+        "CMS Page"
+        self.initial_cms_page()
 
         self.splitter1 = QSplitter(Qt.Vertical)
         self.splitter1.setMouseTracking(True)
@@ -465,6 +469,16 @@ class MainUi(QMainWindow):
         port_layout_information_widget.hide()
         self.port_layout_information_widget = port_layout_information_widget
 
+    def initial_cms_page(self):
+        """self.cms_widget = QWidget(self.right_frame)
+        self.right_layout.addWidget(self.cms_widget)
+        self.cms_widget_layout = QGridLayout()
+        self.btn_test_cms = QPushButton(self.cms_widget)
+        self.cms_widget_layout.addWidget(self.btn_test_cms,0, 1)
+        self.cms_widget.setLayout(self.cms_widget_layout)"""
+
+        self.cms_page = CmsPage(self)
+
     def center(self):
         # get the geomertry of the screen and set the postion in the center of screen
 
@@ -514,6 +528,7 @@ class MainUi(QMainWindow):
 
         self.pre_page_idx = self.page_idx
         self.page_idx = going_idx
+        log.debug("self.page_idx = %d", self.page_idx)
         self.right_layout.setCurrentIndex(self.page_idx)
         self.page_ui_mutex.unlock()
 
@@ -546,12 +561,10 @@ class MainUi(QMainWindow):
         self.page_status_change()
         self.led_layout_window.show()
 
-    def func_testB(self):
-        # for test color adjust
-        # test change led cabinets setting params treewidget
-        '''self.clients[0].cabinets_setting[0].start_x = 87
-        self.sync_client_layout_params(True, False, True)'''
-        log.debug("testB")
+    def func_cmd_setting(self):
+        log.debug("func_cmd_setting")
+        self.signal_right_page_changed.emit(self.page_idx, page_cmd_setting_idx)
+        self.page_status_change()
 
     def test_brightness_loop(self):
         i = int(self.medialist_page.client_brightness_edit.text())

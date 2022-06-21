@@ -41,7 +41,7 @@ class Hdmi_In_Page(QObject):
         self.hdmi_in_widget.setLayout(self.hdmi_in_layout)
 
         self.mainwindow.right_layout.addWidget(self.hdmi_in_widget)
-
+        log.debug("self.hdmi_in_widget.height() = %d", self.hdmi_in_widget.height())
         self.preview_widget = QWidget(self.hdmi_in_widget)
 
         self.preview_widget_layout = QGridLayout()
@@ -378,6 +378,8 @@ class Hdmi_In_Page(QObject):
         self.media_engine.media_processor.signal_play_hdmi_in_finish_ret.connect(
             self.play_hdmi_in_finish_ret)
 
+        log.debug("self.preview_widget.height() = %d", self.preview_widget.height())
+
     def check_tc358743_timer_event(self):
 
         self.preview_mutex.lock()
@@ -473,6 +475,8 @@ class Hdmi_In_Page(QObject):
         cv2_check_count = 0
 
         while True:
+            if self.cv2camera is None:
+                break
             time.sleep(0.05)
             if self.cv2camera.isRunning() == 0 and self.cv2camera.isFinished() == 1:
                 # pass
