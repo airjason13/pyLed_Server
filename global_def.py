@@ -81,6 +81,7 @@ class play_type(enum.IntEnum):
     play_single = 1
     play_playlist = 2
     play_hdmi_in = 3
+    play_cms = 4
 
 class play_status(enum.IntEnum):
     initial = -1

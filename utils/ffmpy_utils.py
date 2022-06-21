@@ -373,6 +373,71 @@ def neo_ffmpy_cast_video_h264(video_path, cast_dst, brightness, contrast, red_bi
         #log.debug("ffmpy_hdmi_in_cast_process is alive")
     return ff.process
 
+def neo_ffmpy_cast_cms(video_path, cast_dst, window_width, window_height, window_x, window_y,
+                       brightness, contrast, red_bias, green_bias, blue_bias, width=80, height=96):
+    if len(cast_dst) == 0 or cast_dst is None:
+        return -1
+    ff = None
+    global_opts = '-hide_banner -loglevel error'
+    scale_params = "scale=" + str(width) + ":" + str(height)  # + ",hflip"
+    brightness_params = "brightness=" + str(brightness)
+    contrast_params = "contrast=" + str(contrast)
+    eq_str = "eq=" + brightness_params + ":" + contrast_params
+    red_bias_params = "romin=" + str(red_bias)
+    green_bias_params = "gomin=" + str(green_bias)
+    blue_bias_params = "bomin=" + str(blue_bias)
+    crop_str = "crop=iw:ih:0:0"
+
+    color_level_str = "colorlevels=" + red_bias_params + ":" + green_bias_params + ":" + blue_bias_params
+    drawtext_str = "drawtext=fontfile=" + internal_media_folder + \
+                   "/fonts/msjhbd.ttc:text='':x=10:y=20:fontsize=24*h/96:fontcolor=black"
+    #filter_params = "zmq," + eq_str + "," + color_level_str + "," + drawtext_str + "," + crop_str + "," + scale_params
+    filter_params = "zmq," + eq_str + "," + color_level_str + "," + crop_str + "," + scale_params
+
+    window_size_params = str(window_width) + "x" + str(window_height)
+
+    output = {}
+    if platform.machine() in ('arm', 'arm64', 'aarch64'):
+        if width >= 640 and height >= 480:
+            video_encoder = "h264_v4l2m2m"
+        else:
+            video_encoder = "libx264"
+    else:
+        video_encoder = "libx264"
+
+
+    ff = ffmpy.FFmpeg(
+        global_options=global_opts,
+        inputs={
+            video_path: ["-f", "x11grab", "-video_size", window_size_params ]
+        },
+        outputs={
+            udp_sink: ["-vcodec", video_encoder, '-filter_complex', filter_params, "-b:v", "2000k", "-f",
+                       "h264", "-pix_fmt", "yuv420p", "-localaddr", localaddr]
+        },
+    )
+
+    log.debug("%s", ff.cmd)
+    try:
+        thread_1 = threading.Thread(target=ff.run)
+        thread_1.start()
+        while not ff.process:
+            sleep(0.05)
+    except RuntimeError as e:
+        log.error(e)
+
+    #log.debug("ff.process : %s", ff.process)
+    #log.debug("ff.process pid : %d", ff.process.pid)
+    try:
+        os.kill(ff.process.pid, 0)
+    except:
+        log.debug("ffmpy_hdmi_in_cast_process is gone")
+        ff.process = None
+    else:
+        pass
+        #log.debug("ffmpy_hdmi_in_cast_process is alive")
+    return ff.process
+
 
 def neo_ffmpy_scale(input_path, output_path, output_width, output_height, force=True):
     try:

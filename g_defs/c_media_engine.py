@@ -274,6 +274,8 @@ class media_processor(QObject):
         self.play_playlist_thread = None
         self.play_hdmi_in_worker = None
         self.play_hdmi_in_thread = None
+        self.play_cms_worker = None
+        self.play_cms_thread = None
 
         ''' this is only cast /dev/video0 to others for preview'''
         self.hdmi_in_cast_process = None
@@ -319,6 +321,13 @@ class media_processor(QObject):
                     self.play_hdmi_in_worker.stop()
                     del self.play_hdmi_in_worker
                     self.play_hdmi_in_worker = None
+                if self.play_cms_worker is not None:
+                    # self.play_hdmi_in_thread.quit()
+                    self.play_cmd_worker.signal_play_cms_finish.emit()
+                    self.play_cms_thread.exit(0)
+                    self.play_cms_worker.stop()
+                    del self.play_cms_worker
+                    self.play_cms_worker = None
 
             except Exception as e:
                 log.debug(e)
@@ -411,6 +420,35 @@ class media_processor(QObject):
         self.play_hdmi_in_thread.finished.connect(self.play_hdmi_in_thread.deleteLater)
         self.play_hdmi_in_thread.start()
         self.play_hdmi_in_thread.exec()
+
+    def cms_play(self, window_width, window_height, window_x, window_y, video_dst):
+        #log.debug("%s", video_dst)
+
+        if self.play_cms_worker is not None:
+            if self.play_cms_worker.get_task_status() == 1:
+                self.stop_playing()
+                try:
+                    self.play_cms_worker.stop()
+                    self.play_cms_thread.quit()
+                    self.play_cms_thread.wait()
+                except Exception as e:
+                    log.debug(e)
+
+        # if self.play_hdmi_in_thread is not None:
+        #    self.play_hdmi_in_thread.finished()
+        #    self.play_hdmi_in_thread.deleteLater()
+
+        self.play_cms_thread = QThread()
+        self.play_cms_worker = self.play_cms_work(self, window_width, window_height, window_x, window_y, video_dst)
+        self.play_cms_worker.signal_play_cms_start.connect(self.play_hdmi_in_start_ret)
+        self.play_cms_worker.signal_play_cms_finish.connect(self.play_hdmi_in_finish_ret)
+        self.play_cms_worker.moveToThread(self.play_cms_thread)
+        self.play_cms_thread.started.connect(self.play_cms_worker.run)
+        self.play_cms_worker.signal_play_cms_finish.connect(self.play_cms_thread.quit)
+        self.play_cms_worker.signal_play_cms_finish.connect(self.play_cms_worker.deleteLater)
+        self.play_cms_thread.finished.connect(self.play_cms_thread.deleteLater)
+        self.play_cms_thread.start()
+        self.play_cms_thread.exec()
 
     def play_hdmi_in_start_ret(self):
         self.signal_play_hdmi_in_start_ret.emit()
@@ -761,6 +799,82 @@ class media_processor(QObject):
                     break
 
             self.signal_play_hdmi_in_finish.emit()
+            self.media_processor.play_type = play_type.play_none
+            self.worker_status = 0
+
+        def stop(self):
+            self.force_stop = True
+
+        def get_task_status(self):
+            return self.worker_status
+
+    class play_cms_work(QObject):
+        signal_play_cms_finish = pyqtSignal()
+        signal_play_cms_start = pyqtSignal()
+
+        def __init__(self, QObject, window_width, window_height, window_x, window_y, cast_dst):
+            super().__init__()
+            self.media_processor = QObject
+            self.window_width = window_width
+            self.window_height = window_height
+            self.window_x = window_x
+            self.window_y = window_y
+            self.cast_dst = cast_dst
+            self.video_src = ":0.0+" + str(window_x) + "," + str(window_y)
+            #log.debug("cast_dst :%s", cast_dst)
+            self.force_stop = False
+            self.worker_status = 0
+
+        def run(self):
+            self.media_processor.play_type = play_type.play_cms
+            while True:
+                self.worker_status = 1
+                if self.media_processor.play_status != play_status.stop:
+                    ''' kill other streaming ffmpy instance first'''
+                    try:
+                        if self.media_processor.ffmpy_process is not None:
+                            try:
+                                if self.media_processor.play_status == play_status.pausing:
+                                    os.kill(self.media_processor.ffmpy_process.pid, signal.SIGCONT)
+                                # time.sleep(1)
+                            except Exception as e:
+                                log.debug(e)
+                        if self.media_processor.ffmpy_process is not None:
+                            os.kill(self.media_processor.ffmpy_process.pid, signal.SIGTERM)
+                            # time.sleep(1)
+                            log.debug("kill")
+                    except Exception as e:
+                        log.debug(e)
+
+                self.media_processor.ffmpy_process = \
+                    neo_ffmpy_cast_cms(self.video_src, self.cast_dst,
+                                       self.window_width, self.window_height, self.window_x, self.window_y,
+                                       self.media_processor.video_params.get_translated_brightness(),
+                                       self.media_processor.video_params.get_translated_contrast(),
+                                       self.media_processor.video_params.get_translated_redgain(),
+                                       self.media_processor.video_params.get_translated_greengain(),
+                                       self.media_processor.video_params.get_translated_bluegain(),
+                                       self.media_processor.output_width,
+                                       self.media_processor.output_height)
+                if self.media_processor.ffmpy_process.pid > 0:
+                    self.signal_play_cms_start.emit()
+                    self.media_processor.play_status = play_status.playing
+                    self.media_processor.playing_file_name = "CMS"
+                    while True:
+                        if self.media_processor.play_status == play_status.stop:
+                            break
+                        if self.force_stop is True:
+                            if self.media_processor.ffmpy_process is not None:
+                                os.kill(self.media_processor.ffmpy_process.pid, signal.SIGTERM)
+                            break
+                        time.sleep(0.5)
+
+
+                if self.force_stop is True:
+
+                    break
+
+            self.signal_play_cms_finish.emit()
             self.media_processor.play_type = play_type.play_none
             self.worker_status = 0
 

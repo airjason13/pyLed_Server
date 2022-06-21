@@ -48,7 +48,7 @@ class CmsPage(QObject):
 	def launch_chromium(self):
 		try:
 			if self.browser_process is not None:
-				os.kill(self.browser_process.pid)
+				os.kill(self.browser_process.pid, signal.SIGTERM)
 				self.browser_process = None
 			autoplay_param = "--autoplay-policy=no-user-gesture-required "
 			window_size_param = "--window-size=320,240 "
@@ -64,4 +64,10 @@ class CmsPage(QObject):
 	def start_play_cms(self):
 		self.launch_chromium()
 
-		
+		self.media_engine.stop_play()
+		if self.media_engine.media_processor.play_cms_worker is None:
+			log.debug("Start streaming to led")
+
+			self.media_engine.media_processor.cms_play( 320,240, 10, 10, udp_sink)
+
+
