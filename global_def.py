@@ -8,7 +8,7 @@ version = "LS22061601"
 def get_led_role():
     led_role = "Server"
     
-    if os.path.exists("/home/gisled/AIO_now"):
+    if os.path.exists("/home/gisled/aio_now"):
         print("AIO")
         led_role = "AIO"
         print("Aled_role = ", led_role)
