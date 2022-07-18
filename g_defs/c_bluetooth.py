@@ -63,17 +63,25 @@ class BlueTooth(QtCore.QThread):
 				log.debug(e)
 
 	def readstdout(self, process):
+		i = 0
 		while True:
 			res = process.stdout.readline().decode("utf-8").strip()
 			if len(res) > 0:
 				break
+			i = i + 1
+			if i > 100:
+				break
 		return res
 
 	def readstderr(self, process):
+		i = 0
 		while True:
 			res = process.stderr.readline().decode("utf-8").strip()
 			if len(res) > 0:
 				break
+				i = i + 1
+				if i > 100:
+					break
 		return res
 
 	def write(self, process, message):
