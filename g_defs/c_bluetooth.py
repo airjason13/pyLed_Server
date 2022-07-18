@@ -30,15 +30,20 @@ class BlueTooth(QtCore.QThread):
 			log.debug(e)
 		try:
 			self.write(self.bt_process, "agent off")
-			log.debug(self.read(self.bt_process))
+			log.debug(self.readstdout(self.bt_process))
+			log.debug(self.readstderr(self.bt_process))
 			self.write(self.bt_process, "agent NoInputNoOutput")
-			log.debug(self.read(self.bt_process))
+			log.debug(self.readstdout(self.bt_process))
+			log.debug(self.readstderr(self.bt_process))
 			self.write(self.bt_process, "default-agent")
-			log.debug(self.read(self.bt_process))
+			log.debug(self.readstdout(self.bt_process))
+			log.debug(self.readstderr(self.bt_process))
 			self.write(self.bt_process, "discoverable on")
-			log.debug(self.read(self.bt_process))
+			log.debug(self.readstdout(self.bt_process))
+			log.debug(self.readstderr(self.bt_process))
 			self.write(self.bt_process, "pairable on")
-			log.debug(self.read(self.bt_process))
+			log.debug(self.readstdout(self.bt_process))
+			log.debug(self.readstderr(self.bt_process))
 		except Exception as e:
 			log.debug(e)
 
@@ -46,16 +51,27 @@ class BlueTooth(QtCore.QThread):
 			log.debug("bt running")
 			
 			try:
-				readline = self.read(self.bt_process)
-				log.debug(readline)
-				if "yes/no" in readline:
+				readline_stdout = self.readstdout(self.bt_process)
+				log.debug(readline_stdout)
+				if "yes/no" in readline_stdout:
+					self.write(self.bt_process, "yes")
+				readline_stderr = self.readstderr(self.bt_process)
+				log.debug(readline_stderr)
+				if "yes/no" in readline_stderr:
 					self.write(self.bt_process, "yes")
 			except Exception as e:
 				log.debug(e)
 
-	def read(self, process):
+	def readstdout(self, process):
 		while True:
 			res = process.stdout.readline().decode("utf-8").strip()
+			if len(res) > 0:
+				break
+		return res
+
+	def readstderr(self, process):
+		while True:
+			res = process.stderr.readline().decode("utf-8").strip()
 			if len(res) > 0:
 				break
 		return res
