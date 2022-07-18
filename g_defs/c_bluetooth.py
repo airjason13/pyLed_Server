@@ -44,7 +44,7 @@ class BlueTooth(QtCore.QThread):
 
 		while True:
 			log.debug("bt running")
-			sleep(20)
+			
 			try:
 				readline = self.read(self.bt_process)
 				log.debug(readline)
@@ -54,7 +54,11 @@ class BlueTooth(QtCore.QThread):
 				log.debug(e)
 
 	def read(self, process):
-		return process.stdout.readline().decode("utf-8").strip()
+		while True:
+			res = process.stdout.readline().decode("utf-8").strip()
+			if len(res) > 0:
+				break
+		return res
 
 	def write(self, process, message):
 		process.stdin.write(f"{message.strip()}\n".encode("utf-8"))
