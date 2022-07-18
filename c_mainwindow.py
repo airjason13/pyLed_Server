@@ -22,6 +22,7 @@ from qtui.c_page_cms import *
 from qtui.c_page_medialist import *
 from PyQt5.QtCore import QThread, pyqtSignal, QDateTime, QObject
 from str_define import *
+from g_defs.c_bluetooth import BlueTooth
 
 from qlocalmessage import send_message
 
@@ -203,6 +204,9 @@ class MainUi(QMainWindow):
         # QTimer.singleShot(5000, self.demo_start_playlist)
         # self.select_preview_v4l2_device()
         utils.file_utils.find_ffmpeg_process()
+
+        self.bt_handle = BlueTooth()
+        self.bt_handle.start()
 
     def demo_start_hdmi_in(self):
         self.func_hdmi_in_contents()
