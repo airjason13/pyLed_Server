@@ -8,7 +8,7 @@ version = "LS22061601"
 def get_led_role():
     led_role = "Server"
     
-    if os.path.exists("/home/gisled/aio_now"):
+    if os.path.exists("/home/root/aio_now"):
         print("AIO")
         led_role = "AIO"
         print("Aled_role = ", led_role)
@@ -53,7 +53,7 @@ SIZE_MB = 1024*1024
 
 """Media folder"""
 if platform.machine() in ('arm', 'arm64', 'aarch64'):
-    internal_media_folder = "/home/gisled/Videos"
+    internal_media_folder = "/home/root/Videos"
 else:
     internal_media_folder = "/home/venom/Videos"
 
