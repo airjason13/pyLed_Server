@@ -15,7 +15,8 @@ class BlueTooth(QtCore.QThread):
 		self.bt_status = "waiting_for_pair"
 		self.bt_process = None
 		self.bt_comm = None
-
+		self.loop_count = 0
+		self.discoverable_launch_threshold = 10
 	def run(self):
 		self.clear_bt_devices()
 
@@ -36,7 +37,9 @@ class BlueTooth(QtCore.QThread):
 		except Exception as e:
 			log.debug(e)
 		while True:
-			
+			self.loop_count = self.loop_count + 1
+			if self.loop_count > self.discoverable_launch_threshold:
+				self.bt_set_discoverable()
 			try:
 				process = os.popen('pgrep -f rfcomm-server-sdp.py')
 				p_read = process.read()
@@ -47,6 +50,7 @@ class BlueTooth(QtCore.QThread):
 					log.debug("no rfcomm-server-sdp.py running")
 					self.bt_comm = None
 					self.bt_comm = os.popen('rfcomm-server-sdp.py')
+					self.clear_bt_devices()
 				process.close()
 			except Exception as e:
 				log.debug(e)
@@ -94,10 +98,7 @@ class BlueTooth(QtCore.QThread):
 				log.debug(e)'''
 
 	def readstdout(self, process):
-		#while True:
 		res = process.stdout.readline().decode("utf-8").strip()
-			#if len(res) > 0:
-			#	break
 		return res
 
 	def readstderr(self, process):
@@ -123,3 +124,8 @@ class BlueTooth(QtCore.QThread):
 			process.close()
 		else:
 			process.close()
+
+	def bt_set_discoverable(self):
+		process = os.popen('bluetoothctl discoverable on')
+		p_read = process.read()
+		process.close()
