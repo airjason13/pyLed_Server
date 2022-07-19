@@ -889,7 +889,7 @@ class MainUi(QMainWindow):
         elif q.text() == "fw upgrade":
             log.debug("fw upgrade")
             if platform.machine() in ('arm', 'arm64', 'aarch64'):
-                upgrade_file_uri = QFileDialog.getOpenFileName(None, "Select Upgrade File", "/home/gisled/")
+                upgrade_file_uri = QFileDialog.getOpenFileName(None, "Select Upgrade File", "/home/root/")
             else:
                 upgrade_file_uri = QFileDialog.getOpenFileName(None, "Select Upgrade File", "/home/venom/",
                                                                "SWU File (*.swu)")
