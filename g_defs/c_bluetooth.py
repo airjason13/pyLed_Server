@@ -1,4 +1,5 @@
 import os
+import signal
 import subprocess
 from PyQt5.QtCore import QTimer, QMutex
 from PyQt5 import QtCore
@@ -17,7 +18,10 @@ class BlueTooth(QtCore.QThread):
 		self.bt_comm = None
 		self.loop_count = 0
 		self.discoverable_launch_threshold = 10
+
 	def run(self):
+		self.kill_simple_agent()
+		self.kill_rfcomm_servver_sdp()
 		self.clear_bt_devices()
 
 		try:
@@ -126,6 +130,30 @@ class BlueTooth(QtCore.QThread):
 			process.close()
 
 	def bt_set_discoverable(self):
+		log.debug("")
 		process = os.popen('bluetoothctl discoverable on')
 		p_read = process.read()
+		process.close()
+
+	def kill_simple_agent(self):
+		process = os.popen('pgrep -f simple-agent.py')
+		p_read = process.read()
+		log.debug("pread : %s", p_read)
+		if len(p_read) > 0:
+			pid_list = p_read.split("\n")
+			log.debug("pid_list : %s", pid_list)
+			for i in pid_list:
+				if len(i) > 0:
+					log.debug("pid = %d", int(i))
+					os.kill(int(i), signal.SIGTERM)
+		process.close()
+
+	def kill_rfcomm_servver_sdp(self):
+		process = os.popen('pgrep -f rfcomm-server-sdp.py')
+		p_read = process.read()
+		if len(p_read) > 0:
+			pid_list = p_read.split("\n")
+			for i in pid_list:
+				if len(i) > 0:
+					os.kill(int(i), signal.SIGTERM)
 		process.close()
