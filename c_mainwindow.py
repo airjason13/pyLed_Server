@@ -539,6 +539,7 @@ class MainUi(QMainWindow):
         self.right_layout.setCurrentIndex(self.page_idx)
         self.page_ui_mutex.unlock()
 
+        # for test
         if going_idx == page_cms_setting_idx:
             self.cms_page.start_play_cms()
 
