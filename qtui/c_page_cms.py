@@ -71,9 +71,12 @@ class CmsPage(QObject):
 			autoplay_param = "--autoplay-policy=no-user-gesture-required "
 			window_size_param = "--window-size=" + str(self.chromium_width) + "," + str(self.chromium_height) + " "
 			window_pos_param = "--window-position=" + str(self.chromium_pos_x) + "," + str(self.chromium_pos_y) + " "
-			file_uri = "/home/venom/LocalHtmlTest/index.html"
+			'''file_uri = "/home/venom/LocalHtmlTest/index.html"
 			open_chromium_cmd = "/usr/bin/chromium " + autoplay_param + window_size_param + window_pos_param + \
-			                    autoplay_param + "--app=file://" + file_uri
+			                    autoplay_param + "--app=file://" + file_uri'''
+			file_uri = "http://icast.tw/icast/educ/"
+			open_chromium_cmd = "/usr/bin/chromium " + autoplay_param + window_size_param + window_pos_param + \
+			                    autoplay_param + "--app=" + file_uri
 			self.browser_process = subprocess.Popen(open_chromium_cmd, shell=True)
 			log.debug("self.browser_process.pid = %d", self.browser_process.pid)
 		except Exception as e:

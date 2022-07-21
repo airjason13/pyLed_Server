@@ -289,7 +289,7 @@ class MainUi(QMainWindow):
         test2_btn = QPushButton(top_left_frame)
         test2_btn.setFixedSize(self.option_btn_width, self.option_btn_height), test2_btn.setText(STR_TEST_B)
         test2_btn.setFont(QFont(qfont_style_default, qfont_style_size_large))
-        test2_btn.clicked.connect(self.func_cmd_setting)
+        test2_btn.clicked.connect(self.func_cms_setting)
         button_layout.addWidget(test2_btn)
         """Left UI End"""
 
@@ -530,11 +530,17 @@ class MainUi(QMainWindow):
             self.hdmi_in_page.stop_hdmi_in_preview()
             # self.hdmi_in_page.cv2camera.close()
 
+
+
+
         self.pre_page_idx = self.page_idx
         self.page_idx = going_idx
         log.debug("self.page_idx = %d", self.page_idx)
         self.right_layout.setCurrentIndex(self.page_idx)
         self.page_ui_mutex.unlock()
+
+        if going_idx == page_cms_setting_idx:
+            self.cms_page.start_play_cms()
 
     def fun_connect_clients(self):
         log.debug("connect clients")
@@ -564,6 +570,11 @@ class MainUi(QMainWindow):
         self.signal_right_page_changed.emit(self.page_idx, page_led_setting_idx)
         self.page_status_change()
         self.led_layout_window.show()
+
+    def func_cms_setting(self):
+        log.debug("func_cms_setting")
+        self.signal_right_page_changed.emit(self.page_idx, page_cms_setting_idx)
+        self.page_status_change()
 
     def func_cmd_setting(self):
         log.debug("func_cmd_setting")

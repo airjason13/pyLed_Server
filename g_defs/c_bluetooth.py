@@ -8,8 +8,8 @@ import utils.log_utils
 
 log = utils.log_utils.logging_init(__file__)
 
-#This component only handles the bt device agent discovery/pair action
 
+# This component only handles the bt device agent discovery/pair action
 class BlueTooth(QtCore.QThread):
 	def __init__(self,parent=None):
 		super().__init__(parent)
@@ -45,6 +45,17 @@ class BlueTooth(QtCore.QThread):
 			if self.loop_count > self.discoverable_launch_threshold:
 				self.bt_set_discoverable()
 			try:
+				process = os.popen('pgrep -f simple-agent')
+				p_read = process.read()
+				if len(p_read) > 0:
+					pass
+					#log.debug("rfcomm-server-sdp.py pid = %s", p_read)
+				else:
+					self.bt_process = subprocess.Popen("/usr/lib/bluez/test/simple-agent", shell=True,
+					                                   stdin=subprocess.PIPE,
+					                                   stdout=subprocess.PIPE,
+					                                   stderr=subprocess.PIPE)
+				process.close()
 				process = os.popen('pgrep -f rfcomm-server-sdp.py')
 				p_read = process.read()
 				if len(p_read) > 0:
@@ -60,46 +71,7 @@ class BlueTooth(QtCore.QThread):
 				log.debug(e)
 
 			sleep(2)
-		'''try:
-			subprocess.Popen("hciconfig hci0 sspmode 1", shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
-			                 stderr=subprocess.PIPE)
-			subprocess.Popen("hciconfig hci0 sspmode", shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
-			                 stderr=subprocess.PIPE)
-			subprocess.Popen("bluetoothctl discoverable on", shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
-			                 stderr=subprocess.PIPE)
-			subprocess.Popen("bluetoothctl pair on", shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
-			                 stderr=subprocess.PIPE)
-			self.bt_process = subprocess.Popen("bluetoothctl", shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
-			                 stderr=subprocess.PIPE)
-		except Exception as e:
-			log.debug(e)
-		
-		try:
-			
-			log.debug(self.readstdout(self.bt_process))
-			self.write(self.bt_process, "agent off")
-			log.debug(self.readstdout(self.bt_process))
-			self.write(self.bt_process, "agent NoInputNoOutput")
-			log.debug(self.readstdout(self.bt_process))
-			self.write(self.bt_process, "default-agent")
-			log.debug(self.readstdout(self.bt_process))
-			self.write(self.bt_process, "discoverable on")
-			log.debug(self.readstdout(self.bt_process))
-			self.write(self.bt_process, "pairable on")
-			log.debug(self.readstdout(self.bt_process))
-		except Exception as e:
-			log.debug(e)
 
-		while True:
-			log.debug("bt running")
-			
-			try:
-				readline_stdout = self.readstdout(self.bt_process)
-				log.debug(readline_stdout)
-				if "yes/no" in readline_stdout:
-					self.write(self.bt_process, "yes")
-			except Exception as e:
-				log.debug(e)'''
 
 	def readstdout(self, process):
 		res = process.stdout.readline().decode("utf-8").strip()
