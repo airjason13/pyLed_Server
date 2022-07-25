@@ -44,6 +44,7 @@ class BlueTooth(QtCore.QThread):
 			self.loop_count = self.loop_count + 1
 			if self.loop_count > self.discoverable_launch_threshold:
 				self.bt_set_discoverable()
+				self.loop_count = 0
 			try:
 				process = os.popen('pgrep -f simple-agent')
 				p_read = process.read()

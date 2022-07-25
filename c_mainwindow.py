@@ -542,6 +542,11 @@ class MainUi(QMainWindow):
         # for test
         if going_idx == page_cms_setting_idx:
             self.cms_page.start_play_cms()
+        else :
+            self.cms_page.stop_play_cms()
+            self.media_engine.resume_play()
+            self.media_engine.stop_play()
+            subprocess.Popen("pkill chromium", shell=True)
 
     def fun_connect_clients(self):
         log.debug("connect clients")
