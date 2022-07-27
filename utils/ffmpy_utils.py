@@ -398,7 +398,8 @@ def neo_ffmpy_cast_cms(video_path, cast_dst, window_width, window_height, window
 
     output = {}
     if platform.machine() in ('arm', 'arm64', 'aarch64'):
-        if width >= 640 and height >= 480:
+        #if width >= 640 and height >= 480:
+        if (width % 64) == 0:
             video_encoder = "h264_v4l2m2m"
         else:
             video_encoder = "libx264"
