@@ -75,7 +75,7 @@ class CmsPage(QObject):
 			file_uri = "http://icast.tw/icast/educ/"
 			open_chromium_cmd = "/usr/bin/chromium " + sandbox_param +autoplay_param + window_size_param + window_pos_param + \
 			                    autoplay_param + "--app=" + file_uri'''
-			open_chromium_cmd = "speedup_chromium.sh"
+			open_chromium_cmd = "speedup_chromium.sh &"
 			self.browser_process = subprocess.Popen(open_chromium_cmd, shell=True)
 			log.debug("self.browser_process.pid = %d", self.browser_process.pid)
 		except Exception as e:

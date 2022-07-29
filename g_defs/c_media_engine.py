@@ -856,7 +856,7 @@ class media_processor(QObject):
                                        self.media_processor.video_params.get_translated_bluegain(),
                                        self.media_processor.output_width,
                                        self.media_processor.output_height)
-                if self.media_processor.ffmpy_process.pid > 0:
+                if self.media_processor.ffmpy_process is not None:
                     self.signal_play_cms_start.emit()
                     self.media_processor.play_status = play_status.playing
                     self.media_processor.playing_file_name = "CMS"

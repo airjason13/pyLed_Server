@@ -533,14 +533,21 @@ class MainUi(QMainWindow):
 
         # handle page_cms_setting_idx enter and exit
         if pre_idx != page_cms_setting_idx and going_idx == page_cms_setting_idx:
-            self.media_engine.stop_play()
-            self.cms_page.start_play_cms()
+            try:
+                self.media_engine.stop_play()
+                self.cms_page.start_play_cms()
+            except Exception as e:
+                log.debug(e)
         if pre_idx == page_cms_setting_idx and going_idx != page_cms_setting_idx:
-            self.cms_page.stop_play_cms()
-            self.media_engine.resume_play()
-            self.media_engine.stop_play()
-            subprocess.Popen("pkill chromium", shell=True)
+            try:
+                self.cms_page.stop_play_cms()
+                self.media_engine.resume_play()
+                self.media_engine.stop_play()
+                subprocess.Popen("pkill chromium", shell=True)
+            except Exception as e:
+                log.debug(e)
 
+        log.debug("change page")
 
         self.pre_page_idx = self.page_idx
         self.page_idx = going_idx
