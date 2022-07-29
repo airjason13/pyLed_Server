@@ -205,7 +205,7 @@ class MainUi(QMainWindow):
         # self.select_preview_v4l2_device()
         utils.file_utils.find_ffmpeg_process()
         utils.file_utils.kill_all_ffmpeg_process()
-        
+
         self.bt_handle = BlueTooth()
         self.bt_handle.start()
 

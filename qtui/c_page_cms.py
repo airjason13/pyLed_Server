@@ -82,6 +82,7 @@ class CmsPage(QObject):
 			log.error(e)
 
 	def start_play_cms(self):
+		subprocess.Popen("pkill chromium", shell=True)
 		self.launch_chromium()
 
 		self.media_engine.stop_play()
