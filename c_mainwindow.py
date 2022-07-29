@@ -201,10 +201,11 @@ class MainUi(QMainWindow):
         log.debug("self.geo y : %d", self.geometry().y())
         self.page_ui_mutex = QMutex()
         # QTimer.singleShot(5000, self.demo_start_hdmi_in)
-        # QTimer.singleShot(5000, self.demo_start_playlist)
+        QTimer.singleShot(5000, self.func_cms_setting)
         # self.select_preview_v4l2_device()
         utils.file_utils.find_ffmpeg_process()
-
+        utils.file_utils.kill_all_ffmpeg_process()
+        
         self.bt_handle = BlueTooth()
         self.bt_handle.start()
 

@@ -167,3 +167,7 @@ def find_ffmpeg_process():
     log.debug("p_stdout: %s", p_stdout.decode())
     log.debug("p_stderr:%s", p_stderr.decode())
 
+def kill_all_ffmpeg_process():
+    p = Popen("pkill ffmpeg", shell=True, stdout=PIPE, stderr=PIPE)
+
+
