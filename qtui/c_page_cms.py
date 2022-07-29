@@ -84,7 +84,7 @@ class CmsPage(QObject):
 	def start_play_cms(self):
 		subprocess.Popen("pkill chromium", shell=True)
 		self.launch_chromium()
-
+		self.media_engine.resume_play()
 		self.media_engine.stop_play()
 		if self.media_engine.media_processor.play_cms_worker is None:
 			log.debug("Start streaming to led")
