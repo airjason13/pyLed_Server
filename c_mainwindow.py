@@ -519,6 +519,7 @@ class MainUi(QMainWindow):
             return'''
         self.page_ui_mutex.lock()
         log.debug("")
+        # handle page_hdmi_in_content enter and exit
         if pre_idx != page_hdmi_in_content_idx and going_idx == page_hdmi_in_content_idx:
             log.debug("start hdmi-in preview")
             self.media_engine.resume_play()
@@ -528,9 +529,16 @@ class MainUi(QMainWindow):
             log.debug("stop hdmi-in preview")
             self.hdmi_in_page.stop_send_to_led()
             self.hdmi_in_page.stop_hdmi_in_preview()
-            # self.hdmi_in_page.cv2camera.close()
 
-
+        # handle page_cms_setting_idx enter and exit
+        if pre_idx != page_cms_setting_idx and going_idx == page_cms_setting_idx:
+            self.media_engine.stop_play()
+            self.cms_page.start_play_cms()
+        if pre_idx == page_cms_setting_idx and going_idx != page_cms_setting_idx:
+            self.cms_page.stop_play_cms()
+            self.media_engine.resume_play()
+            self.media_engine.stop_play()
+            subprocess.Popen("pkill chromium", shell=True)
 
 
         self.pre_page_idx = self.page_idx
@@ -540,13 +548,14 @@ class MainUi(QMainWindow):
         self.page_ui_mutex.unlock()
 
         # for test
-        if going_idx == page_cms_setting_idx:
+        '''if going_idx == page_cms_setting_idx:
+            self.media_engine.stop_play()
             self.cms_page.start_play_cms()
         else :
             self.cms_page.stop_play_cms()
             self.media_engine.resume_play()
             self.media_engine.stop_play()
-            subprocess.Popen("pkill chromium", shell=True)
+            subprocess.Popen("pkill chromium", shell=True)'''
 
     def fun_connect_clients(self):
         log.debug("connect clients")

@@ -97,6 +97,7 @@ class CmsPage(QObject):
 			if self.browser_process is not None:
 				os.kill(self.browser_process.pid, signal.SIGTERM)
 				self.browser_process = None
+			self.media_engine.resume_play()
 			self.media_engine.stop_play()
 
 		except Exception as e:
