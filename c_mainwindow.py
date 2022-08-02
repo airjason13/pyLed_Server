@@ -201,7 +201,7 @@ class MainUi(QMainWindow):
         log.debug("self.geo y : %d", self.geometry().y())
         self.page_ui_mutex = QMutex()
         # QTimer.singleShot(5000, self.demo_start_hdmi_in)
-        QTimer.singleShot(5000, self.func_cms_setting)
+        QTimer.singleShot(5000, self.demo_start_cms)
         # self.select_preview_v4l2_device()
         utils.file_utils.find_ffmpeg_process()
         utils.file_utils.kill_all_ffmpeg_process()
@@ -537,12 +537,13 @@ class MainUi(QMainWindow):
             self.hdmi_in_page.stop_hdmi_in_preview()
 
         # handle page_cms_setting_idx enter and exit
-        if pre_idx != page_cms_setting_idx and going_idx == page_cms_setting_idx:
-            try:
+        #if pre_idx != page_cms_setting_idx and going_idx == page_cms_setting_idx:
+            '''try:
                 self.media_engine.stop_play()
                 self.cms_page.start_play_cms()
             except Exception as e:
-                log.debug(e)
+                log.debug(e)'''
+            
         if pre_idx == page_cms_setting_idx and going_idx != page_cms_setting_idx:
             try:
                 self.cms_page.stop_play_cms()
@@ -560,6 +561,7 @@ class MainUi(QMainWindow):
         self.right_layout.setCurrentIndex(self.page_idx)
         self.page_ui_mutex.unlock()
 
+        log.debug("change page ok!")
         # for test
         '''if going_idx == page_cms_setting_idx:
             self.media_engine.stop_play()
