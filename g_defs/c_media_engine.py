@@ -323,7 +323,7 @@ class media_processor(QObject):
                     self.play_hdmi_in_worker = None
                 if self.play_cms_worker is not None:
                     # self.play_hdmi_in_thread.quit()
-                    self.play_cmd_worker.signal_play_cms_finish.emit()
+                    self.play_cms_worker.signal_play_cms_finish.emit()
                     self.play_cms_thread.exit(0)
                     self.play_cms_worker.stop()
                     del self.play_cms_worker
