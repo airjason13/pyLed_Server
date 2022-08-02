@@ -209,6 +209,11 @@ class MainUi(QMainWindow):
         self.bt_handle = BlueTooth()
         self.bt_handle.start()
 
+    def demo_start_cms(self):
+        self.func_cms_setting()
+        log.debug("demo_start play cms")
+        self.cms_page.start_play_cms()
+
     def demo_start_hdmi_in(self):
         self.func_hdmi_in_contents()
         log.debug("demo_start play_hdmi_in")
