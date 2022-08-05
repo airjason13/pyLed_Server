@@ -663,11 +663,13 @@ class Hdmi_In_Page(QObject):
         if self.media_engine.media_processor.play_single_file_worker is not None:
             print("before play_single_file_worker.get_task_status() = ", self.media_engine.media_processor.play_single_file_worker.get_task_status())
             log.debug("play single file stop")
+            self.media_engine.resume_play()
             self.media_engine.stop_play()
 
         if self.media_engine.media_processor.play_playlist_worker is not None:
             print("before play_playlist_worker.get_task_status() = ", self.media_engine.media_processor.play_playlist_worker.get_task_status())
             log.debug("play playlist stop")
+            self.media_engine.resume_play()
             self.media_engine.stop_play()
         if self.media_engine.media_processor.play_hdmi_in_worker is not None: 
             print("play_hdmi_in_worker.get_task_status() = ", self.media_engine.media_processor.play_hdmi_in_worker.get_task_status())
@@ -751,6 +753,7 @@ class Hdmi_In_Page(QObject):
     def stop_hdmi_in_streaming(self):
         if self.media_engine.media_processor.play_hdmi_in_worker is not None:
             log.debug("Stop streaming to led")
+            self.media_engine.resume_play()
             self.media_engine.stop_play()
 
     def play_hdmi_in_start_ret(self):
