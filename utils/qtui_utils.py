@@ -156,8 +156,8 @@ def gen_led_cabinet_pixmap_with_cabinet_params_test(c_params, margin=0,
     #if c_params.layout_type == 0 or c_params.layout_type == 1:
     if c_params.layout_type == 0:
         for i in range(max_line):
-            start_point = QPoint(c_params.start_x - 1 , c_params.start_y - 1 + line_interval)
-            start_point_bak = QPoint(c_params.start_x - 1 , c_params.start_y - 1 + line_interval)
+            start_point = QPoint(c_params.start_x - 1 , int(c_params.start_y - 1 + line_interval))
+            start_point_bak = QPoint(c_params.start_x - 1 , int(c_params.start_y - 1 + line_interval))
             print(start_point)
             pixel_num = c_params.cabinet_width * c_params.cabinet_height
             reverse = 0
@@ -186,29 +186,29 @@ def gen_led_cabinet_pixmap_with_cabinet_params_test(c_params, margin=0,
         '''draw arrow'''
         if c_params.layout_type == 0:
             pixmap_paint.drawLine(margin, margin,
-                                  margin + int(c_params.cabinet_width / scale_factor), margin + line_interval)
+                                  margin + int(c_params.cabinet_width / scale_factor), int(margin + line_interval))
             pixmap_paint.drawLine(margin, margin + (2 * line_interval),
-                                  margin + int(c_params.cabinet_width / scale_factor), margin + line_interval)
+                                  margin + int(c_params.cabinet_width / scale_factor), int(margin + line_interval))
         elif c_params.layout_type == 1:
             if c_params.cabinet_height % 2 == 0:
-                pixmap_paint.drawLine(margin, margin + i - line_interval,
+                pixmap_paint.drawLine(margin, int(margin + i - line_interval),
                                       margin + int(c_params.cabinet_width / scale_factor), margin + i)
-                pixmap_paint.drawLine(margin, margin + i + (line_interval),
+                pixmap_paint.drawLine(margin, int(margin + i + (line_interval)),
                                       margin + int(c_params.cabinet_width / scale_factor), margin + i)
             elif c_params.cabinet_height % 2 == 1:
                 pixmap_paint.drawLine(margin + ((c_params.cabinet_width - 1) * scale_factor),
-                                      margin + i - line_interval,
+                                      int(margin + i - line_interval),
                                       margin + ((c_params.cabinet_width - 1) * scale_factor) - int(
                                           c_params.cabinet_width / scale_factor), margin + i)
                 pixmap_paint.drawLine(margin + ((c_params.cabinet_width - 1) * scale_factor),
-                                      margin + i + (line_interval),
+                                      int(margin + i + (line_interval)),
                                       margin + ((c_params.cabinet_width - 1) * scale_factor) - int(
                                           c_params.cabinet_width / scale_factor), margin + i)
 
     elif c_params.layout_type == 1:
 
-        start_point = scale_factor*QPoint(c_params.start_x - 1 , c_params.start_y - 1 ) + QPoint(0, line_interval)
-        start_point_bak = scale_factor*QPoint(c_params.start_x - 1 , c_params.start_y - 1 ) + QPoint(0, line_interval)
+        start_point = scale_factor*QPoint(c_params.start_x - 1 , c_params.start_y - 1 ) + QPoint(0, int(line_interval))
+        start_point_bak = scale_factor*QPoint(c_params.start_x - 1 , c_params.start_y - 1 ) + QPoint(0, int(line_interval))
 
         pixel_num = c_params.cabinet_width * c_params.cabinet_height
         reverse = 1
@@ -262,16 +262,16 @@ def gen_led_cabinet_pixmap_with_cabinet_params(c_params, margin=0,
 
 
             '''橫線'''
-            if i % (scale_factor) == line_interval:
+            if i % (scale_factor) == int(line_interval):
                 pixmap_paint.drawLine(margin, margin + i, ((c_params.cabinet_width - 1) * scale_factor )+ margin , margin + i)
                 
                 h_drawed += 1
             #左邊直線
-            elif i % (scale_factor*2) == line_interval + scale_factor + 1:
+            elif i % (scale_factor*2) == int(line_interval) + scale_factor + 1:
                 #log.debug("left line")
                 pixmap_paint.drawLine(margin, margin + (i), margin, margin + (i + (scale_factor)))
             #右邊直線
-            elif i % (scale_factor * 2) == line_interval + 1:
+            elif i % (scale_factor * 2) == int(line_interval) + 1:
                 #log.debug("left line")
                 pixmap_paint.drawLine(((c_params.cabinet_width - 1) * scale_factor )+ margin, margin + (i), ((c_params.cabinet_width - 1) * scale_factor )+ margin, margin + (i + (scale_factor)))
             if h_drawed >= c_params.cabinet_height:
@@ -289,24 +289,24 @@ def gen_led_cabinet_pixmap_with_cabinet_params(c_params, margin=0,
                 pixmap_paint.drawLine(int(margin), int(margin + i + (line_interval)),
                                       margin + int(c_params.cabinet_width / scale_factor), margin + i )
             elif c_params.cabinet_height % 2 == 1:
-                pixmap_paint.drawLine(margin + ((c_params.cabinet_width - 1) * scale_factor ) , margin + i - line_interval,
+                pixmap_paint.drawLine(margin + ((c_params.cabinet_width - 1) * scale_factor ) , int(margin + i - line_interval),
                                       margin + ((c_params.cabinet_width - 1) * scale_factor ) - int(c_params.cabinet_width / scale_factor), margin + i)
-                pixmap_paint.drawLine(margin + ((c_params.cabinet_width - 1) * scale_factor ) , margin + i + (line_interval),
+                pixmap_paint.drawLine(margin + ((c_params.cabinet_width - 1) * scale_factor ) , int(margin + i + (line_interval)),
                                       margin + ((c_params.cabinet_width - 1) * scale_factor ) - int(c_params.cabinet_width / scale_factor), margin + i)
     elif c_params.layout_type == 2 or c_params.layout_type == 3:
         for i in range( max_line):
             '''橫線'''
-            if i % (scale_factor) == line_interval:
+            if i % (scale_factor) == int(line_interval):
                 pixmap_paint.drawLine(margin, margin + i, ((c_params.cabinet_width - 1) * scale_factor )+ margin , margin + i)
                 ''' check line number'''
                 h_drawed += 1
             #左邊直線
-            elif i % (scale_factor*2) == line_interval + scale_factor + 1:
+            elif i % (scale_factor*2) == int(line_interval + scale_factor + 1):
                 pixmap_paint.drawLine(((c_params.cabinet_width - 1) * scale_factor) + margin, margin + (i),
                                       ((c_params.cabinet_width - 1) * scale_factor) + margin,
                                       margin + (i + (scale_factor)))
             #右邊直線
-            elif i % (scale_factor * 2) == line_interval + 1:
+            elif i % (scale_factor * 2) == int(line_interval + 1):
                 pixmap_paint.drawLine(margin, margin + (i), margin, margin + (i + (scale_factor)))
 
             if h_drawed >= c_params.cabinet_height:
@@ -334,18 +334,18 @@ def gen_led_cabinet_pixmap_with_cabinet_params(c_params, margin=0,
     elif c_params.layout_type == 4 or c_params.layout_type == 7:
         for i in range(max_line):
             '''直線'''
-            if i % (scale_factor) == line_interval:
+            if i % (scale_factor) == int(line_interval):
                 pixmap_paint.drawLine(margin + i, margin, margin + i,
                                       int(margin + ((c_params.cabinet_height - 1) * scale_factor)))
                 ''' check line number'''
                 w_drawed += 1
             # 上方直線
-            elif i % (scale_factor * 2) == line_interval + scale_factor + 1:
+            elif i % (scale_factor * 2) == int(line_interval + scale_factor + 1):
                 pixmap_paint.drawLine(margin + (i), margin,
                                       int(margin + (i + (scale_factor))), margin)
 
             # 下方直線
-            elif i % (scale_factor * 2) == line_interval + 1:
+            elif i % (scale_factor * 2) == int(line_interval + 1):
                 pixmap_paint.drawLine(margin + (i), int(margin + ((c_params.cabinet_height - 1) * scale_factor)),
                                       int(margin + (i + (scale_factor))),  int(margin + ((c_params.cabinet_height - 1) * scale_factor)))
 
@@ -361,34 +361,34 @@ def gen_led_cabinet_pixmap_with_cabinet_params(c_params, margin=0,
             if c_params.cabinet_width % 2 == 0:
                 pixmap_paint.drawLine(int(margin + i -line_interval) , margin ,
                                       margin + i , int(margin  + int(c_params.cabinet_width/scale_factor)))
-                pixmap_paint.drawLine(margin + i + line_interval, margin ,
+                pixmap_paint.drawLine(int(margin + i + line_interval), margin ,
                                       margin +i , int(margin + int(c_params.cabinet_width / scale_factor)))
             elif c_params.cabinet_width % 2 == 1:
-                pixmap_paint.drawLine(margin + i - line_interval, margin + int((c_params.cabinet_height - 1) * scale_factor) ,
-                                      margin + i , margin + int((c_params.cabinet_height - 1) * scale_factor) - line_interval )
-                pixmap_paint.drawLine(margin + i + line_interval, margin + int((c_params.cabinet_height - 1) * scale_factor),
-                                      margin + i , margin + int((c_params.cabinet_height - 1) * scale_factor) - line_interval)
+                pixmap_paint.drawLine(int(margin + i - line_interval), margin + int((c_params.cabinet_height - 1) * scale_factor) ,
+                                      margin + i , margin + int(((c_params.cabinet_height - 1) * scale_factor) - line_interval ))
+                pixmap_paint.drawLine(int(margin + i + line_interval), margin + int((c_params.cabinet_height - 1) * scale_factor),
+                                      margin + i , margin + int(((c_params.cabinet_height - 1) * scale_factor) - line_interval))
 
         elif c_params.layout_type == 7:
             pixmap_paint.drawLine(margin , margin ,
-                                  margin + line_interval, margin + int(c_params.cabinet_width / scale_factor))
+                                  int(margin + line_interval), margin + int(c_params.cabinet_width / scale_factor))
             pixmap_paint.drawLine(margin + (2*line_interval) , margin ,
-                                  margin + line_interval, margin + int(c_params.cabinet_width / scale_factor))
+                                  int(margin + line_interval), margin + int(c_params.cabinet_width / scale_factor))
             pass
     elif c_params.layout_type == 5 or c_params.layout_type == 6:
         for i in range( max_line):
             '''直線'''
-            if i % (scale_factor) == line_interval:
+            if i % (scale_factor) == int(line_interval):
                 pixmap_paint.drawLine(margin + i, margin ,  margin + i, margin + int(((c_params.cabinet_height - 1) * scale_factor )))
                 ''' check line number'''
                 w_drawed += 1
             #下方直線
-            elif i % (scale_factor*2) == line_interval + scale_factor + 1:
+            elif i % (scale_factor*2) == int(line_interval + scale_factor + 1):
                 pixmap_paint.drawLine( margin + (i), margin + int(((c_params.cabinet_height - 1) * scale_factor)) ,
                                        margin + (i + (scale_factor)), margin + int(((c_params.cabinet_height - 1) * scale_factor)))
 
             #上方直線
-            elif i % (scale_factor * 2) == line_interval + 1:
+            elif i % (scale_factor * 2) == int(line_interval + 1):
                 pixmap_paint.drawLine(margin + (i), margin ,
                                       int(margin + (i + (scale_factor))), margin )
 
@@ -398,20 +398,20 @@ def gen_led_cabinet_pixmap_with_cabinet_params(c_params, margin=0,
         '''draw arrow'''
         if c_params.layout_type == 5:
             pixmap_paint.drawLine(margin , margin + ((c_params.cabinet_height - 1) * scale_factor),
-                                  margin + line_interval, margin + ((c_params.cabinet_height - 1) * scale_factor) - int(c_params.cabinet_width/scale_factor))
-            pixmap_paint.drawLine(margin + (2*line_interval), margin + ((c_params.cabinet_height - 1) * scale_factor) ,
-                                  margin + line_interval, margin + ((c_params.cabinet_height - 1) * scale_factor) - int(c_params.cabinet_width / scale_factor))
+                                  int(margin + line_interval), margin + ((c_params.cabinet_height - 1) * scale_factor) - int(c_params.cabinet_width/scale_factor))
+            pixmap_paint.drawLine(int(margin + (2*line_interval)), margin + ((c_params.cabinet_height - 1) * scale_factor) ,
+                                  int(margin + line_interval), margin + ((c_params.cabinet_height - 1) * scale_factor) - int(c_params.cabinet_width / scale_factor))
         elif c_params.layout_type == 6:
             if c_params.cabinet_width % 2 == 1:
-                pixmap_paint.drawLine(margin + i -line_interval , margin ,
+                pixmap_paint.drawLine(int(margin + i -line_interval), margin ,
                                       margin + i , margin  + int(c_params.cabinet_width/scale_factor))
-                pixmap_paint.drawLine(margin + i + line_interval, margin ,
+                pixmap_paint.drawLine(int(margin + i + line_interval), margin ,
                                       margin +i , margin + int(c_params.cabinet_width / scale_factor))
             elif c_params.cabinet_width % 2 == 0:
-                pixmap_paint.drawLine(margin + i - line_interval, margin + int(((c_params.cabinet_height - 1) * scale_factor)) ,
-                                      margin + i , margin + int((c_params.cabinet_height - 1) * scale_factor) - line_interval )
-                pixmap_paint.drawLine(margin + i + line_interval, margin + int((c_params.cabinet_height - 1) * scale_factor),
-                                      margin + i , margin + int((c_params.cabinet_height - 1) * scale_factor) - line_interval)
+                pixmap_paint.drawLine(int(margin + i - line_interval), margin + int(((c_params.cabinet_height - 1) * scale_factor)) ,
+                                      margin + i , margin + int(((c_params.cabinet_height - 1) * scale_factor) - line_interval ))
+                pixmap_paint.drawLine(int(margin + i + line_interval), margin + int((c_params.cabinet_height - 1) * scale_factor),
+                                      margin + i , margin + int(((c_params.cabinet_height - 1) * scale_factor) - line_interval))
     '''draw str_port_id'''
     pixmap_paint.setPen(str_color)
     pixmap_paint.drawText(c_params.cabinet_width, c_params.cabinet_height, str_port_id)
