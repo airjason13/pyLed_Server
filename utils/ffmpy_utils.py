@@ -323,7 +323,13 @@ def neo_ffmpy_cast_video_h264(video_path, cast_dst, brightness, contrast, red_bi
         return -1
     ff = None
     global_opts = '-hide_banner -loglevel error'
-    scale_params = "scale=" + str(width) + ":" + str(height)  # + ",hflip"
+    if width % 64 != 0:
+        width_multiple_factor = int(width/64) + 1
+        hw_output_width = 64*width_multiple_factor
+        scale_params = "scale=" + str(width) + ":" + str(height) + ",pad=" + str(hw_output_width) + ":" + str(height)
+    else:
+        scale_params = "scale=" + str(width) + ":" + str(height)
+    # scale_params = "scale=" + str(width) + ":" + str(height)  # + ",hflip"
     brightness_params = "brightness=" + str(brightness)
     contrast_params = "contrast=" + str(contrast)
     eq_str = "eq=" + brightness_params + ":" + contrast_params
@@ -339,10 +345,11 @@ def neo_ffmpy_cast_video_h264(video_path, cast_dst, brightness, contrast, red_bi
 
     output = {}
     if platform.machine() in ('arm', 'arm64', 'aarch64'):
-        if width >= 640 and height >= 480:
+        '''if width >= 640 and height >= 480:
             video_encoder = "h264_v4l2m2m"
         else:
-            video_encoder = "libx264"
+            video_encoder = "libx264"'''
+        video_encoder = "h264_v4l2m2m"
     else:
         video_encoder = "libx264"
     for i in cast_dst:
@@ -386,7 +393,13 @@ def neo_ffmpy_cast_cms(video_path, cast_dst, window_width, window_height, window
         return -1
     ff = None
     global_opts = '-hide_banner -loglevel error'
-    scale_params = "scale=" + str(width) + ":" + str(height)  # + ",hflip"
+    if width % 64 != 0:
+        width_multiple_factor = int(width/64) + 1
+        hw_output_width = 64*width_multiple_factor
+        scale_params = "scale=" + str(width) + ":" + str(height) + ",pad=" + str(hw_output_width) + ":" + str(height)
+    else:
+        scale_params = "scale=" + str(width) + ":" + str(height)
+    # scale_params = "scale=" + str(width) + ":" + str(height)  # + ",hflip"
     brightness_params = "brightness=" + str(brightness)
     contrast_params = "contrast=" + str(contrast)
     eq_str = "eq=" + brightness_params + ":" + contrast_params
@@ -406,10 +419,11 @@ def neo_ffmpy_cast_cms(video_path, cast_dst, window_width, window_height, window
     output = {}
     if platform.machine() in ('arm', 'arm64', 'aarch64'):
         #if width >= 640 and height >= 480:
-        if (width % 64) == 0:
+        '''if (width % 64) == 0:
             video_encoder = "h264_v4l2m2m"
         else:
-            video_encoder = "libx264"
+            video_encoder = "libx264"'''
+        video_encoder = "h264_v4l2m2m"
     else:
         video_encoder = "libx264"
 

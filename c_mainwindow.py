@@ -294,7 +294,7 @@ class MainUi(QMainWindow):
         button_layout.addWidget(test_btn)
 
         test2_btn = QPushButton(top_left_frame)
-        test2_btn.setFixedSize(self.option_btn_width, self.option_btn_height), test2_btn.setText(STR_TEST_B)
+        test2_btn.setFixedSize(self.option_btn_width, self.option_btn_height), test2_btn.setText(STR_CMS)
         test2_btn.setFont(QFont(qfont_style_default, qfont_style_size_large))
         test2_btn.clicked.connect(self.func_cms_setting)
         button_layout.addWidget(test2_btn)
