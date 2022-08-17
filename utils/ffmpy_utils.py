@@ -25,7 +25,13 @@ def neo_ffmpy_execute(video_path, brightness, contrast, red_bias, green_bias, bl
                       image_period=still_image_video_period, width=80, height=96):
     ff = None
     global_opts = '-hide_banner -loglevel error'
-    scale_params = "scale=" + str(width) + ":" + str(height)  # + ",hflip"
+    if width % 64 != 0:
+        width_multiple_factor = int(width/64) + 1
+        hw_output_width = 64*width_multiple_factor
+        scale_params = "scale=" + str(width) + ":" + str(height) + ",pad=" + str(hw_output_width) + ":" + str(height)
+    else:
+        scale_params = "scale=" + str(width) + ":" + str(height)
+    # scale_params = "scale=" + str(width) + ":" + str(height)  # + ",hflip"
     brightness_params = "brightness=" + str(brightness)
     contrast_params = "contrast=" + str(contrast)
     eq_str = "eq=" + brightness_params + ":" + contrast_params
@@ -93,10 +99,11 @@ def neo_ffmpy_execute(video_path, brightness, contrast, red_bias, green_bias, bl
     video_encoder = "libx264"
 
     if platform.machine() in ('arm', 'arm64', 'aarch64'):
-        if width > 640 and height > 480:
+        '''if width > 640 and height > 480:
             video_encoder = "h264_v4l2m2m"
         else:
-            video_encoder = "libx264"
+            video_encoder = "libx264"'''
+        video_encoder = "h264_v4l2m2m"
         if video_path.endswith("mp4"):
             ff = ffmpy.FFmpeg(
                 global_options=global_opts,
