@@ -372,7 +372,7 @@ def gen_led_cabinet_pixmap_with_cabinet_params(c_params, margin=0,
         elif c_params.layout_type == 7:
             pixmap_paint.drawLine(margin , margin ,
                                   int(margin + line_interval), margin + int(c_params.cabinet_width / scale_factor))
-            pixmap_paint.drawLine(margin + (2*line_interval) , margin ,
+            pixmap_paint.drawLine(int(margin + (2*line_interval)) , margin ,
                                   int(margin + line_interval), margin + int(c_params.cabinet_width / scale_factor))
             pass
     elif c_params.layout_type == 5 or c_params.layout_type == 6:

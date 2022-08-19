@@ -313,7 +313,7 @@ class Hdmi_In_Page(QObject):
         self.client_gamma_edit.setFixedWidth(100)
         self.client_gamma_edit.setText(
             str(self.mainwindow.media_engine.media_processor.video_params.frame_gamma))
-        self.client_gamma_label.setFont(QFont(qfont_style_default, qfont_style_size_medium))
+        self.client_gamma_edit.setFont(QFont(qfont_style_default, qfont_style_size_medium))
 
         self.video_params_confirm_btn = QPushButton(self.setting_widget)
         self.video_params_confirm_btn.setText("Set")
@@ -340,8 +340,8 @@ class Hdmi_In_Page(QObject):
         self.setting_widget_layout.addWidget(self.client_br_divisor_edit, 2, 3)
         self.setting_widget_layout.addWidget(self.client_contrast_label, 3, 0)
         self.setting_widget_layout.addWidget(self.client_contrast_edit, 3, 1)
-        self.setting_widget_layout.addWidget(self.client_gamma_label, 4, 0)
-        self.setting_widget_layout.addWidget(self.client_gamma_edit, 4, 1)
+        self.setting_widget_layout.addWidget(self.client_gamma_label, 3, 2)
+        self.setting_widget_layout.addWidget(self.client_gamma_edit, 3, 3)
         self.setting_widget_layout.addWidget(self.video_params_confirm_btn, 4, 5)
 
         self.hdmi_in_layout.addWidget(self.preview_widget)
