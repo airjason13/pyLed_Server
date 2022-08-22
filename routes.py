@@ -62,6 +62,36 @@ def find_file_maps():
             # log.debug("video_extension = %s", video_extension)
             preview_file_name = hashlib.md5(prefix_video_name.encode('utf-8')).hexdigest() + ".webp"
             maps[key] = preview_file_name
+    for fname in sorted(glob.glob(jpg_extends)):
+        if os.path.isfile(fname):
+            #key = fname
+            list_file_url = fname.split("/")
+            tmp_video_name = list_file_url[len(list_file_url) - 1]
+            key = tmp_video_name
+            prefix_video_name = tmp_video_name.split(".")[0]
+            # log.debug("video_extension = %s", video_extension)
+            preview_file_name = hashlib.md5(prefix_video_name.encode('utf-8')).hexdigest() + ".webp"
+            maps[key] = preview_file_name
+    for fname in sorted(glob.glob(jpeg_extends)):
+        if os.path.isfile(fname):
+            #key = fname
+            list_file_url = fname.split("/")
+            tmp_video_name = list_file_url[len(list_file_url) - 1]
+            key = tmp_video_name
+            prefix_video_name = tmp_video_name.split(".")[0]
+            # log.debug("video_extension = %s", video_extension)
+            preview_file_name = hashlib.md5(prefix_video_name.encode('utf-8')).hexdigest() + ".webp"
+            maps[key] = preview_file_name
+    for fname in sorted(glob.glob(png_extends)):
+        if os.path.isfile(fname):
+            #key = fname
+            list_file_url = fname.split("/")
+            tmp_video_name = list_file_url[len(list_file_url) - 1]
+            key = tmp_video_name
+            prefix_video_name = tmp_video_name.split(".")[0]
+            # log.debug("video_extension = %s", video_extension)
+            preview_file_name = hashlib.md5(prefix_video_name.encode('utf-8')).hexdigest() + ".webp"
+            maps[key] = preview_file_name
     print("maps :", maps)
     return maps
 
