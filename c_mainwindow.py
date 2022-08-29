@@ -255,6 +255,7 @@ class MainUi(QMainWindow):
         blank_layout = QVBoxLayout(btm_left_frame)
 
         version_label.setText("GIS LED\n" + "version:" + version)
+        version_label.setFont(QFont(qfont_style_default, qfont_style_size_medium))
         version_label.setFixedHeight(200)
 
         test_label = QLabel(btm_left_frame)
@@ -695,6 +696,16 @@ class MainUi(QMainWindow):
                            str(self.media_engine.media_processor.video_params.frame_brightness))
         elif data.get("set_ledclients_reboot_option"):
             log.debug("set_ledclients_reboot_option")
+            clients = self.clients
+            for c in clients:
+                # keygen_cmd = "ssh-keygen -f \"/home/venom/.ssh/known_hosts\" -R \"192.168.0.19\""
+                # log.debug("keygen_cmd : %s", keygen_cmd)
+                # k = os.popen(keygen_cmd)
+                # k.close()
+                reboot_cmd = "sshpass -p workout13 ssh -o StrictHostKeyChecking=no root@" + c.client_ip + " " + "reboot"
+                log.debug("reboot_cmd : %s", reboot_cmd)
+                k = os.popen(reboot_cmd)
+                k.close()
 
 
         elif data.get("start_color_test"):
