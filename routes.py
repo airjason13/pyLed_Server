@@ -294,8 +294,8 @@ def set_frame_brightness_option(data):
     return status_code
 
 
-@app.route('/set_ledserver_reboot_option/<data>', methods=['POST'])
-def set_ledserver_reboot_option(data):
+@app.route('/set_ledserver_reboot_option/', methods=['POST'])
+def set_ledserver_reboot_option():
     log.debug("route set_ledserver_reboot_option")
 
     k = os.popen("reboot")
