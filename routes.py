@@ -294,6 +294,17 @@ def set_frame_brightness_option(data):
     return status_code
 
 
+@app.route('/set_ledserver_reboot_option/<data>', methods=['POST'])
+def set_ledserver_reboot_option(data):
+    log.debug("route set_ledserver_reboot_option")
+
+    k = os.popen("reboot")
+    k.close()
+
+    status_code = Response(status=200)
+    return status_code
+
+
 @app.route('/get_thumbnail/<filename>')
 def route_get_thumbnail(filename):
     # log.debug("fname = %s", filename)

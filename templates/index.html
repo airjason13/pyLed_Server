@@ -101,6 +101,14 @@ function submit_wifi_configure(){
         });
 }
 
+
+function submit_ledserver_reboot_option(){
+
+    var url = "/set_ledserver_reboot_option/";
+    $.post(url, {
+        });
+}
+
 function submit_frame_brightness_option(){
 
     var f_br = document.getElementById("frame_brightness").value;
@@ -281,6 +289,10 @@ function submit_repeat_option(data){
     </div>
 
 
+    <button class="button-84" id="btn_server_reboot"
+                role="button" onclick="submit_ledserver_reboot()" >
+            Wifi Configure
+        </button>
 
 </body>
 
