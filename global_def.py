@@ -3,7 +3,7 @@ import platform
 import os
 from pathlib import Path
 """Software version"""
-version = "LS220082901"
+version = "LS220082902"
 
 def get_led_role():
     led_role = "Server"
@@ -95,6 +95,10 @@ class repeat_option(enum.IntEnum):
     repeat_all = 2
     repeat_random = 3
     repeat_option_max = 3
+
+
+day_mode_brightness = 50
+night_mode_brightness = 30
 
 
 """ UI relative"""

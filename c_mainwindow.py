@@ -23,7 +23,7 @@ from qtui.c_page_medialist import *
 from PyQt5.QtCore import QThread, pyqtSignal, QDateTime, QObject
 from str_define import *
 from g_defs.c_bluetooth import BlueTooth
-
+from datetime import datetime
 from qlocalmessage import send_message
 
 log = utils.log_utils.logging_init(__file__)
@@ -209,6 +209,57 @@ class MainUi(QMainWindow):
 
         self.bt_handle = BlueTooth()
         self.bt_handle.start()
+
+        self.date_timer = QTimer(self)
+        self.date_timer.timeout.connect(self.check_date_timer)
+        self.date_timer.start(1*60*1000)
+
+    def check_date_timer(self):
+        log.debug("")
+        now = datetime.now()
+
+        # dd/mm/YY H:M:S
+        # dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
+        # log.debug("date and time = %s", dt_string)
+        # dt_hour_string = now.strftime("%H")
+        today8am = now.replace(hour=6, minute=0, second=0, microsecond=0)
+        today18pm = now.replace(hour=18, minute=30, second=0, microsecond=0)
+        if today8am < now < today18pm:
+            log.debug("day mode")
+            if self.media_engine.media_processor.video_params.frame_brightness != day_mode_brightness:
+                self.media_engine.media_processor.set_frame_brightness_value(day_mode_brightness)
+
+                self.hdmi_in_page.client_brightness_edit.setText(
+                    str(self.media_engine.media_processor.video_params.get_frame_brightness()))
+                self.medialist_page.client_brightness_edit.setText(
+                    str(self.media_engine.media_processor.video_params.get_frame_brightness()))
+
+                clients = self.clients
+                for c in clients:
+                    c.send_cmd(cmd_set_frame_brightness,
+                               self.cmd_seq_id_increase(),
+                               str(self.media_engine.media_processor.video_params.frame_brightness))
+        else:
+            log.debug("night mode")
+            if self.media_engine.media_processor.video_params.frame_brightness != night_mode_brightness:
+                self.media_engine.media_processor.set_frame_brightness_value(night_mode_brightness)
+
+                self.hdmi_in_page.client_brightness_edit.setText(
+                    str(self.media_engine.media_processor.video_params.get_frame_brightness()))
+                self.medialist_page.client_brightness_edit.setText(
+                    str(self.media_engine.media_processor.video_params.get_frame_brightness()))
+
+                clients = self.clients
+                for c in clients:
+                    c.send_cmd(cmd_set_frame_brightness,
+                               self.cmd_seq_id_increase(),
+                               str(self.media_engine.media_processor.video_params.frame_brightness))
+
+        # log.debug("date and time = %s", dt_hour_string)
+        '''if int(dt_hour_string) >= 18 or int(dt_hour_string) < 6:
+            log.debug("night mode")
+        else:
+            log.debug("day mode")'''
 
     def demo_start_cms(self):
         self.func_cms_setting()
