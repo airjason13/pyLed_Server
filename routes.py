@@ -305,6 +305,16 @@ def set_ledserver_reboot_option():
     return status_code
 
 
+@app.route('/set_ledclients_reboot_option/', methods=['POST'])
+def set_ledclients_reboot_option():
+    log.debug("route set_ledclients_reboot_option")
+    data = "true"
+    send_message(set_ledclients_reboot_option=data)
+
+    status_code = Response(status=200)
+    return status_code
+
+
 @app.route('/get_thumbnail/<filename>')
 def route_get_thumbnail(filename):
     # log.debug("fname = %s", filename)

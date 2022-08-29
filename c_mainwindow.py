@@ -693,6 +693,10 @@ class MainUi(QMainWindow):
                 c.send_cmd(cmd_set_frame_brightness,
                            self.cmd_seq_id_increase(),
                            str(self.media_engine.media_processor.video_params.frame_brightness))
+        elif data.get("set_ledclients_reboot_option"):
+            log.debug("set_ledclients_reboot_option")
+
+
         elif data.get("start_color_test"):
             log.debug("start_color_test")
             clients = self.clients

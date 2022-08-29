@@ -109,6 +109,13 @@ function submit_ledserver_reboot(){
         });
 }
 
+function submit_ledclients_reboot(){
+
+    var url = "/set_ledclients_reboot_option/";
+    $.post(url, {
+        });
+}
+
 function submit_frame_brightness_option(){
 
     var f_br = document.getElementById("frame_brightness").value;
@@ -288,10 +295,15 @@ function submit_repeat_option(data){
         </button>
     </div>
 
-
+    <!-- led server reboot btn-->
     <button class="button-84" id="btn_server_reboot"
                 role="button" onclick="submit_ledserver_reboot()" >
             LedServer Reboot
+        </button>
+    <!-- led clients reboot btn-->
+    <button class="button-84" id="btn_clients_reboot"
+                role="button" onclick="submit_ledclients_reboot()" >
+            LedClients Reboot
         </button>
 
 </body>
