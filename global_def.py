@@ -97,8 +97,10 @@ class repeat_option(enum.IntEnum):
     repeat_option_max = 3
 
 
-day_mode_brightness = 50
-night_mode_brightness = 30
+day_mode_brightness = 90
+night_mode_brightness = 60
+sleep_mode_brightness = 0
+
 
 
 """ UI relative"""

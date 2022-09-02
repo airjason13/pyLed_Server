@@ -201,7 +201,7 @@ class MainUi(QMainWindow):
         log.debug("self.geo y : %d", self.geometry().y())
         self.page_ui_mutex = QMutex()
         # QTimer.singleShot(5000, self.demo_start_playlist)
-        # QTimer.singleShot(5000, self.demo_start_hdmi_in)
+        QTimer.singleShot(5000, self.demo_start_hdmi_in)
         # QTimer.singleShot(5000, self.demo_start_cms)
         # self.select_preview_v4l2_device()
         utils.file_utils.find_ffmpeg_process()
@@ -222,9 +222,10 @@ class MainUi(QMainWindow):
         # dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
         # log.debug("date and time = %s", dt_string)
         # dt_hour_string = now.strftime("%H")
-        today8am = now.replace(hour=6, minute=0, second=0, microsecond=0)
-        today18pm = now.replace(hour=18, minute=30, second=0, microsecond=0)
-        if today8am < now < today18pm:
+        today5am = now.replace(hour=5, minute=0, second=0, microsecond=0)
+        today19pm = now.replace(hour=19, minute=0, second=0, microsecond=0)
+        today23pm = now.replace(hour=23, minute=0, second=0, microsecond=0)
+        if today5am < now < today19pm:
             log.debug("day mode")
             if self.media_engine.media_processor.video_params.frame_brightness != day_mode_brightness:
                 self.media_engine.media_processor.set_frame_brightness_value(day_mode_brightness)
@@ -239,6 +240,22 @@ class MainUi(QMainWindow):
                     c.send_cmd(cmd_set_frame_brightness,
                                self.cmd_seq_id_increase(),
                                str(self.media_engine.media_processor.video_params.frame_brightness))
+        elif today23pm < now or now < today5am:
+            log.debug("sleep mode")
+            if self.media_engine.media_processor.video_params.frame_brightness != sleep_mode_brightness:
+                self.media_engine.media_processor.set_frame_brightness_value(day_mode_brightness)
+
+                self.hdmi_in_page.client_brightness_edit.setText(
+                    str(self.media_engine.media_processor.video_params.get_frame_brightness()))
+                self.medialist_page.client_brightness_edit.setText(
+                    str(self.media_engine.media_processor.video_params.get_frame_brightness()))
+
+                clients = self.clients
+                for c in clients:
+                    c.send_cmd(cmd_set_frame_brightness,
+                               self.cmd_seq_id_increase(),
+                               str(self.media_engine.media_processor.video_params.frame_brightness))
+            
         else:
             log.debug("night mode")
             if self.media_engine.media_processor.video_params.frame_brightness != night_mode_brightness:
@@ -267,9 +284,10 @@ class MainUi(QMainWindow):
         self.cms_page.start_play_cms()
 
     def demo_start_hdmi_in(self):
+        log.debug("timer trigger demo_start play_hdmi_in")
         self.func_hdmi_in_contents()
         log.debug("demo_start play_hdmi_in")
-        self.hdmi_in_page.send_to_led()
+        self.hdmi_in_page.start_send_to_led()
 
     def demo_start_playlist(self):
         self.func_file_contents()
