@@ -28,6 +28,11 @@ class video_params(QObject):
             self.video_green_bias = green_bias
             self.video_blue_bias = blue_bias
             # control by clients
+            self.frame_brightness_algorithm = frame_brightness_adjust.auto_time_mode
+            self.frame_brightness = default_led_client_brightness
+            self.day_mode_frame_brightness = day_mode_brightness
+            self.night_mode_frame_brightness = night_mode_brightness
+            self.sleep_mode_frame_brightness = sleep_mode_brightness
             self.frame_brightness = default_led_client_brightness
             self.frame_br_divisor = default_led_client_brdivisor
             self.frame_contrast = 0
@@ -51,7 +56,10 @@ class video_params(QObject):
         if os.path.isfile(file_uri) is False:
             content_lines = [
                             "brightness=50\n", "contrast=50\n", "red_bias=0\n", "green_bias=0\n", "blue_bias=0\n",
-                            "frame_brightness=100\n", "frame_br_divisor=1\n", "frame_contrast=0\n", "frame_gamma=2.2\n",
+                            "frame_brightness_algorithm=0\n",
+                            "frame_brightness=100\n", "day_mode_frame_brightness=77\n",
+                            "night_mode_frame_brightness=50\n", "sleep_mode_frame_brightness=0\n",
+                            "frame_br_divisor=1\n", "frame_contrast=0\n", "frame_gamma=2.2\n",
                             "image_period=60\n", "crop_start_x=0\n", "crop_start_y=0\n", "crop_w=0\n", "crop_h=0\n",
                             "hdmi_in_crop_start_x=0\n", "hdmi_in_crop_start_y=0\n",
                             "hdmi_in_crop_w=0\n", "hdmi_in_crop_h=0\n",
@@ -60,7 +68,28 @@ class video_params(QObject):
             config_file.writelines(content_lines)
             config_file.close()
             os.system('sync')
-
+        else:
+            # check all video parameters exist
+            b_ret = self.check_video_params_file_valid()
+            if b_ret is False:
+                # re-generate video_params_file
+                content_lines = [
+                    "brightness=50\n", "contrast=50\n", "red_bias=0\n", "green_bias=0\n", "blue_bias=0\n",
+                    "frame_brightness_algorithm=0\n",
+                    "frame_brightness=100\n", "day_mode_frame_brightness=77\n",
+                    "night_mode_frame_brightness=50\n", "sleep_mode_frame_brightness=0\n",
+                    "frame_br_divisor=1\n", "frame_contrast=0\n", "frame_gamma=2.2\n",
+                    "image_period=60\n", "crop_start_x=0\n", "crop_start_y=0\n", "crop_w=0\n", "crop_h=0\n",
+                    "hdmi_in_crop_start_x=0\n", "hdmi_in_crop_start_y=0\n",
+                    "hdmi_in_crop_w=0\n", "hdmi_in_crop_h=0\n",
+                ]
+                config_file = open(file_uri, 'w')
+                config_file.writelines(content_lines)
+                config_file.close()
+                os.system('sync')
+                pass
+            else:
+                pass
         log.debug('file_uri = %s', file_uri)
         config_file = open(file_uri, 'r')
         content_lines = config_file.readlines()
@@ -272,3 +301,33 @@ class video_params(QObject):
 
     def get_hdmi_in_crop_h(self):
         return self.hdmi_in_crop_h
+
+    def check_video_params_file_valid(self):
+        log.debug("")
+        file_uri = self.video_params_file_uri
+        log.debug("file_uri = %s", file_uri)
+        config_file = open(file_uri, 'r')
+        content_lines = config_file.readlines()
+        log.debug("content_lines = %s", content_lines)
+        content_tags = [
+            "brightness", "contrast", "red_bias", "green_bias", "blue_bias", "frame_brightness_algorithm",
+            "frame_brightness", "day_mode_frame_brightness", "night_mode_frame_brightness",
+            "sleep_mode_frame_brightness",
+            "frame_br_divisor", "frame_contrast", "frame_gamma",
+            "image_period", "crop_start_x", "crop_start_y", "crop_w", "crop_h",
+            "hdmi_in_crop_start_x", "hdmi_in_crop_start_y",
+            "hdmi_in_crop_w", "hdmi_in_crop_h",
+        ]
+
+        for tag in content_tags:
+            tag_found = False
+            for line in content_lines:
+                if tag in line:
+                    tag_found = True
+
+            if tag_found is False:
+                log.debug("%s does not exist", tag)
+                config_file.close()
+                return False
+        config_file.close()
+        return True

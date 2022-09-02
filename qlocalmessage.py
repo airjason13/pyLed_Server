@@ -9,6 +9,7 @@ import utils.log_utils
 log = utils.log_utils.logging_init(__file__)
 _tries = 0
 
+
 def send_message(**data):
     socket = QtNetwork.QLocalSocket()
     # log("in send message, SERVER:", get_server_name())

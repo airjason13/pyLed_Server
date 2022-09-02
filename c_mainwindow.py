@@ -1,6 +1,7 @@
 # coding=UTF-8
 from time import sleep
 import qthreads.c_alive_report_thread
+
 import utils.ffmpy_utils
 import utils.file_utils
 import utils.log_utils
@@ -25,7 +26,7 @@ from str_define import *
 from g_defs.c_bluetooth import BlueTooth
 from datetime import datetime
 from qlocalmessage import send_message
-
+from qt_web_comunication import *
 log = utils.log_utils.logging_init(__file__)
 
 
@@ -201,7 +202,7 @@ class MainUi(QMainWindow):
         log.debug("self.geo y : %d", self.geometry().y())
         self.page_ui_mutex = QMutex()
         # QTimer.singleShot(5000, self.demo_start_playlist)
-        QTimer.singleShot(5000, self.demo_start_hdmi_in)
+        # QTimer.singleShot(5000, self.demo_start_hdmi_in)
         # QTimer.singleShot(5000, self.demo_start_cms)
         # self.select_preview_v4l2_device()
         utils.file_utils.find_ffmpeg_process()
@@ -215,9 +216,10 @@ class MainUi(QMainWindow):
         self.date_timer.start(1*60*1000)
 
     def check_date_timer(self):
-        log.debug("")
+        if self.media_engine.media_processor.video_params.frame_brightness_algorithm == frame_brightness_adjust.fix:
+            log.debug("frame_brightness_adjust.fix")
+            return
         now = datetime.now()
-
         # dd/mm/YY H:M:S
         # dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
         # log.debug("date and time = %s", dt_string)
@@ -792,7 +794,6 @@ class MainUi(QMainWindow):
                            self.cmd_seq_id_increase(),
                            str(data.get("stop_color_test")))
 
-
     def check_client(self, ip, data):
         is_found = False
         tmp_client = None
@@ -816,6 +817,9 @@ class MainUi(QMainWindow):
 
                 self.client_id_count += 1
                 self.clients.append(c)
+
+                # add clients in web page
+                set_tmp_clients(self.clients)
 
                 # send brightness and br_divisor to the new client
                 c.send_cmd(cmd_set_frame_brightness,

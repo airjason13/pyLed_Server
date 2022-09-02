@@ -10,6 +10,8 @@ from wtforms import validators, RadioField, SubmitField, IntegerField
 import utils.log_utils
 import hashlib
 import os
+from qt_web_comunication import *
+from g_defs.c_client import client
 log = utils.log_utils.logging_init(__file__)
 
 
@@ -21,6 +23,8 @@ route_text_size = 16
 route_text_content = ""
 
 
+
+
 def route_set_text_size(size):
     global route_text_size
     try:
@@ -28,6 +32,7 @@ def route_set_text_size(size):
     except Exception as e:
         log.debug(e)
         route_text_size = 16
+
 
 def route_set_text_content(content):
     log.debug("content:%s", content)
@@ -325,13 +330,17 @@ def route_get_thumbnail(filename):
 def test_page():
     return render_template("test_page.html")
 
+
 @app.route("/")
 def index():
     maps = find_file_maps()
     playlist_nest_dict = find_playlist_maps()
     log.debug("playlist_maps = %s", playlist_nest_dict)
     log.debug("routes_repeat_option = %s", routes_repeat_option)
-
+    # get client information
+    # tmp_clients = get_tmp_clients()
+    # log.debug("len(tmp_clients)  =%d", len(tmp_clients))
+    # log.debug("tmp_clients[0].client_ip  =%s", tmp_clients[0].client_ip)
     return render_template("index.html", files=maps, playlist_nest_dict=playlist_nest_dict,
                            repeat_option=routes_repeat_option, text_size=route_text_size,
                            text_content=route_text_content, text_period=20)

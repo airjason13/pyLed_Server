@@ -3,7 +3,8 @@ import platform
 import os
 from pathlib import Path
 """Software version"""
-version = "LS220082902"
+version = "LS22090201"
+
 
 def get_led_role():
     led_role = "Server"
@@ -89,12 +90,20 @@ class play_status(enum.IntEnum):
     playing = 1
     pausing = 2
 
+
 class repeat_option(enum.IntEnum):
     repeat_none = 0
     repeat_one = 1
     repeat_all = 2
     repeat_random = 3
     repeat_option_max = 3
+
+
+class frame_brightness_adjust(enum.IntEnum):
+    fix = 0
+    auto_time_mode = 1
+    auto_als_mode = 2
+
 
 
 day_mode_brightness = 90
