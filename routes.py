@@ -23,8 +23,6 @@ route_text_size = 16
 route_text_content = ""
 
 
-
-
 def route_set_text_size(size):
     global route_text_size
     try:
@@ -53,9 +51,10 @@ def route_set_repeat_option(option):
     elif option == 3:
         routes_repeat_option = "Repeat_Random"
 
+
 def find_file_maps():
     maps = {}
-    log.debug("mp4_extends = %s", mp4_extends)
+    # log.debug("mp4_extends = %s", mp4_extends)
     # need to add png/jpg/jpeg
     for fname in sorted(glob.glob(mp4_extends)):
         if os.path.isfile(fname):
@@ -103,9 +102,9 @@ def find_file_maps():
 
 def find_playlist_maps():
     playlist_nest_dict = {}
-    log.debug("playlist_extends = %s", playlist_extends)
+    # log.debug("playlist_extends = %s", playlist_extends)
     for playlist_tmp in sorted(glob.glob(playlist_extends)):
-        log.debug("playlist_tmp = %s", playlist_tmp)
+        # log.debug("playlist_tmp = %s", playlist_tmp)
         if os.path.isfile(playlist_tmp):
             playlist_name_list = playlist_tmp.split("/")
             playlist_name = playlist_name_list[len(playlist_name_list) - 1]
@@ -119,6 +118,8 @@ def find_playlist_maps():
                 prefix_video_name = fname.split(".")[0]
                 # log.debug("video_extension = %s", video_extension)
                 preview_file_name = hashlib.md5(prefix_video_name.encode('utf-8')).hexdigest() + ".webp"
+                # bug
+                # if the fname is the same as item before, there is only one in nest!!!!!
                 playlist_nest_dict[playlist_name][fname] = preview_file_name
 
     print(playlist_nest_dict)
@@ -299,6 +300,204 @@ def set_frame_brightness_option(data):
     return status_code
 
 
+@app.route('/create_new_playlist/<data>', methods=['POST'])
+def create_new_playlist(data):
+    log.debug("route create_new_playlist data : %s", data)
+    try:
+        playlist_uri = internal_media_folder + PlaylistFolder + data.split(";")[0].split(":")[1] + ".playlist"
+        file_name = data.split(";")[1].split(":")[1]
+        log.debug("playlist_uri = %s", playlist_uri)
+        if playlist_uri is not None and file_name is not None:
+            playlist_file = open(playlist_uri, "w+")
+            log.debug("file_name = %s", file_name)
+            file_uri = internal_media_folder + "/" + file_name + "\n"
+            log.debug("file_uri = %s", file_uri)
+            playlist_file.write(file_uri)
+            playlist_file.flush()
+            playlist_file.truncate()
+            playlist_file.close()
+    except Exception as e:
+        log.debug(e)
+
+    # send_message(set_frame_brightness_option=data)
+    # status_code = Response(status=200)
+    # return status_code
+    maps = find_file_maps()
+    playlist_nest_dict = find_playlist_maps()
+    log.debug("playlist_maps = %s", playlist_nest_dict)
+    log.debug("routes_repeat_option = %s", routes_repeat_option)
+    import json
+
+    playlist_js_file = open("static/playlist.js", "w")
+    playlist_json = json.dumps(playlist_nest_dict)
+    # print("playlist_json : " + playlist_json)
+
+    playlist_js_file.write("var jsonstr = " + playlist_json)
+    playlist_js_file.truncate()
+    playlist_js_file.close()
+    return render_template("index.html", files=maps, playlist_nest_dict=playlist_nest_dict,
+                           repeat_option=routes_repeat_option, text_size=route_text_size,
+                           text_content=route_text_content, text_period=20)
+
+@app.route('/remove_media_file/<data>', methods=['POST'])
+def remove_media_file(data):
+    log.debug("route remove_media_file data : %s", data)
+    file_uri = internal_media_folder + "/" + data
+    log.debug("file_uri : %s", file_uri)
+    if os.path.isfile(file_uri) is True:
+        log.debug("file_uri exists")
+        os.remove(file_uri)
+        list_file_url = file_uri.split("/")
+        tmp_video_name = list_file_url[len(list_file_url) - 1]
+        key = tmp_video_name
+        prefix_video_name = tmp_video_name.split(".")[0]
+        # log.debug("video_extension = %s", video_extension)
+        preview_file_name = hashlib.md5(prefix_video_name.encode('utf-8')).hexdigest() + ".webp"
+        preview_file_uri = internal_media_folder + "/" + ThumbnailFileFolder + preview_file_name
+        if os.path.isfile(preview_file_uri) is True:
+            log.debug("preview_file_uri exists")
+            os.remove(preview_file_uri)
+            os.popen("sync")
+            # remove file in playlist
+            for playlist_tmp in sorted(glob.glob(playlist_extends)):
+                log.debug("playlist_tmp = %s", playlist_tmp)
+                if os.path.isfile(playlist_tmp):
+                    playlist_fd = open(playlist_tmp, "r")
+                    lines = playlist_fd.readlines()
+                    playlist_fd.close()
+                    playlist_fd = open(playlist_tmp, "w")
+                    for line in lines:
+                        if line.strip("\n") != file_uri:
+                            playlist_fd.write(line)
+                    playlist_fd.flush()
+                    playlist_fd.truncate()
+                    playlist_fd.close()
+
+    maps = find_file_maps()
+    playlist_nest_dict = find_playlist_maps()
+    # handle remove file uri in playlists
+    for playlist in playlist_nest_dict:
+        log.debug("playlist :%s ", playlist)
+    log.debug("playlist_maps = %s", playlist_nest_dict)
+    log.debug("routes_repeat_option = %s", routes_repeat_option)
+    import json
+
+    playlist_js_file = open("static/playlist.js", "w")
+    playlist_json = json.dumps(playlist_nest_dict)
+
+    playlist_js_file.write("var jsonstr = " + playlist_json)
+    playlist_js_file.truncate()
+    playlist_js_file.close()
+    return render_template("index.html", files=maps, playlist_nest_dict=playlist_nest_dict,
+                           repeat_option=routes_repeat_option, text_size=route_text_size,
+                           text_content=route_text_content, text_period=20)
+
+
+@app.route('/add_to_playlist/<data>', methods=['POST'])
+def add_to_playlist(data):
+    log.debug("add_to_playlist data:%s", data)
+    playlist_name = data.split(";")[0].split(":")[1]
+    playlist_uri = internal_media_folder + PlaylistFolder + playlist_name
+    file_name = data.split(";")[1].split(":")[1]
+    file_uri = internal_media_folder + "/" + file_name
+    log.debug("file_name:%s, playlist_name:%s", file_name, playlist_name)
+    log.debug("file_uri:%s, playlist_uri:%s", file_uri, playlist_uri)
+    playlist_fd = open(playlist_uri, "a")
+    playlist_fd.write(file_uri + "\n")
+    playlist_fd.flush()
+    playlist_fd.truncate()
+    playlist_fd.close()
+    os.popen("sync")
+
+    maps = find_file_maps()
+    playlist_nest_dict = find_playlist_maps()
+    # handle remove file uri in playlists
+    for playlist in playlist_nest_dict:
+        log.debug("playlist :%s ", playlist)
+    log.debug("playlist_maps = %s", playlist_nest_dict)
+    log.debug("routes_repeat_option = %s", routes_repeat_option)
+    import json
+
+    playlist_js_file = open("static/playlist.js", "w")
+    playlist_json = json.dumps(playlist_nest_dict)
+
+    playlist_js_file.write("var jsonstr = " + playlist_json)
+    playlist_js_file.truncate()
+    playlist_js_file.close()
+    return render_template("index.html", files=maps, playlist_nest_dict=playlist_nest_dict,
+                           repeat_option=routes_repeat_option, text_size=route_text_size,
+                           text_content=route_text_content, text_period=20)
+    # status_code = Response(status=200)
+    # return status_code
+
+
+@app.route('/remove_playlist/<data>', methods=['POST'])
+def remove_playlist(data):
+    log.debug("remove_playlist : %s", data)
+
+    playlist_uri = internal_media_folder + PlaylistFolder + data
+    if os.path.isfile(playlist_uri):
+        os.remove(playlist_uri)
+        os.popen("sync")
+
+    maps = find_file_maps()
+    playlist_nest_dict = find_playlist_maps()
+    # handle remove file uri in playlists
+    for playlist in playlist_nest_dict:
+        log.debug("playlist :%s ", playlist)
+    log.debug("playlist_maps = %s", playlist_nest_dict)
+    log.debug("routes_repeat_option = %s", routes_repeat_option)
+    import json
+
+    playlist_js_file = open("static/playlist.js", "w")
+    playlist_json = json.dumps(playlist_nest_dict)
+
+    playlist_js_file.write("var jsonstr = " + playlist_json)
+    playlist_js_file.truncate()
+    playlist_js_file.close()
+    return render_template("index.html", files=maps, playlist_nest_dict=playlist_nest_dict,
+                           repeat_option=routes_repeat_option, text_size=route_text_size,
+                           text_content=route_text_content, text_period=20)
+
+@app.route('/remove_file_from_playlist/<data>', methods=['POST'])
+def remove_file_from_playlist(data):
+    log.debug("remove_file_from_playlist : %s", data)
+    playlist_uri = internal_media_folder + PlaylistFolder + data.split(";")[0].split(":")[1]
+    file_uri = internal_media_folder + PlaylistFolder + data.split(";")[1].split(":")[1]
+    log.debug("playlist_uri : %s", playlist_uri)
+    log.debug("file_uri : %s", file_uri)
+    if os.path.isfile(playlist_uri):
+        with open(playlist_uri, "r") as fr:
+            lines = fr.readlines()
+            fr.close()
+        with open(playlist_uri, "w") as fw:
+            for line in lines:
+                if line.strip("\n") != file_uri:
+                    fw.write(line)
+                    fw.flush()
+                    fw.truncate()
+                    fw.close()
+
+    maps = find_file_maps()
+    playlist_nest_dict = find_playlist_maps()
+    # handle remove file uri in playlists
+    for playlist in playlist_nest_dict:
+        log.debug("playlist :%s ", playlist)
+    log.debug("playlist_maps = %s", playlist_nest_dict)
+    log.debug("routes_repeat_option = %s", routes_repeat_option)
+    import json
+
+    playlist_js_file = open("static/playlist.js", "w")
+    playlist_json = json.dumps(playlist_nest_dict)
+
+    playlist_js_file.write("var jsonstr = " + playlist_json)
+    playlist_js_file.truncate()
+    playlist_js_file.close()
+    return render_template("index.html", files=maps, playlist_nest_dict=playlist_nest_dict,
+                           repeat_option=routes_repeat_option, text_size=route_text_size,
+                           text_content=route_text_content, text_period=20)
+
+
 @app.route('/set_ledserver_reboot_option/', methods=['POST'])
 def set_ledserver_reboot_option():
     log.debug("route set_ledserver_reboot_option")
@@ -337,6 +536,15 @@ def index():
     playlist_nest_dict = find_playlist_maps()
     log.debug("playlist_maps = %s", playlist_nest_dict)
     log.debug("routes_repeat_option = %s", routes_repeat_option)
+    import json
+    playlist_js_file = open("static/playlist.js", "w")
+    playlist_json = json.dumps(playlist_nest_dict)
+
+    playlist_js_file.write("var jsonstr = " + playlist_json)
+    playlist_js_file.flush()
+    playlist_js_file.truncate()
+    playlist_js_file.close()
+
     # get client information
     # tmp_clients = get_tmp_clients()
     # log.debug("len(tmp_clients)  =%d", len(tmp_clients))

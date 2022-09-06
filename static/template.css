@@ -239,3 +239,9 @@ input[type='number']{
     width: 80px;
 }
 
+.contextMenu_container {
+  padding:5vh;
+  width:20%;
+  margin:10vh auto;
+}
+

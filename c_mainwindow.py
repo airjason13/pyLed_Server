@@ -216,6 +216,7 @@ class MainUi(QMainWindow):
         self.date_timer.start(1*60*1000)
 
     def check_date_timer(self):
+        self.media_engine.media_processor.video_params.frame_brightness_algorithm
         if self.media_engine.media_processor.video_params.frame_brightness_algorithm == frame_brightness_adjust.fix:
             log.debug("frame_brightness_adjust.fix")
             return

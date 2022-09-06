@@ -18,6 +18,7 @@ import faulthandler
 faulthandler.enable()
 
 app = Flask(__name__)
+app.config['TEMPLATES_AUTO_RELOAD'] = True
 from routes import *
 
 

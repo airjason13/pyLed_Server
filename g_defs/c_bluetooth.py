@@ -103,7 +103,7 @@ class BlueTooth(QtCore.QThread):
 			process.close()
 
 	def bt_set_discoverable(self):
-		log.debug("")
+		# log.debug("")
 		process = os.popen('bluetoothctl discoverable on')
 		p_read = process.read()
 		process.close()

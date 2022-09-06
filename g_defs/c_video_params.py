@@ -28,12 +28,13 @@ class video_params(QObject):
             self.video_green_bias = green_bias
             self.video_blue_bias = blue_bias
             # control by clients
+
             self.frame_brightness_algorithm = frame_brightness_adjust.auto_time_mode
             self.frame_brightness = default_led_client_brightness
             self.day_mode_frame_brightness = day_mode_brightness
             self.night_mode_frame_brightness = night_mode_brightness
             self.sleep_mode_frame_brightness = sleep_mode_brightness
-            self.frame_brightness = default_led_client_brightness
+            # self.frame_brightness = default_led_client_brightness
             self.frame_br_divisor = default_led_client_brdivisor
             self.frame_contrast = 0
             self.frame_gamma = gamma
@@ -112,8 +113,16 @@ class video_params(QObject):
                 self.video_green_bias = int(tmp[1])
             elif tmp[0] == 'blue_bias':
                 self.video_blue_bias = int(tmp[1])
+            elif tmp[0] == 'frame_brightness_algorithm':
+                self.frame_brightness_algorithm = int(tmp[1])
             elif tmp[0] == 'frame_brightness':
                 self.frame_brightness = int(tmp[1])
+            elif tmp[0] == 'day_mode_frame_brightness':
+                self.day_mode_frame_brightness = int(tmp[1])
+            elif tmp[0] == 'night_mode_frame_brightness':
+                self.night_mode_frame_brightness = int(tmp[1])
+            elif tmp[0] == 'sleep_mode_frame_brightness':
+                self.sleep_mode_frame_brightness = int(tmp[1])
             elif tmp[0] == 'frame_br_divisor':
                 self.frame_br_divisor = int(tmp[1])
             elif tmp[0] == 'frame_contrast':

@@ -3,15 +3,33 @@
 <link rel="stylesheet" href="{{ url_for('static',    filename='template.css') }}">
 
 <!--防右鍵-->
-<script>
+<!--<script>
 document.oncontextmenu = new Function("return false");
 oncontextmenu="return false;"
-</script>
+</script>-->
 
 <!--<script src="https://cdn.bootcss.com/jquery/1.10.2/jquery.min.js"></script>-->
-<script>window.jQuery || document.write('<script src="static/jquery.min.js"><\/script>')</script>
+
+<!--<script src="static/jquery.min.js"></script>-->
+<!--<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.11.3/jquery.min.js" ></script>
+<script type="text/javascript" src="https://swisnl.github.io/jQuery-contextMenu/dist/jquery.contextMenu.js" ></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0/js/bootstrap.min.js" ></script>-->
+<!--<script>window.jQuery || document.write('<script src="static/jquery.min.js"><\/script>')</script>
+<script src="static/script.js" defer></script>-->
+<!--<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-contextmenu/2.7.1/jquery.contextMenu.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-contextmenu/2.7.1/jquery.contextMenu.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-contextmenu/2.7.1/jquery.ui.position.js"></script>-->
+
+<!-- contextmenu ok -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-contextmenu/2.9.2/jquery.contextMenu.min.js" integrity="sha512-kvg/Lknti7OoAw0GqMBP8B+7cGHvp4M9O9V6nAYG91FZVDMW3Xkkq5qrdMhrXiawahqU7IZ5CNsY/wWy1PpGTQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-contextmenu/2.9.2/jquery.contextMenu.css" integrity="sha512-EF5k2tHv4ShZB7zESroCVlbLaZq2n8t1i8mr32tgX0cyoHc3GfxuP7IoT8w/pD+vyoq7ye//qkFEqQao7Ofrag==" crossorigin="anonymous" referrerpolicy="no-referrer"
+/>
+<!--slider ok-->
 <script src="static/script.js" defer></script>
 <script>
+
 var cot=0;//設置一個計數器，初始值為0；作用是用來監聽點擊切換的時候哪一個圖片應該隱藏或者顯示
 var max_cot=0;
 function nex(){
@@ -28,7 +46,10 @@ function pre(){
     }
 }
 
+
+
 function play(data){
+
     /*alert(data );*/
     var url = "/play/" + data;
     $.post(url, {
@@ -147,11 +168,74 @@ function submit_repeat_option(data){
 }
 
 
+
+function rightClick(e) {
+    e.preventDefault();
+
+    alert(this.id);
+    alert(this.name);
+    if (document.getElementById("contextMenu") .style.display == "block"){
+        hideMenu();
+    }else{
+        var menu = document.getElementById("contextMenu")
+        menu.style.display = 'block';
+        menu.style.left = e.pageX + "px";
+        menu.style.top = e.pageY + "px";
+    }
+}
+
+function create_new_playlist(file) {
+    var playlist_name=prompt('Enter new playlist name');
+    if(playlist_name){
+        alert("create new playlist :" + playlist_name);
+        var data = "playlist_name:"+playlist_name+";file_name:"+file;
+        var url = "/create_new_playlist/" + data;
+        $.post(url, {
+            /*javascript_data: data*/
+            });
+    }
+}
+
+function remove_media_file(data) {
+    var url = "/remove_media_file/" + data;
+    $.post(url, {
+        /*javascript_data: data*/
+        });
+}
+
+
+function add_to_playlist(file, playlist) {
+    var data = "playlist_name:"+playlist+";file_name:"+file;
+    var url = "/add_to_playlist/" + data;
+    $.post(url, {
+        /*javascript_data: data*/
+        });
+}
+
+function remove_playlist(playlist) {
+    alert("remove playlist:" + playlist)
+    var url = "/remove_playlist/" + playlist;
+    $.post(url, {
+        /*javascript_data: data*/
+        });
+}
+
+function remove_file_from_playlist(playlist, file ) {
+
+    data = "playlist:" + playlist + ";file:" + file
+    alert("data :" + data)
+    var url = "/remove_file_from_playlist/" + data;
+    $.post(url, {
+        /*javascript_data: data*/
+        });
+}
+
 </script>
 
 
 
-<body ><!--style="background-color:#000000;">-->
+
+<body><!--style="background-color:#000000;">-->
     <!--<div class="div_total_frame">-->
     <div class="div_drawtext">
         <label class="label_h1" for="text_context" style="font-size:36px" ><font color="#0000FF">Play Text Option</font></label><br>
@@ -195,8 +279,6 @@ function submit_repeat_option(data){
     </div>
 
 
-
-
     <div class="row">
         <div class="header">
           <label class="label_h1" style="font-size:36px" ><font color="#0000FF">Media Files</font></label>
@@ -208,8 +290,57 @@ function submit_repeat_option(data){
             </button>
             <div class="slider">
                 {% for k,v in files.items() %}
-                        <input name="{{k}}" id="test_play" type="image" src="./get_thumbnail/{{v}}" onclick="play(name)"/>
+                        <input class="file_img" name="{{k}}" id="test_play" type="image" src="./get_thumbnail/{{v}}" onclick="play(name)" />
+                        <!-- handle the right click context meun-->
+                        <script type="text/javascript" src="static/playlist.js"></script>
+                        <style>
+                            .Type {
+                                font-family: "Courier New";
+                                font-size : 40px;
+                            }
+                            </style>
+                        <script>
+                        $(function() {
+                            var playlist_items = jsonstr
+                            console.log(Object.keys(playlist_items).length);
+                            var test_items=[{"name":"new a playlist"}, {"name":"remove this file"}];
+                            for (let i=0; i<Object.keys(playlist_items).length; i++){
+                                new_item={"name": "add to " + Object.keys(playlist_items)[i]};
+                                test_items.push(new_item);
+                            }
+                            $.contextMenu({
+                                selector: '.file_img',
+                                className: 'Type',
+                                callback: function(key, options) {
+                                    var m = "clicked: " + key;
+                                    var id = options.$trigger.attr("id");
+                                    window.console && console.log(id)
+                                    var name = options.$trigger.attr("name");
+                                    window.console && console.log(name)
+                                    if (key == 0){
+                                        var name = options.$trigger.attr("name");
+                                        create_new_playlist(name);
+                                    }
+                                    if (key == 1){
+                                        var name = options.$trigger.attr("name");
+                                        remove_media_file(name);
+                                    }
+                                    if ((key >= 2) && (key <= (Object.keys(playlist_items).length + 2))){
+                                        var name = options.$trigger.attr("name");
+                                        var playlist_tmp = Array.from(Object.keys(playlist_items)[key - 2]);
+                                        var playlist = playlist_tmp.join("");
+                                        add_to_playlist(name, playlist);
+                                    }
+                                },
+
+                                build: ($trigger, e) => ({
+                                    items: test_items
+                                  })
+                            });
+                        });
+                        </script>
                 {% endfor %}
+
             </div>
             <button class="handle right-handle">
                 <div class="text">&#8250;</div>
@@ -226,7 +357,7 @@ function submit_repeat_option(data){
             {% for k,v in playlist_nest_dict.items() %}
                 <div class="row">
                     <div class="header">
-                        <label class="label_h1" style="font-size:36px" ><font color="#0000FF">{{k}}</font></label>
+                        <label class="label_h1" id="playlist_name" style="font-size:36px" ><font color="#0000FF">{{k}}</font></label>
                     <div class="progress-bar"></div>
                 </div>
                 <div class="container">
@@ -235,7 +366,47 @@ function submit_repeat_option(data){
                     </button>
                         <div class="slider" style="--items-per-screen: 7">
                             {% for ki,vi in v.items() %}
-                                <input name="{{k}}" id="playlist_file" type="image" src="./get_thumbnail/{{vi}}" width="96" height="96" onclick="play_playlist(name)" />
+                                <input class="playlist_map" name="{{k}}" id="{{ki}}" type="image" src="./get_thumbnail/{{vi}}" width="96" height="96" onclick="play_playlist(name)" />
+                                <!-- handle the right click context meun-->
+                                <style>
+                                    .Type {
+                                        font-family: "Courier New";
+                                        font-size : 40px;
+                                    }
+                                    </style>
+                                <script>
+                                $(function() {
+                                    var test_items=[{"name":"remove playlist"}, {"name":"remove file from playlist"}];
+                                    $.contextMenu({
+                                        selector: '.playlist_map',
+                                        className: 'Type',
+                                        callback: function(key, options) {
+                                            var m = "clicked: " + key;
+                                            var id = options.$trigger.attr("id");
+                                            window.console && console.log(id)
+                                            var name = options.$trigger.attr("name");
+                                            window.console && console.log(name)
+                                            if (key == 0){
+                                                <!-- remove playlist -->
+                                                alert("name:" + name)
+                                                alert("id:" + id)
+                                                remove_playlist(name)
+                                            }
+                                            if (key == 1){
+                                                <!-- remove file from playlist -->
+                                                alert("name:" + name)
+                                                alert("id:" + id)
+                                                remove_file_from_playlist(name, id)
+                                            }
+
+                                        },
+
+                                        build: ($trigger, e) => ({
+                                            items: test_items
+                                          })
+                                    });
+                                });
+                                </script>
                             {% endfor %}
                         </div>
                     <button class="handle right-handle">
@@ -305,6 +476,8 @@ function submit_repeat_option(data){
                 role="button" onclick="submit_ledclients_reboot()" >
             LedClients Reboot
         </button>
+    
+
 
 </body>
 
