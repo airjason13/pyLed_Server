@@ -225,10 +225,44 @@ function remove_playlist(playlist) {
 }
 
 function remove_file_from_playlist(playlist, file ) {
-
     data = "playlist:" + playlist + ";file:" + file
     alert("data :" + data)
     var url = "/remove_file_from_playlist/" + data;
+    $.post(url, {
+        /*javascript_data: data*/
+        });
+}
+
+function submit_frame_brightness_mode_option(){
+    var radios = document.querySelectorAll('[type="radio"]');
+    var data = "fix_mode"
+    if(radios[0].checked){
+        /* fix mode checked*/
+        data = "fix_mode"
+    }else if(radios[1].checked){
+        data = "auto_time_mode"
+    }else if(radios[2].checked){
+        data = "auto_als_mode"
+    }else if(radios[3].checked){
+        data = "test_mode"
+    }
+    /* To be implement */
+    /* alert("data:" + data)*/
+    var url = "/set_brightness_algo/" + data;
+    $.post(url, {
+        /*javascript_data: data*/
+        });
+}
+
+
+function submit_frame_brightness_values_option(){
+    var fr_br = document.getElementById("frame_brightness").value
+    var day_mode_fr_br = document.getElementById("day_mode_frame_brightness").value
+    var night_mode_fr_br = document.getElementById("night_mode_frame_brightness").value
+    var sleep_mode_fr_br = document.getElementById("sleep_mode_frame_brightness").value
+    var data = "fr_br:" + fr_br + ";day_mode_fr_br:" + day_mode_fr_br +";night_mode_fr_br:" + night_mode_fr_br + ";sleep_mode_fr_br:" + sleep_mode_fr_br
+    /*alert("data : " + data)*/
+    var url = "/set_brightness_values/" + data;
     $.post(url, {
         /*javascript_data: data*/
         });
@@ -242,7 +276,8 @@ function remove_file_from_playlist(playlist, file ) {
 <body><!--style="background-color:#000000;">-->
     <!--<div class="div_total_frame">-->
     <div class="div_drawtext">
-        <label class="label_h1" for="text_context" style="font-size:36px" ><font color="#0000FF">Play Text Option</font></label><br>
+        <label style="font-size:36px" ><font color="#0000FF">Play Text Option</font></label><br>
+        <!--<label class="label_h1" for="text_context" style="font-size:36px" ><font color="#0000FF">Play Text Option</font></label><br>-->
         <label class="label_h1" for="text_context" style="font-size:24px" ><font color="#0000FF">Font Size:</font></label>
         <input id="text_font_size" type="number" id="text_font_size" name="text_font_size" size="6" style="font-size:24px" value={{ text_size }}>
         <label class="label_h1" for="text_context" style="font-size:24px" ><font color="#0000FF">Text Period:</font></label>
@@ -419,16 +454,27 @@ function remove_file_from_playlist(playlist, file ) {
                 </div>
             {% endfor %}
     </div>
+    <label style="font-size:36px" ><font color="#0000FF">{{ form.brightness_mode_switcher.label() }}</font></label><br>
+
+
+            {{ form.brightness_mode_switcher(onchange="submit_frame_brightness_mode_option()") }}
+    <!--<input class="button-84" type="submit" id="frame_brightness_mode_confirm" name="frame_brightness_confirm" value="Set" onclick="submit_frame_brightness_mode_option()">-->
+
 
     <div>
-        <label class="label_h1" for="text_context" style="font-size:24px" ><font color="#0000FF">Frame Brightness:</font></label>
-        <input id="frame_brightness" type="number" id="frame_brightness" name="frame_brightness" size="6" style="font-size:24px" value=50>
-        <input class="button-84" type="submit" id="frame_brightness_confirm" name="frame_brightness_confirm" value="Set" onclick="submit_frame_brightness_option()">
+        <label style="font-size:36px" ><font color="#0000FF">Brightness Values Setting:</font></label><br>
+
+        {% for k,v in brightnessvalues.items() %}
+            <label class="label_h1" for="text_context" style="font-size:24px" ><font color="#0000FF">{{k}}</font></label>
+            <input type="number" name="frame_brightness" id={{k}} size="6" style="font-size:24px" value={{v}}></br>
+        {% endfor %}
+        <input class="button-84" type="submit" id="frame_brightness_confirm" name="frame_brightness_confirm" value="Set" onclick="submit_frame_brightness_values_option()">
     </div>
 
 
     <div class="div_wifioption">
-        <label class="label_h1" style="font-size:36px" ><font color="#0000FF">Wifi Options: </font></label><br>
+        <label style="font-size:36px" ><font color="#0000FF">Wifi Options:</font></label><br>
+
         <label class="label_h1" style="font-size:24px" ><font color="#0000FF">Wifi Bands: </font></label>
         <select id="wifi_bands" name="Wifi Bands" style="font-size:24px">
         　<option value="2.4G">2.4G</option>

@@ -100,9 +100,10 @@ class repeat_option(enum.IntEnum):
 
 
 class frame_brightness_adjust(enum.IntEnum):
-    fix = 0
+    fix_mode = 0
     auto_time_mode = 1
     auto_als_mode = 2
+    test_mode = 3
 
 
 

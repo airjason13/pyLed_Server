@@ -10,6 +10,7 @@ from wtforms import validators, RadioField, SubmitField, IntegerField
 import utils.log_utils
 import hashlib
 import os
+import sys
 from qt_web_comunication import *
 from g_defs.c_client import client
 log = utils.log_utils.logging_init(__file__)
@@ -335,9 +336,83 @@ def create_new_playlist(data):
     playlist_js_file.write("var jsonstr = " + playlist_json)
     playlist_js_file.truncate()
     playlist_js_file.close()
+
+    brightnessAlgoform = BrightnessAlgoForm()
     return render_template("index.html", files=maps, playlist_nest_dict=playlist_nest_dict,
                            repeat_option=routes_repeat_option, text_size=route_text_size,
-                           text_content=route_text_content, text_period=20)
+                           text_content=route_text_content, text_period=20, form=brightnessAlgoform)
+
+
+def get_brightness_mode_default():
+    root_dir = os.path.dirname(sys.modules['__main__'].__file__)
+    led_config_dir = os.path.join(root_dir, 'video_params_config')
+
+    str_ret = 'fix_mode'
+    with open(os.path.join(led_config_dir, ".video_params_config"), "r") as f:
+        lines = f.readlines()
+    for line in lines:
+        if "frame_brightness_algorithm" in line:
+            tmp = line.strip("\n").split("=")[1]
+            if int(tmp) == 0:
+                str_ret = 'fix_mode'
+            elif int(tmp) == 1:
+                str_ret = 'auto_time_mode'
+            elif int(tmp) == 2:
+                str_ret = 'auto_als_mode'
+            elif int(tmp) == 3:
+                str_ret = 'test_mode'
+    f.close()
+    return str_ret
+
+
+def get_brightness_value_default():
+    root_dir = os.path.dirname(sys.modules['__main__'].__file__)
+    led_config_dir = os.path.join(root_dir, 'video_params_config')
+    brightness_values_maps = {}
+    str_fr_br = "0"
+    str_fr_br_day_mode = "0"
+    str_fr_br_night_mode = "0"
+    str_fr_br_sleep_mode = "0"
+    with open(os.path.join(led_config_dir, ".video_params_config"), "r") as f:
+        lines = f.readlines()
+
+    for line in lines:
+        tag = line.split("=")[0]
+        if "frame_brightness" == tag:
+            str_fr_br = line.strip("\n").split("=")[1]
+            brightness_values_maps["frame_brightness"] = str_fr_br
+        elif "day_mode_frame_brightness" == tag:
+            str_fr_br_day_mode = line.strip("\n").split("=")[1]
+            brightness_values_maps["day_mode_frame_brightness"] = str_fr_br_day_mode
+        elif "night_mode_frame_brightness" == tag:
+            str_fr_br_night_mode = line.strip("\n").split("=")[1]
+            brightness_values_maps["night_mode_frame_brightness"] = str_fr_br_night_mode
+        elif "sleep_mode_frame_brightness" == tag:
+            str_fr_br_sleep_mode = line.strip("\n").split("=")[1]
+            brightness_values_maps["sleep_mode_frame_brightness"] = str_fr_br_sleep_mode
+
+    f.close()
+    log.debug("str_fr_br : %s", str_fr_br)
+    log.debug("str_fr_br_day_mode : %s", str_fr_br_day_mode)
+    log.debug("str_fr_br_night_mode : %s", str_fr_br_night_mode)
+    log.debug("str_fr_br_sleep_mode : %s", str_fr_br_sleep_mode)
+    return brightness_values_maps
+
+
+class BrightnessAlgoForm(Form):
+
+    style = {'class': 'ourClasses', 'style': 'font-size:24px;', 'color': 'white'}
+    brightness_mode_switcher = RadioField(
+            "Brightness Mode",
+            [validators.Required()],
+            choices=[('fix_mode', 'FIX MODE'),
+                     ('auto_time_mode', 'Time Mode'),
+                     ('auto_als_mode', 'ALS Mode'),
+                     ('test_mode', 'Test Mode')],
+            default=get_brightness_mode_default(),
+            render_kw=style
+        )
+
 
 @app.route('/remove_media_file/<data>', methods=['POST'])
 def remove_media_file(data):
@@ -388,10 +463,26 @@ def remove_media_file(data):
     playlist_js_file.write("var jsonstr = " + playlist_json)
     playlist_js_file.truncate()
     playlist_js_file.close()
+
+    brightnessAlgoform = BrightnessAlgoForm()
     return render_template("index.html", files=maps, playlist_nest_dict=playlist_nest_dict,
                            repeat_option=routes_repeat_option, text_size=route_text_size,
-                           text_content=route_text_content, text_period=20)
+                           text_content=route_text_content, text_period=20, form=brightnessAlgoform)
 
+
+@app.route('/set_brightness_algo/<data>', methods=['POST'])
+def set_brightness_algo(data):
+    log.debug("set_brightness_algo data :" + data)
+    send_message(set_brightness_algo=data)
+    status_code = Response(status=200)
+    return status_code
+
+@app.route('/set_brightness_values/<data>', methods=['POST'])
+def set_brightness_values(data):
+    log.debug("set_brightness_values data :" + data)
+    send_message(set_frame_brightness_values_option=data)
+    status_code = Response(status=200)
+    return status_code
 
 @app.route('/add_to_playlist/<data>', methods=['POST'])
 def add_to_playlist(data):
@@ -424,9 +515,11 @@ def add_to_playlist(data):
     playlist_js_file.write("var jsonstr = " + playlist_json)
     playlist_js_file.truncate()
     playlist_js_file.close()
+
+    brightnessAlgoform = BrightnessAlgoForm()
     return render_template("index.html", files=maps, playlist_nest_dict=playlist_nest_dict,
                            repeat_option=routes_repeat_option, text_size=route_text_size,
-                           text_content=route_text_content, text_period=20)
+                           text_content=route_text_content, text_period=20, form=brightnessAlgoform)
     # status_code = Response(status=200)
     # return status_code
 
@@ -455,9 +548,11 @@ def remove_playlist(data):
     playlist_js_file.write("var jsonstr = " + playlist_json)
     playlist_js_file.truncate()
     playlist_js_file.close()
+
+    brightnessAlgoform = BrightnessAlgoForm()
     return render_template("index.html", files=maps, playlist_nest_dict=playlist_nest_dict,
                            repeat_option=routes_repeat_option, text_size=route_text_size,
-                           text_content=route_text_content, text_period=20)
+                           text_content=route_text_content, text_period=20, form=brightnessAlgoform)
 
 @app.route('/remove_file_from_playlist/<data>', methods=['POST'])
 def remove_file_from_playlist(data):
@@ -493,9 +588,11 @@ def remove_file_from_playlist(data):
     playlist_js_file.write("var jsonstr = " + playlist_json)
     playlist_js_file.truncate()
     playlist_js_file.close()
+    brightnessAlgoform = BrightnessAlgoForm()
+
     return render_template("index.html", files=maps, playlist_nest_dict=playlist_nest_dict,
                            repeat_option=routes_repeat_option, text_size=route_text_size,
-                           text_content=route_text_content, text_period=20)
+                           text_content=route_text_content, text_period=20, form=brightnessAlgoform)
 
 
 @app.route('/set_ledserver_reboot_option/', methods=['POST'])
@@ -549,9 +646,15 @@ def index():
     # tmp_clients = get_tmp_clients()
     # log.debug("len(tmp_clients)  =%d", len(tmp_clients))
     # log.debug("tmp_clients[0].client_ip  =%s", tmp_clients[0].client_ip)
+
+    # brightness Algo radio form
+    brightnessAlgoform = BrightnessAlgoForm()
+    # get brightness setting values
+    brightnessvalues = get_brightness_value_default()
+
     return render_template("index.html", files=maps, playlist_nest_dict=playlist_nest_dict,
                            repeat_option=routes_repeat_option, text_size=route_text_size,
-                           text_content=route_text_content, text_period=20)
+                           text_content=route_text_content, text_period=20, form=brightnessAlgoform, brightnessvalues=brightnessvalues)
 
 
 

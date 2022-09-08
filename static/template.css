@@ -245,3 +245,8 @@ input[type='number']{
   margin:10vh auto;
 }
 
+.br_radiobtn{
+height:20px;
+width:20px;
+}
+

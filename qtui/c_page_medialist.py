@@ -2,7 +2,8 @@ from PyQt5 import QtWidgets
 from PyQt5.QtCore import QObject, Qt
 from PyQt5.QtGui import QPalette, QColor, QBrush, QFont
 from PyQt5.QtWidgets import QTreeWidget, QTableWidget, QWidget, QVBoxLayout, QTableWidgetItem, QAbstractItemView, \
-                            QTreeWidgetItem, QPushButton, QHBoxLayout, QMenu, QAction
+                            QTreeWidgetItem, QPushButton, QHBoxLayout, QMenu, QAction, QGroupBox, QVBoxLayout, \
+                            QRadioButton
 from g_defs.c_TreeWidgetItemSP import CTreeWidget
 import os
 from global_def import *
@@ -227,7 +228,43 @@ class media_page(QObject):
         self.bluegain_edit.setFixedWidth(100)
         self.bluegain_edit.setText(str(self.mainwindow.media_engine.media_processor.video_params.video_blue_bias))
 
-        #client brightness adjust
+        #client brightness mode adjust
+        self.groupbox_client_brightness_method = QGroupBox("Client Brightness Method")
+        # self.groupbox_client_brightness_method.setFont(QFont(qfont_style_default, qfont_style_size_medium))
+        self.groupbox_led_role_vboxlayout = QHBoxLayout()
+        self.groupbox_client_brightness_method.setLayout(self.groupbox_led_role_vboxlayout)
+        self.radiobutton_client_br_method_fix = QRadioButton("Fix Mode")
+        self.radiobutton_client_br_method_fix.clicked.connect(
+            self.mainwindow.media_engine.media_processor.video_params.set_frame_brightness_mode_fix)
+        self.radiobutton_client_br_method_fix.setFont(QFont(qfont_style_default, qfont_style_size_medium))
+        self.radiobutton_client_br_method_time = QRadioButton("Time Mode")
+        self.radiobutton_client_br_method_time.clicked.connect(
+            self.mainwindow.media_engine.media_processor.video_params.set_frame_brightness_mode_time)
+        self.radiobutton_client_br_method_time.setFont(QFont(qfont_style_default, qfont_style_size_medium))
+        self.radiobutton_client_br_method_als = QRadioButton("ALS Mode")
+        self.radiobutton_client_br_method_als.clicked.connect(
+            self.mainwindow.media_engine.media_processor.video_params.set_frame_brightness_mode_als)
+        self.radiobutton_client_br_method_als.setFont(QFont(qfont_style_default, qfont_style_size_medium))
+        self.radiobutton_client_br_method_test = QRadioButton("TEST Mode")
+        self.radiobutton_client_br_method_test.clicked.connect(
+            self.mainwindow.media_engine.media_processor.video_params.set_frame_brightness_mode_test)
+        self.radiobutton_client_br_method_test.setFont(QFont(qfont_style_default, qfont_style_size_medium))
+        log.debug("frame_brightness_algorithm : %d", self.mainwindow.media_engine.media_processor.video_params.frame_brightness_algorithm)
+        if self.mainwindow.media_engine.media_processor.video_params.frame_brightness_algorithm == frame_brightness_adjust.fix_mode:
+            self.radiobutton_client_br_method_fix.setChecked(True)
+        elif self.mainwindow.media_engine.media_processor.video_params.frame_brightness_algorithm == frame_brightness_adjust.auto_time_mode:
+            self.radiobutton_client_br_method_time.setChecked(True)
+        elif self.mainwindow.media_engine.media_processor.video_params.frame_brightness_algorithm == frame_brightness_adjust.auto_als_mode:
+            self.radiobutton_client_br_method_als.setChecked(True)
+        elif self.mainwindow.media_engine.media_processor.video_params.frame_brightness_algorithm == frame_brightness_adjust.test_mode:
+            self.radiobutton_client_br_method_test.setChecked(True)
+
+        self.groupbox_led_role_vboxlayout.addWidget(self.radiobutton_client_br_method_fix)
+        self.groupbox_led_role_vboxlayout.addWidget(self.radiobutton_client_br_method_time)
+        self.groupbox_led_role_vboxlayout.addWidget(self.radiobutton_client_br_method_als)
+        self.groupbox_led_role_vboxlayout.addWidget(self.radiobutton_client_br_method_test)
+
+        # client brightness adjust
         self.client_brightness_label = QLabel(self.mainwindow.right_frame)
         self.client_brightness_label.setText("Client Br:")
         self.client_brightness_label.setFont(QFont(qfont_style_default, qfont_style_size_medium))
@@ -236,7 +273,31 @@ class media_page(QObject):
         self.client_brightness_edit.setText(
             str(self.mainwindow.media_engine.media_processor.video_params.frame_brightness))
 
-        # client brightness adjust
+        self.client_day_mode_brightness_label = QLabel(self.mainwindow.right_frame)
+        self.client_day_mode_brightness_label.setText("Day Mode Br:")
+        self.client_day_mode_brightness_label.setFont(QFont(qfont_style_default, qfont_style_size_medium))
+        self.client_day_mode_brightness_edit = QLineEdit(self.mainwindow.right_frame)
+        self.client_day_mode_brightness_edit.setFixedWidth(100)
+        self.client_day_mode_brightness_edit.setText(
+            str(self.mainwindow.media_engine.media_processor.video_params.day_mode_frame_brightness))
+
+        self.client_night_mode_brightness_label = QLabel(self.mainwindow.right_frame)
+        self.client_night_mode_brightness_label.setText("Night Mode Br:")
+        self.client_night_mode_brightness_label.setFont(QFont(qfont_style_default, qfont_style_size_medium))
+        self.client_night_mode_brightness_edit = QLineEdit(self.mainwindow.right_frame)
+        self.client_night_mode_brightness_edit.setFixedWidth(100)
+        self.client_night_mode_brightness_edit.setText(
+            str(self.mainwindow.media_engine.media_processor.video_params.night_mode_frame_brightness))
+
+        self.client_sleep_mode_brightness_label = QLabel(self.mainwindow.right_frame)
+        self.client_sleep_mode_brightness_label.setText("Sleep Mode Br:")
+        self.client_sleep_mode_brightness_label.setFont(QFont(qfont_style_default, qfont_style_size_medium))
+        self.client_sleep_mode_brightness_edit = QLineEdit(self.mainwindow.right_frame)
+        self.client_sleep_mode_brightness_edit.setFixedWidth(100)
+        self.client_sleep_mode_brightness_edit.setText(
+            str(self.mainwindow.media_engine.media_processor.video_params.sleep_mode_frame_brightness))
+
+        # client brightness divisor adjust
         self.client_br_divisor_label = QLabel(self.mainwindow.right_frame)
         self.client_br_divisor_label.setText("Client BrDivisor:")
         self.client_br_divisor_label.setFont(QFont(qfont_style_default, qfont_style_size_medium))
@@ -342,35 +403,56 @@ class media_page(QObject):
         video_params_layout.addWidget(self.image_period_label, 1, 4)
         video_params_layout.addWidget(self.image_period_edit, 1, 5)
 
-        video_params_layout.addWidget(self.client_brightness_label, 2, 0)
-        video_params_layout.addWidget(self.client_brightness_edit, 2, 1)
-        video_params_layout.addWidget(self.client_br_divisor_label, 2, 2)
-        video_params_layout.addWidget(self.client_br_divisor_edit, 2, 3)
-        video_params_layout.addWidget(self.client_contrast_label, 3, 0)
-        video_params_layout.addWidget(self.client_contrast_edit, 3, 1)
-        video_params_layout.addWidget(self.client_gamma_label, 4, 0)
-        video_params_layout.addWidget(self.client_gamma_edit, 4, 1)
+        video_params_layout.addWidget(self.groupbox_client_brightness_method, 2, 0, 7, 4)
+        video_params_layout.addWidget(self.client_brightness_label, 6, 4)
+        video_params_layout.addWidget(self.client_brightness_edit, 6, 5)
+
+        video_params_layout.addWidget(self.client_day_mode_brightness_label, 9, 0)
+        video_params_layout.addWidget(self.client_day_mode_brightness_edit, 9, 1)
+        video_params_layout.addWidget(self.client_night_mode_brightness_label, 9, 2)
+        video_params_layout.addWidget(self.client_night_mode_brightness_edit, 9, 3)
+        video_params_layout.addWidget(self.client_sleep_mode_brightness_label, 9, 4)
+        video_params_layout.addWidget(self.client_sleep_mode_brightness_edit, 9, 5)
+
+        video_params_layout.addWidget(self.client_br_divisor_label, 10, 2)
+        video_params_layout.addWidget(self.client_br_divisor_edit, 10, 3)
+        video_params_layout.addWidget(self.client_contrast_label, 10, 0)
+        video_params_layout.addWidget(self.client_contrast_edit, 10, 1)
+        video_params_layout.addWidget(self.client_gamma_label, 11, 0)
+        video_params_layout.addWidget(self.client_gamma_edit, 11, 1)
 
         #crop
-        video_params_layout.addWidget(self.video_params_crop_x_label, 5, 0)
-        video_params_layout.addWidget(self.video_params_crop_x_edit, 5, 1)
-        video_params_layout.addWidget(self.video_params_crop_y_label, 5, 2)
-        video_params_layout.addWidget(self.video_params_crop_y_edit, 5, 3)
-        video_params_layout.addWidget(self.video_params_crop_w_label, 6, 0)
-        video_params_layout.addWidget(self.video_params_crop_w_edit, 6, 1)
-        video_params_layout.addWidget(self.video_params_crop_h_label, 6, 2)
-        video_params_layout.addWidget(self.video_params_crop_h_edit, 6, 3)
-        video_params_layout.addWidget(self.video_params_crop_enable, 6, 5)
-        video_params_layout.addWidget(self.video_params_crop_disable, 6, 4)
+        video_params_layout.addWidget(self.video_params_crop_x_label, 12, 0)
+        video_params_layout.addWidget(self.video_params_crop_x_edit, 12, 1)
+        video_params_layout.addWidget(self.video_params_crop_y_label, 12, 2)
+        video_params_layout.addWidget(self.video_params_crop_y_edit, 12, 3)
+        video_params_layout.addWidget(self.video_params_crop_w_label, 13, 0)
+        video_params_layout.addWidget(self.video_params_crop_w_edit, 13, 1)
+        video_params_layout.addWidget(self.video_params_crop_h_label, 13, 2)
+        video_params_layout.addWidget(self.video_params_crop_h_edit, 13, 3)
+        video_params_layout.addWidget(self.video_params_crop_enable, 13, 5)
+        video_params_layout.addWidget(self.video_params_crop_disable, 13, 4)
 
-        video_params_layout.addWidget(self.video_params_pinch_btn, 3, 4)
-        video_params_layout.addWidget(self.video_params_confirm_btn, 3, 5)
+        video_params_layout.addWidget(self.video_params_pinch_btn, 10, 4)
+        video_params_layout.addWidget(self.video_params_confirm_btn, 10, 5)
 
         if self.mainwindow.engineer_mode is True:
             self.max_brightness_label = QLabel(self.mainwindow.right_frame)
             self.max_brightness_label.setText( "Max Frame Brightness Value is " +
                 str((256*int(self.client_brightness_edit.text()))/(int(self.client_br_divisor_edit.text())*100)))
             video_params_layout.addWidget(self.max_brightness_label, 4, 0, 1, 5)
+
+    def radiobutton_client_br_method_fix_mode_set(self):
+        self.radiobutton_client_br_method_fix.click()
+
+    def radiobutton_client_br_method_time_mode_set(self):
+        self.radiobutton_client_br_method_time.click()
+
+    def radiobutton_client_br_method_als_mode_set(self):
+        self.radiobutton_client_br_method_als.click()
+
+    def radiobutton_client_br_method_test_mode_set(self):
+        self.radiobutton_client_br_method_test.click()
 
     def stop_media_trigger(self):
         log.debug("")
@@ -587,6 +669,19 @@ class media_page(QObject):
                 c.send_cmd(cmd_set_frame_brightness,
                            self.mainwindow.cmd_seq_id_increase(),
                             str(video_params.frame_brightness))
+
+        #day mode brightness
+        if video_params.day_mode_frame_brightness != int(self.client_day_mode_brightness_edit.text()):
+            media_processor.set_day_mode_frame_brightness_value(int(self.client_day_mode_brightness_edit.text()))
+
+        # night mode brightness
+        if video_params.night_mode_frame_brightness != int(self.client_night_mode_brightness_edit.text()):
+            media_processor.set_night_mode_frame_brightness_value(int(self.client_night_mode_brightness_edit.text()))
+
+        # sleep mode brightness
+        if video_params.sleep_mode_frame_brightness != int(self.client_sleep_mode_brightness_edit.text()):
+            media_processor.set_sleep_mode_frame_brightness_value(
+                int(self.client_sleep_mode_brightness_edit.text()))
 
         if video_params.frame_br_divisor != int(self.client_br_divisor_edit.text()):
             # video_params.frame_br_divisor = int(self.client_br_divisor_edit.text())

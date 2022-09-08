@@ -50,11 +50,13 @@ class video_params(QObject):
 
             # still image encode peroid
             self.image_period = still_image_video_period
-
+            log.debug("self.frame_brightness_algorithm :%d", self.frame_brightness_algorithm)
     def parse_init_config(self):
         # Using readlines()
         file_uri = self.video_params_file_uri  # internal_media_folder + init_config_file
+        log.debug("video_params config file_uri: %s", file_uri)
         if os.path.isfile(file_uri) is False:
+            log.debug("video_params config file_uri does not exist")
             content_lines = [
                             "brightness=50\n", "contrast=50\n", "red_bias=0\n", "green_bias=0\n", "blue_bias=0\n",
                             "frame_brightness_algorithm=0\n",
@@ -72,6 +74,7 @@ class video_params(QObject):
         else:
             # check all video parameters exist
             b_ret = self.check_video_params_file_valid()
+            log.debug("check_video_params_file_valid b_ret = %d", b_ret)
             if b_ret is False:
                 # re-generate video_params_file
                 content_lines = [
@@ -155,6 +158,10 @@ class video_params(QObject):
         params_red_bias = 'red_bias=' + str(self.video_red_bias) + '\n'
         params_green_bias = 'green_bias=' + str(self.video_green_bias) + '\n'
         params_blue_bias = 'blue_bias=' + str(self.video_blue_bias) + '\n'
+        params_frame_brightness_algorithm = 'frame_brightness_algorithm=' + str(int(self.frame_brightness_algorithm)) + '\n'
+        day_mode_frame_brightness = 'day_mode_frame_brightness=' + str(self.day_mode_frame_brightness) + '\n'
+        night_mode_frame_brightness = 'night_mode_frame_brightness=' + str(self.night_mode_frame_brightness) + '\n'
+        sleep_mode_frame_brightness = 'sleep_mode_frame_brightness=' + str(self.sleep_mode_frame_brightness) + '\n'
         params_frame_brightness = 'frame_brightness=' + str(self.frame_brightness) + '\n'
         params_frame_br_divisor = 'frame_br_divisor=' + str(self.frame_br_divisor) + '\n'
         params_frame_contrast = 'frame_contrast=' + str(self.frame_contrast) + '\n'
@@ -170,16 +177,46 @@ class video_params(QObject):
         params_hdmi_in_crop_h = 'hdmi_in_crop_h=' + str(self.hdmi_in_crop_h) + '\n'
 
         content_lines = [params_birghtness, params_contrast, params_red_bias, params_green_bias,
-                         params_blue_bias, params_frame_brightness, params_frame_br_divisor,
-                         params_frame_contrast, params_frame_gamma, params_image_period,
+                         params_blue_bias, params_frame_brightness_algorithm, params_frame_brightness,
+                         night_mode_frame_brightness, day_mode_frame_brightness, sleep_mode_frame_brightness,
+                         params_frame_br_divisor, params_frame_contrast, params_frame_gamma, params_image_period,
                          params_crop_start_x, params_crop_start_y, params_crop_w, params_crop_h,
                          params_hdmi_in_crop_start_x, params_hdmi_in_crop_start_y,
                          params_hdmi_in_crop_w, params_hdmi_in_crop_h]
+
+        log.debug("content_lines :%s", content_lines)
         file_uri = self.video_params_file_uri   # internal_media_folder + init_config_file
         config_file = open(file_uri, 'w')
         config_file.writelines(content_lines)
         config_file.close()
         os.system('sync')
+
+    def set_frame_brightness_mode_fix(self):
+        log.debug("set_frame_brightness_mode_fix")
+        self.frame_brightness_algorithm = frame_brightness_adjust.fix_mode
+        self.refresh_config_file()
+
+    def set_frame_brightness_mode_time(self):
+        log.debug("set_frame_brightness_mode_time")
+        self.frame_brightness_algorithm = frame_brightness_adjust.auto_time_mode
+        self.refresh_config_file()
+
+    def set_frame_brightness_mode_als(self):
+        log.debug("set_frame_brightness_mode_als")
+        self.frame_brightness_algorithm = frame_brightness_adjust.auto_als_mode
+        self.refresh_config_file()
+
+    def set_frame_brightness_mode_test(self):
+        log.debug("set_frame_brightness_mode_test")
+        self.frame_brightness_algorithm = frame_brightness_adjust.test_mode
+        self.refresh_config_file()
+
+    def set_frame_brightness_mode(self, mode):
+        if mode < frame_brightness_adjust.fix_mode or mode > frame_brightness_adjust.test_mode:
+            log.debug("mode invalid")
+            return
+        self.frame_brightness_algorithm = mode
+
 
     def set_video_brightness(self, br_level):
         self.video_brightness = br_level
@@ -207,6 +244,18 @@ class video_params(QObject):
 
     def set_frame_brightness(self, frame_brightness_value):
         self.frame_brightness = frame_brightness_value
+        self.refresh_config_file()
+
+    def set_day_mode_frame_brightness(self, day_mode_frame_brightness_value):
+        self.day_mode_frame_brightness = day_mode_frame_brightness_value
+        self.refresh_config_file()
+
+    def set_night_mode_frame_brightness(self, night_mode_frame_brightness_value):
+        self.night_mode_frame_brightness = night_mode_frame_brightness_value
+        self.refresh_config_file()
+
+    def set_sleep_mode_frame_brightness(self, sleep_mode_frame_brightness_value):
+        self.sleep_mode_frame_brightness = sleep_mode_frame_brightness_value
         self.refresh_config_file()
 
     def set_frame_br_divisor(self, frame_br_divisor_value):
@@ -277,6 +326,15 @@ class video_params(QObject):
 
     def get_frame_brightness(self):
         return self.frame_brightness
+
+    def get_day_mode_frame_brightness(self):
+        return self.day_mode_frame_brightness
+
+    def get_night_mode_frame_brightness(self):
+        return self.night_mode_frame_brightness
+
+    def get_sleep_mode_frame_brightness(self):
+        return self.sleep_mode_frame_brightness
 
     def get_frame_br_divisor(self):
         return self.frame_br_divisor

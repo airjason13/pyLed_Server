@@ -546,6 +546,15 @@ class media_processor(QObject):
     def set_frame_brightness_value(self, value):
         self.video_params.set_frame_brightness(value)
 
+    def set_day_mode_frame_brightness_value(self, value):
+        self.video_params.set_day_mode_frame_brightness(value)
+
+    def set_night_mode_frame_brightness_value(self, value):
+        self.video_params.set_night_mode_frame_brightness(value)
+
+    def set_sleep_mode_frame_brightness_value(self, value):
+        self.video_params.set_sleep_mode_frame_brightness(value)
+
     def set_frame_br_divisor_value(self, value):
         self.video_params.set_frame_br_divisor(value)
 

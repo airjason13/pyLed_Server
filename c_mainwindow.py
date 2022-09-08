@@ -212,13 +212,17 @@ class MainUi(QMainWindow):
         self.bt_handle.start()
 
         self.date_timer = QTimer(self)
-        self.date_timer.timeout.connect(self.check_date_timer)
-        self.date_timer.start(1*60*1000)
+        self.date_timer.timeout.connect(self.check_brightness_by_date_timer)
+        # self.date_timer.start(1*60*1000)
+        self.date_timer.start(1 * 6 * 1000)
 
-    def check_date_timer(self):
-        self.media_engine.media_processor.video_params.frame_brightness_algorithm
-        if self.media_engine.media_processor.video_params.frame_brightness_algorithm == frame_brightness_adjust.fix:
-            log.debug("frame_brightness_adjust.fix")
+    def check_brightness_by_date_timer(self):
+        log.debug("frame_brightness_algorithm  =%d",
+                  self.media_engine.media_processor.video_params.frame_brightness_algorithm)
+
+        if self.media_engine.media_processor.video_params.frame_brightness_algorithm \
+                == frame_brightness_adjust.fix_mode:
+            # log.debug("frame_brightness_adjust.fix_mode")
             return
         now = datetime.now()
         # dd/mm/YY H:M:S
@@ -230,14 +234,17 @@ class MainUi(QMainWindow):
         today23pm = now.replace(hour=23, minute=0, second=0, microsecond=0)
         if today5am < now < today19pm:
             log.debug("day mode")
-            if self.media_engine.media_processor.video_params.frame_brightness != day_mode_brightness:
-                self.media_engine.media_processor.set_frame_brightness_value(day_mode_brightness)
-
+            log.debug("self.media_engine.media_processor.video_params.frame_brightness = %d",
+                      self.media_engine.media_processor.video_params.frame_brightness)
+            log.debug("day_mode_brightness = %d", day_mode_brightness)
+            if self.media_engine.media_processor.video_params.frame_brightness \
+                    != self.media_engine.media_processor.video_params.get_day_mode_frame_brightness():
+                self.media_engine.media_processor.set_frame_brightness_value(
+                    self.media_engine.media_processor.video_params.get_day_mode_frame_brightness())
                 self.hdmi_in_page.client_brightness_edit.setText(
                     str(self.media_engine.media_processor.video_params.get_frame_brightness()))
                 self.medialist_page.client_brightness_edit.setText(
                     str(self.media_engine.media_processor.video_params.get_frame_brightness()))
-
                 clients = self.clients
                 for c in clients:
                     c.send_cmd(cmd_set_frame_brightness,
@@ -245,9 +252,10 @@ class MainUi(QMainWindow):
                                str(self.media_engine.media_processor.video_params.frame_brightness))
         elif today23pm < now or now < today5am:
             log.debug("sleep mode")
-            if self.media_engine.media_processor.video_params.frame_brightness != sleep_mode_brightness:
-                self.media_engine.media_processor.set_frame_brightness_value(day_mode_brightness)
-
+            if self.media_engine.media_processor.video_params.frame_brightness \
+                    != self.media_engine.media_processor.video_params.get_sleep_mode_frame_brightness():
+                self.media_engine.media_processor.set_frame_brightness_value(
+                    self.media_engine.media_processor.video_params.get_sleep_mode_frame_brightness())
                 self.hdmi_in_page.client_brightness_edit.setText(
                     str(self.media_engine.media_processor.video_params.get_frame_brightness()))
                 self.medialist_page.client_brightness_edit.setText(
@@ -261,8 +269,10 @@ class MainUi(QMainWindow):
             
         else:
             log.debug("night mode")
-            if self.media_engine.media_processor.video_params.frame_brightness != night_mode_brightness:
-                self.media_engine.media_processor.set_frame_brightness_value(night_mode_brightness)
+            if self.media_engine.media_processor.video_params.frame_brightness \
+                    != self.media_engine.media_processor.video_params.get_night_mode_frame_brightness():
+                self.media_engine.media_processor.set_frame_brightness_value(
+                    self.media_engine.media_processor.video_params.get_night_mode_frame_brightness())
 
                 self.hdmi_in_page.client_brightness_edit.setText(
                     str(self.media_engine.media_processor.video_params.get_frame_brightness()))
@@ -757,7 +767,7 @@ class MainUi(QMainWindow):
         elif data.get("set_frame_brightness_option"):
             log.debug("set_frame_brightness_option")
             self.media_engine.media_processor.set_frame_brightness_value(int(data.get("set_frame_brightness_option")))
-            print("type(self.media_engine.media_processor.video_params.get_frame_brightness()):", self.media_engine.media_processor.video_params.get_frame_brightness())
+            # print("type(self.media_engine.media_processor.video_params.get_frame_brightness()):", self.media_engine.media_processor.video_params.get_frame_brightness())
             self.hdmi_in_page.client_brightness_edit.setText(str(self.media_engine.media_processor.video_params.get_frame_brightness()))
             self.medialist_page.client_brightness_edit.setText(str(self.media_engine.media_processor.video_params.get_frame_brightness()))
 
@@ -766,14 +776,60 @@ class MainUi(QMainWindow):
                 c.send_cmd(cmd_set_frame_brightness,
                            self.cmd_seq_id_increase(),
                            str(self.media_engine.media_processor.video_params.frame_brightness))
+        elif data.get("set_brightness_algo"):
+            log.debug("recv : %s ", data.get("set_brightness_algo"))
+            if "fix_mode" == data.get("set_brightness_algo"):
+                self.medialist_page.radiobutton_client_br_method_fix_mode_set()
+                self.hdmi_in_page.radiobutton_client_br_method_fix_mode_set()
+            elif "auto_time_mode" == data.get("set_brightness_algo"):
+                self.medialist_page.radiobutton_client_br_method_time_mode_set()
+                self.hdmi_in_page.radiobutton_client_br_method_time_mode_set()
+            elif "auto_als_mode" == data.get("set_brightness_algo"):
+                self.medialist_page.radiobutton_client_br_method_als_mode_set()
+                self.hdmi_in_page.radiobutton_client_br_method_als_mode_set()
+            elif "test_mode" == data.get("set_brightness_algo"):
+                self.medialist_page.radiobutton_client_br_method_test_mode_set()
+                self.hdmi_in_page.radiobutton_client_br_method_test_mode_set()
+
+
+        elif data.get("set_frame_brightness_values_option"):
+            log.debug("recv : %s", data.get("set_frame_brightness_values_option"))
+            data_tmp = data.get("set_frame_brightness_values_option")
+            fr_br = data_tmp.split(";")[0].split(":")[1]
+            day_mode_fr_br = data_tmp.split(";")[1].split(":")[1]
+            night_mode_fr_br = data_tmp.split(";")[2].split(":")[1]
+            sleep_mode_fr_br = data_tmp.split(";")[3].split(":")[1]
+            log.debug("fr_br : %s", fr_br)
+            log.debug("day_mode_fr_br : %s", day_mode_fr_br)
+            log.debug("night_mode_fr_br : %s", night_mode_fr_br)
+            log.debug("sleep_mode_fr_br : %s", sleep_mode_fr_br)
+            self.media_engine.media_processor.set_frame_brightness_value(int(fr_br))
+            self.media_engine.media_processor.set_day_mode_frame_brightness_value(int(day_mode_fr_br))
+            self.media_engine.media_processor.set_night_mode_frame_brightness_value(int(night_mode_fr_br))
+            self.media_engine.media_processor.set_sleep_mode_frame_brightness_value(int(sleep_mode_fr_br))
+            self.hdmi_in_page.client_brightness_edit.setText(
+                str(self.media_engine.media_processor.video_params.get_frame_brightness()))
+            self.medialist_page.client_brightness_edit.setText(
+                str(self.media_engine.media_processor.video_params.get_frame_brightness()))
+            self.hdmi_in_page.client_day_mode_brightness_edit.setText(
+                str(self.media_engine.media_processor.video_params.get_day_mode_frame_brightness()))
+            self.medialist_page.client_day_mode_brightness_edit.setText(
+                str(self.media_engine.media_processor.video_params.get_day_mode_frame_brightness()))
+            self.hdmi_in_page.client_night_mode_brightness_edit.setText(
+                str(self.media_engine.media_processor.video_params.get_night_mode_frame_brightness()))
+            self.medialist_page.client_night_mode_brightness_edit.setText(
+                str(self.media_engine.media_processor.video_params.get_night_mode_frame_brightness()))
+            self.hdmi_in_page.client_sleep_mode_brightness_edit.setText(
+                str(self.media_engine.media_processor.video_params.get_sleep_mode_frame_brightness()))
+            self.medialist_page.client_sleep_mode_brightness_edit.setText(
+                str(self.media_engine.media_processor.video_params.get_sleep_mode_frame_brightness()))
+
+            self.check_brightness_by_date_timer()
+
         elif data.get("set_ledclients_reboot_option"):
             log.debug("set_ledclients_reboot_option")
             clients = self.clients
             for c in clients:
-                # keygen_cmd = "ssh-keygen -f \"/home/venom/.ssh/known_hosts\" -R \"192.168.0.19\""
-                # log.debug("keygen_cmd : %s", keygen_cmd)
-                # k = os.popen(keygen_cmd)
-                # k.close()
                 reboot_cmd = "sshpass -p workout13 ssh -o StrictHostKeyChecking=no root@" + c.client_ip + " " + "reboot"
                 log.debug("reboot_cmd : %s", reboot_cmd)
                 k = os.popen(reboot_cmd)

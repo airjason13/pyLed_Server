@@ -4,7 +4,7 @@ from PyQt5 import QtWidgets
 from PyQt5.QtCore import QObject, Qt, QThread, QMutex, QTimer
 from PyQt5.QtGui import QPalette, QColor, QBrush, QFont, QImage
 from PyQt5.QtWidgets import QTreeWidget, QTableWidget, QWidget, QVBoxLayout, QTableWidgetItem, QAbstractItemView, \
-                            QTreeWidgetItem, QPushButton, QHBoxLayout, QMenu, QAction
+                            QTreeWidgetItem, QPushButton, QHBoxLayout, QMenu, QAction, QRadioButton, QGroupBox
 from g_defs.c_TreeWidgetItemSP import CTreeWidget
 import os
 from global_def import *
@@ -146,15 +146,15 @@ class Hdmi_In_Page(QObject):
         self.info_widget_layout.addWidget(self.hdmi_in_info_fps_res_label, 0, 5)
 
         self.info_widget_layout.addWidget(self.hdmi_in_crop_status_label, 1, 0)
-        self.info_widget_layout.addWidget(self.hdmi_in_crop_status_x_label, 2, 2)
-        self.info_widget_layout.addWidget(self.hdmi_in_crop_status_x_res_label, 2, 3)
-        self.info_widget_layout.addWidget(self.hdmi_in_crop_status_y_label, 2, 4)
-        self.info_widget_layout.addWidget(self.hdmi_in_crop_status_y_res_label, 2, 5)
+        self.info_widget_layout.addWidget(self.hdmi_in_crop_status_x_label, 1, 2)
+        self.info_widget_layout.addWidget(self.hdmi_in_crop_status_x_res_label, 1, 3)
+        self.info_widget_layout.addWidget(self.hdmi_in_crop_status_y_label, 1, 4)
+        self.info_widget_layout.addWidget(self.hdmi_in_crop_status_y_res_label, 1, 5)
 
-        self.info_widget_layout.addWidget(self.hdmi_in_crop_status_w_label, 3, 2)
-        self.info_widget_layout.addWidget(self.hdmi_in_crop_status_w_res_label, 3, 3)
-        self.info_widget_layout.addWidget(self.hdmi_in_crop_status_h_label, 3, 4)
-        self.info_widget_layout.addWidget(self.hdmi_in_crop_status_h_res_label, 3, 5)
+        self.info_widget_layout.addWidget(self.hdmi_in_crop_status_w_label, 2, 2)
+        self.info_widget_layout.addWidget(self.hdmi_in_crop_status_w_res_label, 2, 3)
+        self.info_widget_layout.addWidget(self.hdmi_in_crop_status_h_label, 2, 4)
+        self.info_widget_layout.addWidget(self.hdmi_in_crop_status_h_res_label, 2, 5)
 
 
         # crop setting of hdmi in
@@ -305,6 +305,42 @@ class Hdmi_In_Page(QObject):
             str(self.mainwindow.media_engine.media_processor.video_params.frame_contrast))
         self.client_contrast_edit.setFont(QFont(qfont_style_default, qfont_style_size_medium))
 
+        # client brightness mode adjust
+        self.groupbox_client_brightness_method = QGroupBox("Client Brightness Method")
+        # self.groupbox_client_brightness_method.setFont(QFont(qfont_style_default, qfont_style_size_medium))
+        self.groupbox_led_role_vboxlayout = QHBoxLayout()
+        self.groupbox_client_brightness_method.setLayout(self.groupbox_led_role_vboxlayout)
+        self.radiobutton_client_br_method_fix = QRadioButton("Fix Mode")
+        self.radiobutton_client_br_method_fix.clicked.connect(
+            self.mainwindow.media_engine.media_processor.video_params.set_frame_brightness_mode_fix)
+        self.radiobutton_client_br_method_fix.setFont(QFont(qfont_style_default, qfont_style_size_medium))
+        self.radiobutton_client_br_method_time = QRadioButton("Time Mode")
+        self.radiobutton_client_br_method_time.clicked.connect(
+            self.mainwindow.media_engine.media_processor.video_params.set_frame_brightness_mode_time)
+        self.radiobutton_client_br_method_time.setFont(QFont(qfont_style_default, qfont_style_size_medium))
+        self.radiobutton_client_br_method_als = QRadioButton("ALS Mode")
+        self.radiobutton_client_br_method_als.clicked.connect(
+            self.mainwindow.media_engine.media_processor.video_params.set_frame_brightness_mode_als)
+        self.radiobutton_client_br_method_als.setFont(QFont(qfont_style_default, qfont_style_size_medium))
+        self.radiobutton_client_br_method_test = QRadioButton("TEST Mode")
+        self.radiobutton_client_br_method_test.clicked.connect(
+            self.mainwindow.media_engine.media_processor.video_params.set_frame_brightness_mode_test)
+        self.radiobutton_client_br_method_test.setFont(QFont(qfont_style_default, qfont_style_size_medium))
+        log.debug("frame_brightness_algorithm : %d",
+                  self.mainwindow.media_engine.media_processor.video_params.frame_brightness_algorithm)
+        if self.mainwindow.media_engine.media_processor.video_params.frame_brightness_algorithm == frame_brightness_adjust.fix_mode:
+            self.radiobutton_client_br_method_fix.setChecked(True)
+        elif self.mainwindow.media_engine.media_processor.video_params.frame_brightness_algorithm == frame_brightness_adjust.auto_time_mode:
+            self.radiobutton_client_br_method_time.setChecked(True)
+        elif self.mainwindow.media_engine.media_processor.video_params.frame_brightness_algorithm == frame_brightness_adjust.auto_als_mode:
+            self.radiobutton_client_br_method_als.setChecked(True)
+        elif self.mainwindow.media_engine.media_processor.video_params.frame_brightness_algorithm == frame_brightness_adjust.test_mode:
+            self.radiobutton_client_br_method_test.setChecked(True)
+        self.groupbox_led_role_vboxlayout.addWidget(self.radiobutton_client_br_method_fix)
+        self.groupbox_led_role_vboxlayout.addWidget(self.radiobutton_client_br_method_time)
+        self.groupbox_led_role_vboxlayout.addWidget(self.radiobutton_client_br_method_als)
+        self.groupbox_led_role_vboxlayout.addWidget(self.radiobutton_client_br_method_test)
+
         # client gamma adjust
         self.client_gamma_label = QLabel(self.setting_widget)
         self.client_gamma_label.setText("Client Gamma:")
@@ -315,13 +351,37 @@ class Hdmi_In_Page(QObject):
             str(self.mainwindow.media_engine.media_processor.video_params.frame_gamma))
         self.client_gamma_edit.setFont(QFont(qfont_style_default, qfont_style_size_medium))
 
+        self.client_day_mode_brightness_label = QLabel(self.mainwindow.right_frame)
+        self.client_day_mode_brightness_label.setText("Day Mode Br:")
+        self.client_day_mode_brightness_label.setFont(QFont(qfont_style_default, qfont_style_size_medium))
+        self.client_day_mode_brightness_edit = QLineEdit(self.mainwindow.right_frame)
+        self.client_day_mode_brightness_edit.setFixedWidth(100)
+        self.client_day_mode_brightness_edit.setText(
+            str(self.mainwindow.media_engine.media_processor.video_params.day_mode_frame_brightness))
+
+        self.client_night_mode_brightness_label = QLabel(self.mainwindow.right_frame)
+        self.client_night_mode_brightness_label.setText("Night Mode Br:")
+        self.client_night_mode_brightness_label.setFont(QFont(qfont_style_default, qfont_style_size_medium))
+        self.client_night_mode_brightness_edit = QLineEdit(self.mainwindow.right_frame)
+        self.client_night_mode_brightness_edit.setFixedWidth(100)
+        self.client_night_mode_brightness_edit.setText(
+            str(self.mainwindow.media_engine.media_processor.video_params.night_mode_frame_brightness))
+
+        self.client_sleep_mode_brightness_label = QLabel(self.mainwindow.right_frame)
+        self.client_sleep_mode_brightness_label.setText("Sleep Mode Br:")
+        self.client_sleep_mode_brightness_label.setFont(QFont(qfont_style_default, qfont_style_size_medium))
+        self.client_sleep_mode_brightness_edit = QLineEdit(self.mainwindow.right_frame)
+        self.client_sleep_mode_brightness_edit.setFixedWidth(100)
+        self.client_sleep_mode_brightness_edit.setText(
+            str(self.mainwindow.media_engine.media_processor.video_params.sleep_mode_frame_brightness))
+
         self.video_params_confirm_btn = QPushButton(self.setting_widget)
         self.video_params_confirm_btn.setText("Set")
         self.video_params_confirm_btn.setFixedWidth(100)
         self.video_params_confirm_btn.clicked.connect(self.video_params_confirm_btn_clicked)
         self.video_params_confirm_btn.setFont(QFont(qfont_style_default, qfont_style_size_medium))
 
-        #self.setting_widget_layout.addWidget(self.test_btn, 0, 0)
+        # self.setting_widget_layout.addWidget(self.test_btn, 0, 0)
         self.setting_widget_layout.addWidget(self.redgain_label, 0, 0)
         self.setting_widget_layout.addWidget(self.redgain_edit, 0, 1)
         self.setting_widget_layout.addWidget(self.greengain_label, 0, 2)
@@ -334,15 +394,23 @@ class Hdmi_In_Page(QObject):
         self.setting_widget_layout.addWidget(self.contrast_label, 1, 2)
         self.setting_widget_layout.addWidget(self.contrast_edit, 1, 3)
 
-        self.setting_widget_layout.addWidget(self.client_brightness_label, 2, 0)
-        self.setting_widget_layout.addWidget(self.client_brightness_edit, 2, 1)
+        self.setting_widget_layout.addWidget(self.client_brightness_label, 4, 4)
+        self.setting_widget_layout.addWidget(self.client_brightness_edit, 4, 5)
         self.setting_widget_layout.addWidget(self.client_br_divisor_label, 2, 2)
         self.setting_widget_layout.addWidget(self.client_br_divisor_edit, 2, 3)
-        self.setting_widget_layout.addWidget(self.client_contrast_label, 3, 0)
-        self.setting_widget_layout.addWidget(self.client_contrast_edit, 3, 1)
-        self.setting_widget_layout.addWidget(self.client_gamma_label, 3, 2)
-        self.setting_widget_layout.addWidget(self.client_gamma_edit, 3, 3)
-        self.setting_widget_layout.addWidget(self.video_params_confirm_btn, 4, 5)
+        self.setting_widget_layout.addWidget(self.client_contrast_label, 2, 0)
+        self.setting_widget_layout.addWidget(self.client_contrast_edit, 2, 1)
+        self.setting_widget_layout.addWidget(self.client_gamma_label, 2, 4)
+        self.setting_widget_layout.addWidget(self.client_gamma_edit, 2, 5)
+
+        self.setting_widget_layout.addWidget(self.groupbox_client_brightness_method, 4, 0, 2, 4)
+        self.setting_widget_layout.addWidget(self.client_day_mode_brightness_label, 7, 0)
+        self.setting_widget_layout.addWidget(self.client_day_mode_brightness_edit, 7, 1)
+        self.setting_widget_layout.addWidget(self.client_night_mode_brightness_label, 7, 2)
+        self.setting_widget_layout.addWidget(self.client_night_mode_brightness_edit, 7, 3)
+        self.setting_widget_layout.addWidget(self.client_sleep_mode_brightness_label, 7, 4)
+        self.setting_widget_layout.addWidget(self.client_sleep_mode_brightness_edit, 7, 5)
+        self.setting_widget_layout.addWidget(self.video_params_confirm_btn, 5, 5)
 
         self.hdmi_in_layout.addWidget(self.preview_widget)
         self.hdmi_in_layout.addWidget(self.info_widget)
@@ -379,6 +447,18 @@ class Hdmi_In_Page(QObject):
             self.play_hdmi_in_finish_ret)
 
         log.debug("self.preview_widget.height() = %d", self.preview_widget.height())
+
+    def radiobutton_client_br_method_fix_mode_set(self):
+        self.radiobutton_client_br_method_fix.click()
+
+    def radiobutton_client_br_method_time_mode_set(self):
+        self.radiobutton_client_br_method_time.click()
+
+    def radiobutton_client_br_method_als_mode_set(self):
+        self.radiobutton_client_br_method_als.click()
+
+    def radiobutton_client_br_method_test_mode_set(self):
+        self.radiobutton_client_br_method_test.click()
 
     def check_tc358743_timer_event(self):
 

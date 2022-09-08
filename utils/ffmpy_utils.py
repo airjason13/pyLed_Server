@@ -543,8 +543,8 @@ def gen_webp_from_video(file_folder, video):
     # thumbnail_path = internal_media_folder + ThumbnailFileFolder + video.replace(".mp4", ".webp")
     thumbnail_path = internal_media_folder + ThumbnailFileFolder + preview_file_name + ".webp"
     video_path = file_folder + "/" + video
-    log.debug("video_path = %s", video_path)
-    log.debug("thumbnail_path = %s", thumbnail_path)
+    # log.debug("video_path = %s", video_path)
+    # log.debug("thumbnail_path = %s", thumbnail_path)
     thunbnail_folder_path = internal_media_folder + ThumbnailFileFolder
     if not os.path.exists(thunbnail_folder_path):
         os.makedirs(thunbnail_folder_path)
