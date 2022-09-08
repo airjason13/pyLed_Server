@@ -273,8 +273,7 @@ function submit_frame_brightness_values_option(){
 
 
 
-<body><!--style="background-color:#000000;">-->
-    <!--<div class="div_total_frame">-->
+<body>
     <div class="div_drawtext">
         <label style="font-size:36px" ><font color="#0000FF">Play Text Option</font></label><br>
         <!--<label class="label_h1" for="text_context" style="font-size:36px" ><font color="#0000FF">Play Text Option</font></label><br>-->
@@ -455,10 +454,7 @@ function submit_frame_brightness_values_option(){
             {% endfor %}
     </div>
     <label style="font-size:36px" ><font color="#0000FF">{{ form.brightness_mode_switcher.label() }}</font></label><br>
-
-
             {{ form.brightness_mode_switcher(onchange="submit_frame_brightness_mode_option()") }}
-    <!--<input class="button-84" type="submit" id="frame_brightness_mode_confirm" name="frame_brightness_confirm" value="Set" onclick="submit_frame_brightness_mode_option()">-->
 
 
     <div>
@@ -526,10 +522,8 @@ function submit_frame_brightness_values_option(){
                 role="button" onclick="submit_ledclients_reboot()" >
             LedClients Reboot
         </button>
-    
 
-
-</body>
+    </body>
 
 
 {% endblock %}

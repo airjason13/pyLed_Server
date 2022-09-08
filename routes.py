@@ -337,10 +337,15 @@ def create_new_playlist(data):
     playlist_js_file.truncate()
     playlist_js_file.close()
 
+    # brightness Algo radio form
     brightnessAlgoform = BrightnessAlgoForm()
+    # get brightness setting values
+    brightnessvalues = get_brightness_value_default()
+
     return render_template("index.html", files=maps, playlist_nest_dict=playlist_nest_dict,
                            repeat_option=routes_repeat_option, text_size=route_text_size,
-                           text_content=route_text_content, text_period=20, form=brightnessAlgoform)
+                           text_content=route_text_content, text_period=20, form=brightnessAlgoform,
+                           brightnessvalues=brightnessvalues)
 
 
 def get_brightness_mode_default():
@@ -364,6 +369,24 @@ def get_brightness_mode_default():
     f.close()
     return str_ret
 
+def init_video_params():
+    content_lines = [
+        "brightness=50\n", "contrast=50\n", "red_bias=0\n", "green_bias=0\n", "blue_bias=0\n",
+        "frame_brightness_algorithm=0\n",
+        "frame_brightness=100\n", "day_mode_frame_brightness=77\n",
+        "night_mode_frame_brightness=50\n", "sleep_mode_frame_brightness=0\n",
+        "frame_br_divisor=1\n", "frame_contrast=0\n", "frame_gamma=2.2\n",
+        "image_period=60\n", "crop_start_x=0\n", "crop_start_y=0\n", "crop_w=0\n", "crop_h=0\n",
+        "hdmi_in_crop_start_x=0\n", "hdmi_in_crop_start_y=0\n",
+        "hdmi_in_crop_w=0\n", "hdmi_in_crop_h=0\n",
+    ]
+    root_dir = os.path.dirname(sys.modules['__main__'].__file__)
+    led_config_dir = os.path.join(root_dir, 'video_params_config')
+    file_uri = os.path.join(led_config_dir, ".video_params_config")
+    config_file = open(file_uri, 'w')
+    config_file.writelines(content_lines)
+    config_file.close()
+    os.system('sync')
 
 def get_brightness_value_default():
     root_dir = os.path.dirname(sys.modules['__main__'].__file__)
@@ -373,6 +396,9 @@ def get_brightness_value_default():
     str_fr_br_day_mode = "0"
     str_fr_br_night_mode = "0"
     str_fr_br_sleep_mode = "0"
+    if os.path.isfile(os.path.join(led_config_dir, ".video_params_config")) is False:
+        init_video_params()
+
     with open(os.path.join(led_config_dir, ".video_params_config"), "r") as f:
         lines = f.readlines()
 
@@ -464,10 +490,15 @@ def remove_media_file(data):
     playlist_js_file.truncate()
     playlist_js_file.close()
 
+    # brightness Algo radio form
     brightnessAlgoform = BrightnessAlgoForm()
+    # get brightness setting values
+    brightnessvalues = get_brightness_value_default()
+
     return render_template("index.html", files=maps, playlist_nest_dict=playlist_nest_dict,
                            repeat_option=routes_repeat_option, text_size=route_text_size,
-                           text_content=route_text_content, text_period=20, form=brightnessAlgoform)
+                           text_content=route_text_content, text_period=20, form=brightnessAlgoform,
+                           brightnessvalues=brightnessvalues)
 
 
 @app.route('/set_brightness_algo/<data>', methods=['POST'])
@@ -516,12 +547,15 @@ def add_to_playlist(data):
     playlist_js_file.truncate()
     playlist_js_file.close()
 
+    # brightness Algo radio form
     brightnessAlgoform = BrightnessAlgoForm()
+    # get brightness setting values
+    brightnessvalues = get_brightness_value_default()
+
     return render_template("index.html", files=maps, playlist_nest_dict=playlist_nest_dict,
                            repeat_option=routes_repeat_option, text_size=route_text_size,
-                           text_content=route_text_content, text_period=20, form=brightnessAlgoform)
-    # status_code = Response(status=200)
-    # return status_code
+                           text_content=route_text_content, text_period=20, form=brightnessAlgoform,
+                           brightnessvalues=brightnessvalues)
 
 
 @app.route('/remove_playlist/<data>', methods=['POST'])
@@ -549,10 +583,15 @@ def remove_playlist(data):
     playlist_js_file.truncate()
     playlist_js_file.close()
 
+    # brightness Algo radio form
     brightnessAlgoform = BrightnessAlgoForm()
+    # get brightness setting values
+    brightnessvalues = get_brightness_value_default()
+
     return render_template("index.html", files=maps, playlist_nest_dict=playlist_nest_dict,
                            repeat_option=routes_repeat_option, text_size=route_text_size,
-                           text_content=route_text_content, text_period=20, form=brightnessAlgoform)
+                           text_content=route_text_content, text_period=20, form=brightnessAlgoform,
+                           brightnessvalues=brightnessvalues)
 
 @app.route('/remove_file_from_playlist/<data>', methods=['POST'])
 def remove_file_from_playlist(data):
@@ -588,11 +627,15 @@ def remove_file_from_playlist(data):
     playlist_js_file.write("var jsonstr = " + playlist_json)
     playlist_js_file.truncate()
     playlist_js_file.close()
+    # brightness Algo radio form
     brightnessAlgoform = BrightnessAlgoForm()
+    # get brightness setting values
+    brightnessvalues = get_brightness_value_default()
 
     return render_template("index.html", files=maps, playlist_nest_dict=playlist_nest_dict,
                            repeat_option=routes_repeat_option, text_size=route_text_size,
-                           text_content=route_text_content, text_period=20, form=brightnessAlgoform)
+                           text_content=route_text_content, text_period=20, form=brightnessAlgoform,
+                           brightnessvalues=brightnessvalues)
 
 
 @app.route('/set_ledserver_reboot_option/', methods=['POST'])
