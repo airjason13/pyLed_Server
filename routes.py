@@ -303,6 +303,9 @@ def set_frame_brightness_option(data):
 
 @app.route('/create_new_playlist/<data>', methods=['POST'])
 def create_new_playlist(data):
+    if os.path.exists(internal_media_folder + PlaylistFolder) is False:
+        os.mkdir(internal_media_folder + PlaylistFolder)
+
     log.debug("route create_new_playlist data : %s", data)
     try:
         playlist_uri = internal_media_folder + PlaylistFolder + data.split(";")[0].split(":")[1] + ".playlist"
