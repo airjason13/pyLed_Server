@@ -76,7 +76,7 @@ function play_with_refresh_page(data){
 }
 
 function submit_text_content(data1, data2){
-    alert("submit_text_content")
+    /*alert("submit_text_content")*/
     var url = "/set_text_size/" + data2;
     $.post(url, {
         /*javascript_data: data2*/
@@ -176,8 +176,7 @@ function submit_repeat_option(data){
 function rightClick(e) {
     e.preventDefault();
 
-    alert(this.id);
-    alert(this.name);
+
     if (document.getElementById("contextMenu") .style.display == "block"){
         hideMenu();
     }else{
@@ -191,7 +190,7 @@ function rightClick(e) {
 function create_new_playlist(file) {
     var playlist_name=prompt('Enter new playlist name');
     if(playlist_name){
-        alert("create new playlist :" + playlist_name);
+        /*alert("create new playlist :" + playlist_name);*/
         var data = "playlist_name:"+playlist_name+";file_name:"+file;
         var url = "/create_new_playlist/" + data;
         $.post(url, {
@@ -217,7 +216,7 @@ function add_to_playlist(file, playlist) {
 }
 
 function remove_playlist(playlist) {
-    alert("remove playlist:" + playlist)
+    /*alert("remove playlist:" + playlist)*/
     var url = "/remove_playlist/" + playlist;
     $.post(url, {
         /*javascript_data: data*/
@@ -226,7 +225,7 @@ function remove_playlist(playlist) {
 
 function remove_file_from_playlist(playlist, file ) {
     data = "playlist:" + playlist + ";file:" + file
-    alert("data :" + data)
+    /*alert("data :" + data)*/
     var url = "/remove_file_from_playlist/" + data;
     $.post(url, {
         /*javascript_data: data*/
@@ -426,14 +425,12 @@ function submit_frame_brightness_values_option(){
                                             window.console && console.log(name)
                                             if (key == 0){
                                                 <!-- remove playlist -->
-                                                alert("name:" + name)
-                                                alert("id:" + id)
+
                                                 remove_playlist(name)
                                             }
                                             if (key == 1){
                                                 <!-- remove file from playlist -->
-                                                alert("name:" + name)
-                                                alert("id:" + id)
+
                                                 remove_file_from_playlist(name, id)
                                             }
 
