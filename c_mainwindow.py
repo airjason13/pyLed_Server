@@ -217,7 +217,7 @@ class MainUi(QMainWindow):
         self.date_timer = QTimer(self)
         self.date_timer.timeout.connect(self.check_brightness_by_date_timer)
         # self.date_timer.start(1*60*1000)
-        self.date_timer.start(1 * 6 * 1000)
+        self.date_timer.start(1 * 60 * 1000)
 
         # utils.astral_utils.get_sun_times("KK")
         self.city = Target_City
@@ -819,7 +819,7 @@ class MainUi(QMainWindow):
                            str(self.media_engine.media_processor.video_params.frame_brightness))
         elif data.get("set_sleep_mode"):
             log.debug("recv : %s ", data.get("set_sleep_mode"))
-            write_date = "SLEEP_MODE_ENABLE = False" + "\n"
+            '''write_date = "SLEEP_MODE_ENABLE = False" + "\n"
             if data.get("set_sleep_mode") == "Enable":
                 write_date = "SLEEP_MODE_ENABLE = True" + "\n"
 
@@ -835,7 +835,7 @@ class MainUi(QMainWindow):
                     else:
                         f.write(line)
                 f.flush()
-                f.close()
+                f.close()'''
 
         elif data.get("set_target_city"):
             log.debug("recv : %s ", data.get("set_target_city"))
@@ -843,7 +843,7 @@ class MainUi(QMainWindow):
                 log.debug("City Invalid")
                 return
             self.city = data.get("set_target_city")
-            file_uri = os.getcwd() + "/astral_hashmap.py"
+            '''file_uri = os.getcwd() + "/astral_hashmap.py"
             log.debug(file_uri)
             with open(file_uri, "r") as f:
                 lines = f.readlines()
@@ -855,7 +855,7 @@ class MainUi(QMainWindow):
                     else:
                         f.write(line)
                 f.flush()
-                f.close()
+                f.close()'''
 
         elif data.get("set_brightness_algo"):
             log.debug("recv : %s ", data.get("set_brightness_algo"))

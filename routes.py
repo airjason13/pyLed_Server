@@ -343,6 +343,9 @@ def create_new_playlist(data):
 
     # brightness Algo radio form
     brightnessAlgoform = BrightnessAlgoForm()
+    brightnessAlgoform.sleep_mode_switcher.data=get_sleep_mode_default()
+    brightnessAlgoform.city_selectfiled.data=get_target_city_default()
+    brightnessAlgoform.brightness_mode_switcher.data=get_brightness_mode_default()
     # get brightness setting values
     brightnessvalues = get_brightness_value_default()
 
@@ -446,6 +449,7 @@ def get_sleep_mode_default():
     return "Disable"
 
 def get_target_city_default():
+    log.debug("%s", Target_City)
     return Target_City
 
 
@@ -456,17 +460,20 @@ def get_city_hash_map():
     print(city_hash_map)
     return city_hash_map
 
+
 class BrightnessAlgoForm(Form):
 
     style = {'class': 'ourClasses', 'style': 'font-size:24px;color:white', }
     brightness_mode_switcher = RadioField(
-            "Brightness Mode",
+
+            label="Brightness Mode",
             id="brightness_mode_switcher",
             choices=[('fix_mode', 'FIX MODE'),
                      ('auto_time_mode', 'Time Mode'),
                      ('auto_als_mode', 'ALS Mode'),
                      ('test_mode', 'Test Mode')],
             default=get_brightness_mode_default(),
+
             render_kw=style,
 
         )
@@ -481,12 +488,11 @@ class BrightnessAlgoForm(Form):
         render_kw=style,
 
     )
-    city_style = {'class': 'ourClasses', 'style': 'font-size:24px;color:black', }
+    city_style = {'class': 'ourClasses', 'style': 'font-size:24px;color:black,size:320px', }
     city_selectfiled = SelectField(
         "City",
         id="city_selected",
-        choices= get_city_hash_map(),
-
+        choices=get_city_hash_map(),
         default=get_target_city_default(),
         render_kw=city_style,
     )
@@ -544,6 +550,9 @@ def remove_media_file(data):
 
     # brightness Algo radio form
     brightnessAlgoform = BrightnessAlgoForm()
+    brightnessAlgoform.sleep_mode_switcher.data=get_sleep_mode_default()
+    brightnessAlgoform.city_selectfiled.data=get_target_city_default()
+    brightnessAlgoform.brightness_mode_switcher.data=get_brightness_mode_default()
     # get brightness setting values
     brightnessvalues = get_brightness_value_default()
 
@@ -556,16 +565,48 @@ def remove_media_file(data):
 @app.route('/set_sleep_mode/<data>', methods=['POST'])
 def set_sleep_mode(data):
     log.debug("set_sleep_mode, data = %s", data)
+    write_date = "SLEEP_MODE_ENABLE = False" + "\n"
+    if data == "Enable":
+        write_date = "SLEEP_MODE_ENABLE = True" + "\n"
 
-    send_message(set_sleep_mode=data)
+    file_uri = os.getcwd() + "/astral_hashmap.py"
+    log.debug(file_uri)
+    with open(file_uri, "r") as f:
+        lines = f.readlines()
+    f.close()
+    f = open(file_uri, "w")
+    for line in lines:
+        if "SLEEP_MODE_ENABLE" in line:
+            f.write(write_date)
+        else:
+            f.write(line)
+    f.flush()
+    f.close()
+    os.system('sync')
+
+    # send_message(set_sleep_mode=data)
     status_code = Response(status=200)
     return status_code
+
 
 
 @app.route('/set_target_city/<data>', methods=['POST'])
 def set_target_city(data):
     log.debug("set_target_city, data = %s", data)
-
+    file_uri = os.getcwd() + "/astral_hashmap.py"
+    log.debug(file_uri)
+    with open(file_uri, "r") as f:
+        lines = f.readlines()
+    f.close()
+    with open(file_uri, "w") as f:
+        for line in lines:
+            if "Target_City" in line:
+                f.write("Target_City = " + '"' + data + '"' + "\n")
+            else:
+                f.write(line)
+        f.flush()
+        f.close()
+    os.system('sync')
     send_message(set_target_city=data)
     status_code = Response(status=200)
     return status_code
@@ -618,6 +659,9 @@ def add_to_playlist(data):
 
     # brightness Algo radio form
     brightnessAlgoform = BrightnessAlgoForm()
+    brightnessAlgoform.sleep_mode_switcher.data=get_sleep_mode_default()
+    brightnessAlgoform.city_selectfiled.data=get_target_city_default()
+    brightnessAlgoform.brightness_mode_switcher.data=get_brightness_mode_default()
     # get brightness setting values
     brightnessvalues = get_brightness_value_default()
 
@@ -654,6 +698,9 @@ def remove_playlist(data):
 
     # brightness Algo radio form
     brightnessAlgoform = BrightnessAlgoForm()
+    brightnessAlgoform.sleep_mode_switcher.data=get_sleep_mode_default()
+    brightnessAlgoform.city_selectfiled.data=get_target_city_default()
+    brightnessAlgoform.brightness_mode_switcher.data=get_brightness_mode_default()
     # get brightness setting values
     brightnessvalues = get_brightness_value_default()
 
@@ -698,6 +745,9 @@ def remove_file_from_playlist(data):
     playlist_js_file.close()
     # brightness Algo radio form
     brightnessAlgoform = BrightnessAlgoForm()
+    brightnessAlgoform.sleep_mode_switcher.data=get_sleep_mode_default()
+    brightnessAlgoform.city_selectfiled.data=get_target_city_default()
+    brightnessAlgoform.brightness_mode_switcher.data=get_brightness_mode_default()
     # get brightness setting values
     brightnessvalues = get_brightness_value_default()
 
@@ -761,6 +811,9 @@ def index():
 
     # brightness Algo radio form
     brightnessAlgoform = BrightnessAlgoForm()
+    brightnessAlgoform.sleep_mode_switcher.data=get_sleep_mode_default()
+    brightnessAlgoform.city_selectfiled.data=get_target_city_default()
+    brightnessAlgoform.brightness_mode_switcher.data=get_brightness_mode_default()
     # get brightness setting values
     brightnessvalues = get_brightness_value_default()
 
