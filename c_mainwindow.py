@@ -8,6 +8,7 @@ import utils.log_utils
 import utils.net_utils as net_utils
 import utils.qtui_utils
 import utils.update_utils
+import utils.astral_utils
 from c_cabinet_setting_window import CabinetSettingWindow
 from c_led_layout_window import LedLayoutWindow
 from g_defs.c_cabinet_params import cabinet_params
@@ -25,6 +26,7 @@ from PyQt5.QtCore import QThread, pyqtSignal, QDateTime, QObject
 from str_define import *
 from g_defs.c_bluetooth import BlueTooth
 from datetime import datetime
+import pytz
 from qlocalmessage import send_message
 from qt_web_comunication import *
 log = utils.log_utils.logging_init(__file__)
@@ -216,7 +218,111 @@ class MainUi(QMainWindow):
         # self.date_timer.start(1*60*1000)
         self.date_timer.start(1 * 6 * 1000)
 
+        # utils.astral_utils.get_sun_times("KK")
+        self.city = "Taichung"
+        # for test
+        # self.test_hour = 0
+        # self.test_min = 10
+
+    def check_daymode_nightmode(self, sunrise_time, sunset_time, now):
+        if sunrise_time > now or now > sunset_time:
+            log.debug("night mode")
+
+            if self.media_engine.media_processor.video_params.frame_brightness \
+                    != self.media_engine.media_processor.video_params.get_night_mode_frame_brightness():
+                self.media_engine.media_processor.set_frame_brightness_value(
+                    self.media_engine.media_processor.video_params.get_night_mode_frame_brightness())
+
+                self.hdmi_in_page.client_brightness_edit.setText(
+                    str(self.media_engine.media_processor.video_params.get_frame_brightness()))
+                self.medialist_page.client_brightness_edit.setText(
+                    str(self.media_engine.media_processor.video_params.get_frame_brightness()))
+
+                clients = self.clients
+                for c in clients:
+                    c.send_cmd(cmd_set_frame_brightness,
+                               self.cmd_seq_id_increase(),
+                               str(self.media_engine.media_processor.video_params.frame_brightness))
+            log.debug("self.media_engine.media_processor.video_params.frame_brightness = %d",
+                      self.media_engine.media_processor.video_params.frame_brightness)
+
+        elif sunrise_time < now < sunset_time:
+            log.debug("day mode")
+
+            # log.debug("day_mode_brightness = %d", day_mode_brightness)
+            if self.media_engine.media_processor.video_params.frame_brightness \
+                    != self.media_engine.media_processor.video_params.get_day_mode_frame_brightness():
+                self.media_engine.media_processor.set_frame_brightness_value(
+                    self.media_engine.media_processor.video_params.get_day_mode_frame_brightness())
+                self.hdmi_in_page.client_brightness_edit.setText(
+                    str(self.media_engine.media_processor.video_params.get_frame_brightness()))
+                self.medialist_page.client_brightness_edit.setText(
+                    str(self.media_engine.media_processor.video_params.get_frame_brightness()))
+
+                clients = self.clients
+                for c in clients:
+                    c.send_cmd(cmd_set_frame_brightness,
+                               self.cmd_seq_id_increase(),
+                               str(self.media_engine.media_processor.video_params.frame_brightness))
+            log.debug("self.media_engine.media_processor.video_params.frame_brightness = %d",
+                      self.media_engine.media_processor.video_params.frame_brightness)
+
     def check_brightness_by_date_timer(self):
+        log.debug("frame_brightness_algorithm = %d",
+                  self.media_engine.media_processor.video_params.frame_brightness_algorithm)
+
+        if self.media_engine.media_processor.video_params.frame_brightness_algorithm \
+                == frame_brightness_adjust.fix_mode:
+            # log.debug("frame_brightness_adjust.fix_mode")
+            return
+
+
+        now = datetime.now().replace(tzinfo=(pytz.timezone(utils.astral_utils.get_time_zone(self.city))))
+        # test_hour = now
+        light_start_time = None
+        light_end_time = None
+        if utils.astral_utils.get_sleep_mode_enable() is True:
+            # train start
+            light_start_time = now.replace(hour=5, minute=0, second=0, microsecond=0)
+            # today19pm = now.replace(hour=19, minute=0, second=0, microsecond=0)
+            # train stop
+            light_end_time = now.replace(hour=23, minute=0, second=0, microsecond=0)
+
+        # now = test_hour.replace(hour=self.test_hour, minute=self.test_min, second=0, microsecond=0)
+
+        sunrise_time, sunset_time = utils.astral_utils.get_sun_times(self.city)
+        '''log.debug("sunrise_time :%s", sunrise_time.strftime("%d/%m/%Y %H:%M:%S"))
+        log.debug("sunset_time :%s", sunset_time.strftime("%d/%m/%Y %H:%M:%S"))
+        log.debug("now :%s", now.strftime("%d/%m/%Y %H:%M:%S"))
+        self.test_hour += 1
+        if self.test_hour >= 24:
+            self.test_hour = 0'''
+        # train info stop
+        if light_start_time is not None and light_end_time is not None:
+            if now < light_start_time or now > light_end_time:
+                log.debug("sleep mode")
+                if self.media_engine.media_processor.video_params.frame_brightness \
+                        != self.media_engine.media_processor.video_params.get_sleep_mode_frame_brightness():
+                    self.media_engine.media_processor.set_frame_brightness_value(
+                        self.media_engine.media_processor.video_params.get_sleep_mode_frame_brightness())
+                    self.hdmi_in_page.client_brightness_edit.setText(
+                        str(self.media_engine.media_processor.video_params.get_frame_brightness()))
+                    self.medialist_page.client_brightness_edit.setText(
+                        str(self.media_engine.media_processor.video_params.get_frame_brightness()))
+
+                    clients = self.clients
+                    for c in clients:
+                        c.send_cmd(cmd_set_frame_brightness,
+                                   self.cmd_seq_id_increase(),
+                                   str(self.media_engine.media_processor.video_params.frame_brightness))
+                log.debug("self.media_engine.media_processor.video_params.frame_brightness = %d",
+                          self.media_engine.media_processor.video_params.frame_brightness)
+            else:
+                self.check_daymode_nightmode(sunrise_time, sunset_time, now)
+        else:
+            self.check_daymode_nightmode(sunrise_time, sunset_time, now)
+
+    def check_brightness_by_date_timer_depreciated(self):
         log.debug("frame_brightness_algorithm  =%d",
                   self.media_engine.media_processor.video_params.frame_brightness_algorithm)
 
