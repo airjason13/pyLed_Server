@@ -233,19 +233,11 @@ function remove_file_from_playlist(playlist, file ) {
 }
 
 function submit_frame_brightness_mode_option(){
-    var radios = document.querySelectorAll('[type="radio"]');
-    var data = "fix_mode"
-    if(radios[0].checked){
-        /* fix mode checked*/
-        data = "fix_mode"
-    }else if(radios[1].checked){
-        data = "auto_time_mode"
-    }else if(radios[2].checked){
-        data = "auto_als_mode"
-    }else if(radios[3].checked){
-        data = "test_mode"
-    }
-    /* To be implement */
+    /*var frame_brightness_mode = document.querySelector('input[name="brightness_mode_switcher"]:checked').value;
+    alert(frame_brightness_mode)*/
+
+    var data = document.querySelector('input[name="brightness_mode_switcher"]:checked').value;
+
     /* alert("data:" + data)*/
     var url = "/set_brightness_algo/" + data;
     $.post(url, {
@@ -253,15 +245,38 @@ function submit_frame_brightness_mode_option(){
         });
 }
 
+function submit_sleep_mode_option(){
+
+    /*var sleep_mode = document.querySelector('input[name="sleep_mode_switcher"]:checked').value;
+    alert(sleep_mode)*/
+
+    var data = document.querySelector('input[name="sleep_mode_switcher"]:checked').value;
+    alert(data)
+    /* alert("data:" + data)*/
+    var url = "/set_sleep_mode/" + data;
+    $.post(url, {
+        /*javascript_data: data*/
+        });
+}
+
 
 function submit_frame_brightness_values_option(){
-    var fr_br = document.getElementById("frame_brightness").value
-    var day_mode_fr_br = document.getElementById("day_mode_frame_brightness").value
-    var night_mode_fr_br = document.getElementById("night_mode_frame_brightness").value
-    var sleep_mode_fr_br = document.getElementById("sleep_mode_frame_brightness").value
-    var data = "fr_br:" + fr_br + ";day_mode_fr_br:" + day_mode_fr_br +";night_mode_fr_br:" + night_mode_fr_br + ";sleep_mode_fr_br:" + sleep_mode_fr_br
+    var fr_br = document.getElementById("frame_brightness").value;
+    var day_mode_fr_br = document.getElementById("day_mode_frame_brightness").value;
+    var night_mode_fr_br = document.getElementById("night_mode_frame_brightness").value;
+    var sleep_mode_fr_br = document.getElementById("sleep_mode_frame_brightness").value;
+    var data = "fr_br:" + fr_br + ";day_mode_fr_br:" + day_mode_fr_br +";night_mode_fr_br:" + night_mode_fr_br + ";sleep_mode_fr_br:" + sleep_mode_fr_br;
     /*alert("data : " + data)*/
     var url = "/set_brightness_values/" + data;
+    $.post(url, {
+        /*javascript_data: data*/
+        });
+}
+
+function submit_target_city_option(){
+    var city_select = document.getElementById("city_selected").value;
+    alert(city_select);
+    var url = "/set_target_city/" + city_select;
     $.post(url, {
         /*javascript_data: data*/
         });
@@ -450,14 +465,19 @@ function submit_frame_brightness_values_option(){
                 </div>
             {% endfor %}
     </div>
+
     <label style="font-size:36px" ><font color="#0000FF">{{ form.brightness_mode_switcher.label() }}</font></label><br>
             {{ form.brightness_mode_switcher(onchange="submit_frame_brightness_mode_option()") }}
-
+    <label style="font-size:36px" ><font color="#0000FF">{{ form.sleep_mode_switcher.label() }}</font></label><br>
+            {{ form.sleep_mode_switcher(onchange="submit_sleep_mode_option()") }}
+    <label style="font-size:36px" ><font color="#0000FF">{{ form.city_selectfiled.label() }}</font></label><br>
+            {{ form.city_selectfiled(onchange="submit_target_city_option()") }}
 
     <div>
         <label style="font-size:36px" ><font color="#0000FF">Brightness Values Setting:</font></label><br>
 
         {% for k,v in brightnessvalues.items() %}
+
             <label class="label_h1" for="text_context" style="font-size:24px" ><font color="#0000FF">{{k}}</font></label>
             <input type="number" name="frame_brightness" id={{k}} size="6" style="font-size:24px" value={{v}}></br>
         {% endfor %}

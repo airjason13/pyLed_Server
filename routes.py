@@ -6,12 +6,13 @@ from flask import Flask, render_template, send_from_directory, request, redirect
 from global_def import *
 import traceback
 from flask_wtf import Form
-from wtforms import validators, RadioField, SubmitField, IntegerField
+from wtforms import validators, RadioField, SubmitField, IntegerField, SelectField, StringField
 import utils.log_utils
 import hashlib
 import os
 import sys
 from qt_web_comunication import *
+from astral_hashmap import *
 from g_defs.c_client import client
 log = utils.log_utils.logging_init(__file__)
 
@@ -391,6 +392,7 @@ def init_video_params():
     config_file.close()
     os.system('sync')
 
+
 def get_brightness_value_default():
     root_dir = os.path.dirname(sys.modules['__main__'].__file__)
     led_config_dir = os.path.join(root_dir, 'video_params_config')
@@ -428,18 +430,67 @@ def get_brightness_value_default():
     return brightness_values_maps
 
 
+def get_sleep_mode_default():
+    log.debug("%s", os.getcwd() + "/astral_hashmap.py")
+    with open(os.getcwd() + "/astral_hashmap.py", "r") as f:
+        lines = f.readlines()
+    f.close()
+    log.debug("%s", lines)
+    for line in lines:
+        if "SLEEP_MODE_ENABLE" in line:
+            if "True" in line:
+                return "Enable"
+            else:
+                return "Disable"
+
+    return "Disable"
+
+def get_target_city_default():
+    return Target_City
+
+
+def get_city_hash_map():
+    city_hash_map = {}
+    for city in City_Map:
+        city_hash_map[city.get("City")] = city.get("City")
+    print(city_hash_map)
+    return city_hash_map
+
 class BrightnessAlgoForm(Form):
 
-    style = {'class': 'ourClasses', 'style': 'font-size:24px;', 'color': 'white'}
+    style = {'class': 'ourClasses', 'style': 'font-size:24px;color:white', }
     brightness_mode_switcher = RadioField(
             "Brightness Mode",
+            id="brightness_mode_switcher",
+            _name="brightness_mode_switcher",
             choices=[('fix_mode', 'FIX MODE'),
                      ('auto_time_mode', 'Time Mode'),
                      ('auto_als_mode', 'ALS Mode'),
                      ('test_mode', 'Test Mode')],
             default=get_brightness_mode_default(),
-            render_kw=style
+            render_kw=style,
+
         )
+    # style = {'class': 'ourClasses', 'style': 'font-size:24px;color:white', }
+    sleep_mode_switcher = RadioField(
+        "Sleep Mode",
+        id="sleep_mode_switcher",
+        choices=[('Disable', 'Disable'),
+                 ('Enable', 'Enable'),
+                 ],
+        default=get_sleep_mode_default(),
+        render_kw=style,
+
+    )
+    city_style = {'class': 'ourClasses', 'style': 'font-size:24px;color:black', }
+    city_selectfiled = SelectField(
+        "City",
+        id="city_selected",
+        choices= get_city_hash_map(),
+
+        default=get_target_city_default(),
+        render_kw=city_style,
+    )
 
 
 @app.route('/remove_media_file/<data>', methods=['POST'])
@@ -502,6 +553,23 @@ def remove_media_file(data):
                            text_content=route_text_content, text_period=20, form=brightnessAlgoform,
                            brightnessvalues=brightnessvalues)
 
+
+@app.route('/set_sleep_mode/<data>', methods=['POST'])
+def set_sleep_mode(data):
+    log.debug("set_sleep_mode, data = %s", data)
+
+    send_message(set_sleep_mode=data)
+    status_code = Response(status=200)
+    return status_code
+
+
+@app.route('/set_target_city/<data>', methods=['POST'])
+def set_target_city(data):
+    log.debug("set_target_city, data = %s", data)
+
+    send_message(set_target_city=data)
+    status_code = Response(status=200)
+    return status_code
 
 @app.route('/set_brightness_algo/<data>', methods=['POST'])
 def set_brightness_algo(data):

@@ -1,8 +1,14 @@
+import os
+
 from astral import LocationInfo
 from astral.sun import sun
 import pytz
 from astral_hashmap import *
 from _datetime import datetime
+import utils.log_utils
+
+
+log = utils.log_utils.logging_init(__file__)
 
 def get_sun_times(city):
 	target_city = None
@@ -42,4 +48,25 @@ def get_time_zone(city):
 
 
 def get_sleep_mode_enable():
-	return SLEEP_MODE_ENABLE
+	with open(os.getcwd() + "/astral_hashmap.py", "r") as f:
+		lines = f.readlines()
+	f.close()
+	for line in lines:
+		if "SLEEP_MODE_ENABLE" in line:
+			if "True" in line:
+				return True
+			else:
+				return False
+	log.fatal("So SLEEP_MODE_ENABLE TAG!")
+	return False
+
+
+def get_default_city():
+	return City_Map[0].get("City")
+
+
+def check_city_valid(city):
+	for c in City_Map:
+		if c.get("City") == city:
+			return True
+	return False

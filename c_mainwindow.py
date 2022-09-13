@@ -27,6 +27,7 @@ from str_define import *
 from g_defs.c_bluetooth import BlueTooth
 from datetime import datetime
 import pytz
+from astral_hashmap import *
 from qlocalmessage import send_message
 from qt_web_comunication import *
 log = utils.log_utils.logging_init(__file__)
@@ -219,15 +220,16 @@ class MainUi(QMainWindow):
         self.date_timer.start(1 * 6 * 1000)
 
         # utils.astral_utils.get_sun_times("KK")
-        self.city = "Taichung"
+        self.city = Target_City
         # for test
         # self.test_hour = 0
         # self.test_min = 10
 
     def check_daymode_nightmode(self, sunrise_time, sunset_time, now):
+        file_uri = os.getcwd() + "/test_log.dat"
+        f = open(file_uri, "a+")
         if sunrise_time > now or now > sunset_time:
             log.debug("night mode")
-
             if self.media_engine.media_processor.video_params.frame_brightness \
                     != self.media_engine.media_processor.video_params.get_night_mode_frame_brightness():
                 self.media_engine.media_processor.set_frame_brightness_value(
@@ -245,7 +247,9 @@ class MainUi(QMainWindow):
                                str(self.media_engine.media_processor.video_params.frame_brightness))
             log.debug("self.media_engine.media_processor.video_params.frame_brightness = %d",
                       self.media_engine.media_processor.video_params.frame_brightness)
-
+            data = now.strftime("%H:%M:%S")
+            f.write(data + "==> night mode\n")
+            f.flush()
         elif sunrise_time < now < sunset_time:
             log.debug("day mode")
 
@@ -266,7 +270,10 @@ class MainUi(QMainWindow):
                                str(self.media_engine.media_processor.video_params.frame_brightness))
             log.debug("self.media_engine.media_processor.video_params.frame_brightness = %d",
                       self.media_engine.media_processor.video_params.frame_brightness)
-
+            data = now.strftime("%H:%M:%S")
+            f.write(data + "==> day mode\n")
+            f.flush()
+        f.close()
     def check_brightness_by_date_timer(self):
         log.debug("frame_brightness_algorithm = %d",
                   self.media_engine.media_processor.video_params.frame_brightness_algorithm)
@@ -276,30 +283,29 @@ class MainUi(QMainWindow):
             # log.debug("frame_brightness_adjust.fix_mode")
             return
 
-
         now = datetime.now().replace(tzinfo=(pytz.timezone(utils.astral_utils.get_time_zone(self.city))))
         # test_hour = now
         light_start_time = None
         light_end_time = None
         if utils.astral_utils.get_sleep_mode_enable() is True:
+            # log.debug("Sleep Mode is True")
             # train start
             light_start_time = now.replace(hour=5, minute=0, second=0, microsecond=0)
-            # today19pm = now.replace(hour=19, minute=0, second=0, microsecond=0)
             # train stop
             light_end_time = now.replace(hour=23, minute=0, second=0, microsecond=0)
+        else:
+            # log.debug("Sleep Mode is False")
+            pass
 
         # now = test_hour.replace(hour=self.test_hour, minute=self.test_min, second=0, microsecond=0)
 
         sunrise_time, sunset_time = utils.astral_utils.get_sun_times(self.city)
-        '''log.debug("sunrise_time :%s", sunrise_time.strftime("%d/%m/%Y %H:%M:%S"))
-        log.debug("sunset_time :%s", sunset_time.strftime("%d/%m/%Y %H:%M:%S"))
-        log.debug("now :%s", now.strftime("%d/%m/%Y %H:%M:%S"))
-        self.test_hour += 1
-        if self.test_hour >= 24:
-            self.test_hour = 0'''
+
         # train info stop
         if light_start_time is not None and light_end_time is not None:
             if now < light_start_time or now > light_end_time:
+                file_uri = os.getcwd() + "/test_log.dat"
+                f = open(file_uri, "a+")
                 log.debug("sleep mode")
                 if self.media_engine.media_processor.video_params.frame_brightness \
                         != self.media_engine.media_processor.video_params.get_sleep_mode_frame_brightness():
@@ -317,85 +323,14 @@ class MainUi(QMainWindow):
                                    str(self.media_engine.media_processor.video_params.frame_brightness))
                 log.debug("self.media_engine.media_processor.video_params.frame_brightness = %d",
                           self.media_engine.media_processor.video_params.frame_brightness)
+                data = now.strftime("%H:%M:%S")
+                f.write(data + "==> sleep mode\n")
+                f.flush()
+                f.close()
             else:
                 self.check_daymode_nightmode(sunrise_time, sunset_time, now)
         else:
             self.check_daymode_nightmode(sunrise_time, sunset_time, now)
-
-    def check_brightness_by_date_timer_depreciated(self):
-        log.debug("frame_brightness_algorithm  =%d",
-                  self.media_engine.media_processor.video_params.frame_brightness_algorithm)
-
-        if self.media_engine.media_processor.video_params.frame_brightness_algorithm \
-                == frame_brightness_adjust.fix_mode:
-            # log.debug("frame_brightness_adjust.fix_mode")
-            return
-        now = datetime.now()
-        # dd/mm/YY H:M:S
-        # dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
-        # log.debug("date and time = %s", dt_string)
-        # dt_hour_string = now.strftime("%H")
-        today5am = now.replace(hour=5, minute=0, second=0, microsecond=0)
-        today19pm = now.replace(hour=19, minute=0, second=0, microsecond=0)
-        today23pm = now.replace(hour=23, minute=0, second=0, microsecond=0)
-        if today5am < now < today19pm:
-            log.debug("day mode")
-            log.debug("self.media_engine.media_processor.video_params.frame_brightness = %d",
-                      self.media_engine.media_processor.video_params.frame_brightness)
-            log.debug("day_mode_brightness = %d", day_mode_brightness)
-            if self.media_engine.media_processor.video_params.frame_brightness \
-                    != self.media_engine.media_processor.video_params.get_day_mode_frame_brightness():
-                self.media_engine.media_processor.set_frame_brightness_value(
-                    self.media_engine.media_processor.video_params.get_day_mode_frame_brightness())
-                self.hdmi_in_page.client_brightness_edit.setText(
-                    str(self.media_engine.media_processor.video_params.get_frame_brightness()))
-                self.medialist_page.client_brightness_edit.setText(
-                    str(self.media_engine.media_processor.video_params.get_frame_brightness()))
-                clients = self.clients
-                for c in clients:
-                    c.send_cmd(cmd_set_frame_brightness,
-                               self.cmd_seq_id_increase(),
-                               str(self.media_engine.media_processor.video_params.frame_brightness))
-        elif today23pm < now or now < today5am:
-            log.debug("sleep mode")
-            if self.media_engine.media_processor.video_params.frame_brightness \
-                    != self.media_engine.media_processor.video_params.get_sleep_mode_frame_brightness():
-                self.media_engine.media_processor.set_frame_brightness_value(
-                    self.media_engine.media_processor.video_params.get_sleep_mode_frame_brightness())
-                self.hdmi_in_page.client_brightness_edit.setText(
-                    str(self.media_engine.media_processor.video_params.get_frame_brightness()))
-                self.medialist_page.client_brightness_edit.setText(
-                    str(self.media_engine.media_processor.video_params.get_frame_brightness()))
-
-                clients = self.clients
-                for c in clients:
-                    c.send_cmd(cmd_set_frame_brightness,
-                               self.cmd_seq_id_increase(),
-                               str(self.media_engine.media_processor.video_params.frame_brightness))
-            
-        else:
-            log.debug("night mode")
-            if self.media_engine.media_processor.video_params.frame_brightness \
-                    != self.media_engine.media_processor.video_params.get_night_mode_frame_brightness():
-                self.media_engine.media_processor.set_frame_brightness_value(
-                    self.media_engine.media_processor.video_params.get_night_mode_frame_brightness())
-
-                self.hdmi_in_page.client_brightness_edit.setText(
-                    str(self.media_engine.media_processor.video_params.get_frame_brightness()))
-                self.medialist_page.client_brightness_edit.setText(
-                    str(self.media_engine.media_processor.video_params.get_frame_brightness()))
-
-                clients = self.clients
-                for c in clients:
-                    c.send_cmd(cmd_set_frame_brightness,
-                               self.cmd_seq_id_increase(),
-                               str(self.media_engine.media_processor.video_params.frame_brightness))
-
-        # log.debug("date and time = %s", dt_hour_string)
-        '''if int(dt_hour_string) >= 18 or int(dt_hour_string) < 6:
-            log.debug("night mode")
-        else:
-            log.debug("day mode")'''
 
     def demo_start_cms(self):
         self.func_cms_setting()
@@ -641,7 +576,7 @@ class MainUi(QMainWindow):
 
         # self.led_setting_layout.addWidget(self.led_fake_label, 1, 0, 1, 5)
         self.led_client_layout_tree = CTreeWidget(self.right_frame)
-        self.led_client_layout_tree.mouseMove.connect(self.led_client_layout_mouse_move)
+        # self.led_client_layout_tree.mouseMove.connect(self.led_client_layout_mouse_move)
         self.led_client_layout_tree.setMouseTracking(True)
         self.led_client_layout_tree.setSelectionMode(QAbstractItemView.MultiSelection)
 
@@ -882,6 +817,46 @@ class MainUi(QMainWindow):
                 c.send_cmd(cmd_set_frame_brightness,
                            self.cmd_seq_id_increase(),
                            str(self.media_engine.media_processor.video_params.frame_brightness))
+        elif data.get("set_sleep_mode"):
+            log.debug("recv : %s ", data.get("set_sleep_mode"))
+            write_date = "SLEEP_MODE_ENABLE = False" + "\n"
+            if data.get("set_sleep_mode") == "Enable":
+                write_date = "SLEEP_MODE_ENABLE = True" + "\n"
+
+            file_uri = os.getcwd() + "/astral_hashmap.py"
+            log.debug(file_uri)
+            with open(file_uri, "r") as f:
+                lines = f.readlines()
+            f.close()
+            with open(file_uri, "w") as f:
+                for line in lines:
+                    if "SLEEP_MODE_ENABLE" in line:
+                        f.write(write_date)
+                    else:
+                        f.write(line)
+                f.flush()
+                f.close()
+
+        elif data.get("set_target_city"):
+            log.debug("recv : %s ", data.get("set_target_city"))
+            if utils.astral_utils.check_city_valid(data.get("set_target_city")) is False:
+                log.debug("City Invalid")
+                return
+            self.city = data.get("set_target_city")
+            file_uri = os.getcwd() + "/astral_hashmap.py"
+            log.debug(file_uri)
+            with open(file_uri, "r") as f:
+                lines = f.readlines()
+            f.close()
+            with open(file_uri, "w") as f:
+                for line in lines:
+                    if "Target_City" in line:
+                        f.write("Target_City = " + '"' + self.city + '"' + "\n")
+                    else:
+                        f.write(line)
+                f.flush()
+                f.close()
+
         elif data.get("set_brightness_algo"):
             log.debug("recv : %s ", data.get("set_brightness_algo"))
             if "fix_mode" == data.get("set_brightness_algo"):
@@ -1613,21 +1588,7 @@ class MainUi(QMainWindow):
             if self.media_preview_widget.isVisible() is True:
                 self.media_preview_widget.hide()
 
-    '''def select_preview_v4l2_device(self):
-        for i in range(3, 6):
-            v4l2_dev = None
-            v4l2_dev_node = "/dev/video" + str(i)
-            log.debug("v4l2_dev = %s", v4l2_dev_node)
-            try:
-                v4l2_dev = open(v4l2_dev_node)
-            except Exception as e:
-                log.debug("%s open fail", v4l2_dev_node)
 
-            if v4l2_dev is not None:
-                v4l2_dev.close()
-                break
-
-        return v4l2_dev_node'''
 
 class MyDelegate(QItemDelegate):
     def __init__(self):
