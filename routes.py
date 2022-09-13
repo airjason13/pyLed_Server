@@ -462,7 +462,6 @@ class BrightnessAlgoForm(Form):
     brightness_mode_switcher = RadioField(
             "Brightness Mode",
             id="brightness_mode_switcher",
-            _name="brightness_mode_switcher",
             choices=[('fix_mode', 'FIX MODE'),
                      ('auto_time_mode', 'Time Mode'),
                      ('auto_als_mode', 'ALS Mode'),
