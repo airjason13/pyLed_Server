@@ -510,7 +510,7 @@ class BrightnessAlgoForm(Form):
         render_kw=style,
 
     )
-    city_style = {'class': 'ourClasses', 'style': 'font-size:24px;color:black,size:320px', }
+    city_style = {'class': 'ourClasses', 'style': 'font-size:24px;color:black;size:320px;width:200px', }
     city_selectfiled = SelectField(
         "City",
         id="city_selected",
