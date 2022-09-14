@@ -217,7 +217,7 @@ class MainUi(QMainWindow):
         self.date_timer = QTimer(self)
         self.date_timer.timeout.connect(self.check_brightness_by_date_timer)
         # self.date_timer.start(1*60*1000)
-        self.date_timer.start(1 * 6 * 1000)
+        self.date_timer.start(1 * 60 * 1000)
 
         # utils.astral_utils.get_sun_times("KK")
         self.city = City_Map[self.media_engine.media_processor.video_params.get_target_city_index()].get("City")
