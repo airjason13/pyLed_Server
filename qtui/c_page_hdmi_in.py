@@ -4,7 +4,8 @@ from PyQt5 import QtWidgets
 from PyQt5.QtCore import QObject, Qt, QThread, QMutex, QTimer
 from PyQt5.QtGui import QPalette, QColor, QBrush, QFont, QImage
 from PyQt5.QtWidgets import QTreeWidget, QTableWidget, QWidget, QVBoxLayout, QTableWidgetItem, QAbstractItemView, \
-                            QTreeWidgetItem, QPushButton, QHBoxLayout, QMenu, QAction, QRadioButton, QGroupBox
+                            QTreeWidgetItem, QPushButton, QHBoxLayout, QMenu, QAction, QRadioButton,\
+                            QGroupBox, QComboBox
 from g_defs.c_TreeWidgetItemSP import CTreeWidget
 import os
 from global_def import *
@@ -19,6 +20,7 @@ from g_defs.c_tc358743 import TC358743
 from str_define import *
 from subprocess import PIPE, Popen
 import hashlib
+from astral_hashmap import *
 log = utils.log_utils.logging_init(__file__)
 
 
@@ -341,6 +343,37 @@ class Hdmi_In_Page(QObject):
         self.groupbox_led_role_vboxlayout.addWidget(self.radiobutton_client_br_method_als)
         self.groupbox_led_role_vboxlayout.addWidget(self.radiobutton_client_br_method_test)
 
+        # sleep mode
+        self.groupbox_sleep_mode = QGroupBox("Sleep Mode")
+        self.groupbox_sleep_mode_vboxlayout = QHBoxLayout()
+        self.groupbox_sleep_mode.setLayout(self.groupbox_sleep_mode_vboxlayout)
+        self.radiobutton_sleep_mode_enable = QRadioButton("Enable")
+        self.radiobutton_sleep_mode_enable.clicked.connect(
+            self.mainwindow.media_engine.media_processor.video_params.set_sleep_mode_enable
+        )
+        self.radiobutton_sleep_mode_disable = QRadioButton("Disable")
+        self.radiobutton_sleep_mode_disable.clicked.connect(
+            self.mainwindow.media_engine.media_processor.video_params.set_sleep_mode_disable
+        )
+        self.radiobutton_sleep_mode_enable.setFont(QFont(qfont_style_default, qfont_style_size_medium))
+        self.radiobutton_sleep_mode_disable.setFont(QFont(qfont_style_default, qfont_style_size_medium))
+        if self.mainwindow.media_engine.media_processor.video_params.sleep_mode_enable == 1:
+            self.radiobutton_sleep_mode_enable.setChecked(True)
+        if self.mainwindow.media_engine.media_processor.video_params.sleep_mode_enable == 0:
+            self.radiobutton_sleep_mode_disable.setChecked(True)
+
+        self.groupbox_sleep_mode_vboxlayout.addWidget(self.radiobutton_sleep_mode_enable)
+        self.groupbox_sleep_mode_vboxlayout.addWidget(self.radiobutton_sleep_mode_disable)
+
+        # target city
+        self.combobox_target_city = QComboBox(self.mainwindow.right_frame)
+        for city in City_Map:
+            self.combobox_target_city.addItem(city.get("City"))
+        self.combobox_target_city.setFont(QFont(qfont_style_default, qfont_style_size_medium))
+        self.combobox_target_city.setCurrentIndex(
+            self.mainwindow.media_engine.media_processor.video_params.target_city_index
+        )
+
         # client gamma adjust
         self.client_gamma_label = QLabel(self.setting_widget)
         self.client_gamma_label.setText("Client Gamma:")
@@ -356,6 +389,7 @@ class Hdmi_In_Page(QObject):
         self.client_day_mode_brightness_label.setFont(QFont(qfont_style_default, qfont_style_size_medium))
         self.client_day_mode_brightness_edit = QLineEdit(self.mainwindow.right_frame)
         self.client_day_mode_brightness_edit.setFixedWidth(100)
+        self.client_day_mode_brightness_edit.setFont(QFont(qfont_style_default, qfont_style_size_medium))
         self.client_day_mode_brightness_edit.setText(
             str(self.mainwindow.media_engine.media_processor.video_params.day_mode_frame_brightness))
 
@@ -364,6 +398,7 @@ class Hdmi_In_Page(QObject):
         self.client_night_mode_brightness_label.setFont(QFont(qfont_style_default, qfont_style_size_medium))
         self.client_night_mode_brightness_edit = QLineEdit(self.mainwindow.right_frame)
         self.client_night_mode_brightness_edit.setFixedWidth(100)
+        self.client_night_mode_brightness_edit.setFont(QFont(qfont_style_default, qfont_style_size_medium))
         self.client_night_mode_brightness_edit.setText(
             str(self.mainwindow.media_engine.media_processor.video_params.night_mode_frame_brightness))
 
@@ -372,6 +407,7 @@ class Hdmi_In_Page(QObject):
         self.client_sleep_mode_brightness_label.setFont(QFont(qfont_style_default, qfont_style_size_medium))
         self.client_sleep_mode_brightness_edit = QLineEdit(self.mainwindow.right_frame)
         self.client_sleep_mode_brightness_edit.setFixedWidth(100)
+        self.client_sleep_mode_brightness_edit.setFont(QFont(qfont_style_default, qfont_style_size_medium))
         self.client_sleep_mode_brightness_edit.setText(
             str(self.mainwindow.media_engine.media_processor.video_params.sleep_mode_frame_brightness))
 
@@ -404,12 +440,17 @@ class Hdmi_In_Page(QObject):
         self.setting_widget_layout.addWidget(self.client_gamma_edit, 2, 5)
 
         self.setting_widget_layout.addWidget(self.groupbox_client_brightness_method, 4, 0, 2, 4)
-        self.setting_widget_layout.addWidget(self.client_day_mode_brightness_label, 7, 0)
-        self.setting_widget_layout.addWidget(self.client_day_mode_brightness_edit, 7, 1)
-        self.setting_widget_layout.addWidget(self.client_night_mode_brightness_label, 7, 2)
-        self.setting_widget_layout.addWidget(self.client_night_mode_brightness_edit, 7, 3)
-        self.setting_widget_layout.addWidget(self.client_sleep_mode_brightness_label, 7, 4)
-        self.setting_widget_layout.addWidget(self.client_sleep_mode_brightness_edit, 7, 5)
+        self.setting_widget_layout.addWidget(self.groupbox_sleep_mode, 7, 0, 2, 2)
+        self.setting_widget_layout.addWidget(self.combobox_target_city, 7, 2, 0, 2)
+
+
+
+        self.setting_widget_layout.addWidget(self.client_day_mode_brightness_label, 9, 0)
+        self.setting_widget_layout.addWidget(self.client_day_mode_brightness_edit, 9, 1)
+        self.setting_widget_layout.addWidget(self.client_night_mode_brightness_label, 9, 2)
+        self.setting_widget_layout.addWidget(self.client_night_mode_brightness_edit, 9, 3)
+        self.setting_widget_layout.addWidget(self.client_sleep_mode_brightness_label, 9, 4)
+        self.setting_widget_layout.addWidget(self.client_sleep_mode_brightness_edit, 9, 5)
         self.setting_widget_layout.addWidget(self.video_params_confirm_btn, 5, 5)
 
         self.hdmi_in_layout.addWidget(self.preview_widget)
@@ -448,6 +489,13 @@ class Hdmi_In_Page(QObject):
 
         log.debug("self.preview_widget.height() = %d", self.preview_widget.height())
 
+    def combobox_target_city_changed(self, index):
+        log.debug("index = %d", index)
+        self.mainwindow.media_engine.media_processor.video_params.set_target_city_index(index)
+
+    def combobox_target_city_change(self, index):
+        self.combobox_target_city.setCurrentIndex(index)
+
     def radiobutton_client_br_method_fix_mode_set(self):
         self.radiobutton_client_br_method_fix.click()
 
@@ -459,6 +507,12 @@ class Hdmi_In_Page(QObject):
 
     def radiobutton_client_br_method_test_mode_set(self):
         self.radiobutton_client_br_method_test.click()
+
+    def radiobutton_sleep_mode_disable_set(self):
+        self.radiobutton_sleep_mode_disable.click()
+
+    def radiobutton_sleep_mode_enable_set(self):
+        self.radiobutton_sleep_mode_enable.click()
 
     def check_tc358743_timer_event(self):
 

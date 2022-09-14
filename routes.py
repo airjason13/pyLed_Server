@@ -379,6 +379,7 @@ def get_brightness_mode_default():
 def init_video_params():
     content_lines = [
         "brightness=50\n", "contrast=50\n", "red_bias=0\n", "green_bias=0\n", "blue_bias=0\n",
+        "sleep_mode_enable=1\n", "target_city_index=0\n",
         "frame_brightness_algorithm=0\n",
         "frame_brightness=100\n", "day_mode_frame_brightness=77\n",
         "night_mode_frame_brightness=50\n", "sleep_mode_frame_brightness=0\n",
@@ -434,23 +435,44 @@ def get_brightness_value_default():
 
 
 def get_sleep_mode_default():
-    log.debug("%s", os.getcwd() + "/astral_hashmap.py")
-    with open(os.getcwd() + "/astral_hashmap.py", "r") as f:
+    sleep_mode = "Disable"
+    root_dir = os.path.dirname(sys.modules['__main__'].__file__)
+    led_config_dir = os.path.join(root_dir, 'video_params_config')
+    if os.path.isfile(os.path.join(led_config_dir, ".video_params_config")) is False:
+        init_video_params()
+
+    with open(os.path.join(led_config_dir, ".video_params_config"), "r") as f:
         lines = f.readlines()
     f.close()
-    log.debug("%s", lines)
     for line in lines:
-        if "SLEEP_MODE_ENABLE" in line:
-            if "True" in line:
-                return "Enable"
+        tag = line.split("=")[0]
+        if "sleep_mode_enable" == tag:
+            i_sleep_mode = line.strip("\n").split("=")[1]
+            if i_sleep_mode == "1":
+                sleep_mode = "Enable"
+                return sleep_mode
             else:
-                return "Disable"
+                return sleep_mode
+    return sleep_mode
 
-    return "Disable"
 
 def get_target_city_default():
-    log.debug("%s", Target_City)
-    return Target_City
+    city_index = 0
+    target_city = City_Map[city_index].get("City")
+    root_dir = os.path.dirname(sys.modules['__main__'].__file__)
+    led_config_dir = os.path.join(root_dir, 'video_params_config')
+    if os.path.isfile(os.path.join(led_config_dir, ".video_params_config")) is False:
+        init_video_params()
+
+    with open(os.path.join(led_config_dir, ".video_params_config"), "r") as f:
+        lines = f.readlines()
+    f.close()
+    for line in lines:
+        tag = line.split("=")[0]
+        if tag == "target_city_index":
+            city_index = int(line.strip("\n").split("=")[1])
+            target_city = City_Map[city_index].get("City")
+    return target_city
 
 
 def get_city_hash_map():
@@ -565,7 +587,7 @@ def remove_media_file(data):
 @app.route('/set_sleep_mode/<data>', methods=['POST'])
 def set_sleep_mode(data):
     log.debug("set_sleep_mode, data = %s", data)
-    write_date = "SLEEP_MODE_ENABLE = False" + "\n"
+    '''write_date = "SLEEP_MODE_ENABLE = False" + "\n"
     if data == "Enable":
         write_date = "SLEEP_MODE_ENABLE = True" + "\n"
 
@@ -582,9 +604,10 @@ def set_sleep_mode(data):
             f.write(line)
     f.flush()
     f.close()
-    os.system('sync')
+    os.system('sync')'''
 
-    # send_message(set_sleep_mode=data)
+
+    send_message(set_sleep_mode=data)
     status_code = Response(status=200)
     return status_code
 
@@ -593,20 +616,7 @@ def set_sleep_mode(data):
 @app.route('/set_target_city/<data>', methods=['POST'])
 def set_target_city(data):
     log.debug("set_target_city, data = %s", data)
-    file_uri = os.getcwd() + "/astral_hashmap.py"
-    log.debug(file_uri)
-    with open(file_uri, "r") as f:
-        lines = f.readlines()
-    f.close()
-    with open(file_uri, "w") as f:
-        for line in lines:
-            if "Target_City" in line:
-                f.write("Target_City = " + '"' + data + '"' + "\n")
-            else:
-                f.write(line)
-        f.flush()
-        f.close()
-    os.system('sync')
+
     send_message(set_target_city=data)
     status_code = Response(status=200)
     return status_code

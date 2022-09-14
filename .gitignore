@@ -3,3 +3,4 @@ __pycache__
 *~
 log/
 *.swp
+test_log.dat

@@ -6,4 +6,4 @@ City_Map = [
                 {"City": "Taoyuan", "Country": "Taiwan", "Loc": "Asia/Taipei", "Latitude": 24.6, "Longitude": 121.2},
                 {"City": "kaohsiung", "Country": "Taiwan", "Loc": "Asia/Taipei", "Latitude": 22.6, "Longitude": 120.1},
             ]
-Target_City = "Taichung"
+Target_City = "Taoyuan"

@@ -3,7 +3,7 @@ from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 import utils.qtui_utils
 from g_defs.c_cabinet_params import cabinet_params
-
+from global_def import *
 import utils.log_utils
 
 log = utils.log_utils.logging_init(__file__)
@@ -32,7 +32,7 @@ class CabinetSettingWindow(QWidget):
 
 
     def init_ui(self):
-        self.setFixedSize(400, 400)
+        self.setFixedSize(600, 500)
         ''' Total frame layout'''
         self.layout = QGridLayout(self)
 
@@ -43,7 +43,8 @@ class CabinetSettingWindow(QWidget):
         c_ip_widget.setLayout(c_ip_gridbox)
         self.client_ip_label = QLabel()
         self.client_ip_label.setText(self.cabinet_params.client_ip)
-        self.client_ip_label.setFixedSize(200, 30)
+        self.client_ip_label.setFont(QFont(qfont_style_default, qfont_style_size_extra_large))
+        # self.client_ip_label.setFixedSize(200, 30)
         c_ip_gridbox.addWidget(self.client_ip_label, 0, 0)
         self.layout.addWidget(c_ip_widget)
 
@@ -77,37 +78,48 @@ class CabinetSettingWindow(QWidget):
         testwidget.setLayout(testgridbox)
         self.cabinet_width_label = QLabel()
         self.cabinet_width_label.setText("Cabinet Width: ")
+        self.cabinet_width_label.setFont(QFont(qfont_style_default, qfont_style_size_large))
         self.cabinet_width_textedit = QTextEdit()
-        self.cabinet_width_textedit.setFixedSize(90, 30)
+        self.cabinet_width_textedit.setFixedSize(90, 40)
         self.cabinet_width_textedit.setText("40 ")
+        self.cabinet_width_textedit.setFont(QFont(qfont_style_default, qfont_style_size_large))
 
         self.cabinet_height_label = QLabel()
         self.cabinet_height_label.setText("Cabinet Height: ")
+        self.cabinet_height_label.setFont(QFont(qfont_style_default, qfont_style_size_large))
         self.cabinet_height_textedit = QTextEdit()
         self.cabinet_height_textedit.setText("24 ")
-        self.cabinet_height_textedit.setFixedSize(90, 30)
+        self.cabinet_height_textedit.setFixedSize(90, 40)
+        self.cabinet_height_textedit.setFont(QFont(qfont_style_default, qfont_style_size_large))
 
         ''' Start X'''
         self.cabinet_startx_label = QLabel()
         self.cabinet_startx_label.setText("Cabinet StartX: ")
+        self.cabinet_startx_label.setFont(QFont(qfont_style_default, qfont_style_size_large))
         self.cabinet_startx_textedit = QTextEdit()
         self.cabinet_startx_textedit.setText("24 ")
-        self.cabinet_startx_textedit.setFixedSize(90, 30)
+        self.cabinet_startx_textedit.setFixedSize(90, 40)
+        self.cabinet_startx_textedit.setFont(QFont(qfont_style_default, qfont_style_size_large))
 
         ''' Start Y'''
         self.cabinet_starty_label = QLabel()
         self.cabinet_starty_label.setText("Cabinet StartY: ")
+        self.cabinet_starty_label.setFont(QFont(qfont_style_default, qfont_style_size_large))
         self.cabinet_starty_textedit = QTextEdit()
         self.cabinet_starty_textedit.setText("24 ")
-        self.cabinet_starty_textedit.setFixedSize(90, 30)
+        self.cabinet_starty_textedit.setFixedSize(90, 40)
+        self.cabinet_starty_textedit.setFont(QFont(qfont_style_default, qfont_style_size_large))
 
         self.set_res_as_default_btn = QPushButton()
         self.set_res_as_default_btn.setText("set default")
         self.set_res_as_default_btn.adjustSize()
+        self.set_res_as_default_btn.setFont(QFont(qfont_style_default, qfont_style_size_large))
         self.confirm_btn = QPushButton()
         self.confirm_btn.setText("OK")
+        self.confirm_btn.setFont(QFont(qfont_style_default, qfont_style_size_large))
         self.cancel_btn = QPushButton()
         self.cancel_btn.setText("Cancel")
+        self.cancel_btn.setFont(QFont(qfont_style_default, qfont_style_size_large))
 
         testgridbox.addWidget(self.cabinet_width_label, 0, 0)
         testgridbox.addWidget(self.cabinet_width_textedit, 0, 1)

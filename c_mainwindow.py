@@ -217,10 +217,10 @@ class MainUi(QMainWindow):
         self.date_timer = QTimer(self)
         self.date_timer.timeout.connect(self.check_brightness_by_date_timer)
         # self.date_timer.start(1*60*1000)
-        self.date_timer.start(1 * 60 * 1000)
+        self.date_timer.start(1 * 6 * 1000)
 
         # utils.astral_utils.get_sun_times("KK")
-        self.city = Target_City
+        self.city = City_Map[self.media_engine.media_processor.video_params.get_target_city_index()].get("City")
         # for test
         # self.test_hour = 0
         # self.test_min = 10
@@ -248,7 +248,8 @@ class MainUi(QMainWindow):
             log.debug("self.media_engine.media_processor.video_params.frame_brightness = %d",
                       self.media_engine.media_processor.video_params.frame_brightness)
             data = now.strftime("%H:%M:%S")
-            f.write(data + "==> night mode\n")
+            f.write(data + "==> night mode" + "==>br:" +
+                    str(self.media_engine.media_processor.video_params.frame_brightness) + "\n")
             f.flush()
         elif sunrise_time < now < sunset_time:
             log.debug("day mode")
@@ -271,7 +272,8 @@ class MainUi(QMainWindow):
             log.debug("self.media_engine.media_processor.video_params.frame_brightness = %d",
                       self.media_engine.media_processor.video_params.frame_brightness)
             data = now.strftime("%H:%M:%S")
-            f.write(data + "==> day mode\n")
+            f.write(data + "==> day mode" + "==>br:" +
+                    str(self.media_engine.media_processor.video_params.frame_brightness) + "\n")
             f.flush()
         f.close()
     def check_brightness_by_date_timer(self):
@@ -282,7 +284,7 @@ class MainUi(QMainWindow):
                 == frame_brightness_adjust.fix_mode:
             # log.debug("frame_brightness_adjust.fix_mode")
             return
-
+        self.city = City_Map[self.media_engine.media_processor.video_params.get_target_city_index()].get("City")
         now = datetime.now().replace(tzinfo=(pytz.timezone(utils.astral_utils.get_time_zone(self.city))))
         # test_hour = now
         light_start_time = None
@@ -324,7 +326,8 @@ class MainUi(QMainWindow):
                 log.debug("self.media_engine.media_processor.video_params.frame_brightness = %d",
                           self.media_engine.media_processor.video_params.frame_brightness)
                 data = now.strftime("%H:%M:%S")
-                f.write(data + "==> sleep mode\n")
+                f.write(data + "==> sleep mode" + "==>br:" +
+                        str(self.media_engine.media_processor.video_params.frame_brightness) + "\n")
                 f.flush()
                 f.close()
             else:
@@ -809,8 +812,10 @@ class MainUi(QMainWindow):
             log.debug("set_frame_brightness_option")
             self.media_engine.media_processor.set_frame_brightness_value(int(data.get("set_frame_brightness_option")))
             # print("type(self.media_engine.media_processor.video_params.get_frame_brightness()):", self.media_engine.media_processor.video_params.get_frame_brightness())
-            self.hdmi_in_page.client_brightness_edit.setText(str(self.media_engine.media_processor.video_params.get_frame_brightness()))
-            self.medialist_page.client_brightness_edit.setText(str(self.media_engine.media_processor.video_params.get_frame_brightness()))
+            self.hdmi_in_page.client_brightness_edit.setText(
+                str(self.media_engine.media_processor.video_params.get_frame_brightness()))
+            self.medialist_page.client_brightness_edit.setText(
+                str(self.media_engine.media_processor.video_params.get_frame_brightness()))
 
             clients = self.clients
             for c in clients:
@@ -819,43 +824,36 @@ class MainUi(QMainWindow):
                            str(self.media_engine.media_processor.video_params.frame_brightness))
         elif data.get("set_sleep_mode"):
             log.debug("recv : %s ", data.get("set_sleep_mode"))
-            '''write_date = "SLEEP_MODE_ENABLE = False" + "\n"
             if data.get("set_sleep_mode") == "Enable":
-                write_date = "SLEEP_MODE_ENABLE = True" + "\n"
+                log.debug("sleep_mode_set_enable")
+                self.media_engine.media_processor.set_sleep_mode(1)
+                log.debug("sleep_mode_set_enableA")
+                self.medialist_page.radiobutton_sleep_mode_enable_set()
+                log.debug("sleep_mode_set_enableB")
+                self.hdmi_in_page.radiobutton_sleep_mode_enable_set()
+                log.debug("sleep_mode_set_enableC")
+            else:
+                log.debug("sleep_mode_set_disable")
+                self.media_engine.media_processor.set_sleep_mode(0)
+                self.medialist_page.radiobutton_sleep_mode_disable_set()
+                self.hdmi_in_page.radiobutton_sleep_mode_disable_set()
 
-            file_uri = os.getcwd() + "/astral_hashmap.py"
-            log.debug(file_uri)
-            with open(file_uri, "r") as f:
-                lines = f.readlines()
-            f.close()
-            with open(file_uri, "w") as f:
-                for line in lines:
-                    if "SLEEP_MODE_ENABLE" in line:
-                        f.write(write_date)
-                    else:
-                        f.write(line)
-                f.flush()
-                f.close()'''
 
         elif data.get("set_target_city"):
             log.debug("recv : %s ", data.get("set_target_city"))
             if utils.astral_utils.check_city_valid(data.get("set_target_city")) is False:
                 log.debug("City Invalid")
                 return
-            self.city = data.get("set_target_city")
-            '''file_uri = os.getcwd() + "/astral_hashmap.py"
-            log.debug(file_uri)
-            with open(file_uri, "r") as f:
-                lines = f.readlines()
-            f.close()
-            with open(file_uri, "w") as f:
-                for line in lines:
-                    if "Target_City" in line:
-                        f.write("Target_City = " + '"' + self.city + '"' + "\n")
-                    else:
-                        f.write(line)
-                f.flush()
-                f.close()'''
+            # self.city = data.get("set_target_city")
+            c = 0
+            city_index = 0
+            for city in City_Map:
+                if city.get("City") == data.get("set_target_city"):
+                    city_index = c
+                    break
+                c += 1
+            self.medialist_page.combobox_target_city_change(city_index)
+            self.city = City_Map[self.media_engine.media_processor.video_params.get_target_city_index()].get("City")
 
         elif data.get("set_brightness_algo"):
             log.debug("recv : %s ", data.get("set_brightness_algo"))
@@ -1583,7 +1581,7 @@ class MainUi(QMainWindow):
         self.media_engine.add_to_playlist(new_playlist_name, self.medialist_page.right_clicked_select_file_uri)
 
     def focus_on_window_changed(self):
-        log.debug("")
+
         if self.isActiveWindow() is False:
             if self.media_preview_widget.isVisible() is True:
                 self.media_preview_widget.hide()

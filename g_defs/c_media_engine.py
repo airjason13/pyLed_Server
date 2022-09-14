@@ -538,6 +538,18 @@ class media_processor(QObject):
         if self.ffmpy_process is not None:
             ffmpy_set_video_param_level('blue_gain', self.video_params.get_translated_bluegain())
 
+    def set_sleep_mode(self, enable_or_disable):
+        self.video_params.set_sleep_mode(enable_or_disable)
+
+    def set_sleep_mode_enable(self):
+        log.debug("set_sleep_mode_enable")
+        self.video_params.set_sleep_mode(1)
+
+    def set_sleep_mode_disable(self):
+        log.debug("set_sleep_mode_disable")
+        self.video_params.set_sleep_mode(0)
+
+
     def set_image_period_value(self, value):
         log.debug("value type: %s", type(value))
         log.debug("value : %d", value)

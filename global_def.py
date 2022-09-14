@@ -3,7 +3,7 @@ import platform
 import os
 from pathlib import Path
 """Software version"""
-version = "LS22091302"
+version = "LS22091402"
 
 
 def get_led_role():
@@ -167,5 +167,6 @@ lcd1602_server_address = '/tmp/uds_socket_i2clcd7'
 
 """QFont style & size"""
 qfont_style_default = "Times"
+qfont_style_size_extra_large = 32
 qfont_style_size_large = 24
 qfont_style_size_medium = 18

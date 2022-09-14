@@ -2,7 +2,7 @@ from PyQt5.QtCore import QObject
 import utils.log_utils
 import os
 import sys
-
+from astral_hashmap import *
 from global_def import *
 
 log = utils.log_utils.logging_init(__file__)
@@ -27,6 +27,9 @@ class video_params(QObject):
             self.video_red_bias = red_bias
             self.video_green_bias = green_bias
             self.video_blue_bias = blue_bias
+            self.sleep_mode_enable = 1
+            self.target_city_index = 0 #City_Map[0].get("City")
+
             # control by clients
 
             self.frame_brightness_algorithm = frame_brightness_adjust.auto_time_mode
@@ -59,6 +62,7 @@ class video_params(QObject):
             log.debug("video_params config file_uri does not exist")
             content_lines = [
                             "brightness=50\n", "contrast=50\n", "red_bias=0\n", "green_bias=0\n", "blue_bias=0\n",
+                            "sleep_mode_enable=1\n", "target_city_index=0\n",
                             "frame_brightness_algorithm=0\n",
                             "frame_brightness=100\n", "day_mode_frame_brightness=77\n",
                             "night_mode_frame_brightness=50\n", "sleep_mode_frame_brightness=0\n",
@@ -79,6 +83,7 @@ class video_params(QObject):
                 # re-generate video_params_file
                 content_lines = [
                     "brightness=50\n", "contrast=50\n", "red_bias=0\n", "green_bias=0\n", "blue_bias=0\n",
+                    "sleep_mode_enable=1\n", "target_city_index=0\n",
                     "frame_brightness_algorithm=0\n",
                     "frame_brightness=100\n", "day_mode_frame_brightness=77\n",
                     "night_mode_frame_brightness=50\n", "sleep_mode_frame_brightness=0\n",
@@ -116,6 +121,10 @@ class video_params(QObject):
                 self.video_green_bias = int(tmp[1])
             elif tmp[0] == 'blue_bias':
                 self.video_blue_bias = int(tmp[1])
+            elif tmp[0] == 'sleep_mode_enable':
+                self.sleep_mode_enable = int(tmp[1])
+            elif tmp[0] == 'target_city_index':
+                self.target_city_index = int(tmp[1])
             elif tmp[0] == 'frame_brightness_algorithm':
                 self.frame_brightness_algorithm = int(tmp[1])
             elif tmp[0] == 'frame_brightness':
@@ -152,12 +161,13 @@ class video_params(QObject):
                 self.hdmi_in_crop_h = int(tmp[1])
 
     def refresh_config_file(self):
-        log.debug("")
         params_birghtness = "brightness=" + str(self.video_brightness) + '\n'
         params_contrast = 'contrast=' + str(self.video_contrast) + '\n'
         params_red_bias = 'red_bias=' + str(self.video_red_bias) + '\n'
         params_green_bias = 'green_bias=' + str(self.video_green_bias) + '\n'
         params_blue_bias = 'blue_bias=' + str(self.video_blue_bias) + '\n'
+        params_sleep_mode_enable = 'sleep_mode_enable=' + str(self.sleep_mode_enable) + '\n'
+        params_target_city_index = 'target_city_index=' + str(self.target_city_index) + '\n'
         params_frame_brightness_algorithm = 'frame_brightness_algorithm=' + str(int(self.frame_brightness_algorithm)) + '\n'
         day_mode_frame_brightness = 'day_mode_frame_brightness=' + str(self.day_mode_frame_brightness) + '\n'
         night_mode_frame_brightness = 'night_mode_frame_brightness=' + str(self.night_mode_frame_brightness) + '\n'
@@ -177,6 +187,7 @@ class video_params(QObject):
         params_hdmi_in_crop_h = 'hdmi_in_crop_h=' + str(self.hdmi_in_crop_h) + '\n'
 
         content_lines = [params_birghtness, params_contrast, params_red_bias, params_green_bias,
+                         params_sleep_mode_enable, params_target_city_index,
                          params_blue_bias, params_frame_brightness_algorithm, params_frame_brightness,
                          night_mode_frame_brightness, day_mode_frame_brightness, sleep_mode_frame_brightness,
                          params_frame_br_divisor, params_frame_contrast, params_frame_gamma, params_image_period,
@@ -236,6 +247,22 @@ class video_params(QObject):
 
     def set_video_blue_bias(self, blue_bias_level):
         self.video_blue_bias = blue_bias_level
+        self.refresh_config_file()
+
+    def set_sleep_mode_enable(self):
+        self.sleep_mode_enable = 1
+        self.refresh_config_file()
+
+    def set_sleep_mode_disable(self):
+        self.sleep_mode_enable = 0
+        self.refresh_config_file()
+
+    def set_sleep_mode(self, sleep_mode_enable):
+        self.sleep_mode_enable = sleep_mode_enable
+        self.refresh_config_file()
+
+    def set_target_city_index(self, target_city_index):
+        self.target_city_index = target_city_index
         self.refresh_config_file()
 
     def set_image_peroid(self, period_value):
@@ -324,6 +351,15 @@ class video_params(QObject):
     def get_translated_bluegain(self):
         return self.video_blue_bias / float(100.00)
 
+    def get_sleep_mode_enable(self):
+        return self.sleep_mode_enable
+
+    def get_target_city_index(self):
+        return self.target_city_index
+
+    def get_target_city_string(self):
+        return City_Map[self.target_city_index].get("city")
+
     def get_frame_brightness(self):
         return self.frame_brightness
 
@@ -377,7 +413,9 @@ class video_params(QObject):
         content_lines = config_file.readlines()
         log.debug("content_lines = %s", content_lines)
         content_tags = [
-            "brightness", "contrast", "red_bias", "green_bias", "blue_bias", "frame_brightness_algorithm",
+            "brightness", "contrast", "red_bias", "green_bias", "blue_bias",
+            "sleep_mode_enable", "target_city_index",
+            "frame_brightness_algorithm",
             "frame_brightness", "day_mode_frame_brightness", "night_mode_frame_brightness",
             "sleep_mode_frame_brightness",
             "frame_br_divisor", "frame_contrast", "frame_gamma",

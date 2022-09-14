@@ -3,7 +3,7 @@ from PyQt5.QtCore import QObject, Qt
 from PyQt5.QtGui import QPalette, QColor, QBrush, QFont
 from PyQt5.QtWidgets import QTreeWidget, QTableWidget, QWidget, QVBoxLayout, QTableWidgetItem, QAbstractItemView, \
                             QTreeWidgetItem, QPushButton, QHBoxLayout, QMenu, QAction, QGroupBox, QVBoxLayout, \
-                            QRadioButton
+                            QRadioButton, QComboBox
 from g_defs.c_TreeWidgetItemSP import CTreeWidget
 import os
 from global_def import *
@@ -13,6 +13,7 @@ from commands_def import *
 import utils.log_utils
 import utils.ffmpy_utils
 import hashlib
+from astral_hashmap import *
 log = utils.log_utils.logging_init(__file__)
 
 class media_page(QObject):
@@ -249,20 +250,57 @@ class media_page(QObject):
         self.radiobutton_client_br_method_test.clicked.connect(
             self.mainwindow.media_engine.media_processor.video_params.set_frame_brightness_mode_test)
         self.radiobutton_client_br_method_test.setFont(QFont(qfont_style_default, qfont_style_size_medium))
-        log.debug("frame_brightness_algorithm : %d", self.mainwindow.media_engine.media_processor.video_params.frame_brightness_algorithm)
-        if self.mainwindow.media_engine.media_processor.video_params.frame_brightness_algorithm == frame_brightness_adjust.fix_mode:
+        log.debug("frame_brightness_algorithm : %d",
+                  self.mainwindow.media_engine.media_processor.video_params.frame_brightness_algorithm)
+        if self.mainwindow.media_engine.media_processor.video_params.frame_brightness_algorithm \
+                == frame_brightness_adjust.fix_mode:
             self.radiobutton_client_br_method_fix.setChecked(True)
-        elif self.mainwindow.media_engine.media_processor.video_params.frame_brightness_algorithm == frame_brightness_adjust.auto_time_mode:
+        elif self.mainwindow.media_engine.media_processor.video_params.frame_brightness_algorithm \
+                == frame_brightness_adjust.auto_time_mode:
             self.radiobutton_client_br_method_time.setChecked(True)
-        elif self.mainwindow.media_engine.media_processor.video_params.frame_brightness_algorithm == frame_brightness_adjust.auto_als_mode:
+        elif self.mainwindow.media_engine.media_processor.video_params.frame_brightness_algorithm \
+                == frame_brightness_adjust.auto_als_mode:
             self.radiobutton_client_br_method_als.setChecked(True)
-        elif self.mainwindow.media_engine.media_processor.video_params.frame_brightness_algorithm == frame_brightness_adjust.test_mode:
+        elif self.mainwindow.media_engine.media_processor.video_params.frame_brightness_algorithm \
+                == frame_brightness_adjust.test_mode:
             self.radiobutton_client_br_method_test.setChecked(True)
 
         self.groupbox_led_role_vboxlayout.addWidget(self.radiobutton_client_br_method_fix)
         self.groupbox_led_role_vboxlayout.addWidget(self.radiobutton_client_br_method_time)
         self.groupbox_led_role_vboxlayout.addWidget(self.radiobutton_client_br_method_als)
         self.groupbox_led_role_vboxlayout.addWidget(self.radiobutton_client_br_method_test)
+
+        # sleep mode
+        self.groupbox_sleep_mode = QGroupBox("Sleep Mode")
+        self.groupbox_sleep_mode_vboxlayout = QHBoxLayout()
+        self.groupbox_sleep_mode.setLayout(self.groupbox_sleep_mode_vboxlayout)
+        self.radiobutton_sleep_mode_enable = QRadioButton("Enable")
+        self.radiobutton_sleep_mode_enable.clicked.connect(
+            self.mainwindow.media_engine.media_processor.set_sleep_mode_enable
+        )
+        self.radiobutton_sleep_mode_disable = QRadioButton("Disable")
+        self.radiobutton_sleep_mode_disable.clicked.connect(
+            self.mainwindow.media_engine.media_processor.set_sleep_mode_disable
+        )
+        self.radiobutton_sleep_mode_enable.setFont(QFont(qfont_style_default, qfont_style_size_medium))
+        self.radiobutton_sleep_mode_disable.setFont(QFont(qfont_style_default, qfont_style_size_medium))
+        if self.mainwindow.media_engine.media_processor.video_params.sleep_mode_enable == 1:
+            self.radiobutton_sleep_mode_enable.setChecked(True)
+        if self.mainwindow.media_engine.media_processor.video_params.sleep_mode_enable == 0:
+            self.radiobutton_sleep_mode_disable.setChecked(True)
+
+        self.groupbox_sleep_mode_vboxlayout.addWidget(self.radiobutton_sleep_mode_enable)
+        self.groupbox_sleep_mode_vboxlayout.addWidget(self.radiobutton_sleep_mode_disable)
+
+        # target city
+        self.combobox_target_city = QComboBox(self.mainwindow.right_frame)
+        for city in City_Map:
+            self.combobox_target_city.addItem(city.get("City"))
+        self.combobox_target_city.setFont(QFont(qfont_style_default, qfont_style_size_medium))
+        self.combobox_target_city.setCurrentIndex(
+            self.mainwindow.media_engine.media_processor.video_params.target_city_index
+        )
+        self.combobox_target_city.currentIndexChanged.connect(self.combobox_target_city_changed)
 
         # client brightness adjust
         self.client_brightness_label = QLabel(self.mainwindow.right_frame)
@@ -404,43 +442,60 @@ class media_page(QObject):
         video_params_layout.addWidget(self.image_period_edit, 1, 5)
 
         video_params_layout.addWidget(self.groupbox_client_brightness_method, 2, 0, 7, 4)
+        video_params_layout.addWidget(self.client_gamma_label, 5, 4)
+        video_params_layout.addWidget(self.client_gamma_edit, 5, 5)
         video_params_layout.addWidget(self.client_brightness_label, 6, 4)
         video_params_layout.addWidget(self.client_brightness_edit, 6, 5)
 
-        video_params_layout.addWidget(self.client_day_mode_brightness_label, 9, 0)
-        video_params_layout.addWidget(self.client_day_mode_brightness_edit, 9, 1)
-        video_params_layout.addWidget(self.client_night_mode_brightness_label, 9, 2)
-        video_params_layout.addWidget(self.client_night_mode_brightness_edit, 9, 3)
-        video_params_layout.addWidget(self.client_sleep_mode_brightness_label, 9, 4)
-        video_params_layout.addWidget(self.client_sleep_mode_brightness_edit, 9, 5)
+        video_params_layout.addWidget(self.groupbox_sleep_mode, 10, 0, 3, 3)
+        video_params_layout.addWidget(self.combobox_target_city, 10, 4)
 
-        video_params_layout.addWidget(self.client_br_divisor_label, 10, 2)
-        video_params_layout.addWidget(self.client_br_divisor_edit, 10, 3)
-        video_params_layout.addWidget(self.client_contrast_label, 10, 0)
-        video_params_layout.addWidget(self.client_contrast_edit, 10, 1)
-        video_params_layout.addWidget(self.client_gamma_label, 11, 0)
-        video_params_layout.addWidget(self.client_gamma_edit, 11, 1)
+        video_params_layout.addWidget(self.client_day_mode_brightness_label, 13, 0)
+        video_params_layout.addWidget(self.client_day_mode_brightness_edit, 13, 1)
+        video_params_layout.addWidget(self.client_night_mode_brightness_label, 13, 2)
+        video_params_layout.addWidget(self.client_night_mode_brightness_edit, 13, 3)
+        video_params_layout.addWidget(self.client_sleep_mode_brightness_label, 13, 4)
+        video_params_layout.addWidget(self.client_sleep_mode_brightness_edit, 13, 5)
+
+        video_params_layout.addWidget(self.client_br_divisor_label, 14, 2)
+        video_params_layout.addWidget(self.client_br_divisor_edit, 14, 3)
+        video_params_layout.addWidget(self.client_contrast_label, 14, 0)
+        video_params_layout.addWidget(self.client_contrast_edit, 14, 1)
+
 
         #crop
-        video_params_layout.addWidget(self.video_params_crop_x_label, 12, 0)
-        video_params_layout.addWidget(self.video_params_crop_x_edit, 12, 1)
-        video_params_layout.addWidget(self.video_params_crop_y_label, 12, 2)
-        video_params_layout.addWidget(self.video_params_crop_y_edit, 12, 3)
-        video_params_layout.addWidget(self.video_params_crop_w_label, 13, 0)
-        video_params_layout.addWidget(self.video_params_crop_w_edit, 13, 1)
-        video_params_layout.addWidget(self.video_params_crop_h_label, 13, 2)
-        video_params_layout.addWidget(self.video_params_crop_h_edit, 13, 3)
-        video_params_layout.addWidget(self.video_params_crop_enable, 13, 5)
-        video_params_layout.addWidget(self.video_params_crop_disable, 13, 4)
+        video_params_layout.addWidget(self.video_params_crop_x_label, 15, 0)
+        video_params_layout.addWidget(self.video_params_crop_x_edit, 15, 1)
+        video_params_layout.addWidget(self.video_params_crop_y_label, 15, 2)
+        video_params_layout.addWidget(self.video_params_crop_y_edit, 15, 3)
+        video_params_layout.addWidget(self.video_params_crop_w_label, 16, 0)
+        video_params_layout.addWidget(self.video_params_crop_w_edit, 16, 1)
+        video_params_layout.addWidget(self.video_params_crop_h_label, 16, 2)
+        video_params_layout.addWidget(self.video_params_crop_h_edit, 16, 3)
+        video_params_layout.addWidget(self.video_params_crop_enable, 16, 5)
+        video_params_layout.addWidget(self.video_params_crop_disable, 16, 4)
 
-        video_params_layout.addWidget(self.video_params_pinch_btn, 10, 4)
-        video_params_layout.addWidget(self.video_params_confirm_btn, 10, 5)
+        video_params_layout.addWidget(self.video_params_pinch_btn, 14, 4)
+        video_params_layout.addWidget(self.video_params_confirm_btn, 14, 5)
 
         if self.mainwindow.engineer_mode is True:
             self.max_brightness_label = QLabel(self.mainwindow.right_frame)
             self.max_brightness_label.setText( "Max Frame Brightness Value is " +
                 str((256*int(self.client_brightness_edit.text()))/(int(self.client_br_divisor_edit.text())*100)))
             video_params_layout.addWidget(self.max_brightness_label, 4, 0, 1, 5)
+
+    def combobox_target_city_changed(self, index):
+        log.debug("index = %d", index)
+        self.mainwindow.media_engine.media_processor.video_params.set_target_city_index(index)
+
+    def combobox_target_city_change(self, index):
+        self.combobox_target_city.setCurrentIndex(index)
+
+    def radiobutton_sleep_mode_disable_set(self):
+        self.radiobutton_sleep_mode_disable.click()
+
+    def radiobutton_sleep_mode_enable_set(self):
+        self.radiobutton_sleep_mode_enable.click()
 
     def radiobutton_client_br_method_fix_mode_set(self):
         self.radiobutton_client_br_method_fix.click()

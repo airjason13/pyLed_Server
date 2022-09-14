@@ -466,12 +466,17 @@ function submit_target_city_option(){
             {% endfor %}
     </div>
 
-    <label style="font-size:36px" ><font color="#0000FF">{{ form.brightness_mode_switcher.label() }}</font></label><br>
-            {{ form.brightness_mode_switcher(onchange="submit_frame_brightness_mode_option()") }}
-    <label style="font-size:36px" ><font color="#0000FF">{{ form.sleep_mode_switcher.label() }}</font></label><br>
-            {{ form.sleep_mode_switcher(onchange="submit_sleep_mode_option()") }}
-    <label style="font-size:36px" ><font color="#0000FF">{{ form.city_selectfiled.label() }}</font></label><br>
-            {{ form.city_selectfiled(onchange="submit_target_city_option()") }}
+    <div style="float:left;margin-right:10px;">
+        <label style="font-size:36px" ><font color="#0000FF">{{ form.brightness_mode_switcher.label() }}</font></label>
+                {{ form.brightness_mode_switcher(onchange="submit_frame_brightness_mode_option()") }}
+        </div>
+    <div style="float:left;margin-right:10px;">
+        <label style="font-size:36px" ><font color="#0000FF">{{ form.sleep_mode_switcher.label() }}</font></label>
+                {{ form.sleep_mode_switcher(onchange="submit_sleep_mode_option()") }}
+        <label style="font-size:36px" ><font color="#0000FF">{{ form.city_selectfiled.label() }}</font></label>
+                {{ form.city_selectfiled(onchange="submit_target_city_option()") }}
+        </div>
+    <div style="clear:both;"></div>
 
     <div>
         <label style="font-size:36px" ><font color="#0000FF">Brightness Values Setting:</font></label><br>
