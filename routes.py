@@ -483,6 +483,13 @@ def get_city_hash_map():
     return city_hash_map
 
 
+def get_city_list():
+    city_list = []
+    for city in City_Map:
+        city_list.append(city.get("City"))
+
+    return city_list
+
 class BrightnessAlgoForm(Form):
 
     style = {'class': 'ourClasses', 'style': 'font-size:24px;color:white', }
@@ -514,7 +521,8 @@ class BrightnessAlgoForm(Form):
     city_selectfiled = SelectField(
         "City",
         id="city_selected",
-        choices=get_city_hash_map(),
+        # choices=get_city_hash_map(),
+        choices=get_city_list(),
         default=get_target_city_default(),
         render_kw=city_style,
     )
@@ -818,11 +826,17 @@ def index():
     # tmp_clients = get_tmp_clients()
     # log.debug("len(tmp_clients)  =%d", len(tmp_clients))
     # log.debug("tmp_clients[0].client_ip  =%s", tmp_clients[0].client_ip)
-
+    # test_city = get_city_hash_map()
+    # print(test_city)
+    # print(type(test_city))
+    # test_city_list = get_city_list()
+    # print(test_city_list)
+    # print(type(test_city_list))
     # brightness Algo radio form
     brightnessAlgoform = BrightnessAlgoForm()
     brightnessAlgoform.sleep_mode_switcher.data=get_sleep_mode_default()
     brightnessAlgoform.city_selectfiled.data=get_target_city_default()
+    # print(type(brightnessAlgoform.city_selectfiled.choices))
     brightnessAlgoform.brightness_mode_switcher.data=get_brightness_mode_default()
     # get brightness setting values
     brightnessvalues = get_brightness_value_default()
