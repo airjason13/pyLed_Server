@@ -105,3 +105,43 @@ function throttle(cb, delay = 1000) {
     setTimeout(timeoutFunc, delay)
   }
 }
+
+function readTextFile(file)
+{
+    var rawFile = new XMLHttpRequest();
+    rawFile.open("GET", file, false);
+    rawFile.onreadystatechange = function ()
+    {
+        if(rawFile.readyState === 4)
+        {
+            if(rawFile.status === 200 || rawFile.status == 0)
+            {
+                var allText = rawFile.responseText;
+                document.getElementById('sun_time').textContent = allText
+            }
+        }
+    }
+    rawFile.send(null);
+}
+
+function startTime(){
+    var today = new Date();
+    var hh = today.getHours();
+    var mm = today.getMinutes();
+    var ss = today.getSeconds();
+    mm = checkTime(mm);
+    ss = checkTime(ss);
+    document.getElementById('clock').innerHTML = "Clock:\n" + hh + ":" + mm + ":" + ss;
+    readTextFile("static/sun_time.dat")
+
+
+    var timeoutId = setTimeout(startTime, 1000);
+}
+
+function checkTime(i){
+    if(i < 10) {
+        i = "0" + i;
+    }
+    return i;
+}
+

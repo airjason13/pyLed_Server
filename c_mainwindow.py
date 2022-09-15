@@ -1,4 +1,5 @@
 # coding=UTF-8
+import os
 from time import sleep
 import qthreads.c_alive_report_thread
 
@@ -217,7 +218,7 @@ class MainUi(QMainWindow):
         self.date_timer = QTimer(self)
         self.date_timer.timeout.connect(self.check_brightness_by_date_timer)
         # self.date_timer.start(1*60*1000)
-        self.date_timer.start(1 * 60 * 1000)
+        self.date_timer.start(1 * 6 * 1000)
 
         # utils.astral_utils.get_sun_times("KK")
         self.city = City_Map[self.media_engine.media_processor.video_params.get_target_city_index()].get("City")
@@ -247,9 +248,14 @@ class MainUi(QMainWindow):
                                str(self.media_engine.media_processor.video_params.frame_brightness))
             log.debug("self.media_engine.media_processor.video_params.frame_brightness = %d",
                       self.media_engine.media_processor.video_params.frame_brightness)
-            data = now.strftime("%H:%M:%S")
-            f.write(data + "==> night mode" + "==>br:" +
-                    str(self.media_engine.media_processor.video_params.frame_brightness) + "\n")
+
+            data = self.city + " " + now.strftime("%Y-%m-%d %H:%M:%S")
+            str_sunrise_time = sunrise_time.strftime("%Y-%m-%d %H:%M:%S")
+            str_sunset_time = sunset_time.strftime("%Y-%m-%d %H:%M:%S")
+            f.write(data + "==> sleep mode" + "==>br:" +
+                    str(self.media_engine.media_processor.video_params.frame_brightness) +
+                    "==>sunrisetime:" + str_sunrise_time +
+                    "==>sunrisetime:" + str_sunset_time + "\n")
             f.flush()
         elif sunrise_time < now < sunset_time:
             log.debug("day mode")
@@ -271,9 +277,13 @@ class MainUi(QMainWindow):
                                str(self.media_engine.media_processor.video_params.frame_brightness))
             log.debug("self.media_engine.media_processor.video_params.frame_brightness = %d",
                       self.media_engine.media_processor.video_params.frame_brightness)
-            data = now.strftime("%H:%M:%S")
-            f.write(data + "==> day mode" + "==>br:" +
-                    str(self.media_engine.media_processor.video_params.frame_brightness) + "\n")
+            data = self.city + " " + now.strftime("%Y-%m-%d %H:%M:%S")
+            str_sunrise_time = sunrise_time.strftime("%Y-%m-%d %H:%M:%S")
+            str_sunset_time = sunset_time.strftime("%Y-%m-%d %H:%M:%S")
+            f.write(data + "==> sleep mode" + "==>br:" +
+                    str(self.media_engine.media_processor.video_params.frame_brightness) +
+                    "==>sunrisetime:" + str_sunrise_time +
+                    "==>sunrisetime:" + str_sunset_time + "\n")
             f.flush()
         f.close()
     def check_brightness_by_date_timer(self):
@@ -302,7 +312,13 @@ class MainUi(QMainWindow):
         # now = test_hour.replace(hour=self.test_hour, minute=self.test_min, second=0, microsecond=0)
 
         sunrise_time, sunset_time = utils.astral_utils.get_sun_times(self.city)
-
+        log.debug("sunrise_time: %s", sunrise_time)
+        log.debug("sunset_time: %s", sunset_time)
+        with open(os.getcwd() + "/static/sun_time.dat", "w+") as f:
+            file_content = "sunrise_time:" + sunrise_time.strftime("%Y-%m-%d %H:%M:%S") + \
+                           "\n" + "sunset_time:" + sunset_time.strftime("%Y-%m-%d %H:%M:%S")
+            f.write(file_content)
+            f.close()
         # train info stop
         if light_start_time is not None and light_end_time is not None:
             if now < light_start_time or now > light_end_time:
@@ -325,9 +341,14 @@ class MainUi(QMainWindow):
                                    str(self.media_engine.media_processor.video_params.frame_brightness))
                 log.debug("self.media_engine.media_processor.video_params.frame_brightness = %d",
                           self.media_engine.media_processor.video_params.frame_brightness)
-                data = now.strftime("%H:%M:%S")
+
+                data = self.city + " " + now.strftime("%Y-%m-%d %H:%M:%S")
+                str_sunrise_time = sunrise_time.strftime("%Y-%m-%d %H:%M:%S")
+                str_sunset_time = sunset_time.strftime("%Y-%m-%d %H:%M:%S")
                 f.write(data + "==> sleep mode" + "==>br:" +
-                        str(self.media_engine.media_processor.video_params.frame_brightness) + "\n")
+                        str(self.media_engine.media_processor.video_params.frame_brightness) +
+                        "==>sunrisetime:" + str_sunrise_time +
+                        "==>sunrisetime:" + str_sunset_time + "\n")
                 f.flush()
                 f.close()
             else:
