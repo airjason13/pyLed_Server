@@ -135,7 +135,7 @@ function startTime(){
     readTextFile("static/sun_time.dat")
 
 
-    var timeoutId = setTimeout(startTime, 1000);
+    var timeoutId = setTimeout(startTime, 5000);
 }
 
 function checkTime(i){
