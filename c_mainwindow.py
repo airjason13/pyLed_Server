@@ -301,6 +301,11 @@ class MainUi(QMainWindow):
 
         if self.media_engine.media_processor.video_params.frame_brightness_algorithm \
                 == frame_brightness_adjust.fix_mode:
+            clients = self.clients
+            for c in clients:
+                c.send_cmd(cmd_set_frame_brightness,
+                           self.cmd_seq_id_increase(),
+                           str(self.media_engine.media_processor.video_params.frame_brightness))
             if self.brightness_test_log is True:
                 log.debug("frame_brightness_adjust.fix_mode")
             return
