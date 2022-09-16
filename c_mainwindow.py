@@ -32,7 +32,7 @@ from astral_hashmap import *
 from qlocalmessage import send_message
 from qt_web_comunication import *
 log = utils.log_utils.logging_init(__file__)
-
+from zoneinfo import ZoneInfo
 
 class MainUi(QMainWindow):
     signal_add_cabinet_label = pyqtSignal(cabinet_params)
@@ -296,10 +296,14 @@ class MainUi(QMainWindow):
             # log.debug("frame_brightness_adjust.fix_mode")
             return
         self.city = City_Map[self.media_engine.media_processor.video_params.get_target_city_index()].get("City")
-        now = datetime.now().replace(tzinfo=(pytz.timezone(utils.astral_utils.get_time_zone(self.city))))
-        test_now = datetime.now()
+        sunrise_time, sunset_time = utils.astral_utils.get_sun_times(self.city)
+        # now = datetime.now().replace(tzinfo=(pytz.timezone(utils.astral_utils.get_time_zone(self.city))))
+        # pytz have +08:06 ??!! the min is 06??? strange!!!
+        now = datetime.now().replace(tzinfo=ZoneInfo(utils.astral_utils.get_time_zone(self.city)))
+        # test_now = datetime.now(sunrise_time.tzinfo)
+        # now = datetime.now(sunrise_time.tzinfo)
         log.debug("now: %s", now.strftime("%Y-%m-%d %H:%M:%S"))
-        log.debug("test_now: %s", test_now.strftime("%Y-%m-%d %H:%M:%S"))
+        # log.debug("test_now: %s", test_now.strftime("%Y-%m-%d %H:%M:%S"))
         # test_hour = now
         light_start_time = None
         light_end_time = None
@@ -315,7 +319,7 @@ class MainUi(QMainWindow):
 
         # now = test_hour.replace(hour=self.test_hour, minute=self.test_min, second=0, microsecond=0)
 
-        sunrise_time, sunset_time = utils.astral_utils.get_sun_times(self.city)
+        # sunrise_time, sunset_time = utils.astral_utils.get_sun_times(self.city)
         log.debug("sunrise_time: %s", sunrise_time)
         log.debug("sunset_time: %s", sunset_time)
         with open(os.getcwd() + "/static/sun_time.dat", "w+") as f:
