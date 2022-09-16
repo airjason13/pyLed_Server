@@ -248,7 +248,7 @@ class MainUi(QMainWindow):
                 for c in clients:
                     c.send_cmd(cmd_set_frame_brightness,
                                self.cmd_seq_id_increase(),
-                               str(self.media_engine.media_processor.video_params.frame_brightness))
+                               str(self.media_engine.media_processor.video_params.get_frame_brightness()))
             if self.brightness_test_log is True:
                 log.debug("self.media_engine.media_processor.video_params.frame_brightness = %d",
                       self.media_engine.media_processor.video_params.frame_brightness)
@@ -257,7 +257,7 @@ class MainUi(QMainWindow):
                 str_sunrise_time = sunrise_time.strftime("%Y-%m-%d %H:%M:%S")
                 str_sunset_time = sunset_time.strftime("%Y-%m-%d %H:%M:%S")
                 f.write(data + "==> day mode" + "==>br:" +
-                        str(self.media_engine.media_processor.video_params.frame_brightness) +
+                        str(self.media_engine.media_processor.video_params.get_frame_brightness()) +
                         "==>sunrisetime:" + str_sunrise_time +
                         "==>sunrisetime:" + str_sunset_time + "\n")
                 f.flush()
@@ -278,10 +278,10 @@ class MainUi(QMainWindow):
                 for c in clients:
                     c.send_cmd(cmd_set_frame_brightness,
                                self.cmd_seq_id_increase(),
-                               str(self.media_engine.media_processor.video_params.frame_brightness))
+                               str(self.media_engine.media_processor.video_params.get_frame_brightness()))
             if self.brightness_test_log is True:
                 log.debug("self.media_engine.media_processor.video_params.frame_brightness = %d",
-                          self.media_engine.media_processor.video_params.frame_brightness)
+                          self.media_engine.media_processor.video_params.get_frame_brightness())
 
                 data = self.city + " " + now.strftime("%Y-%m-%d %H:%M:%S")
                 str_sunrise_time = sunrise_time.strftime("%Y-%m-%d %H:%M:%S")
@@ -305,7 +305,7 @@ class MainUi(QMainWindow):
             for c in clients:
                 c.send_cmd(cmd_set_frame_brightness,
                            self.cmd_seq_id_increase(),
-                           str(self.media_engine.media_processor.video_params.frame_brightness))
+                           str(self.media_engine.media_processor.video_params.get_frame_brightness()))
             if self.brightness_test_log is True:
                 log.debug("frame_brightness_adjust.fix_mode")
             return
@@ -363,7 +363,7 @@ class MainUi(QMainWindow):
                     for c in clients:
                         c.send_cmd(cmd_set_frame_brightness,
                                    self.cmd_seq_id_increase(),
-                                   str(self.media_engine.media_processor.video_params.frame_brightness))
+                                   str(self.media_engine.media_processor.video_params.get_frame_brightness()))
                 if self.brightness_test_log is True:
                     log.debug("self.media_engine.media_processor.video_params.frame_brightness = %d",
                               self.media_engine.media_processor.video_params.frame_brightness)
