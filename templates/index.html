@@ -295,7 +295,10 @@ function submit_target_city_option(){
     <div style="clear:both;"></div>
   </body>
     <div class="div_drawtext">
-        <label style="font-size:36px" ><font color="#0000FF">Play Text Option</font></label><br>
+        <label style="font-size:36px;
+                background: -webkit-linear-gradient(#77e, #77a);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;" ><font color="#CD99F5">Play Text Option</font></label><br>
         <!--<label class="label_h1" for="text_context" style="font-size:36px" ><font color="#0000FF">Play Text Option</font></label><br>-->
         <label class="label_h1" for="text_context" style="font-size:24px" ><font color="#0000FF">Font Size:</font></label>
         <input id="text_font_size" type="number" id="text_font_size" name="text_font_size" size="6" style="font-size:24px" value={{ text_size }}>
@@ -339,7 +342,11 @@ function submit_target_city_option(){
 
     <div class="row">
         <div class="header">
-          <label class="label_h1" style="font-size:36px" ><font color="#0000FF">Media Files</font></label>
+          <label class="label_h1" style="font-size:36px
+                                        background: -webkit-linear-gradient(#77e, #77a);
+                                        -webkit-background-clip: text;
+                                        -webkit-text-fill-color: transparent;
+                                        " ><font color="#0000FF">Media Files</font></label>
           <div class="progress-bar"></div>
         </div>
         <div class="container">
@@ -409,7 +416,11 @@ function submit_target_city_option(){
 
     <div class="div_playlist">
         <div >
-            <label style="font-size:36px" ><font color="#0000FF">Playlists</font></label><br>
+            <label style="font-size:36px;
+                            background: -webkit-linear-gradient(#77e, #77a);
+                            -webkit-background-clip: text;
+                            -webkit-text-fill-color: transparent;
+                         " ><font color="#0000FF">Playlists</font></label><br>
         </div>
         <div>
             {% for k,v in playlist_nest_dict.items() %}
@@ -473,19 +484,35 @@ function submit_target_city_option(){
     </div>
 
     <div style="float:left;margin-right:10px;">
-        <label style="font-size:36px" ><font color="#0000FF">{{ form.brightness_mode_switcher.label() }}</font></label>
+        <label style="font-size:36px;
+                        background: -webkit-linear-gradient(#77e, #77a);
+                        -webkit-background-clip: text;
+                        -webkit-text-fill-color: transparent;
+                        " ><font color="#0000FF">{{ form.brightness_mode_switcher.label() }}</font></label>
                 {{ form.brightness_mode_switcher(onchange="submit_frame_brightness_mode_option()") }}
         </div>
     <div style="float:left;margin-right:10px;">
-        <label style="font-size:36px" ><font color="#0000FF">{{ form.sleep_mode_switcher.label() }}</font></label>
+        <label style="font-size:36px;
+                        background: -webkit-linear-gradient(#77e, #77a);
+                        -webkit-background-clip: text;
+                        -webkit-text-fill-color: transparent;
+                        " ><font color="#0000FF">{{ form.sleep_mode_switcher.label() }}</font></label>
                 {{ form.sleep_mode_switcher(onchange="submit_sleep_mode_option()") }}
-        <label style="font-size:36px" ><font color="#0000FF">{{ form.city_selectfiled.label() }}</font></label>
+        <label style="font-size:36px;
+                        background: -webkit-linear-gradient(#77e, #77a);
+                        -webkit-background-clip: text;
+                        -webkit-text-fill-color: transparent;
+                        " ><font color="#0000FF">{{ form.city_selectfiled.label() }}</font></label>
                 {{ form.city_selectfiled(onchange="submit_target_city_option()") }}
         </div>
     <div style="clear:both;"></div>
 
     <div>
-        <label style="font-size:36px" ><font color="#0000FF">Brightness Values Setting:</font></label><br>
+        <label style="font-size:36px;
+                        background: -webkit-linear-gradient(#77e, #77a);
+                        -webkit-background-clip: text;
+                        -webkit-text-fill-color: transparent;
+                        " ><font color="#0000FF">Brightness Values Setting:</font></label><br>
 
         {% for k,v in brightnessvalues.items() %}
 
@@ -497,7 +524,11 @@ function submit_target_city_option(){
 
 
     <div class="div_wifioption">
-        <label style="font-size:36px" ><font color="#0000FF">Wifi Options:</font></label><br>
+        <label style="font-size:36px;
+                        background: -webkit-linear-gradient(#77e, #77a);
+                        -webkit-background-clip: text;
+                        -webkit-text-fill-color: transparent;
+                        " ><font color="#0000FF">Wifi Options:</font></label><br>
 
         <label class="label_h1" style="font-size:24px" ><font color="#0000FF">Wifi Bands: </font></label>
         <select id="wifi_bands" name="Wifi Bands" style="font-size:24px">

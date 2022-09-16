@@ -252,7 +252,7 @@ class MainUi(QMainWindow):
             data = self.city + " " + now.strftime("%Y-%m-%d %H:%M:%S")
             str_sunrise_time = sunrise_time.strftime("%Y-%m-%d %H:%M:%S")
             str_sunset_time = sunset_time.strftime("%Y-%m-%d %H:%M:%S")
-            f.write(data + "==> sleep mode" + "==>br:" +
+            f.write(data + "==> night mode" + "==>br:" +
                     str(self.media_engine.media_processor.video_params.frame_brightness) +
                     "==>sunrisetime:" + str_sunrise_time +
                     "==>sunrisetime:" + str_sunset_time + "\n")
@@ -280,7 +280,7 @@ class MainUi(QMainWindow):
             data = self.city + " " + now.strftime("%Y-%m-%d %H:%M:%S")
             str_sunrise_time = sunrise_time.strftime("%Y-%m-%d %H:%M:%S")
             str_sunset_time = sunset_time.strftime("%Y-%m-%d %H:%M:%S")
-            f.write(data + "==> sleep mode" + "==>br:" +
+            f.write(data + "==> day mode" + "==>br:" +
                     str(self.media_engine.media_processor.video_params.frame_brightness) +
                     "==>sunrisetime:" + str_sunrise_time +
                     "==>sunrisetime:" + str_sunset_time + "\n")
