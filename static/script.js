@@ -20,7 +20,7 @@ function calculateProgressBar(progressBar) {
 
     progressBar.innerHTML = ""
     const slider = progressBar.closest(".row").querySelector(".slider")
-    const itemCount = slider.children.length
+    const itemCount = slider.children.length/3
 
     const itemsPerScreen = parseInt(
         getComputedStyle(slider).getPropertyValue("--items-per-screen")

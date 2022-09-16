@@ -32,6 +32,8 @@ oncontextmenu="return false;"
 />
 <!--slider ok-->
 <script src="static/script.js" defer></script>
+
+<script type="text/javascript" src="static/playlist.js"></script>
 <script>
 
 var cot=0;//設置一個計數器，初始值為0；作用是用來監聽點擊切換的時候哪一個圖片應該隱藏或者顯示
@@ -349,6 +351,7 @@ function submit_target_city_option(){
                                         " ><font color="#0000FF">Media Files</font></label>
           <div class="progress-bar"></div>
         </div>
+
         <div class="container">
             <button class="handle left-handle">
                 <div class="text">&#8249;</div>
@@ -356,8 +359,9 @@ function submit_target_city_option(){
             <div class="slider">
                 {% for k,v in files.items() %}
                         <input class="file_img" name="{{k}}" id="test_play" type="image" src="./get_thumbnail/{{v}}" onclick="play(name)" />
+
                         <!-- handle the right click context meun-->
-                        <script type="text/javascript" src="static/playlist.js"></script>
+
                         <style>
                             .Type {
                                 font-family: "Courier New";

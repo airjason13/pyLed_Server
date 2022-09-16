@@ -840,7 +840,7 @@ def index():
     brightnessAlgoform.brightness_mode_switcher.data=get_brightness_mode_default()
     # get brightness setting values
     brightnessvalues = get_brightness_value_default()
-
+    
     return render_template("index.html", files=maps, playlist_nest_dict=playlist_nest_dict,
                            repeat_option=routes_repeat_option, text_size=route_text_size,
                            text_content=route_text_content, text_period=20, form=brightnessAlgoform, brightnessvalues=brightnessvalues)
