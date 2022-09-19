@@ -360,7 +360,11 @@ def get_brightness_mode_default():
     led_config_dir = os.path.join(root_dir, 'video_params_config')
 
     str_ret = 'fix_mode'
-    with open(os.path.join(led_config_dir, ".video_params_config"), "r") as f:
+    log.debug("video_params file is %s: ", os.path.join(led_config_dir, ".video_params_config"))
+    if os.path.exists(os.path.join(led_config_dir, ".video_params_config")) is False:
+        init_video_params()
+
+    with open(os.path.join(led_config_dir, ".video_params_config"), "r+") as f:
         lines = f.readlines()
     for line in lines:
         if "frame_brightness_algorithm" in line:
@@ -376,13 +380,14 @@ def get_brightness_mode_default():
     f.close()
     return str_ret
 
+
 def init_video_params():
     content_lines = [
         "brightness=50\n", "contrast=50\n", "red_bias=0\n", "green_bias=0\n", "blue_bias=0\n",
         "sleep_mode_enable=1\n", "target_city_index=0\n",
         "frame_brightness_algorithm=0\n",
-        "frame_brightness=100\n", "day_mode_frame_brightness=77\n",
-        "night_mode_frame_brightness=50\n", "sleep_mode_frame_brightness=0\n",
+        "frame_brightness=50\n", "day_mode_frame_brightness=50\n",
+        "night_mode_frame_brightness=30\n", "sleep_mode_frame_brightness=0\n",
         "frame_br_divisor=1\n", "frame_contrast=0\n", "frame_gamma=2.2\n",
         "image_period=60\n", "crop_start_x=0\n", "crop_start_y=0\n", "crop_w=0\n", "crop_h=0\n",
         "hdmi_in_crop_start_x=0\n", "hdmi_in_crop_start_y=0\n",
@@ -405,7 +410,8 @@ def get_brightness_value_default():
     str_fr_br_day_mode = "0"
     str_fr_br_night_mode = "0"
     str_fr_br_sleep_mode = "0"
-    if os.path.isfile(os.path.join(led_config_dir, ".video_params_config")) is False:
+    log.debug("video_params file is %s: ", os.path.join(led_config_dir, ".video_params_config"))
+    if os.path.exists(os.path.join(led_config_dir, ".video_params_config")) is False:
         init_video_params()
 
     with open(os.path.join(led_config_dir, ".video_params_config"), "r") as f:
