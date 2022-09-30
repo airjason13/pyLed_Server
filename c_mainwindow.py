@@ -48,6 +48,10 @@ class MainUi(QMainWindow):
         super().__init__()
         pg.setConfigOptions(antialias=True)
 
+        #keep the screen on for cms
+        keep_screen_alive = os.popen("xset s off -dpms")
+        keep_screen_alive.close()
+
         self.center()
         self.setWindowOpacity(1.0)  # 窗口透明度
         self.setStyleSheet(qdarkstyle.load_stylesheet_pyqt5())
