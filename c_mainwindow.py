@@ -1086,6 +1086,13 @@ class MainUi(QMainWindow):
                 c.decrese_alive_count()
                 if c.get_alive_count() == 0:
                     self.clients.remove(c)
+                    # reset eth0
+                    reset_eth0_cmd = os.popen("ifconfig eth0 down")
+                    reset_eth0_cmd.close()
+                    # reset dnsmasq
+                    reset_dnsmasq_cmd = os.popen("systemctl restart network-manager.service")
+                    reset_dnsmasq_cmd.close()
+
 
             """for c in self.clients:
                 log.debug("c.client_ip : %s ", c.client_ip)"""
