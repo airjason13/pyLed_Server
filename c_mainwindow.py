@@ -209,10 +209,7 @@ class MainUi(QMainWindow):
         log.debug("self.geo x : %d", self.geometry().x())
         log.debug("self.geo y : %d", self.geometry().y())
         self.page_ui_mutex = QMutex()
-        # QTimer.singleShot(5000, self.demo_start_playlist)
-        # QTimer.singleShot(5000, self.demo_start_hdmi_in)
-        # QTimer.singleShot(5000, self.demo_start_cms)
-        # self.select_preview_v4l2_device()
+
         utils.file_utils.find_ffmpeg_process()
         utils.file_utils.kill_all_ffmpeg_process()
 
@@ -228,6 +225,11 @@ class MainUi(QMainWindow):
         self.city = City_Map[self.media_engine.media_processor.video_params.get_target_city_index()].get("City")
         # for test
         self.brightness_test_log = False
+        self.clients_reboot = 0 # count for sending reboot cmd in alive broadcast
+        # QTimer.singleShot(5000, self.demo_start_playlist)
+        QTimer.singleShot(5000, self.demo_start_hdmi_in)
+        # QTimer.singleShot(5000, self.demo_start_cms)
+        # self.select_preview_v4l2_device()
 
     def check_daymode_nightmode(self, sunrise_time, sunset_time, now):
         if self.brightness_test_log is True:
@@ -958,12 +960,19 @@ class MainUi(QMainWindow):
 
         elif data.get("set_ledclients_reboot_option"):
             log.debug("set_ledclients_reboot_option")
-            clients = self.clients
+            self.clients_reboot = 2
+            '''clients_nums = len(self.clients)
+            for i in reversed(range(0, clients_nums)):
+                reboot_cmd = "sshpass -p workout13 ssh -o StrictHostKeyChecking=no root@" + self.clients[i].client_ip + " " + "reboot"
+                log.debug("reboot_cmd : %s", reboot_cmd)
+                k = os.popen(reboot_cmd)
+                k.close()'''
+            '''clients = self.clients
             for c in clients:
                 reboot_cmd = "sshpass -p workout13 ssh -o StrictHostKeyChecking=no root@" + c.client_ip + " " + "reboot"
                 log.debug("reboot_cmd : %s", reboot_cmd)
                 k = os.popen(reboot_cmd)
-                k.close()
+                k.close()'''
 
 
         elif data.get("start_color_test"):
@@ -1053,6 +1062,10 @@ class MainUi(QMainWindow):
 
         data_append = ";br:" + str(self.media_engine.media_processor.video_params.frame_brightness)
         data += data_append
+
+        if self.clients_reboot > 0:
+            data += ";reboot"
+            self.clients_reboot -= 1
 
         ip = net_utils.get_ip_address()
         utils.net_utils.force_set_eth_ip()
