@@ -393,23 +393,18 @@ class MainUi(QMainWindow):
         log.debug("demo_start play cms")
         self.cms_page.start_play_cms()
 
-    def reset_eth0(self):
-        
-        log.debug("reset eth0")
-        #reset_eth0_cmd = os.popen("nmcli con del eth0")
-        #reset_eth0_cmd.close()
-        connect_eth0_cmd = os.popen("nmcli con up eth0")
-        connect_eth0_cmd.close()
-        #connect_hotspot_cmd = os.popen("nmcli con up Hotspot")
-        #connect_hotspot_cmd.close()
-
-
     def kill_ffmpy_process(self):
         log.debug("kill ffmpy process")
         try:
-            os.kill(self.media_engine.media_processor.ffmpy_process.pid, signal.SIGTERM)
-        except Exception as e:
-            log.debug(e)
+            os.kill(self.media_engine.media_processor.ffmpy_process.pid, 0)
+        except OSError:
+            log.debug("no such process")
+        else:
+            try:
+                os.kill(self.media_engine.media_processor.ffmpy_process.pid, signal.SIGTERM)
+            except Exception as e:
+                log.debug(e)
+
 
     def demo_start_hdmi_in(self):
         log.debug("timer trigger demo_start play_hdmi_in")
@@ -1122,7 +1117,7 @@ class MainUi(QMainWindow):
                 c.decrese_alive_count()
                 if c.get_alive_count() == 0:
                     self.clients.remove(c)
-                    
+
             """for c in self.clients:
                 log.debug("c.client_ip : %s ", c.client_ip)"""
         except Exception as e:

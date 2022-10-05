@@ -236,6 +236,7 @@ def gen_led_cabinet_pixmap_with_cabinet_params(c_params, margin=0,
     scale_factor = 8
     line_interval = scale_factor/2
     arrow_width = scale_factor/2
+
     pixmap_led_layout_type = QPixmap(c_params.cabinet_width*scale_factor, c_params.cabinet_height*scale_factor)
     pixmap_led_layout_type.fill(bg_color)
     pixmap_paint = QPainter(pixmap_led_layout_type)
