@@ -894,7 +894,8 @@ class Hdmi_In_Page(QObject):
         log.debug("")
         self.play_action_btn.setText("Pause")
         self.hdmi_in_play_status_label.setText("Streaming")
-        self.ffmpy_pid_label.setText("ffmpy pid:" + str(self.media_engine.media_processor.ffmpy_process.pid))
+        if self.media_engine.media_processor.ffmpy_process is not None:
+            self.ffmpy_pid_label.setText("ffmpy pid:" + str(self.media_engine.media_processor.ffmpy_process.pid))
 
     def play_hdmi_in_finish_ret(self):
         log.debug("")

@@ -53,9 +53,7 @@ def neo_ffmpy_execute(video_path, brightness, contrast, red_bias, green_bias, bl
         image_period = utils.file_utils.get_text_period()
         #log.debug("image_period : %s", image_period)
         text_position = utils.file_utils.get_text_position()
-        #log.debug("text_position : %s", text_position)
-        #log.debug("text_position_high : %s", text_font_position_high)
-        #log.debug("text_position_low : %s", text_font_position_low)
+
         text_y = 10
         if text_font_position_high in text_position:
             log.debug("position high")
@@ -90,11 +88,15 @@ def neo_ffmpy_execute(video_path, brightness, contrast, red_bias, green_bias, bl
                        "/fonts/msjhbd.ttc:text='" + content_line + "':x=w-" + text_time_factor + ":y=" + str(text_y) + \
                        ":" + fontsize_str_prefix + "*h/" + str(height) + ":fontcolor=white"
 
-        filter_params = "zmq," + eq_str + "," + color_level_str + "," + drawtext_str + "," + scale_params
+        # disable zmq
+        # filter_params = "zmq," + eq_str + "," + color_level_str + "," + drawtext_str + "," + scale_params
+        filter_params = eq_str + "," + color_level_str + "," + drawtext_str + "," + scale_params
     else:
         drawtext_str = "drawtext=fontfile=" + internal_media_folder + \
                        "/fonts/msjhbd.ttc:text='':x=10:y=20:fontsize=24*h/96:fontcolor=black"
-        filter_params = "zmq," + eq_str + "," + color_level_str + "," + drawtext_str + "," + crop_str + "," + scale_params
+        # disable zmq
+        # filter_params = "zmq," + eq_str + "," + color_level_str + "," + drawtext_str + "," + crop_str + "," + scale_params
+        filter_params = eq_str + "," + color_level_str + "," + drawtext_str + "," + crop_str + "," + scale_params
 
     video_encoder = "libx264"
 
