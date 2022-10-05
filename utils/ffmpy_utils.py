@@ -341,8 +341,9 @@ def neo_ffmpy_cast_video_h264(video_path, cast_dst, brightness, contrast, red_bi
     color_level_str = "colorlevels=" + red_bias_params + ":" + green_bias_params + ":" + blue_bias_params
     drawtext_str = "drawtext=fontfile=" + internal_media_folder + \
                    "/fonts/msjhbd.ttc:text='':x=10:y=20:fontsize=24*h/96:fontcolor=black"
-    filter_params = "zmq," + eq_str + "," + color_level_str + "," + drawtext_str + "," + crop_str + "," + scale_params
-
+    # disable zmq
+    # filter_params = "zmq," + eq_str + "," + color_level_str + "," + drawtext_str + "," + crop_str + "," + scale_params
+    filter_params = eq_str + "," + color_level_str + "," + drawtext_str + "," + crop_str + "," + scale_params
     output = {}
     if platform.machine() in ('arm', 'arm64', 'aarch64'):
         '''if width >= 640 and height >= 480:

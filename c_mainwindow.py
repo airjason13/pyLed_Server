@@ -150,7 +150,7 @@ class MainUi(QMainWindow):
         self.page_status.showMessage("Client Page")
 
         self.setWindowTitle("LED Server")
-
+        self.clients_reboot = 0  # count for sending reboot cmd in alive broadcast
         self.broadcast_thread = \
             Worker(method=self.server_broadcast, data=server_broadcast_message, port=server_broadcast_port)
         self.broadcast_thread.start()
@@ -196,8 +196,8 @@ class MainUi(QMainWindow):
             try:
                 ori_text_blank_jpg_uri = internal_media_folder + SubtitleFolder + subtitle_blank_jpg
                 neo_text_blank_jpg_uri = internal_media_folder + subtitle_blank_jpg
-                log.debug("%d", self.led_wall_width)
-                log.debug("%d", self.led_wall_height)
+                #log.debug("%d", self.led_wall_width)
+                #log.debug("%d", self.led_wall_height)
                 utils.ffmpy_utils.neo_ffmpy_scale(ori_text_blank_jpg_uri, neo_text_blank_jpg_uri,
                                                   self.led_wall_width, self.led_wall_height)
             except Exception as e:
@@ -225,7 +225,7 @@ class MainUi(QMainWindow):
         self.city = City_Map[self.media_engine.media_processor.video_params.get_target_city_index()].get("City")
         # for test
         self.brightness_test_log = False
-        self.clients_reboot = 0 # count for sending reboot cmd in alive broadcast
+
         # QTimer.singleShot(5000, self.demo_start_playlist)
         QTimer.singleShot(5000, self.demo_start_hdmi_in)
         # QTimer.singleShot(5000, self.demo_start_cms)
@@ -393,9 +393,29 @@ class MainUi(QMainWindow):
         log.debug("demo_start play cms")
         self.cms_page.start_play_cms()
 
+    def reset_eth0(self):
+        
+        log.debug("reset eth0")
+        #reset_eth0_cmd = os.popen("nmcli con del eth0")
+        #reset_eth0_cmd.close()
+        connect_eth0_cmd = os.popen("nmcli con up eth0")
+        connect_eth0_cmd.close()
+        #connect_hotspot_cmd = os.popen("nmcli con up Hotspot")
+        #connect_hotspot_cmd.close()
+
+
+    def kill_ffmpy_process(self):
+        log.debug("kill ffmpy process")
+        try:
+            os.kill(self.media_engine.media_processor.ffmpy_process.pid, signal.SIGTERM)
+        except Exception as e:
+            log.debug(e)
+
     def demo_start_hdmi_in(self):
         log.debug("timer trigger demo_start play_hdmi_in")
         self.func_hdmi_in_contents()
+        # stop first
+        self.hdmi_in_page.stop_send_to_led()
         log.debug("demo_start play_hdmi_in")
         self.hdmi_in_page.start_send_to_led()
 
@@ -1038,9 +1058,10 @@ class MainUi(QMainWindow):
                 self.client_page.refresh_clients(self.clients)
                 self.client_page.refresh_client_table()
                 # self.refresh_client_table()
+                QTimer.singleShot(5000, self.kill_ffmpy_process)
             else:
                 """ find this ip in clients list, set the alive report count"""
-                tmp_client.set_alive_count(5)
+                tmp_client.set_alive_count(2)
         except Exception as e:
             log.debug(e)
         finally:
@@ -1059,13 +1080,15 @@ class MainUi(QMainWindow):
     def server_broadcast(self, arg):
         data = arg.get("data")
         port = arg.get("port")
-
+        # log.debug("server_broadcast")
         data_append = ";br:" + str(self.media_engine.media_processor.video_params.frame_brightness)
         data += data_append
 
         if self.clients_reboot > 0:
             data += ";reboot"
             self.clients_reboot -= 1
+            if self.clients_reboot < 0:
+                self.clients_reboot = 0
 
         ip = net_utils.get_ip_address()
         utils.net_utils.force_set_eth_ip()
