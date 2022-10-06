@@ -228,7 +228,8 @@ class MainUi(QMainWindow):
         self.brightness_test_log = False
 
         # QTimer.singleShot(5000, self.demo_start_playlist)
-        QTimer.singleShot(5000, self.demo_start_hdmi_in)
+        # I don't know why encoder is so easy to crash at 5000 timer
+        QTimer.singleShot(10000, self.demo_start_hdmi_in)
         # QTimer.singleShot(5000, self.demo_start_cms)
         # self.select_preview_v4l2_device()
 
