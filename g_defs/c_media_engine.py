@@ -801,6 +801,8 @@ class media_processor(QObject):
                        self.media_processor.video_params.get_translated_bluegain(),
                        self.media_processor.output_width,
                        self.media_processor.output_height)
+                if self.media_processor.ffmpy_process is None:
+                    continue
                 if self.media_processor.ffmpy_process.pid > 0:
                     self.signal_play_hdmi_in_start.emit()
                     self.media_processor.play_status = play_status.playing
@@ -817,7 +819,7 @@ class media_processor(QObject):
                             os.kill(self.media_processor.ffmpy_process.pid, 0)
                         except OSError:
                             log.debug("no such process")
-                            # time.sleep(2)
+                            time.sleep(2)
                             break
                         else:
                             pass
