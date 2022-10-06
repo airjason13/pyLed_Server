@@ -24,6 +24,10 @@ preview_period = 1
 def neo_ffmpy_execute(video_path, brightness, contrast, red_bias, green_bias, blue_bias,
                       image_period=still_image_video_period, width=80, height=96):
     ff = None
+    os.popen("pkill -f h264_v4l2m2m")
+    os.popen("pkill -f h264_v4l2m2m")
+    os.popen("pkill -f h264_v4l2m2m")
+    time.sleep(1)
     global_opts = '-hide_banner -loglevel error'
     if width % 64 != 0:
         width_multiple_factor = int(width/64) + 1
@@ -324,6 +328,10 @@ def neo_ffmpy_cast_video_h264(video_path, cast_dst, brightness, contrast, red_bi
     if len(cast_dst) == 0 or cast_dst is None:
         return -1
     ff = None
+    os.popen("pkill -f h264_v4l2m2m")
+    os.popen("pkill -f h264_v4l2m2m")
+    os.popen("pkill -f h264_v4l2m2m")
+    time.sleep(1)
     global_opts = '-hide_banner -loglevel error'
     if width % 64 != 0:
         width_multiple_factor = int(width/64) + 1
@@ -395,6 +403,10 @@ def neo_ffmpy_cast_cms(video_path, cast_dst, window_width, window_height, window
     if len(cast_dst) == 0 or cast_dst is None:
         return -1
     ff = None
+    os.popen("pkill -f h264_v4l2m2m")
+    os.popen("pkill -f h264_v4l2m2m")
+    os.popen("pkill -f h264_v4l2m2m")
+    time.sleep(1)
     global_opts = '-hide_banner -loglevel error'
     if width % 64 != 0:
         width_multiple_factor = int(width/64) + 1
