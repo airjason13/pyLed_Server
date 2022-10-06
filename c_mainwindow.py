@@ -1,5 +1,6 @@
 # coding=UTF-8
 import os
+import time
 from time import sleep
 import qthreads.c_alive_report_thread
 
@@ -227,9 +228,11 @@ class MainUi(QMainWindow):
         self.brightness_test_log = False
 
         # QTimer.singleShot(5000, self.demo_start_playlist)
-        # QTimer.singleShot(5000, self.demo_start_hdmi_in)
+        QTimer.singleShot(5000, self.demo_start_hdmi_in)
         # QTimer.singleShot(5000, self.demo_start_cms)
         # self.select_preview_v4l2_device()
+
+        self.web_cmd_time = time.time()
 
     def check_daymode_nightmode(self, sunrise_time, sunset_time, now):
         if self.brightness_test_log is True:
@@ -395,16 +398,11 @@ class MainUi(QMainWindow):
 
     def kill_ffmpy_process(self):
         log.debug("kill ffmpy process")
-        try:
-            os.kill(self.media_engine.media_processor.ffmpy_process.pid, 0)
-        except OSError:
-            log.debug("no such process")
-        else:
-            try:
-                os.kill(self.media_engine.media_processor.ffmpy_process.pid, signal.SIGTERM)
-            except Exception as e:
-                log.debug(e)
 
+        try:
+            os.kill(self.media_engine.media_processor.ffmpy_process.pid, signal.SIGTERM)
+        except Exception as e:
+            log.debug(e)
 
     def demo_start_hdmi_in(self):
         log.debug("timer trigger demo_start play_hdmi_in")
@@ -818,7 +816,11 @@ class MainUi(QMainWindow):
 
     """ handle the command from qlocalserver"""
     def parser_cmd_from_qlocalserver(self, data):
-
+        now_time = time.time()
+        if now_time - self.web_cmd_time < 2:
+            log.debug("cmd too quick")
+            return
+        self.web_cmd_time = time.time()
 
         if data.get("play_file"):
             self.func_file_contents()
