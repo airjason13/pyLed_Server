@@ -66,29 +66,15 @@ class TC358743(QObject):
 		return False
 
 	def get_tc358743_hdmi_connected_status(self):
+
 		connected = False
 		dv_timings = os.popen("v4l2-ctl --query-dv-timings").read()
 		list_dv_timings = dv_timings.split("\n")
 		# log.debug("list_dv_timings=%s", list_dv_timings)
-
 		if 'fail' in list_dv_timings[0]:
 			log.debug("not connected")
 			connected = False
 		else:
 			connected = True
-		'''if connected is True:
-			width = self.hdmi_width
-			height = self.hdmi_height
-			for i in list_dv_timings:
-				if 'Active width:' in i:
-					width = int(i.split(":")[1])
-				if 'Active height:' in i:
-					height = int(i.split(":")[1])
-				if 'Pixelclock' in i:
-					fps = int(float(i.split("(")[1].split(" ")[0]))
-			if width != self.hdmi_width or height != self.hdmi_height:
-				connected = False'''
-
-
 
 		return connected

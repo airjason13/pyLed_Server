@@ -299,7 +299,6 @@ class media_processor(QObject):
                 if self.ffmpy_process is not None:
                     os.kill(self.ffmpy_process.pid, signal.SIGTERM)
                     self.ffmpy_process = None
-                    time.sleep(2)
                 if self.play_single_file_worker is not None:
                     # self.play_single_file_thread.quit()
                     self.play_single_file_worker.finished.emit()
@@ -657,9 +656,6 @@ class media_processor(QObject):
                                       self.media_processor.video_params.image_period,
                                       self.media_processor.output_width,
                                       self.media_processor.output_height)
-                if self.media_processor.ffmpy_process is None:
-                    log.debug("process missing")
-                    continue
                 if self.media_processor.ffmpy_process.pid > 0:
                     self.media_processor.play_status = play_status.playing
                     self.media_processor.playing_file_name = self.file_uri
@@ -669,14 +665,6 @@ class media_processor(QObject):
                         if self.force_stop is True:
                             log.debug("force_stop first")
                             break
-                        try:
-                            os.kill(self.media_processor.ffmpy_process.pid, 0)
-                        except OSError:
-                            log.debug("no such process")
-                            break
-                        else:
-                            pass
-                            # log.debug("hdmi ffmpy unning")
                         time.sleep(0.5)
 
                 if self.force_stop is True:
@@ -725,7 +713,7 @@ class media_processor(QObject):
                             if self.media_processor.play_status == play_status.pausing:
                                 os.kill(self.media_processor.ffmpy_process.pid, signal.SIGCONT)
                                 # time.sleep(1)
-                        if self.media_processor.ffmpy_process is not None:
+                        if self.media_processor.ffmppy_process is not None:
                             os.kill(self.media_processor.ffmpy_process.pid, signal.SIGTERM)
                             # time.sleep(1)
                             log.debug("kill")
@@ -744,9 +732,6 @@ class media_processor(QObject):
                        self.media_processor.video_params.image_period,
                        self.media_processor.output_width,
                        self.media_processor.output_height)
-                if self.media_processor.ffmpy_process is None:
-                    log.debug("process missing")
-                    continue
                 if self.media_processor.ffmpy_process.pid > 0:
                     self.media_processor.play_status = play_status.playing
                     self.media_processor.playing_file_name = self.file_uri
@@ -755,15 +740,6 @@ class media_processor(QObject):
                             break
                         if self.force_stop is True:
                             break
-                            # ffmpy exception
-                        try:
-                            os.kill(self.media_processor.ffmpy_process.pid, 0)
-                        except OSError:
-                            log.debug("no such process")
-                            break
-                        else:
-                            pass
-                            # log.debug("hdmi ffmpy unning")
                         time.sleep(0.5)
 
                 if self.media_processor.repeat_option == repeat_option.repeat_none:
@@ -825,9 +801,6 @@ class media_processor(QObject):
                        self.media_processor.video_params.get_translated_bluegain(),
                        self.media_processor.output_width,
                        self.media_processor.output_height)
-                if self.media_processor.ffmpy_process is None:
-                    log.debug("process missing")
-                    continue
                 if self.media_processor.ffmpy_process.pid > 0:
                     self.signal_play_hdmi_in_start.emit()
                     self.media_processor.play_status = play_status.playing
@@ -839,21 +812,11 @@ class media_processor(QObject):
                             if self.media_processor.ffmpy_process is not None:
                                 os.kill(self.media_processor.ffmpy_process.pid, signal.SIGTERM)
                             break
-                        # ffmpy exception 
-                        try:
-                            os.kill(self.media_processor.ffmpy_process.pid, 0)
-                        except OSError:
-                            log.debug("no such process")
-                            time.sleep(2)
-                            break
-                        else:
-                            pass
-                            # log.debug("hdmi ffmpy unning")
-
-
                         time.sleep(0.5)
 
+
                 if self.force_stop is True:
+
                     break
 
             self.signal_play_hdmi_in_finish.emit()
@@ -925,18 +888,8 @@ class media_processor(QObject):
                             if self.media_processor.ffmpy_process is not None:
                                 os.kill(self.media_processor.ffmpy_process.pid, signal.SIGTERM)
                             break
-                            # ffmpy exception
-                        try:
-                            os.kill(self.media_processor.ffmpy_process.pid, 0)
-                        except OSError:
-                            log.debug("no such process")
-                            break
-                        else:
-                            pass
-                            # log.debug("hdmi ffmpy unning")
                         time.sleep(0.5)
-                else:
-                    continue
+
 
                 if self.force_stop is True:
 

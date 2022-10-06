@@ -473,7 +473,7 @@ class Hdmi_In_Page(QObject):
         self.v4l2loopback_dev_open_count = 0
         self.preview_mutex = QMutex()
         self.preview_videosink_check_count = 0
-        self.check_tc358743_interval = 500
+        self.check_tc358743_interval = 2000
         self.check_tc358743_timer = QTimer(self)
         self.check_tc358743_timer.timeout.connect(self.check_tc358743_timer_event)
         # self.going_to_open_preview = False # 如果True則表示目前頁面處於hdmi-in, 因為一進來hdmi-in頁面就要開始preview
@@ -523,7 +523,6 @@ class Hdmi_In_Page(QObject):
             return
         tmp_preview_status = self.preview_status
         self.preview_mutex.unlock()
-
         if tmp_preview_status is True:
             if self.tc358743.get_tc358743_hdmi_connected_status() is False:
                 self.stop_hdmi_in_preview()
@@ -533,8 +532,8 @@ class Hdmi_In_Page(QObject):
                     self.tc358743.reinit_tc358743_dv_timing()
                 self.start_hdmi_in_preview()
 
+
     def start_hdmi_in_preview(self):
-        
         self.preview_mutex.lock()
 
 
@@ -561,7 +560,6 @@ class Hdmi_In_Page(QObject):
                 k.close()
 
         if self.tc358743.hdmi_connected is False:
-            log.debug("tc358743 is not connected")
             pass
         else:
             if self.ffmpy_hdmi_in_cast_process is None:
@@ -578,7 +576,7 @@ class Hdmi_In_Page(QObject):
                     video_src_ok = self.check_video_src_is_ok(self.cv2_preview_v4l2_sink)
                     preview_videosink_check_count = i
                     if video_src_ok == 0:
-                        log.debug("check /dev/video6 status count : %d", i)
+                        # log.debug("check /dev/video6 status count : %d", i)
                         break
                 if preview_videosink_check_count > self.preview_videosink_check_count:
                     self.preview_videosink_check_count = preview_videosink_check_count
@@ -883,9 +881,8 @@ class Hdmi_In_Page(QObject):
 
     def stop_send_to_led(self):
         log.debug("Stop streaming to led")
-        if self.media_engine.media_processor.play_hdmi_in_worker is not None:
-            self.media_engine.resume_play()
-            self.media_engine.stop_play()
+        self.media_engine.resume_play()
+        self.media_engine.stop_play()
 
     def stop_hdmi_in_streaming(self):
         if self.media_engine.media_processor.play_hdmi_in_worker is not None:
@@ -897,8 +894,7 @@ class Hdmi_In_Page(QObject):
         log.debug("")
         self.play_action_btn.setText("Pause")
         self.hdmi_in_play_status_label.setText("Streaming")
-        if self.media_engine.media_processor.ffmpy_process is not None:
-            self.ffmpy_pid_label.setText("ffmpy pid:" + str(self.media_engine.media_processor.ffmpy_process.pid))
+        self.ffmpy_pid_label.setText("ffmpy pid:" + str(self.media_engine.media_processor.ffmpy_process.pid))
 
     def play_hdmi_in_finish_ret(self):
         log.debug("")

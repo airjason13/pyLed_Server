@@ -87,7 +87,7 @@ class client(QObject):
     def parse_get_cmd_reply_get_cabinet_params(self, cmd, recv_data):
         try:
             data = recv_data.split(";")[2].split(":")[1]
-            # print(data)
+            print(data)
             str_params = data.split(",")
             for s in str_params:
                 if s.startswith("port_id"):
