@@ -24,6 +24,10 @@ preview_period = 1
 def neo_ffmpy_execute(video_path, brightness, contrast, red_bias, green_bias, blue_bias,
                       image_period=still_image_video_period, width=80, height=96):
     ff = None
+    os.popen("pkill -f h264_v4l2m2m")
+    os.popen("pkill -f h264_v4l2m2m")
+    os.popen("pkill -f h264_v4l2m2m")
+    sleep(1)
     global_opts = '-hide_banner -loglevel error'
     if width % 64 != 0:
         width_multiple_factor = int(width/64) + 1
@@ -90,11 +94,13 @@ def neo_ffmpy_execute(video_path, brightness, contrast, red_bias, green_bias, bl
                        "/fonts/msjhbd.ttc:text='" + content_line + "':x=w-" + text_time_factor + ":y=" + str(text_y) + \
                        ":" + fontsize_str_prefix + "*h/" + str(height) + ":fontcolor=white"
 
-        filter_params = "zmq," + eq_str + "," + color_level_str + "," + drawtext_str + "," + scale_params
+        # filter_params = "zmq," + eq_str + "," + color_level_str + "," + drawtext_str + "," + scale_params
+        filter_params = eq_str + "," + color_level_str + "," + drawtext_str + "," + scale_params
     else:
         drawtext_str = "drawtext=fontfile=" + internal_media_folder + \
                        "/fonts/msjhbd.ttc:text='':x=10:y=20:fontsize=24*h/96:fontcolor=black"
-        filter_params = "zmq," + eq_str + "," + color_level_str + "," + drawtext_str + "," + crop_str + "," + scale_params
+        # filter_params = "zmq," + eq_str + "," + color_level_str + "," + drawtext_str + "," + crop_str + "," + scale_params
+        filter_params = eq_str + "," + color_level_str + "," + drawtext_str + "," + crop_str + "," + scale_params
 
     video_encoder = "libx264"
 
@@ -322,6 +328,10 @@ def neo_ffmpy_cast_video_h264(video_path, cast_dst, brightness, contrast, red_bi
     if len(cast_dst) == 0 or cast_dst is None:
         return -1
     ff = None
+    os.popen("pkill -f h264_v4l2m2m")
+    os.popen("pkill -f h264_v4l2m2m")
+    os.popen("pkill -f h264_v4l2m2m")
+    sleep(1)
     global_opts = '-hide_banner -loglevel error'
     if width % 64 != 0:
         width_multiple_factor = int(width/64) + 1
@@ -341,8 +351,8 @@ def neo_ffmpy_cast_video_h264(video_path, cast_dst, brightness, contrast, red_bi
     color_level_str = "colorlevels=" + red_bias_params + ":" + green_bias_params + ":" + blue_bias_params
     drawtext_str = "drawtext=fontfile=" + internal_media_folder + \
                    "/fonts/msjhbd.ttc:text='':x=10:y=20:fontsize=24*h/96:fontcolor=black"
-    filter_params = "zmq," + eq_str + "," + color_level_str + "," + drawtext_str + "," + crop_str + "," + scale_params
-
+    # filter_params = "zmq," + eq_str + "," + color_level_str + "," + drawtext_str + "," + crop_str + "," + scale_params
+    filter_params = eq_str + "," + color_level_str + "," + drawtext_str + "," + crop_str + "," + scale_params
     output = {}
     if platform.machine() in ('arm', 'arm64', 'aarch64'):
         '''if width >= 640 and height >= 480:
