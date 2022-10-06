@@ -299,6 +299,7 @@ class media_processor(QObject):
                 if self.ffmpy_process is not None:
                     os.kill(self.ffmpy_process.pid, signal.SIGTERM)
                     self.ffmpy_process = None
+                    time.sleep(2)
                 if self.play_single_file_worker is not None:
                     # self.play_single_file_thread.quit()
                     self.play_single_file_worker.finished.emit()

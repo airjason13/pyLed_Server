@@ -418,6 +418,7 @@ class MainUi(QMainWindow):
         self.func_hdmi_in_contents()
         # stop first
         self.hdmi_in_page.stop_send_to_led()
+        time.sleep(2)
         log.debug("demo_start play_hdmi_in")
         self.hdmi_in_page.start_send_to_led()
 
