@@ -843,6 +843,7 @@ class media_processor(QObject):
                             os.kill(self.media_processor.ffmpy_process.pid, 0)
                         except OSError:
                             log.debug("no such process")
+                            time.sleep(2)
                             break
                         else:
                             pass

@@ -233,6 +233,9 @@ class MainUi(QMainWindow):
         # self.select_preview_v4l2_device()
 
         self.web_cmd_time = time.time()
+        self.tmp_clients_count = 0
+        self.force_kill_ffmpy_count = 0
+        self.test_count = 0
 
     def check_daymode_nightmode(self, sunrise_time, sunset_time, now):
         if self.brightness_test_log is True:
@@ -398,8 +401,14 @@ class MainUi(QMainWindow):
 
     def kill_ffmpy_process(self):
         log.debug("kill ffmpy process")
-
+        self.clients_lock()
+        self.test_count += 1
+        # cmd = "echo " + str(self.test_count) + " /home/root/test_force_kill_ffmpy.dat"
+        # os.popen(cmd)
+        self.force_kill_ffmpy_count = 0
+        self.clients_unlock()
         try:
+            log.debug("**************************************************************")
             os.kill(self.media_engine.media_processor.ffmpy_process.pid, signal.SIGTERM)
         except Exception as e:
             log.debug(e)
@@ -1055,7 +1064,9 @@ class MainUi(QMainWindow):
                 self.client_page.refresh_clients(self.clients)
                 self.client_page.refresh_client_table()
                 # self.refresh_client_table()
-                QTimer.singleShot(5000, self.kill_ffmpy_process)
+                if self.force_kill_ffmpy_count == 0:
+                    QTimer.singleShot(5000, self.kill_ffmpy_process)
+                    self.force_kill_ffmpy_count = 1
             else:
                 """ find this ip in clients list, set the alive report count"""
                 tmp_client.set_alive_count(2)
