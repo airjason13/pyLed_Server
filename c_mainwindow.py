@@ -230,7 +230,7 @@ class MainUi(QMainWindow):
         self.brightness_test_log = False
 
         # QTimer.singleShot(5000, self.demo_start_playlist)
-        QTimer.singleShot(5000, self.demo_start_hdmi_in)
+        # QTimer.singleShot(5000, self.demo_start_hdmi_in)
         # QTimer.singleShot(5000, self.demo_start_cms)
         # self.select_preview_v4l2_device()
 
@@ -1058,8 +1058,8 @@ class MainUi(QMainWindow):
                 self.client_page.refresh_client_table()
                 # self.refresh_client_table()
                 # if self.force_kill_ffmpy_count == 0:
-                QTimer.singleShot(5000, self.kill_ffmpy_process)
-                self.force_kill_ffmpy_count = 1
+                # QTimer.singleShot(5000, self.kill_ffmpy_process)
+                # self.force_kill_ffmpy_count = 1
             else:
                 """ find this ip in clients list, set the alive report count"""
                 tmp_client.set_alive_count(1)
@@ -1128,6 +1128,10 @@ class MainUi(QMainWindow):
                 self.client_page.refresh_client_table()
                 # self.refresh_client_table()
             self.clients_unlock()
+        # test @1006 night
+        if self.tmp_clients_count != len(self.clients):
+            self.tmp_clients_count = len(self.clients)
+            QTimer.singleShot(2000, self.kill_ffmpy_process)
 
         sleep(sleep_time)
         self.sync_client_layout_params(False, True, False)
