@@ -296,30 +296,64 @@ class media_processor(QObject):
         log.debug("")
         if self.play_status != play_status.stop:
             try:
-                if self.ffmpy_process is not None:
+                '''if self.ffmpy_process is not None:
                     os.kill(self.ffmpy_process.pid, signal.SIGTERM)
-                    self.ffmpy_process = None
+                    self.ffmpy_process = None'''
                 if self.play_single_file_worker is not None:
                     # self.play_single_file_thread.quit()
-                    self.play_single_file_worker.finished.emit()
-                    self.play_single_file_thread.exit(0)
                     self.play_single_file_worker.stop()
+                    if self.ffmpy_process is not None:
+                        os.kill(self.ffmpy_process.pid, signal.SIGTERM)
+
+                    self.play_single_file_thread.quit()
+                    # self.play_single_file_worker.finished.emit()
+                    for i in range(10):
+                        log.debug("self.play_single_file_thread.isFinished() = %d", self.play_single_file_thread.isFinished())
+                        if self.play_single_file_thread.isFinished() is True:
+                            break
+                        time.sleep(1)
+
+                    self.play_single_file_thread.exit(0)
+                    # self.play_single_file_worker.stop()
                     del self.play_single_file_worker
                     del self.play_single_file_thread
                     self.play_single_file_worker = None
                 if self.play_playlist_worker is not None:
                     # self.play_playlist_thread.quit()
-                    self.play_playlist_worker.finished.emit()
-                    self.play_playlist_thread.exit(0)
+                    #self.play_playlist_worker.finished.emit()
                     self.play_playlist_worker.stop()
+                    if self.ffmpy_process is not None:
+                        os.kill(self.ffmpy_process.pid, signal.SIGTERM)
+                    self.play_single_file_thread.quit()
+                    # self.play_single_file_worker.finished.emit()
+                    for i in range(10):
+                        log.debug("self.play_single_file_thread.isFinished() = %d",
+                                  self.play_single_file_thread.isFinished())
+                        if self.play_single_file_thread.isFinished() is True:
+                            break
+                        time.sleep(1)
+                    self.play_playlist_thread.exit(0)
+
                     del self.play_playlist_worker
+                    del self.play_single_file_thread
                     self.play_playlist_worker = None
                 if self.play_hdmi_in_worker is not None:
-                    # self.play_hdmi_in_thread.quit()
-                    self.play_hdmi_in_worker.signal_play_hdmi_in_finish.emit()
-                    self.play_hdmi_in_thread.exit(0)
+
                     self.play_hdmi_in_worker.stop()
+                    if self.ffmpy_process is not None:
+                        os.kill(self.ffmpy_process.pid, signal.SIGTERM)
+                    self.play_hdmi_in_thread.quit()
+                    for i in range(10):
+                        log.debug("self.play_single_file_thread.isFinished() = %d",
+                                  self.play_single_file_thread.isFinished())
+                        if self.play_single_file_thread.isFinished() is True:
+                            break
+                        time.sleep(1)
+
+                    self.play_hdmi_in_thread.exit(0)
+
                     del self.play_hdmi_in_worker
+                    del self.play_hdmi_in_thread
                     self.play_hdmi_in_worker = None
                 if self.play_cms_worker is not None:
                     # self.play_hdmi_in_thread.quit()
@@ -361,6 +395,7 @@ class media_processor(QObject):
                 self.play_single_file_thread.wait()
 
         self.play_single_file_thread = QThread()
+
         self.play_single_file_worker = self.play_single_file_work(self, file_uri, 5)
         self.play_single_file_worker.moveToThread(self.play_single_file_thread)
         self.play_single_file_thread.started.connect(self.play_single_file_worker.run)
@@ -713,7 +748,7 @@ class media_processor(QObject):
                             if self.media_processor.play_status == play_status.pausing:
                                 os.kill(self.media_processor.ffmpy_process.pid, signal.SIGCONT)
                                 # time.sleep(1)
-                        if self.media_processor.ffmppy_process is not None:
+                        if self.media_processor.ffmpy_process is not None:
                             os.kill(self.media_processor.ffmpy_process.pid, signal.SIGTERM)
                             # time.sleep(1)
                             log.debug("kill")
@@ -736,18 +771,22 @@ class media_processor(QObject):
                     self.media_processor.play_status = play_status.playing
                     self.media_processor.playing_file_name = self.file_uri
                     while True:
+
                         if self.media_processor.play_status == play_status.stop:
                             break
                         if self.force_stop is True:
+                            log.debug("self.force_stop is True A!")
                             break
                         time.sleep(0.5)
 
                 if self.media_processor.repeat_option == repeat_option.repeat_none:
-                    log.debug("stop play")
+                    log.debug("stop play cause play end")
                     break
                 if self.force_stop is True:
+                    log.debug("self.force_stop is True B!")
                     break
 
+            log.debug("play single file ready to quit")
             self.finished.emit()
             self.media_processor.play_type = play_type.play_none
             self.worker_status = 0
