@@ -383,7 +383,9 @@ def neo_ffmpy_cast_video_h264(video_path, cast_dst, brightness, contrast, red_bi
     )
 
     log.debug("%s", ff.cmd)
-    try:
+    return ff.cmd
+
+    '''try:
         thread_1 = threading.Thread(target=ff.run)
         thread_1.start()
         while not ff.process:
@@ -401,7 +403,7 @@ def neo_ffmpy_cast_video_h264(video_path, cast_dst, brightness, contrast, red_bi
     else:
         pass
         #log.debug("ffmpy_hdmi_in_cast_process is alive")
-    return ff.process
+    return ff.process'''
 
 def neo_ffmpy_cast_cms(video_path, cast_dst, window_width, window_height, window_x, window_y,
                        brightness, contrast, red_bias, green_bias, blue_bias, width=80, height=96):
@@ -443,7 +445,6 @@ def neo_ffmpy_cast_cms(video_path, cast_dst, window_width, window_height, window
     else:
         video_encoder = "libx264"
 
-
     ff = ffmpy.FFmpeg(
         global_options=global_opts,
         inputs={
@@ -456,7 +457,8 @@ def neo_ffmpy_cast_cms(video_path, cast_dst, window_width, window_height, window
     )
 
     log.debug("%s", ff.cmd)
-    try:
+    return ff.cmd
+    '''try:
         thread_1 = threading.Thread(target=ff.run)
         thread_1.start()
         while not ff.process:
@@ -474,7 +476,7 @@ def neo_ffmpy_cast_cms(video_path, cast_dst, window_width, window_height, window
     else:
         pass
         #log.debug("ffmpy_hdmi_in_cast_process is alive")
-    return ff.process
+    return ff.process'''
 
 
 def neo_ffmpy_scale(input_path, output_path, output_width, output_height, force=True):

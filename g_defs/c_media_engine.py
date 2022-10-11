@@ -299,14 +299,16 @@ class media_processor(QObject):
         self.play_mutex.lock()
         if True: #self.play_status != play_status.stop:
             try:
-                '''if self.ffmpy_process is not None:
-                    os.kill(self.ffmpy_process.pid, signal.SIGTERM)
-                    self.ffmpy_process = None'''
+
                 if self.play_single_file_worker is not None:
                     # self.play_single_file_thread.quit()
                     self.play_single_file_worker.stop()
                     if self.ffmpy_process is not None:
-                        os.kill(self.ffmpy_process.pid, signal.SIGTERM)
+                        if platform.machine() in ('arm', 'arm64', 'aarch64'):
+                            os.popen("kill -9 $(pgrep -f h26_v4l2m2m)")
+                        else:
+                            os.popen("kill -9 $(pgrep -f libx264)")
+                        #os.kill(self.ffmpy_process.pid, signal.SIGTERM)
 
                     self.play_single_file_thread.quit()
                     # self.play_single_file_worker.finished.emit()
@@ -327,45 +329,68 @@ class media_processor(QObject):
                     #self.play_playlist_worker.finished.emit()
                     self.play_playlist_worker.stop()
                     if self.ffmpy_process is not None:
-                        os.kill(self.ffmpy_process.pid, signal.SIGTERM)
+                        if platform.machine() in ('arm', 'arm64', 'aarch64'):
+                            os.popen("kill -9 $(pgrep -f h26_v4l2m2m)")
+                        else:
+                            os.popen("kill -9 $(pgrep -f libx264)")
+                        # os.kill(self.ffmpy_process.pid, signal.SIGTERM)
                     self.play_single_file_thread.quit()
                     # self.play_single_file_worker.finished.emit()
                     for i in range(10):
-                        log.debug("self.play_single_file_thread.isFinished() = %d",
-                                  self.play_single_file_thread.isFinished())
-                        if self.play_single_file_thread.isFinished() is True:
+                        log.debug("self.play_playlist_thread.isFinished() = %d",
+                                  self.play_playlist_thread.isFinished())
+                        if self.play_playlist_thread.isFinished() is True:
                             break
                         time.sleep(1)
                     self.play_playlist_thread.exit(0)
 
-                    del self.play_playlist_worker
-                    del self.play_single_file_thread
-                    self.play_playlist_worker = None
+                    # del self.play_playlist_worker
+                    # del self.play_single_file_thread
+                    # self.play_playlist_worker = None
                 if self.play_hdmi_in_worker is not None:
 
                     self.play_hdmi_in_worker.stop()
                     if self.ffmpy_process is not None:
-                        os.kill(self.ffmpy_process.pid, signal.SIGTERM)
+                        if platform.machine() in ('arm', 'arm64', 'aarch64'):
+                            os.popen("kill -9 $(pgrep -f h26_v4l2m2m)")
+                        else:
+                            os.popen("kill -9 $(pgrep -f libx264)")
+                        # os.kill(self.ffmpy_process.pid, signal.SIGTERM)
                     self.play_hdmi_in_thread.quit()
                     for i in range(10):
-                        log.debug("self.play_single_file_thread.isFinished() = %d",
-                                  self.play_single_file_thread.isFinished())
-                        if self.play_single_file_thread.isFinished() is True:
+                        log.debug("self.play_hdmi_in_thread.isFinished() = %d",
+                                  self.play_hdmi_in_thread.isFinished())
+                        if self.play_hdmi_in_thread.isFinished() is True:
                             break
                         time.sleep(1)
 
                     self.play_hdmi_in_thread.exit(0)
 
-                    del self.play_hdmi_in_worker
-                    del self.play_hdmi_in_thread
-                    self.play_hdmi_in_worker = None
+                    # del self.play_hdmi_in_worker
+                    # del self.play_hdmi_in_thread
+                    # self.play_hdmi_in_worker = None
                 if self.play_cms_worker is not None:
                     # self.play_hdmi_in_thread.quit()
-                    self.play_cms_worker.signal_play_cms_finish.emit()
-                    self.play_cms_thread.exit(0)
+                    # self.play_cms_worker.signal_play_cms_finish.emit()
                     self.play_cms_worker.stop()
-                    del self.play_cms_worker
-                    self.play_cms_worker = None
+                    if self.ffmpy_process is not None:
+                        if platform.machine() in ('arm', 'arm64', 'aarch64'):
+                            os.popen("kill -9 $(pgrep -f h26_v4l2m2m)")
+                        else:
+                            os.popen("kill -9 $(pgrep -f libx264)")
+                        # os.kill(self.ffmpy_process.pid, signal.SIGTERM)
+                    self.play_cms_thread.quit()
+                    for i in range(10):
+                        log.debug("self.play_cms_thread.isFinished() = %d",
+                                  self.play_cms_thread.isFinished())
+                        if self.play_cms_thread.isFinished() is True:
+                            break
+                        time.sleep(1)
+
+                    self.play_cms_thread.exit(0)
+                    # self.play_cms_worker.stop()
+                    # del self.play_cms_worker
+                    # self.play_cms_worker = None
 
             except Exception as e:
                 log.debug(e)
@@ -394,10 +419,8 @@ class media_processor(QObject):
     def single_play(self, file_uri):
         log.debug("")
 
-        # self.play_mutex.lock()
         try:
             if self.play_single_file_worker is not None:
-            
                 if self.play_single_file_worker.get_task_status() == 1:
                     log.debug("still got file playing!")
                     self.stop_playing()
@@ -405,11 +428,7 @@ class media_processor(QObject):
                     return 
         except Exception as e:
             log.debug(e)
-            # self.play_mutex.unlock()
-        
-        # self.play_mutex.unlock()
 
-        # self.play_mutex.lock()
         self.play_single_file_thread = QThread()
 
         self.play_single_file_worker = self.play_single_file_work(self, file_uri, 5)
@@ -424,15 +443,16 @@ class media_processor(QObject):
 
     def playlist_play(self, playlist):
         log.debug("")
-        # if self.play_status == play_status.playing:
-        #    os.kill(self.ff_process.pid, signal.SIGTERM)
+        try:
+            if self.play_playlist_worker is not None:
 
-        if self.play_playlist_worker is not None:
-            if self.play_playlist_worker.get_task_status() == 1:
-                self.stop_playing()
-                self.play_playlist_worker.stop()
-                self.play_playlist_thread.quit()
-                self.play_playlist_thread.wait()
+                if self.play_playlist_worker.get_task_status() == 1:
+                    log.debug("still got playlist playing!")
+                    self.stop_playing()
+                    # self.play_mutex.unlock()
+                    return
+        except Exception as e:
+            log.debug(e)
 
         self.play_playlist_thread = QThread()
         self.play_playlist_worker = self.play_playlist_work(self, playlist, 5)
@@ -445,21 +465,16 @@ class media_processor(QObject):
         self.play_playlist_thread.exec()
 
     def hdmi_in_play(self, video_src, video_dst):
-        #log.debug("%s", video_dst)
+        try:
+            if self.play_hdmi_in_worker is not None:
 
-        if self.play_hdmi_in_worker is not None:
-            if self.play_hdmi_in_worker.get_task_status() == 1:
-                self.stop_playing()
-                try:
-                    self.play_hdmi_in_worker.stop()
-                    self.play_hdmi_in_thread.quit()
-                    self.play_hdmi_in_thread.wait()
-                except Exception as e:
-                    log.debug(e)
-
-        # if self.play_hdmi_in_thread is not None:
-        #    self.play_hdmi_in_thread.finished()
-        #    self.play_hdmi_in_thread.deleteLater()
+                if self.play_hdmi_in_worker.get_task_status() == 1:
+                    log.debug("still got hdmi-in playing!")
+                    self.stop_playing()
+                    # self.play_mutex.unlock()
+                    return
+        except Exception as e:
+            log.debug(e)
 
         self.play_hdmi_in_thread = QThread()
         self.play_hdmi_in_worker = self.play_hdmi_in_work(self, video_src, video_dst)
@@ -475,16 +490,16 @@ class media_processor(QObject):
 
     def cms_play(self, window_width, window_height, window_x, window_y, video_dst):
         #log.debug("%s", video_dst)
+        try:
+            if self.play_hdmi_in_worker is not None:
 
-        if self.play_cms_worker is not None:
-            if self.play_cms_worker.get_task_status() == 1:
-                self.stop_playing()
-                try:
-                    self.play_cms_worker.stop()
-                    self.play_cms_thread.quit()
-                    self.play_cms_thread.wait()
-                except Exception as e:
-                    log.debug(e)
+                if self.play_hdmi_in_worker.get_task_status() == 1:
+                    log.debug("still got hdmi-in playing!")
+                    self.stop_playing()
+                    # self.play_mutex.unlock()
+                    return
+        except Exception as e:
+            log.debug(e)
 
         # if self.play_hdmi_in_thread is not None:
         #    self.play_hdmi_in_thread.finished()
@@ -522,7 +537,6 @@ class media_processor(QObject):
                               #self.output_height )
         log.debug("self.hdmi_in_cast_process.pid = %d", self.hdmi_in_cast_process.pid)
         return self.hdmi_in_cast_process
-
 
     def hdmi_in_cast_v4l2(self, hdmi_in_src, cast_dst):
         self.hdmi_in_cast_process = \
@@ -600,7 +614,6 @@ class media_processor(QObject):
     def set_sleep_mode_disable(self):
         log.debug("set_sleep_mode_disable")
         self.video_params.set_sleep_mode(0)
-
 
     def set_image_period_value(self, value):
         log.debug("value type: %s", type(value))
@@ -698,7 +711,17 @@ class media_processor(QObject):
                     continue
 
                 log.debug("self.file_uri = %s", self.file_uri)
-                self.media_processor.ffmpy_process = \
+                '''self.media_processor.ffmpy_process = \
+                    neo_ffmpy_execute(self.file_uri,
+                                      self.media_processor.video_params.get_translated_brightness(),
+                                      self.media_processor.video_params.get_translated_contrast(),
+                                      self.media_processor.video_params.get_translated_redgain(),
+                                      self.media_processor.video_params.get_translated_greengain(),
+                                      self.media_processor.video_params.get_translated_bluegain(),
+                                      self.media_processor.video_params.image_period,
+                                      self.media_processor.output_width,
+                                      self.media_processor.output_height)'''
+                ffmpeg_cmd = \
                     neo_ffmpy_execute(self.file_uri,
                                       self.media_processor.video_params.get_translated_brightness(),
                                       self.media_processor.video_params.get_translated_contrast(),
@@ -708,16 +731,34 @@ class media_processor(QObject):
                                       self.media_processor.video_params.image_period,
                                       self.media_processor.output_width,
                                       self.media_processor.output_height)
+                self.media_processor.ffmpy_process = subprocess.Popen(ffmpeg_cmd, shell=True)
+
                 if self.media_processor.ffmpy_process.pid > 0:
                     self.media_processor.play_status = play_status.playing
                     self.media_processor.playing_file_name = self.file_uri
                     while True:
-                        if self.media_processor.play_status == play_status.stop:
-                            break
+                        # if self.media_processor.play_status == play_status.stop:
+                        #    break
                         if self.force_stop is True:
-                            log.debug("force_stop first")
+                            log.debug("self.force_stop is True A!")
+                            if self.media_processor.ffmpy_process is not None:
+                                os.kill(self.media_processor.ffmpy_process.pid, signal.SIGTERM)
+                                time.sleep(1)
                             break
-                        time.sleep(0.5)
+                        # time.sleep(0.5)
+                        # ffmpy exception
+                        try:
+                            res, err = self.media_processor.ffmpy_process.communicate()
+                            log.debug("%s %s", res, err)
+                            os.kill(self.media_processor.ffmpy_process.pid, 0)
+                        except OSError:
+                            log.debug("no such process")
+                            time.sleep(2)
+                            break
+                        else:
+                            log.debug("ffmpy_process is still running")
+                            time.sleep(1)
+                            pass
 
                 if self.force_stop is True:
                     log.debug("force_stop second")
@@ -795,8 +836,9 @@ class media_processor(QObject):
                        self.media_processor.video_params.image_period,
                        self.media_processor.output_width,
                        self.media_processor.output_height)
+                log.debug("AAAAAAAAAAAAAAAAAAAAAAAA")
                 self.media_processor.ffmpy_process = subprocess.Popen(ffmpeg_cmd, shell=True)
-                
+                log.debug("BBBBBBBBBBBBBBBBBBBBBBBBB")
                 log.debug("self.media_processor.ffmpy_process.pid = %d", self.media_processor.ffmpy_process.pid)
                 if self.media_processor.ffmpy_process.pid > 0:
                     log.debug("self.media_processor.ffmpy_process.pid = %d", self.media_processor.ffmpy_process.pid)
@@ -834,15 +876,16 @@ class media_processor(QObject):
                     log.debug("self.force_stop is True B!")
                     break
                 # self.force_stop_mutex.unlock()
-
-            while True:
-                if len(os.popen("pgrep -f h264_v4l2m2m").read()) != 0:
-                    os.popen("pkill -f h264_v4l2m2m")
-                    log.debug("still have ffmpeg v4l2m2m")
-                else:
-                    log.debug("no ffmpeg v4l2m2m")
-                    break
-                time.sleep(1)
+            if platform.machine() in ('arm', 'arm64', 'aarch64'):
+                while True:
+                    if len(os.popen("pgrep -f h264_v4l2m2m").read()) != 0:
+                        os.popen("pkill -f h264_v4l2m2m")
+                        log.debug("still have ffmpeg v4l2m2m")
+                    else:
+                        log.debug("no ffmpeg v4l2m2m")
+                        break
+                    time.sleep(1)
+            # time.sleep(1)
             
             log.debug("play single file ready to quit")
             self.finished.emit()
@@ -890,7 +933,7 @@ class media_processor(QObject):
                     except Exception as e:
                         log.debug(e)
 
-                self.media_processor.ffmpy_process = \
+                '''self.media_processor.ffmpy_process = \
                     neo_ffmpy_cast_video_h264(self.video_src, self.cast_dst, 
                        self.media_processor.video_params.get_translated_brightness(),
                        self.media_processor.video_params.get_translated_contrast(),
@@ -898,35 +941,55 @@ class media_processor(QObject):
                        self.media_processor.video_params.get_translated_greengain(),
                        self.media_processor.video_params.get_translated_bluegain(),
                        self.media_processor.output_width,
-                       self.media_processor.output_height)
+                       self.media_processor.output_height)'''
+                ffmpeg_cmd = \
+                    neo_ffmpy_cast_video_h264(self.video_src, self.cast_dst,
+                                              self.media_processor.video_params.get_translated_brightness(),
+                                              self.media_processor.video_params.get_translated_contrast(),
+                                              self.media_processor.video_params.get_translated_redgain(),
+                                              self.media_processor.video_params.get_translated_greengain(),
+                                              self.media_processor.video_params.get_translated_bluegain(),
+                                              self.media_processor.output_width,
+                                              self.media_processor.output_height)
+
+                self.media_processor.ffmpy_process = subprocess.Popen(ffmpeg_cmd, shell=True)
+
                 if self.media_processor.ffmpy_process is None:
                     continue
+
+                log.debug("self.media_processor.ffmpy_process.pid = %d", self.media_processor.ffmpy_process.pid)
+
                 if self.media_processor.ffmpy_process.pid > 0:
                     self.signal_play_hdmi_in_start.emit()
                     self.media_processor.play_status = play_status.playing
                     self.media_processor.playing_file_name = self.video_src
                     while True:
-                        if self.media_processor.play_status == play_status.stop:
-                            break
+                        # if self.media_processor.play_status == play_status.stop:
+                        #    break
                         if self.force_stop is True:
+                            log.debug("self.force_stop is True A!")
                             if self.media_processor.ffmpy_process is not None:
                                 os.kill(self.media_processor.ffmpy_process.pid, signal.SIGTERM)
+                                time.sleep(1)
                             break
-                        # ffmpy exception 
+                        # time.sleep(0.5)
+                        # ffmpy exception
                         try:
+                            res, err = self.media_processor.ffmpy_process.communicate()
+                            log.debug("%s %s", res, err)
                             os.kill(self.media_processor.ffmpy_process.pid, 0)
                         except OSError:
                             log.debug("no such process")
                             time.sleep(2)
                             break
                         else:
+                            log.debug("ffmpy_process is still running")
+                            time.sleep(1)
                             pass
-                            # log.debug("hdmi ffmpy unning")
-
 
                 if self.force_stop is True:
-
                     break
+            log.debug("play hdmi-in ready to quit")
 
             self.signal_play_hdmi_in_finish.emit()
             self.media_processor.play_type = play_type.play_none
@@ -976,7 +1039,17 @@ class media_processor(QObject):
                     except Exception as e:
                         log.debug(e)
 
-                self.media_processor.ffmpy_process = \
+                '''self.media_processor.ffmpy_process = \
+                    neo_ffmpy_cast_cms(self.video_src, self.cast_dst,
+                                       self.window_width, self.window_height, self.window_x, self.window_y,
+                                       self.media_processor.video_params.get_translated_brightness(),
+                                       self.media_processor.video_params.get_translated_contrast(),
+                                       self.media_processor.video_params.get_translated_redgain(),
+                                       self.media_processor.video_params.get_translated_greengain(),
+                                       self.media_processor.video_params.get_translated_bluegain(),
+                                       self.media_processor.output_width,
+                                       self.media_processor.output_height)'''
+                ffmpeg_cmd = \
                     neo_ffmpy_cast_cms(self.video_src, self.cast_dst,
                                        self.window_width, self.window_height, self.window_x, self.window_y,
                                        self.media_processor.video_params.get_translated_brightness(),
@@ -986,22 +1059,37 @@ class media_processor(QObject):
                                        self.media_processor.video_params.get_translated_bluegain(),
                                        self.media_processor.output_width,
                                        self.media_processor.output_height)
+                self.media_processor.ffmpy_process = subprocess.Popen(ffmpeg_cmd, shell=True)
+
                 if self.media_processor.ffmpy_process is not None:
                     self.signal_play_cms_start.emit()
                     self.media_processor.play_status = play_status.playing
                     self.media_processor.playing_file_name = "CMS"
                     while True:
-                        if self.media_processor.play_status == play_status.stop:
-                            break
+                        # if self.media_processor.play_status == play_status.stop:
+                        #    break
                         if self.force_stop is True:
+                            log.debug("self.force_stop is True A!")
                             if self.media_processor.ffmpy_process is not None:
                                 os.kill(self.media_processor.ffmpy_process.pid, signal.SIGTERM)
+                                time.sleep(1)
                             break
-                        time.sleep(0.5)
-
+                        # time.sleep(0.5)
+                        # ffmpy exception
+                        try:
+                            res, err = self.media_processor.ffmpy_process.communicate()
+                            log.debug("%s %s", res, err)
+                            os.kill(self.media_processor.ffmpy_process.pid, 0)
+                        except OSError:
+                            log.debug("no such process")
+                            time.sleep(2)
+                            break
+                        else:
+                            log.debug("ffmpy_process is still running")
+                            time.sleep(1)
+                            pass
 
                 if self.force_stop is True:
-
                     break
 
             self.signal_play_cms_finish.emit()
