@@ -843,6 +843,7 @@ class Hdmi_In_Page(QObject):
             if video_src_ok == 0:
                 # log.debug("check /dev/video6 status count : %d", i)
                 break
+            time.sleep(1)
         if video6_check_count > self.video6_check_count:
             self.video6_check_count = video6_check_count
         self.v4l2loopback_dev_open_count += 1

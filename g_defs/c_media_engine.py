@@ -305,7 +305,8 @@ class media_processor(QObject):
                     self.play_single_file_worker.stop()
                     if self.ffmpy_process is not None:
                         if platform.machine() in ('arm', 'arm64', 'aarch64'):
-                            os.popen("kill -9 $(pgrep -f h26_v4l2m2m)")
+                            os.popen("kill -9 $(pgrep -f h264_v4l2m2m)")
+                            # os.kill(self.ffmpy_process.pid, signal.SIGTERM)
                         else:
                             os.popen("kill -9 $(pgrep -f libx264)")
                         #os.kill(self.ffmpy_process.pid, signal.SIGTERM)
@@ -322,15 +323,15 @@ class media_processor(QObject):
                     # self.play_single_file_worker.stop()
                     # del self.play_single_file_worker
                     # del self.play_single_file_thread
-                    # self.play_single_file_worker = None
-                    # self.play_single_file_thread = None
+                    self.play_single_file_worker = None
+                    self.play_single_file_thread = None
                 if self.play_playlist_worker is not None:
                     # self.play_playlist_thread.quit()
                     #self.play_playlist_worker.finished.emit()
                     self.play_playlist_worker.stop()
                     if self.ffmpy_process is not None:
                         if platform.machine() in ('arm', 'arm64', 'aarch64'):
-                            os.popen("kill -9 $(pgrep -f h26_v4l2m2m)")
+                            os.popen("kill -9 $(pgrep -f h264_v4l2m2m)")
                         else:
                             os.popen("kill -9 $(pgrep -f libx264)")
                         # os.kill(self.ffmpy_process.pid, signal.SIGTERM)
@@ -346,13 +347,14 @@ class media_processor(QObject):
 
                     # del self.play_playlist_worker
                     # del self.play_single_file_thread
-                    # self.play_playlist_worker = None
+                    self.play_playlist_worker = None
+                    self.play_playlist_thread = None
                 if self.play_hdmi_in_worker is not None:
 
                     self.play_hdmi_in_worker.stop()
                     if self.ffmpy_process is not None:
                         if platform.machine() in ('arm', 'arm64', 'aarch64'):
-                            os.popen("kill -9 $(pgrep -f h26_v4l2m2m)")
+                            os.popen("kill -9 $(pgrep -f h264_v4l2m2m)")
                         else:
                             os.popen("kill -9 $(pgrep -f libx264)")
                         # os.kill(self.ffmpy_process.pid, signal.SIGTERM)
@@ -368,14 +370,15 @@ class media_processor(QObject):
 
                     # del self.play_hdmi_in_worker
                     # del self.play_hdmi_in_thread
-                    # self.play_hdmi_in_worker = None
+                    self.play_hdmi_in_worker = None
+                    self.play_hdmi_in_thread = None
                 if self.play_cms_worker is not None:
                     # self.play_hdmi_in_thread.quit()
                     # self.play_cms_worker.signal_play_cms_finish.emit()
                     self.play_cms_worker.stop()
                     if self.ffmpy_process is not None:
                         if platform.machine() in ('arm', 'arm64', 'aarch64'):
-                            os.popen("kill -9 $(pgrep -f h26_v4l2m2m)")
+                            os.popen("kill -9 $(pgrep -f h264_v4l2m2m)")
                         else:
                             os.popen("kill -9 $(pgrep -f libx264)")
                         # os.kill(self.ffmpy_process.pid, signal.SIGTERM)
@@ -390,7 +393,8 @@ class media_processor(QObject):
                     self.play_cms_thread.exit(0)
                     # self.play_cms_worker.stop()
                     # del self.play_cms_worker
-                    # self.play_cms_worker = None
+                    self.play_cms_worker = None
+                    self.play_cms_thread = None
 
             except Exception as e:
                 log.debug(e)
