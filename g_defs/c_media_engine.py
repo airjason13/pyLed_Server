@@ -2,7 +2,7 @@ import os.path
 import signal
 import time
 import threading
-from PyQt5.QtCore import QThread, pyqtSignal, QDateTime, QObject, QTimer
+from PyQt5.QtCore import QThread, pyqtSignal, QDateTime, QObject, QTimer, QMutex
 from utils.ffmpy_utils import *
 import utils.log_utils
 from utils.file_utils import *
@@ -260,9 +260,9 @@ class media_processor(QObject):
         self.playing_file_name = None
         self.video_params = video_params(True, 20, 50, 0, 0, 0, 2.2)
 
-        self.check_ffmpy_process_timer = QTimer(self)
-        self.check_ffmpy_process_timer.timeout.connect(self.check_ffmpy_process)  # 當時間到時會執行 run
-        self.check_ffmpy_process_timer.start(1000)
+        # self.check_ffmpy_process_timer = QTimer(self)
+        # self.check_ffmpy_process_timer.timeout.connect(self.check_ffmpy_process)  # 當時間到時會執行 run
+        # self.check_ffmpy_process_timer.start(1000)
 
         self.check_play_status_timer = QTimer(self)
         self.check_play_status_timer.timeout.connect(self.check_play_status)  # 當時間到時會執行 run
@@ -276,6 +276,8 @@ class media_processor(QObject):
         self.play_hdmi_in_thread = None
         self.play_cms_worker = None
         self.play_cms_thread = None
+
+        self.play_mutex = QMutex()
 
         ''' this is only cast /dev/video0 to others for preview'''
         self.hdmi_in_cast_process = None
@@ -294,7 +296,8 @@ class media_processor(QObject):
 
     def stop_playing(self):
         log.debug("")
-        if self.play_status != play_status.stop:
+        self.play_mutex.lock()
+        if True: #self.play_status != play_status.stop:
             try:
                 '''if self.ffmpy_process is not None:
                     os.kill(self.ffmpy_process.pid, signal.SIGTERM)
@@ -315,9 +318,10 @@ class media_processor(QObject):
 
                     self.play_single_file_thread.exit(0)
                     # self.play_single_file_worker.stop()
-                    del self.play_single_file_worker
-                    del self.play_single_file_thread
-                    self.play_single_file_worker = None
+                    # del self.play_single_file_worker
+                    # del self.play_single_file_thread
+                    # self.play_single_file_worker = None
+                    # self.play_single_file_thread = None
                 if self.play_playlist_worker is not None:
                     # self.play_playlist_thread.quit()
                     #self.play_playlist_worker.finished.emit()
@@ -365,6 +369,9 @@ class media_processor(QObject):
 
             except Exception as e:
                 log.debug(e)
+        
+        self.play_mutex.unlock()
+
 
     def pause_playing(self):
         if self.play_status != play_status.stop:
@@ -387,13 +394,22 @@ class media_processor(QObject):
     def single_play(self, file_uri):
         log.debug("")
 
-        if self.play_single_file_worker is not None:
-            if self.play_single_file_worker.get_task_status() == 1:
-                self.stop_playing()
-                self.play_single_file_worker.stop()
-                self.play_single_file_thread.quit()
-                self.play_single_file_thread.wait()
+        # self.play_mutex.lock()
+        try:
+            if self.play_single_file_worker is not None:
+            
+                if self.play_single_file_worker.get_task_status() == 1:
+                    log.debug("still got file playing!")
+                    self.stop_playing()
+                    # self.play_mutex.unlock()
+                    return 
+        except Exception as e:
+            log.debug(e)
+            # self.play_mutex.unlock()
+        
+        # self.play_mutex.unlock()
 
+        # self.play_mutex.lock()
         self.play_single_file_thread = QThread()
 
         self.play_single_file_worker = self.play_single_file_work(self, file_uri, 5)
@@ -404,6 +420,7 @@ class media_processor(QObject):
         self.play_single_file_thread.finished.connect(self.play_single_file_thread.deleteLater)
         self.play_single_file_thread.start()
         self.play_single_file_thread.exec()
+        # self.play_mutex.unlock()
 
     def playlist_play(self, playlist):
         log.debug("")
@@ -533,8 +550,8 @@ class media_processor(QObject):
                 log.debug("poll() not None!")
                 if self.play_status != play_status.stop:
                     self.play_status = play_status.stop
-                    self.ffmpy_process = None
-                    self.playing_file_name = None
+                    # self.ffmpy_process = None
+                    # self.playing_file_name = None
 
         except Exception as e:
             log.debug(e)
@@ -737,7 +754,7 @@ class media_processor(QObject):
             self.n = n
             self.force_stop = False
             self.worker_status = 0
-
+            self.force_stop_mutex = QMutex()
 
         def run(self):
             self.media_processor.play_type = play_type.play_single
@@ -758,7 +775,7 @@ class media_processor(QObject):
 
                 # log.debug("self.media_processor.video_params.image_period : %d",
                 # self.media_processor.video_params.image_period)
-                self.media_processor.ffmpy_process = \
+                '''self.media_processor.ffmpy_process = \
                     neo_ffmpy_execute(self.file_uri,
                        self.media_processor.video_params.get_translated_brightness(),
                        self.media_processor.video_params.get_translated_contrast(),
@@ -767,18 +784,48 @@ class media_processor(QObject):
                        self.media_processor.video_params.get_translated_bluegain(),
                        self.media_processor.video_params.image_period,
                        self.media_processor.output_width,
+                       self.media_processor.output_height)'''
+                ffmpeg_cmd = \
+                       neo_ffmpy_execute(self.file_uri,
+                       self.media_processor.video_params.get_translated_brightness(),
+                       self.media_processor.video_params.get_translated_contrast(),
+                       self.media_processor.video_params.get_translated_redgain(),
+                       self.media_processor.video_params.get_translated_greengain(),
+                       self.media_processor.video_params.get_translated_bluegain(),
+                       self.media_processor.video_params.image_period,
+                       self.media_processor.output_width,
                        self.media_processor.output_height)
+                self.media_processor.ffmpy_process = subprocess.Popen(ffmpeg_cmd, shell=True)
+                
+                log.debug("self.media_processor.ffmpy_process.pid = %d", self.media_processor.ffmpy_process.pid)
                 if self.media_processor.ffmpy_process.pid > 0:
+                    log.debug("self.media_processor.ffmpy_process.pid = %d", self.media_processor.ffmpy_process.pid)
                     self.media_processor.play_status = play_status.playing
                     self.media_processor.playing_file_name = self.file_uri
                     while True:
 
-                        if self.media_processor.play_status == play_status.stop:
-                            break
+                        # if self.media_processor.play_status == play_status.stop:
+                        #    break
                         if self.force_stop is True:
                             log.debug("self.force_stop is True A!")
+                            if self.media_processor.ffmpy_process is not None:
+                                os.kill(self.media_processor.ffmpy_process.pid, signal.SIGTERM)
+                                time.sleep(1)
                             break
-                        time.sleep(0.5)
+                        # time.sleep(0.5)
+                        # ffmpy exception 
+                        try:
+                            res, err = self.media_processor.ffmpy_process.communicate()
+                            log.debug("%s %s", res, err)
+                            os.kill(self.media_processor.ffmpy_process.pid, 0)
+                        except OSError:
+                            log.debug("no such process")
+                            time.sleep(2)
+                            break
+                        else:
+                            log.debug("ffmpy_process is still running")
+                            time.sleep(1)
+                            pass
 
                 if self.media_processor.repeat_option == repeat_option.repeat_none:
                     log.debug("stop play cause play end")
@@ -786,9 +833,20 @@ class media_processor(QObject):
                 if self.force_stop is True:
                     log.debug("self.force_stop is True B!")
                     break
+                # self.force_stop_mutex.unlock()
 
+            while True:
+                if len(os.popen("pgrep -f h264_v4l2m2m").read()) != 0:
+                    os.popen("pkill -f h264_v4l2m2m")
+                    log.debug("still have ffmpeg v4l2m2m")
+                else:
+                    log.debug("no ffmpeg v4l2m2m")
+                    break
+                time.sleep(1)
+            
             log.debug("play single file ready to quit")
             self.finished.emit()
+            self.media_processor.play_status = play_status.stop
             self.media_processor.play_type = play_type.play_none
             self.worker_status = 0
 

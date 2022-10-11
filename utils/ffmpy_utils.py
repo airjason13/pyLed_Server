@@ -189,18 +189,24 @@ def neo_ffmpy_execute(video_path, brightness, contrast, red_bias, green_bias, bl
             )
 
     log.debug("%s", ff.cmd)
+    return ff.cmd
     try:
-        thread_1 = threading.Thread(target=ff.run)
-        thread_1.start()
-        while not ff.process:
-            sleep(0.05)
+        # thread_1 = threading.Thread(target=ff.run)
+        # thread_1.start()
+        # ff.process = os.popen(ff.cmd)
+        process = subprocess.Popen(ff.cmd, shell=True, close_fds=True)
+        # while not ff.process:
+        # while not process:
+        #    sleep(0.05)
+        #ff.run()
     except RuntimeError as e:
         log.error(e)
 
-    log.debug("ff.process : %s", ff.process)
-    log.debug("ff.process pid : %d", ff.process.pid)
-
-    return ff.process
+    # log.debug("ff.process : %s", ff.process)
+    # log.debug("ff.process pid : %d", ff.process.pid)
+    
+    # return ff.process
+    return process
 
 
 def neo_ffmpy_execute_hdmi_in(video_path, video_dst,brightness, contrast, red_bias, green_bias, blue_bias,

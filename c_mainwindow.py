@@ -713,8 +713,8 @@ class MainUi(QMainWindow):
         self.move(int((screen.width() - size.width()) / 2), int((screen.height() - size.height()) / 2))
 
     def play_status_changed(self, changed, status):
-        log.debug("changed = %d", changed)
-        log.debug("status = %d", status)
+        # log.debug("changed = %d", changed)
+        # log.debug("status = %d", status)
         d0_str = ""
         d1_str = ""
         input_source = ""
@@ -732,8 +732,8 @@ class MainUi(QMainWindow):
             else:
                 d1_str = "FILE Source"
 
-        log.debug("d0_str = %s", d0_str)
-        log.debug("d1_str = %s", d1_str)
+        # log.debug("d0_str = %s", d0_str)
+        # log.debug("d1_str = %s", d1_str)
         self.lcd1602.add_data("LCD_TAG_PLAY_STATUS_INFO", d0_str, d1_str)
 
     def right_page_change_index(self, pre_idx, going_idx):

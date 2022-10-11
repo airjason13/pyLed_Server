@@ -73,7 +73,8 @@ class LCD1602(QObject):
                 if self.lcd_data_idx >= len(self.lcd_data_l0):
                     self.lcd_data_idx = 0
         except:
-            log.error("write_lcd_l0 error")
+            pass
+            #log.error("write_lcd_l0 error")
 
     def add_data(self, tag, data0, data1):
         data = {"tag": tag, "d0": data0, "d1": data1}
