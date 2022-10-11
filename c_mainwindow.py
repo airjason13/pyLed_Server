@@ -160,6 +160,7 @@ class MainUi(QMainWindow):
         self.client_alive_report_thread = \
             qthreads.c_alive_report_thread.alive_report_thread(ip=self.server_ip, port=alive_report_port)
         self.client_alive_report_thread.check_client.connect(self.check_client)
+        # self.client_alive_report_thread.signal_kill_ffmpy.connect(self.kill_ffmpy_process)
         self.client_alive_report_thread.start()
 
         self.preview_file_name = ""
@@ -224,6 +225,10 @@ class MainUi(QMainWindow):
         # self.date_timer.start(1*60*1000)
         self.date_timer.start(1 * 60 * 1000)
 
+        self.dmesg_timer = QTimer(self)
+        self.dmesg_timer.timeout.connect(self.check_dmesg)
+        self.dmesg_timer.start(5 * 1000)
+
         # utils.astral_utils.get_sun_times("KK")
         self.city = City_Map[self.media_engine.media_processor.video_params.get_target_city_index()].get("City")
         # for test
@@ -238,6 +243,14 @@ class MainUi(QMainWindow):
         self.tmp_clients_count = 0
         self.force_kill_ffmpy_count = 0
         self.test_count = 0
+
+    def check_dmesg(self):
+        log.debug("dmesg")
+        dmesg_res = os.popen("dmesg | grep mutex").read()
+        if len(dmesg_res) != 0:
+            log.debug("#######found error############")
+            os.popen("reboot")
+
 
     def check_daymode_nightmode(self, sunrise_time, sunset_time, now):
         if self.brightness_test_log is True:
@@ -1015,10 +1028,24 @@ class MainUi(QMainWindow):
         c_version = ""
         try:
             c_version = data.split(";")[1].split(":")[1]
+            if "fps" in data:
+                c_fps = data.split(",")[1].split(":")[1]
+            # log.debug("c_fps = %d", int(c_fps))
             self.clients_lock()
             for c in self.clients:
                 if c.client_ip == ip:
                     is_found = True
+                    ###
+                    if "fps" in data:
+                        if int(c_fps) == 0:
+                            c.fps_zero_count +=1
+                            if c.fps_zero_count >=5:
+                                log.debug("+++++++++++kill ffmpy process timer launch!+++++++++++")
+                                QTimer.singleShot(2000, self.kill_ffmpy_process)
+                                c.fps_zero_count = 0
+                        else:
+                            c.fps_zero_count = 0
+                    ###
                     tmp_client = c
                     break
             """ no such client ip in clients list, new one and append"""
@@ -1062,7 +1089,7 @@ class MainUi(QMainWindow):
                 # self.force_kill_ffmpy_count = 1
             else:
                 """ find this ip in clients list, set the alive report count"""
-                tmp_client.set_alive_count(1)
+                tmp_client.set_alive_count(2)
         except Exception as e:
             log.debug(e)
         finally:
@@ -1129,9 +1156,9 @@ class MainUi(QMainWindow):
                 # self.refresh_client_table()
             self.clients_unlock()
         # test @1006 night
-        if self.tmp_clients_count != len(self.clients):
-            self.tmp_clients_count = len(self.clients)
-            QTimer.singleShot(2000, self.kill_ffmpy_process)
+        #if self.tmp_clients_count != len(self.clients):
+        #    self.tmp_clients_count = len(self.clients)
+        #    QTimer.singleShot(2000, self.kill_ffmpy_process)
 
         sleep(sleep_time)
         self.sync_client_layout_params(False, True, False)

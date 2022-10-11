@@ -738,6 +738,7 @@ class media_processor(QObject):
             self.force_stop = False
             self.worker_status = 0
 
+
         def run(self):
             self.media_processor.play_type = play_type.play_single
             while True:

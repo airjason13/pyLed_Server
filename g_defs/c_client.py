@@ -36,7 +36,7 @@ class client(QObject):
         self.alive_val = self.alive_val_def
         self.id = -1
         self.loop = asyncio.get_event_loop()
-
+        self.fps_zero_count = 0
         self.num_of_cabinet = 8
         self.cabinets_setting = []
         for i in range(self.num_of_cabinet):
