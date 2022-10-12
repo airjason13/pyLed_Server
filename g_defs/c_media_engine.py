@@ -319,6 +319,7 @@ class media_processor(QObject):
                             break
                         time.sleep(1)
 
+                    self.play_single_file_thread.wait()
                     self.play_single_file_thread.exit(0)
                     # self.play_single_file_worker.stop()
                     # del self.play_single_file_worker
@@ -343,6 +344,7 @@ class media_processor(QObject):
                         if self.play_playlist_thread.isFinished() is True:
                             break
                         time.sleep(1)
+                    self.play_playlist_thread.wait()
                     self.play_playlist_thread.exit(0)
 
                     # del self.play_playlist_worker
@@ -366,6 +368,7 @@ class media_processor(QObject):
                             break
                         time.sleep(1)
 
+                    self.play_hdmi_in_thread.wait()
                     self.play_hdmi_in_thread.exit(0)
 
                     # del self.play_hdmi_in_worker
@@ -390,6 +393,7 @@ class media_processor(QObject):
                             break
                         time.sleep(1)
 
+                    self.play_cms_thread.wait()
                     self.play_cms_thread.exit(0)
                     # self.play_cms_worker.stop()
                     # del self.play_cms_worker
@@ -866,11 +870,11 @@ class media_processor(QObject):
                             os.kill(self.media_processor.ffmpy_process.pid, 0)
                         except OSError:
                             log.debug("no such process")
-                            time.sleep(2)
+                            # time.sleep(2)
                             break
                         else:
                             log.debug("ffmpy_process is still running")
-                            time.sleep(1)
+                            # time.sleep(1)
                             pass
 
                 if self.media_processor.repeat_option == repeat_option.repeat_none:
@@ -888,7 +892,7 @@ class media_processor(QObject):
                     else:
                         log.debug("no ffmpeg v4l2m2m")
                         break
-                    time.sleep(1)
+                    # time.sleep(1)
             # time.sleep(1)
             
             log.debug("play single file ready to quit")
