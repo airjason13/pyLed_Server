@@ -116,6 +116,15 @@ function submit_hdmi_in(data){
         });
 }
 
+function submit_cms_start(data){
+    /*var data = "hdmi_in_start"*/
+    /*alert(data);*/
+    var url = "/play_cms/" + data;
+    $.post(url, {
+        /*javascript_data: data*/
+        });
+}
+
 function submit_wifi_configure(){
     console.log(document.getElementById("wifi_bands"))
     var bands_data = document.getElementById("wifi_bands").value;
@@ -339,6 +348,7 @@ function submit_target_city_option(){
             HDMI-In Stop
         </button>
         <input class="button-84" type="submit" id="btn_repeat" name="btn_repeat" value={{ repeat_option }} onclick="submit_repeat_option(value)">
+        <input class="button-84" type="submit" id="cms_start" name="cms_start" value="cms_start" onclick="submit_cms_start(value)">
     </div>
     <div>
     <label style="font-size:36px;

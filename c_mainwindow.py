@@ -245,7 +245,7 @@ class MainUi(QMainWindow):
         self.test_count = 0
 
     def check_dmesg(self):
-        log.debug("dmesg")
+        # log.debug("dmesg")
         dmesg_res = os.popen("dmesg | grep mutex").read()
         if len(dmesg_res) != 0:
             log.debug("#######found error############")
@@ -853,6 +853,11 @@ class MainUi(QMainWindow):
                       self.medialist_page.right_clicked_select_file_uri)
             self.media_engine.play_single_file(
                 self.medialist_page.right_clicked_select_file_uri)
+        elif data.get("play_cms"):
+            log.debug("got play_cms ")
+            self.func_cms_setting()
+            self.cms_page.start_play_cms()
+            
         elif data.get("play_playlist"):
             self.func_file_contents()
             log.debug("play playlist")

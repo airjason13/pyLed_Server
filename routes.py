@@ -204,6 +204,12 @@ def play_hdmi_in(cmd):
     status_code = Response(status=200)
     return status_code
 
+@app.route('/play_cms/<cmd>', methods=['POST'])
+def play_cms(cmd):
+    log.debug("route cms_start cmd : %s ", cmd)
+    send_message(play_cms=cmd)
+    status_code = Response(status=200)
+    return status_code
 
 @app.route('/configure_wifi/<data>', methods=['POST'])
 def configure_wifi(data):
