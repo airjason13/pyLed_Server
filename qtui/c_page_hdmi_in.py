@@ -31,7 +31,14 @@ class Hdmi_In_Page(QObject):
         self.ffmpy_hdmi_in_cast_process = None
         self.mainwindow = mainwindow
         self.media_engine = mainwindow.media_engine
+        # 現在預覽狀況是否為正常,
+        # 如果tc358743 異常,則為 False
         self.preview_status = False
+        # If Once hdmi-in start streaming to led, play_hdmi_in_status is True
+        # If stop_send_to_led is called, play_hdmi_in_status is False
+        self.play_hdmi_in_status = False
+
+        self.play_hdmi_in_keep = False
         self.b_hdmi_in_crop_enable = False
 
         Popen("v4l2-ctl -d /dev/video3 -c timeout=600", shell=True, stdout=PIPE)
@@ -484,9 +491,6 @@ class Hdmi_In_Page(QObject):
         self.media_engine.media_processor.signal_play_hdmi_in_finish_ret.connect(
             self.play_hdmi_in_finish_ret)
 
-        # If Once hdmi-in start streaming to led, play_hdmi_in_status is True
-        # If stop_send_to_led is called, play_hdmi_in_status is False
-        self.play_hdmi_in_status = False
 
     def combobox_target_city_changed(self, index):
         log.debug("index = %d", index)
@@ -514,7 +518,7 @@ class Hdmi_In_Page(QObject):
         self.radiobutton_sleep_mode_enable.click()
 
     def check_tc358743_timer_event(self):
-
+        log.debug("enter check_tc358743_timer")
         self.preview_mutex.lock()
         if self.mainwindow.page_idx != page_hdmi_in_content_idx:
             # log.debug("Not in hdmi-in page")
@@ -525,12 +529,29 @@ class Hdmi_In_Page(QObject):
         log.debug("****tmp_preview_status : %d*********", tmp_preview_status)
         try:
             if self.tc358743.get_tc358743_hdmi_connected_status() is True:
+                if tmp_preview_status is False:
+                    log.debug("re-init the preview")
+                    #if self.tc358743.set_tc358743_dv_bt_timing() is True:
+                    #    self.tc358743.reinit_tc358743_dv_timing()
+                    self.start_hdmi_in_preview()
+                    ''' below will cause timer hang
+                    if self.play_hdmi_in_keep is True:
+                        self.start_hdmi_in_streaming()
+                        log.debug("start_hdmi_in end")'''
+            else:
+                log.debug("lost connect, play_hdmi_in_status : %d", self.play_hdmi_in_status)
+                # if self.play_hdmi_in_keep is True:
+                #    self.stop_hdmi_in_streaming()
                 if self.tc358743.set_tc358743_dv_bt_timing() is True:
                     self.tc358743.reinit_tc358743_dv_timing()
-                self.start_hdmi_in_preview()
+                #self.tc358743.reinit_tc358743_dv_timing()
+                    
+                self.stop_hdmi_in_preview()
+                self.preview_label.setText("HDMI-in Signal Lost")
+                pass
         except Exception as e:
             log.debug(e)
-
+        log.debug("exit check_tc358743_timer")
 
     def start_hdmi_in_preview(self):
         self.preview_mutex.lock()
@@ -553,18 +574,21 @@ class Hdmi_In_Page(QObject):
         else:
             # find any ffmpeg process
             p = os.popen("pgrep ffmpeg").read()
-            log.debug("pgrep ffmpeg, res = %s", p)
-            log.debug("p.len() = %d", len(p))
+            # log.debug("pgrep ffmpeg, res = %s", p)
+            # log.debug("p.len() = %d", len(p))
             if len(p) != 0:
-                log.fatal("still got ffmpeg process")
+                # log.fatal("still got ffmpeg process")
                 k = os.popen("pkill ffmpeg")
                 k.close()
         # add for check again for save @20221013
-        self.tc358743.get_tc358743_hdmi_connected_status()
+        self.tc358743.hdmi_connected = self.tc358743.get_tc358743_hdmi_connected_status()
 
         if self.tc358743.hdmi_connected is False:
+            log.debug("hdmi-in lost")
             pass
         else:
+            if self.tc358743.set_tc358743_dv_bt_timing() is True:
+                self.tc358743.reinit_tc358743_dv_timing()
             if self.ffmpy_hdmi_in_cast_process is None:
                 if self.hdmi_in_cast_type == "v4l2":
                     self.ffmpy_hdmi_in_cast_process = self.start_hdmi_in_cast_v4l2()
@@ -718,7 +742,9 @@ class Hdmi_In_Page(QObject):
             else:
                 log.debug("self.ffmpy_hdmi_in_cast_process is None")
                 p = os.popen("pgrep ffmpeg").read()
-                if p is not None:
+                # log.debug("p :%s", p)
+                # log.debug("len(p) : %d", len(p))
+                if len(p) > 0:
                     log.fatal("still got ffmpeg process")
                     k = os.popen("pkill ffmpeg")
                     k.close()
@@ -834,17 +860,18 @@ class Hdmi_In_Page(QObject):
             self.media_engine.resume_play()
             self.play_action_btn.setText("Pause")
             self.hdmi_in_play_status_label.setText("Streaming")
+        elif "Stop" in self.play_action_btn.text():
+            self.stop_send_to_led()
 
     def start_send_to_led(self):
+        self.play_hdmi_in_keep = True
         video_src_ok = -1
         video6_check_count = 0
         for i in range(100):
             video_src_ok = self.check_video_src_is_ok("/dev/video6")
             video6_check_count = i
             if video_src_ok == 0:
-                # log.debug("check /dev/video6 status count : %d", i)
                 break
-            # time.sleep(1)
         if video6_check_count > self.video6_check_count:
             self.video6_check_count = video6_check_count
         self.v4l2loopback_dev_open_count += 1
@@ -853,21 +880,6 @@ class Hdmi_In_Page(QObject):
         log.debug("v4l2loopback device open count: %d", self.v4l2loopback_dev_open_count)
         if video_src_ok != 0: # /dev/video6 is not ok!
             log.fatal("video_src got some problems")
-            # log.debug("re-start preview in v4l2")
-            # check ffmpy hdmi-in cast process
-            '''if self.cv2camera is not None:
-                self.cv2camera.close_tc358743_cam()
-                self.cv2camera.close()  # 關閉
-            while True:
-                if self.cv2camera.isRunning() == 0 and self.cv2camera.isFinished() == 1:
-                    # pass
-                    break
-                else:
-                    log.debug("cv2 is running: %d", self.cv2camera.isRunning())
-                    log.debug("cv2 is Finished: %d", self.cv2camera.isFinished())
-            
-            self.stop_hdmi_in_cast()
-            self.start_hdmi_in_preview()'''
             return
         self.media_engine.resume_play()
         self.media_engine.stop_play()
@@ -886,11 +898,38 @@ class Hdmi_In_Page(QObject):
             self.media_engine.pause_play()
 
     def stop_send_to_led(self):
+        self.play_hdmi_in_keep = False
         log.debug("Stop streaming to led")
         if self.media_engine.media_processor.play_hdmi_in_worker is not None:
             self.media_engine.resume_play()
             self.media_engine.stop_play()
         self.play_hdmi_in_status = False
+
+    def start_hdmi_in_streaming(self):
+        video_src_ok = -1
+        video6_check_count = 0
+        for i in range(100):
+            video_src_ok = self.check_video_src_is_ok("/dev/video6")
+            video6_check_count = i
+            if video_src_ok == 0:
+                break
+        if video6_check_count > self.video6_check_count:
+            self.video6_check_count = video6_check_count
+        self.v4l2loopback_dev_open_count += 1
+        log.debug("check /dev/video6 status count : %d", video6_check_count)
+        log.debug("max /dev/video6 status count : %d", self.video6_check_count)
+        log.debug("v4l2loopback device open count: %d", self.v4l2loopback_dev_open_count)
+        if video_src_ok != 0: # /dev/video6 is not ok!
+            log.fatal("video_src got some problems")
+            return
+        self.media_engine.resume_play()
+        self.media_engine.stop_play()
+        if self.media_engine.media_processor.play_hdmi_in_worker is None:
+            log.debug("Start streaming to led")
+            video_src = "/dev/video6"
+            streaming_sink = [udp_sink]
+            self.media_engine.media_processor.hdmi_in_play(video_src, streaming_sink)
+        log.debug("exit start_hdmi_in_streaming")
 
     def stop_hdmi_in_streaming(self):
         if self.media_engine.media_processor.play_hdmi_in_worker is not None:
@@ -910,6 +949,7 @@ class Hdmi_In_Page(QObject):
         self.hdmi_in_play_status_label.setText("Non-Streaming")
         self.ffmpy_pid_label.setText("ffmpy pid:None")
 
+    # cv2_read_or_open_fail is not used anymore
     def cv2_read_or_open_fail(self):
         # handle re-init tc358743
         '''log.debug("")
@@ -923,7 +963,6 @@ class Hdmi_In_Page(QObject):
             log.debug("Stop streaming to led")
             self.media_engine.resume_play()
             self.media_engine.stop_play()
-
 
         if self.tc358743.get_tc358743_hdmi_connected_status() is False:
             # run a timer to check???
@@ -942,7 +981,7 @@ class Hdmi_In_Page(QObject):
                 log.debug("set_tc358743_dv_bt_timing is False")
 
     def refresh_tc358743_param(self, connected, width, height, fps):
-        log.debug("connected = %d", connected)
+        # log.debug("connected = %d", connected)
         media_processor = self.media_engine.media_processor
         video_params = media_processor.video_params
         if connected is True:
@@ -950,7 +989,7 @@ class Hdmi_In_Page(QObject):
             self.hdmi_in_info_height_res_label.setText(str(height))
             self.hdmi_in_info_fps_res_label.setText(str(fps))
             # hdmi in crop enable/disable
-            log.debug("self.b_hdmi_in_crop_enable : %d", self.b_hdmi_in_crop_enable)
+            # log.debug("self.b_hdmi_in_crop_enable : %d", self.b_hdmi_in_crop_enable)
             if self.b_hdmi_in_crop_enable is False:
                 log.debug("")
                 self.hdmi_in_crop_status_x_res_label.setText("0")

@@ -28,9 +28,8 @@ class TC358743(QObject):
 		self.hdmi_connected, self.hdmi_width, self.hdmi_height, self.hdmi_fps = self.get_tc358743_dv_timing()
 		self.res_set_dv_bt_timing = self.set_tc358743_dv_bt_timing()
 
-
 	def reinit_tc358743_dv_timing(self):
-
+		log.debug("")
 		self.hdmi_connected, self.hdmi_width, self.hdmi_height, self.hdmi_fps = self.get_tc358743_dv_timing()
 		self.signal_refresh_tc358743_param.emit(self.hdmi_connected, self.hdmi_width, self.hdmi_height, self.hdmi_fps)
 
@@ -61,6 +60,7 @@ class TC358743(QObject):
 		return connected, 640, 480, 30
 
 	def get_tc358743_dv_timing(self):
+		log.debug("")
 		connected = False
 		width = 0
 		height = 0
@@ -108,7 +108,7 @@ class TC358743(QObject):
 		self.check_hdmi_status_unlock()
 		log.debug("res_set_dv_bt_timing = %s", res_set_dv_bt_timing)
 		if 'BT timings set' in res_set_dv_bt_timing:
-			log.debug("set timing OK")
+			# log.debug("set timing OK")
 			return True
 		log.debug("set timing NG")
 		return False
@@ -143,5 +143,22 @@ class TC358743(QObject):
 			connected = False
 		else:
 			connected = True
+			for i in list_dv_timings:
+				if 'Active width:' in i:
+					width = int(i.split(":")[1])
+					if width != self.hdmi_width:
+						connected = False
+						break
+				if 'Active height:' in i:
+					height = int(i.split(":")[1])
+					if height != self.hdmi_height:
+						connected = False
+						break
+				'''if 'Pixelclock' in i:
+					fps = int(float(i.split("(")[1].split(" ")[0]))
+					if fps != self.hdmi_fps:
+						connected = False
+						break'''
+
 
 		return connected
