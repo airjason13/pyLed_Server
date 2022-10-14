@@ -446,7 +446,8 @@ class media_processor(QObject):
         self.play_single_file_worker.finished.connect(self.play_single_file_worker.deleteLater)
         self.play_single_file_thread.finished.connect(self.play_single_file_thread.deleteLater)
         self.play_single_file_thread.start()
-        self.play_single_file_thread.exec()
+        # If add .exec() on qthread, the process will hang here
+        # self.play_single_file_thread.exec()
         # self.play_mutex.unlock()
 
     def playlist_play(self, playlist):
@@ -457,7 +458,7 @@ class media_processor(QObject):
                 if self.play_playlist_worker.get_task_status() == 1:
                     log.debug("still got playlist playing!")
                     self.stop_playing()
-                    # self.play_mutex.unlock()
+
                     return
         except Exception as e:
             log.debug(e)
@@ -470,7 +471,8 @@ class media_processor(QObject):
         self.play_playlist_worker.finished.connect(self.play_playlist_worker.deleteLater)
         self.play_playlist_thread.finished.connect(self.play_playlist_thread.deleteLater)
         self.play_playlist_thread.start()
-        self.play_playlist_thread.exec()
+        # If add .exec() on qthread, the process will hang here
+        # self.play_playlist_thread.exec()
 
     def hdmi_in_play(self, video_src, video_dst):
         try:
@@ -494,7 +496,8 @@ class media_processor(QObject):
         self.play_hdmi_in_worker.signal_play_hdmi_in_finish.connect(self.play_hdmi_in_worker.deleteLater)
         self.play_hdmi_in_thread.finished.connect(self.play_hdmi_in_thread.deleteLater)
         self.play_hdmi_in_thread.start()
-        self.play_hdmi_in_thread.exec()
+        # If add .exec() on qthread, the process will hang here
+        # self.play_hdmi_in_thread.exec()
 
     def cms_play(self, window_width, window_height, window_x, window_y, video_dst):
         #log.debug("%s", video_dst)
@@ -523,7 +526,8 @@ class media_processor(QObject):
         self.play_cms_worker.signal_play_cms_finish.connect(self.play_cms_worker.deleteLater)
         self.play_cms_thread.finished.connect(self.play_cms_thread.deleteLater)
         self.play_cms_thread.start()
-        self.play_cms_thread.exec()
+        # If add .exec() on qthread, the process will hang here
+        # self.play_cms_thread.exec()
 
     def play_hdmi_in_start_ret(self):
         self.signal_play_hdmi_in_start_ret.emit()

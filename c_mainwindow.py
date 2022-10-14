@@ -60,6 +60,8 @@ class MainUi(QMainWindow):
         # self.led_config.get_led_wall_width()
         # self.led_config.set_led_wall_res(888,666)
 
+        self.web_cmd_mutex = QMutex()
+
         # insert v4l2loopback module first
         if os.path.exists("/dev/video5") and os.path.exists("/dev/video6"):
             pass
@@ -838,6 +840,7 @@ class MainUi(QMainWindow):
 
     """ handle the command from qlocalserver"""
     def parser_cmd_from_qlocalserver(self, data):
+
         now_time = time.time()
         if now_time - self.web_cmd_time < 2:
             log.debug("cmd too quick")
@@ -845,39 +848,88 @@ class MainUi(QMainWindow):
         self.web_cmd_time = time.time()
 
         if data.get("play_file"):
-            self.func_file_contents()
-            log.debug("play single file : %s!", data.get("play_file"))
-            self.medialist_page.right_clicked_select_file_uri = \
-                internal_media_folder + "/" + data.get("play_file")
-            log.debug("file_uri :%s",
-                      self.medialist_page.right_clicked_select_file_uri)
-            self.media_engine.play_single_file(
-                self.medialist_page.right_clicked_select_file_uri)
+            got_lock = self.web_cmd_mutex.tryLock()
+            if got_lock is False:
+                log.debug("Cannot get lock!")
+                return
+            else:
+                pass
+            try:
+                self.func_file_contents()
+                log.debug("play single file : %s!", data.get("play_file"))
+                self.medialist_page.right_clicked_select_file_uri = \
+                    internal_media_folder + "/" + data.get("play_file")
+                log.debug("file_uri :%s",
+                          self.medialist_page.right_clicked_select_file_uri)
+                self.media_engine.play_single_file(
+                    self.medialist_page.right_clicked_select_file_uri)
+            except Exception as e:
+                log.debug(e)
+            self.web_cmd_mutex.unlock()
         elif data.get("play_cms"):
-            log.debug("got play_cms ")
-            self.func_cms_setting()
-            self.cms_page.start_play_cms()
-
+            got_lock = self.web_cmd_mutex.tryLock()
+            if got_lock is False:
+                log.debug("Cannot get lock!")
+                return
+            else:
+                pass
+            try:
+                log.debug("got play_cms ")
+                self.func_cms_setting()
+                self.cms_page.start_play_cms()
+            except Exception as e:
+                log.debug(e)
+            self.web_cmd_mutex.unlock()
         elif data.get("play_playlist"):
-            self.func_file_contents()
-            log.debug("play playlist")
-            self.media_engine.play_playlsit(data.get("play_playlist"))
+            got_lock = self.web_cmd_mutex.tryLock()
+            if got_lock is False:
+                log.debug("Cannot get lock!")
+                return
+            else:
+                pass
+            try:
+                self.func_file_contents()
+                log.debug("play playlist")
+                self.media_engine.play_playlsit(data.get("play_playlist"))
+            except Exception as e:
+                log.debug(e)
+            self.web_cmd_mutex.unlock()
         elif data.get("play_hdmi_in"):
-            self.func_hdmi_in_contents()
-            if "start" in data.get("play_hdmi_in"):
-                log.debug("play_hdmi_in start")
-                # self.hdmi_in_page.play_action_btn.click()
-                self.hdmi_in_page.send_to_led_parser()
-            elif "stop" in data.get("play_hdmi_in"):
-                log.debug("play_hdmi_in stop")
-                self.hdmi_in_page.stop_send_to_led()
+            got_lock = self.web_cmd_mutex.tryLock()
+            if got_lock is False:
+                log.debug("Cannot get lock!")
+                return
+            else:
+                pass
+            try:
+                self.func_hdmi_in_contents()
+                if "start" in data.get("play_hdmi_in"):
+                    log.debug("play_hdmi_in start")
+                    # self.hdmi_in_page.play_action_btn.click()
+                    self.hdmi_in_page.send_to_led_parser()
+                elif "stop" in data.get("play_hdmi_in"):
+                    log.debug("play_hdmi_in stop")
+                    self.hdmi_in_page.stop_send_to_led()
+            except Exception as e:
+                log.debug(e)
+            self.web_cmd_mutex.unlock()
         elif data.get("play_text"):
-            self.func_file_contents()
-            log.debug("play_text")
-            utils.file_utils.change_text_content(data.get("play_text"))
-            self.medialist_page.right_clicked_select_file_uri = internal_media_folder + subtitle_blank_jpg
-            log.debug("file_uri :%s", self.medialist_page.right_clicked_select_file_uri)
-            self.media_engine.play_single_file(self.medialist_page.right_clicked_select_file_uri)
+            got_lock = self.web_cmd_mutex.tryLock()
+            if got_lock is False:
+                log.debug("Cannot get lock!")
+                return
+            else:
+                pass
+            try:
+                self.func_file_contents()
+                log.debug("play_text")
+                utils.file_utils.change_text_content(data.get("play_text"))
+                self.medialist_page.right_clicked_select_file_uri = internal_media_folder + subtitle_blank_jpg
+                log.debug("file_uri :%s", self.medialist_page.right_clicked_select_file_uri)
+                self.media_engine.play_single_file(self.medialist_page.right_clicked_select_file_uri)
+            except Exception as e:
+                log.debug(e)
+            self.web_cmd_mutex.unlock()
         elif data.get("set_text_size"):
             log.debug("set_text_size")
             utils.file_utils.change_text_size(data.get("set_text_size"))
