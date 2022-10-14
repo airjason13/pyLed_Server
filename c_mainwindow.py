@@ -840,14 +840,12 @@ class MainUi(QMainWindow):
 
     """ handle the command from qlocalserver"""
     def parser_cmd_from_qlocalserver(self, data):
-
-        now_time = time.time()
-        if now_time - self.web_cmd_time < 2:
-            log.debug("cmd too quick")
-            return
-        self.web_cmd_time = time.time()
-
         if data.get("play_file"):
+            now_time = time.time()
+            if now_time - self.web_cmd_time < web_cmd_interval:
+                log.debug("cmd too quick")
+                return
+            self.web_cmd_time = time.time()
             got_lock = self.web_cmd_mutex.tryLock()
             if got_lock is False:
                 log.debug("Cannot get lock!")
@@ -867,6 +865,11 @@ class MainUi(QMainWindow):
                 log.debug(e)
             self.web_cmd_mutex.unlock()
         elif data.get("play_cms"):
+            now_time = time.time()
+            if now_time - self.web_cmd_time < web_cmd_interval:
+                log.debug("cmd too quick")
+                return
+            self.web_cmd_time = time.time()
             got_lock = self.web_cmd_mutex.tryLock()
             if got_lock is False:
                 log.debug("Cannot get lock!")
@@ -881,6 +884,11 @@ class MainUi(QMainWindow):
                 log.debug(e)
             self.web_cmd_mutex.unlock()
         elif data.get("play_playlist"):
+            now_time = time.time()
+            if now_time - self.web_cmd_time < web_cmd_interval:
+                log.debug("cmd too quick")
+                return
+            self.web_cmd_time = time.time()
             got_lock = self.web_cmd_mutex.tryLock()
             if got_lock is False:
                 log.debug("Cannot get lock!")
@@ -895,6 +903,11 @@ class MainUi(QMainWindow):
                 log.debug(e)
             self.web_cmd_mutex.unlock()
         elif data.get("play_hdmi_in"):
+            now_time = time.time()
+            if now_time - self.web_cmd_time < web_cmd_interval:
+                log.debug("cmd too quick")
+                return
+            self.web_cmd_time = time.time()
             got_lock = self.web_cmd_mutex.tryLock()
             if got_lock is False:
                 log.debug("Cannot get lock!")
@@ -914,6 +927,11 @@ class MainUi(QMainWindow):
                 log.debug(e)
             self.web_cmd_mutex.unlock()
         elif data.get("play_text"):
+            now_time = time.time()
+            if now_time - self.web_cmd_time < web_cmd_interval:
+                log.debug("cmd too quick")
+                return
+            self.web_cmd_time = time.time()
             got_lock = self.web_cmd_mutex.tryLock()
             if got_lock is False:
                 log.debug("Cannot get lock!")
@@ -986,8 +1004,6 @@ class MainUi(QMainWindow):
                 self.media_engine.media_processor.set_sleep_mode(0)
                 self.medialist_page.radiobutton_sleep_mode_disable_set()
                 self.hdmi_in_page.radiobutton_sleep_mode_disable_set()
-
-
         elif data.get("set_target_city"):
             log.debug("recv : %s ", data.get("set_target_city"))
             if utils.astral_utils.check_city_valid(data.get("set_target_city")) is False:
@@ -1018,8 +1034,6 @@ class MainUi(QMainWindow):
             elif "test_mode" == data.get("set_brightness_algo"):
                 self.medialist_page.radiobutton_client_br_method_test_mode_set()
                 self.hdmi_in_page.radiobutton_client_br_method_test_mode_set()
-
-
         elif data.get("set_frame_brightness_values_option"):
             log.debug("recv : %s", data.get("set_frame_brightness_values_option"))
             data_tmp = data.get("set_frame_brightness_values_option")

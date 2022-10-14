@@ -177,3 +177,6 @@ qfont_style_default = "Times"
 qfont_style_size_extra_large = 32
 qfont_style_size_large = 24
 qfont_style_size_medium = 18
+
+
+web_cmd_interval = 3
