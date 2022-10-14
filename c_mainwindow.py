@@ -857,7 +857,7 @@ class MainUi(QMainWindow):
             log.debug("got play_cms ")
             self.func_cms_setting()
             self.cms_page.start_play_cms()
-            
+
         elif data.get("play_playlist"):
             self.func_file_contents()
             log.debug("play playlist")

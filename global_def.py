@@ -3,12 +3,19 @@ import platform
 import os
 from pathlib import Path
 """Software version"""
-version = "LS221011001"
+version = "LS221014001"
 
 
 def get_led_role():
     led_role = "Server"
-    
+
+    if platform.machine() in ('arm', 'arm64', 'aarch64'):
+        pass
+    else:
+        led_role = "AIO"
+        print("Aled_role = ", led_role)
+        return led_role
+
     if os.path.exists("/home/root/aio_now"):
         print("AIO")
         led_role = "AIO"
