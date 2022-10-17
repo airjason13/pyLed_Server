@@ -355,7 +355,7 @@ class MainUi(QMainWindow):
             # train start
             light_start_time = now.replace(hour=5, minute=0, second=0, microsecond=0)
             # train stop
-            light_end_time = now.replace(hour=23, minute=0, second=0, microsecond=0)
+            light_end_time = now.replace(hour=23, minute=50, second=0, microsecond=0)
         else:
             if self.brightness_test_log is True:
                 log.debug("Sleep Mode is False")
@@ -1109,8 +1109,8 @@ class MainUi(QMainWindow):
                     ###
                     if "fps" in data:
                         if int(c_fps) == 0:
-                            c.fps_zero_count +=1
-                            if c.fps_zero_count >=5:
+                            c.fps_zero_count += 1
+                            if c.fps_zero_count >= 5:
                                 log.debug("+++++++++++kill ffmpy process timer launch!+++++++++++")
                                 QTimer.singleShot(2000, self.kill_ffmpy_process)
                                 c.fps_zero_count = 0
@@ -1133,7 +1133,6 @@ class MainUi(QMainWindow):
 
                 # add clients in web page
                 set_tmp_clients(self.clients)
-
                 # send brightness and br_divisor to the new client
                 c.send_cmd(cmd_set_frame_brightness,
                            self.cmd_seq_id_increase(),
@@ -1154,10 +1153,7 @@ class MainUi(QMainWindow):
                 self.sync_client_cabinet_params(c.client_ip, False)
                 self.client_page.refresh_clients(self.clients)
                 self.client_page.refresh_client_table()
-                # self.refresh_client_table()
-                # if self.force_kill_ffmpy_count == 0:
-                # QTimer.singleShot(5000, self.kill_ffmpy_process)
-                # self.force_kill_ffmpy_count = 1
+
             else:
                 """ find this ip in clients list, set the alive report count"""
                 tmp_client.set_alive_count(2)
@@ -1165,6 +1161,9 @@ class MainUi(QMainWindow):
             log.debug(e)
         finally:
             self.clients_unlock()
+
+
+
 
     def sync_cabinet_params(self, cab_params):
         ''' change led setting page treewidget'''
