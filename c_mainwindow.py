@@ -1154,6 +1154,17 @@ class MainUi(QMainWindow):
                 self.client_page.refresh_clients(self.clients)
                 self.client_page.refresh_client_table()
 
+                try:
+                    with open(os.getcwd() + "/static/client_info.dat", "w") as client_file:
+                        for c in self.clients:
+                            log.debug("--------------c.client_ip: %s", c.client_ip)
+                            client_file.write("ip:" + c.client_ip + ";id:" + str(c.client_id))
+                    # client_file.flush()
+                    client_file.close()
+                except Exception as e:
+                    log.debug(e)
+
+
             else:
                 """ find this ip in clients list, set the alive report count"""
                 tmp_client.set_alive_count(2)
