@@ -1058,7 +1058,10 @@ class MainUi(QMainWindow):
         elif data.get("set_reboot_time"):
             log.debug("set_reboot_time: %s", data.get("set_reboot_time"))
             reboot_mode = utils.file_utils.get_reboot_mode_default_from_file()
-            utils.file_utils.set_reboot_params(reboot_mode, data.get("set_reboot_time"))
+            if reboot_mode is "Enable":
+                utils.file_utils.set_reboot_params(True, data.get("set_reboot_time"))
+            else:
+                utils.file_utils.set_reboot_params(False, data.get("set_reboot_time"))
             self.reboot_time = utils.file_utils.get_reboot_time_default_from_file()
             self.reboot_mode = utils.file_utils.get_reboot_mode_default_from_file()
         elif data.get("set_target_city"):

@@ -198,8 +198,7 @@ def get_reboot_mode_default_from_file():
         lines = f.readlines()
     f.close()
     for line in lines:
-        tag = line.split("=")[0]
-        if "reboot_mode_enable" == tag:
+        if "reboot_mode_enable" in line:
             i_reboot_mode = line.strip("\n").split("=")[1]
             if i_reboot_mode == "1":
                 reboot_mode = "Enable"
@@ -226,6 +225,7 @@ def get_reboot_time_default_from_file():
 
 
 def set_reboot_params(mode, time):
+    log.debug("mode : %d", mode)
     reboot_time_params = "reboot_time=" + time + "\n"
     if mode is True:
         content_lines = [

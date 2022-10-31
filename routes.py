@@ -508,14 +508,16 @@ def get_reboot_mode_default():
         lines = f.readlines()
     f.close()
     for line in lines:
-        tag = line.split("=")[0]
-        if "reboot_mode_enable" == tag:
+        if "reboot_mode_enable" in line:
             i_reboot_mode = line.strip("\n").split("=")[1]
             if i_reboot_mode == "1":
                 reboot_mode = "Enable"
+                log.debug("reboot_mode : %s", reboot_mode)
                 return reboot_mode
             else:
+                log.debug("reboot_mode : %s", reboot_mode)
                 return reboot_mode
+    log.debug("reboot_mode : %s", reboot_mode)
     return reboot_mode
 
 
@@ -915,6 +917,7 @@ def index():
     brightnessAlgoform = BrightnessAlgoForm()
     brightnessAlgoform.sleep_mode_switcher.data=get_sleep_mode_default()
     brightnessAlgoform.city_selectfiled.data=get_target_city_default()
+    brightnessAlgoform.reboot_mode_switcher.data=get_reboot_mode_default()
     # print(type(brightnessAlgoform.city_selectfiled.choices))
     brightnessAlgoform.brightness_mode_switcher.data=get_brightness_mode_default()
     # get brightness setting values
