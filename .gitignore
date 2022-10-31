@@ -5,3 +5,6 @@ log/
 *.swp
 test_log.dat
 sun_time.dat
+client_info.dat
+.led_config
+.video_params_config

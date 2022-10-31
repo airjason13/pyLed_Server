@@ -1223,7 +1223,7 @@ class MainUi(QMainWindow):
             sleep_time = arg.get("sleep_time")
             for c in self.clients:
                 c.decrese_alive_count()
-                if c.get_alive_count() == 0:
+                if c.get_alive_count() <= 0:
                     self.clients.remove(c)
 
             """for c in self.clients:
