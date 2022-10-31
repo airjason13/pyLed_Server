@@ -340,10 +340,10 @@ class MainUi(QMainWindow):
     def client_reboot_timer(self):
         if 'Disable' in self.reboot_mode:
             return
-        log.debug("client_reboot_timer")
+        # log.debug("client_reboot_timer")
         i_reboot_hour = int(self.reboot_time.split(":")[0])
         i_reboot_min = int(self.reboot_time.split(":")[1])
-        log.debug("client_reboot_timer : %d:%d", i_reboot_hour, i_reboot_min)
+        # log.debug("client_reboot_timer : %d:%d", i_reboot_hour, i_reboot_min)
         now = datetime.now().replace(tzinfo=ZoneInfo(utils.astral_utils.get_time_zone(self.city)))
         start_client_reboot_time = now.replace(hour=i_reboot_hour, minute=i_reboot_min, second=0, microsecond=0)
         end_client_reboot_time = now.replace(hour=i_reboot_hour, minute=i_reboot_min + 1, second=0, microsecond=0)
@@ -1054,12 +1054,13 @@ class MainUi(QMainWindow):
                 log.debug("set_reboot_mode : Disable")
                 utils.file_utils.set_reboot_params(False, reboot_time)
             self.reboot_mode = utils.file_utils.get_reboot_mode_default_from_file()
+            self.reboot_time = utils.file_utils.get_reboot_time_default_from_file()
         elif data.get("set_reboot_time"):
             log.debug("set_reboot_time: %s", data.get("set_reboot_time"))
             reboot_mode = utils.file_utils.get_reboot_mode_default_from_file()
             utils.file_utils.set_reboot_params(reboot_mode, data.get("set_reboot_time"))
             self.reboot_time = utils.file_utils.get_reboot_time_default_from_file()
-
+            self.reboot_mode = utils.file_utils.get_reboot_mode_default_from_file()
         elif data.get("set_target_city"):
             log.debug("recv : %s ", data.get("set_target_city"))
             if utils.astral_utils.check_city_valid(data.get("set_target_city")) is False:
