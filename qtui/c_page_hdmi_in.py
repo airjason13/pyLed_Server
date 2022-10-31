@@ -518,7 +518,7 @@ class Hdmi_In_Page(QObject):
         self.radiobutton_sleep_mode_enable.click()
 
     def check_tc358743_timer_event(self):
-        log.debug("enter check_tc358743_timer")
+        # log.debug("enter check_tc358743_timer")
         self.preview_mutex.lock()
         if self.mainwindow.page_idx != page_hdmi_in_content_idx:
             # log.debug("Not in hdmi-in page")
@@ -526,7 +526,7 @@ class Hdmi_In_Page(QObject):
             return
         tmp_preview_status = self.preview_status
         self.preview_mutex.unlock()
-        log.debug("****tmp_preview_status : %d*********", tmp_preview_status)
+        # log.debug("****tmp_preview_status : %d*********", tmp_preview_status)
         try:
             if self.tc358743.get_tc358743_hdmi_connected_status() is True:
                 if tmp_preview_status is False:
@@ -551,7 +551,7 @@ class Hdmi_In_Page(QObject):
                 pass
         except Exception as e:
             log.debug(e)
-        log.debug("exit check_tc358743_timer")
+        # log.debug("exit check_tc358743_timer")
 
     def start_hdmi_in_preview(self):
         self.preview_mutex.lock()

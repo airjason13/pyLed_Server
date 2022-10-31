@@ -7,7 +7,7 @@ import pyinotify
 from global_def import *
 from subprocess import Popen, PIPE
 from subprocess import check_output, CalledProcessError
-
+import sys
 log = utils.log_utils.logging_init(__file__)
 
 def get_media_file_list(dir, with_path=False):
@@ -171,3 +171,76 @@ def kill_all_ffmpeg_process():
     p = Popen("pkill ffmpeg", shell=True, stdout=PIPE, stderr=PIPE)
 
 
+def init_reboot_params():
+    time = "04:30"
+    reboot_time_params = "reboot_time=" + time + "\n"
+    content_lines = [
+        "reboot_mode_enable=1\n",
+        reboot_time_params,
+    ]
+    root_dir = os.path.dirname(sys.modules['__main__'].__file__)
+    led_config_dir = os.path.join(root_dir, 'video_params_config')
+    file_uri = os.path.join(led_config_dir, ".reboot_config")
+    config_file = open(file_uri, 'w')
+    config_file.writelines(content_lines)
+    config_file.close()
+    os.system('sync')
+
+
+def get_reboot_mode_default_from_file():
+    reboot_mode = "Disable"
+    root_dir = os.path.dirname(sys.modules['__main__'].__file__)
+    led_config_dir = os.path.join(root_dir, 'video_params_config')
+    if os.path.isfile(os.path.join(led_config_dir, ".reboot_config")) is False:
+        init_reboot_params()
+
+    with open(os.path.join(led_config_dir, ".reboot_config"), "r") as f:
+        lines = f.readlines()
+    f.close()
+    for line in lines:
+        tag = line.split("=")[0]
+        if "reboot_mode_enable" == tag:
+            i_reboot_mode = line.strip("\n").split("=")[1]
+            if i_reboot_mode == "1":
+                reboot_mode = "Enable"
+                return reboot_mode
+            else:
+                return reboot_mode
+    return reboot_mode
+
+def get_reboot_time_default_from_file():
+    reboot_time = "04:30"
+    root_dir = os.path.dirname(sys.modules['__main__'].__file__)
+    led_config_dir = os.path.join(root_dir, 'video_params_config')
+    if os.path.isfile(os.path.join(led_config_dir, ".reboot_config")) is False:
+        init_reboot_params()
+
+    with open(os.path.join(led_config_dir, ".reboot_config"), "r") as f:
+        lines = f.readlines()
+    f.close()
+    for line in lines:
+        if "reboot_time" in line:
+            reboot_time = line.split("=")[1]
+    log.debug("reboot_time = %s", reboot_time)
+    return reboot_time
+
+
+def set_reboot_params(mode, time):
+    reboot_time_params = "reboot_time=" + time + "\n"
+    if mode is True:
+        content_lines = [
+            "reboot_mode_enable=1\n",
+            reboot_time_params,
+        ]
+    else:
+        content_lines = [
+            "reboot_mode_enable=0\n",
+            reboot_time_params,
+        ]
+    root_dir = os.path.dirname(sys.modules['__main__'].__file__)
+    led_config_dir = os.path.join(root_dir, 'video_params_config')
+    file_uri = os.path.join(led_config_dir, ".reboot_config")
+    config_file = open(file_uri, 'w')
+    config_file.writelines(content_lines)
+    config_file.close()
+    os.system('sync')

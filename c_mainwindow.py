@@ -152,6 +152,8 @@ class MainUi(QMainWindow):
         self.page_status.showMessage("Client Page")
 
         self.setWindowTitle("LED Server")
+        
+        self.client_reboot_flags = False
 
         self.broadcast_thread = \
             Worker(method=self.server_broadcast, data=server_broadcast_message, port=server_broadcast_port)
@@ -227,9 +229,15 @@ class MainUi(QMainWindow):
         # self.date_timer.start(1*60*1000)
         self.date_timer.start(1 * 60 * 1000)
 
-        self.dmesg_timer = QTimer(self)
+        self.client_check_reboot_timer = QTimer(self)
+        self.client_check_reboot_timer.timeout.connect(self.client_reboot_timer)
+        # set one miniute timer
+        # self.client_check_reboot_timer.start(1 * 60 * 1000)
+        self.client_check_reboot_timer.start(1 * 60 * 1000)
+        
+        '''self.dmesg_timer = QTimer(self)
         self.dmesg_timer.timeout.connect(self.check_dmesg)
-        self.dmesg_timer.start(5 * 1000)
+        self.dmesg_timer.start(5 * 1000)'''
 
         # utils.astral_utils.get_sun_times("KK")
         self.city = City_Map[self.media_engine.media_processor.video_params.get_target_city_index()].get("City")
@@ -244,6 +252,12 @@ class MainUi(QMainWindow):
         self.web_cmd_time = time.time()
         self.tmp_clients_count = 0
         self.force_kill_ffmpy_count = 0
+
+        # reboot flag
+        self.reboot_mode = utils.file_utils.get_reboot_mode_default_from_file()
+        log.debug("self.reboot_mode = %s", self.reboot_mode)
+        self.reboot_time = utils.file_utils.get_reboot_time_default_from_file()
+        log.debug("self.reboot_time = %s", self.reboot_time)
         self.test_count = 0
 
     def check_dmesg(self):
@@ -322,6 +336,32 @@ class MainUi(QMainWindow):
                 f.flush()
         if self.brightness_test_log is True:
             f.close()
+
+    def client_reboot_timer(self):
+        if 'Disable' in self.reboot_mode:
+            return
+        log.debug("client_reboot_timer")
+        i_reboot_hour = int(self.reboot_time.split(":")[0])
+        i_reboot_min = int(self.reboot_time.split(":")[1])
+        log.debug("client_reboot_timer : %d:%d", i_reboot_hour, i_reboot_min)
+        now = datetime.now().replace(tzinfo=ZoneInfo(utils.astral_utils.get_time_zone(self.city)))
+        start_client_reboot_time = now.replace(hour=i_reboot_hour, minute=i_reboot_min, second=0, microsecond=0)
+        end_client_reboot_time = now.replace(hour=i_reboot_hour, minute=i_reboot_min + 1, second=0, microsecond=0)
+        if start_client_reboot_time < now < end_client_reboot_time:
+            log.debug("It's time to trigger reboot cmd!") 
+            self.client_reboot_flags = True
+            try:
+                for i in range(10):
+                    self.server_broadcast_client_reboot()
+                    time.sleep(0.1)
+            except Exception as e:
+                log.debug(e)
+            self.client_reboot_flags = False
+            time.sleep(30)
+            if platform.machine() in ('arm', 'arm64', 'aarch64'):
+                os.popen("reboot")
+            else:
+                log.debug("SYSTEM fake reboot")
 
     def check_brightness_by_date_timer(self):
         if self.brightness_test_log is True:
@@ -1004,6 +1044,22 @@ class MainUi(QMainWindow):
                 self.media_engine.media_processor.set_sleep_mode(0)
                 self.medialist_page.radiobutton_sleep_mode_disable_set()
                 self.hdmi_in_page.radiobutton_sleep_mode_disable_set()
+        elif data.get("set_reboot_mode"):
+            log.debug("set_reboot_mode")
+            reboot_time = utils.file_utils.get_reboot_time_default_from_file()
+            if data.get("set_reboot_mode") == "Enable":
+                log.debug("set_reboot_mode : Enable")
+                utils.file_utils.set_reboot_params(True, reboot_time)
+            else:
+                log.debug("set_reboot_mode : Disable")
+                utils.file_utils.set_reboot_params(False, reboot_time)
+            self.reboot_mode = utils.file_utils.get_reboot_mode_default_from_file()
+        elif data.get("set_reboot_time"):
+            log.debug("set_reboot_time: %s", data.get("set_reboot_time"))
+            reboot_mode = utils.file_utils.get_reboot_mode_default_from_file()
+            utils.file_utils.set_reboot_params(reboot_mode, data.get("set_reboot_time"))
+            self.reboot_time = utils.file_utils.get_reboot_time_default_from_file()
+
         elif data.get("set_target_city"):
             log.debug("recv : %s ", data.get("set_target_city"))
             if utils.astral_utils.check_city_valid(data.get("set_target_city")) is False:
@@ -1070,12 +1126,21 @@ class MainUi(QMainWindow):
 
         elif data.get("set_ledclients_reboot_option"):
             log.debug("set_ledclients_reboot_option")
-            clients = self.clients
-            for c in clients:
+            # clients = self.clients
+            
+            self.client_reboot_flags = True
+            try:
+                for i in range(10):
+                    self.server_broadcast_client_reboot()
+                    time.sleep(0.1)
+            except Exception as e:
+                log.debug(e)
+            self.client_reboot_flags = False
+            '''for c in clients:
                 reboot_cmd = "sshpass -p workout13 ssh -o StrictHostKeyChecking=no root@" + c.client_ip + " " + "reboot"
                 log.debug("reboot_cmd : %s", reboot_cmd)
                 k = os.popen(reboot_cmd)
-                k.close()
+                k.close()'''
 
 
         elif data.get("start_color_test"):
@@ -1098,22 +1163,25 @@ class MainUi(QMainWindow):
         tmp_client = None
         c_version = ""
         try:
+            self.clients_lock()
             c_version = data.split(";")[1].split(":")[1]
             if "fps" in data:
                 c_fps = data.split(",")[1].split(":")[1]
             # log.debug("c_fps = %d", int(c_fps))
             self.clients_lock()
             for c in self.clients:
+                # log.debug("client ip :%s ", c.client_ip)
                 if c.client_ip == ip:
                     is_found = True
                     ###
                     if "fps" in data:
                         if int(c_fps) == 0:
                             c.fps_zero_count += 1
-                            if c.fps_zero_count >= 5:
+                            if c.fps_zero_count >= 10:
                                 log.debug("+++++++++++kill ffmpy process timer launch!+++++++++++")
                                 QTimer.singleShot(2000, self.kill_ffmpy_process)
                                 c.fps_zero_count = 0
+                                log.debug("client ip %s zero fps counts >= 10", c.client_ip)
                         else:
                             c.fps_zero_count = 0
                     ###
@@ -1155,11 +1223,10 @@ class MainUi(QMainWindow):
                 self.client_page.refresh_client_table()
 
                 try:
-                    with open(os.getcwd() + "/static/client_info.dat", "w") as client_file:
+                    with open(os.getcwd() + "/static/client_info.dat", "w+") as client_file:
                         for c in self.clients:
-                            log.debug("--------------c.client_ip: %s", c.client_ip)
-                            client_file.write("ip:" + c.client_ip + ";id:" + str(c.client_id))
-                    # client_file.flush()
+                            log.debug("write client info ip : %s", c.client_ip)
+                            client_file.write("ip:" + c.client_ip + ";id:" + str(c.client_id) + "\n")
                     client_file.close()
                 except Exception as e:
                     log.debug(e)
@@ -1167,7 +1234,7 @@ class MainUi(QMainWindow):
 
             else:
                 """ find this ip in clients list, set the alive report count"""
-                tmp_client.set_alive_count(2)
+                tmp_client.set_alive_count(3)
         except Exception as e:
             log.debug(e)
         finally:
@@ -1185,6 +1252,33 @@ class MainUi(QMainWindow):
         # for i in range(self.led_client_layout_tree.size()):
         #    log.debug("%d : %s", i, self.led_client_layout_tree.itemFromIndex(i).text(0))
 
+    """send broadcast on eth0"""
+    def server_broadcast_client_reboot(self):
+        
+        data=server_broadcast_message
+        port=server_broadcast_port
+
+        data_append = ";br:" + str(self.media_engine.media_processor.video_params.frame_brightness)
+        data += data_append
+
+        if self.client_reboot_flags is True:
+            reboot_cmd_append = ";reboot"
+            data += reboot_cmd_append
+
+        ip = net_utils.get_ip_address()
+        utils.net_utils.force_set_eth_ip()
+
+        msg = data.encode()
+        if ip != "":
+            # print(f'sending on {ip}')
+            sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)  # UDP
+            sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
+            sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
+            sock.bind((ip, 0))
+            sock.sendto(msg, ("255.255.255.255", port))
+            sock.close()
+
+    
     """send broadcast on eth0"""
     def server_broadcast(self, arg):
         data = arg.get("data")

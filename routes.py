@@ -1,3 +1,4 @@
+import datetime
 import os
 import glob
 from main import app
@@ -6,7 +7,8 @@ from flask import Flask, render_template, send_from_directory, request, redirect
 from global_def import *
 import traceback
 from flask_wtf import Form
-from wtforms import validators, RadioField, SubmitField, IntegerField, SelectField, StringField
+from wtforms import validators, RadioField, SubmitField, IntegerField, SelectField, StringField, TimeField, DateField, \
+    DateTimeField
 import utils.log_utils
 import hashlib
 import os
@@ -170,6 +172,21 @@ def get_nest_maps(maps):
     )
 '''
 
+def get_reboot_time_default():
+    reboot_time = "04:30"
+    root_dir = os.path.dirname(sys.modules['__main__'].__file__)
+    led_config_dir = os.path.join(root_dir, 'video_params_config')
+    if os.path.isfile(os.path.join(led_config_dir, ".reboot_config")) is False:
+        init_reboot_params()
+
+    with open(os.path.join(led_config_dir, ".reboot_config"), "r") as f:
+        lines = f.readlines()
+    f.close()
+    for line in lines:
+        if "reboot_time" in line:
+            reboot_time = line.split("=")[1]
+    log.debug("reboot_time = %s", reboot_time)
+    return reboot_time
 
 @app.route('/play_with_refresh_page/<filename>')
 def play_with_refresh_page(filename):
@@ -407,6 +424,18 @@ def init_video_params():
     config_file.close()
     os.system('sync')
 
+def init_reboot_params():
+    content_lines = [
+        "reboot_mode_enable=1\n",
+        "reboot_time=04:30\n",
+    ]
+    root_dir = os.path.dirname(sys.modules['__main__'].__file__)
+    led_config_dir = os.path.join(root_dir, 'video_params_config')
+    file_uri = os.path.join(led_config_dir, ".reboot_config")
+    config_file = open(file_uri, 'w')
+    config_file.writelines(content_lines)
+    config_file.close()
+    os.system('sync')
 
 def get_brightness_value_default():
     root_dir = os.path.dirname(sys.modules['__main__'].__file__)
@@ -468,6 +497,28 @@ def get_sleep_mode_default():
     return sleep_mode
 
 
+def get_reboot_mode_default():
+    reboot_mode = "Disable"
+    root_dir = os.path.dirname(sys.modules['__main__'].__file__)
+    led_config_dir = os.path.join(root_dir, 'video_params_config')
+    if os.path.isfile(os.path.join(led_config_dir, ".reboot_config")) is False:
+        init_reboot_params()
+
+    with open(os.path.join(led_config_dir, ".reboot_config"), "r") as f:
+        lines = f.readlines()
+    f.close()
+    for line in lines:
+        tag = line.split("=")[0]
+        if "reboot_mode_enable" == tag:
+            i_reboot_mode = line.strip("\n").split("=")[1]
+            if i_reboot_mode == "1":
+                reboot_mode = "Enable"
+                return reboot_mode
+            else:
+                return reboot_mode
+    return reboot_mode
+
+
 def get_target_city_default():
     city_index = 0
     target_city = City_Map[city_index].get("City")
@@ -501,6 +552,7 @@ def get_city_list():
         city_list.append(city.get("City"))
 
     return city_list
+
 
 class BrightnessAlgoForm(Form):
 
@@ -539,6 +591,24 @@ class BrightnessAlgoForm(Form):
         render_kw=city_style,
     )
 
+    reboot_style = {'class': 'ourClasses', 'style': 'font-size:24px;color:black;size:320px;width:200px', }
+    reboot_mode_switcher = RadioField(
+        "Reboot Mode",
+        id="reboot_mode_switcher",
+        choices=[('Disable', 'Disable'),
+                 ('Enable', 'Enable'),
+                 ],
+        default=get_reboot_mode_default(),
+        render_kw=style,
+    )
+
+
+    '''reboot_mode_input = DateTimeField(
+        "Reboot Time",
+        id="reboot_mode_input",
+        # default=datetime.datetime.now().strftime("%H:%M"),
+        render_kw=style,
+    )'''
 
 @app.route('/remove_media_file/<data>', methods=['POST'])
 def remove_media_file(data):
@@ -607,31 +677,28 @@ def remove_media_file(data):
 @app.route('/set_sleep_mode/<data>', methods=['POST'])
 def set_sleep_mode(data):
     log.debug("set_sleep_mode, data = %s", data)
-    '''write_date = "SLEEP_MODE_ENABLE = False" + "\n"
-    if data == "Enable":
-        write_date = "SLEEP_MODE_ENABLE = True" + "\n"
-
-    file_uri = os.getcwd() + "/astral_hashmap.py"
-    log.debug(file_uri)
-    with open(file_uri, "r") as f:
-        lines = f.readlines()
-    f.close()
-    f = open(file_uri, "w")
-    for line in lines:
-        if "SLEEP_MODE_ENABLE" in line:
-            f.write(write_date)
-        else:
-            f.write(line)
-    f.flush()
-    f.close()
-    os.system('sync')'''
-
 
     send_message(set_sleep_mode=data)
     status_code = Response(status=200)
     return status_code
 
 
+@app.route('/set_reboot_mode/<data>', methods=['POST'])
+def set_reboot_mode(data):
+    log.debug("set_reboot_mode, data = %s", data)
+
+    send_message(set_reboot_mode=data)
+    status_code = Response(status=200)
+    return status_code
+
+
+@app.route('/set_reboot_time/<data>', methods=['POST'])
+def set_reboot_time(data):
+    log.debug("set_reboot_time, data = %s", data)
+
+    send_message(set_reboot_time=data)
+    status_code = Response(status=200)
+    return status_code
 
 @app.route('/set_target_city/<data>', methods=['POST'])
 def set_target_city(data):
@@ -852,10 +919,12 @@ def index():
     brightnessAlgoform.brightness_mode_switcher.data=get_brightness_mode_default()
     # get brightness setting values
     brightnessvalues = get_brightness_value_default()
+    reboot_time = get_reboot_time_default()
 
     return render_template("index.html", files=maps, playlist_nest_dict=playlist_nest_dict,
                            repeat_option=routes_repeat_option, text_size=route_text_size,
-                           text_content=route_text_content, text_period=20, form=brightnessAlgoform, brightnessvalues=brightnessvalues)
+                           text_content=route_text_content, text_period=20, form=brightnessAlgoform,
+                           brightnessvalues=brightnessvalues, reboot_time=reboot_time)
 
 
 
