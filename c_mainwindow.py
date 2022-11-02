@@ -1172,7 +1172,7 @@ class MainUi(QMainWindow):
             if "fps" in data:
                 c_fps = data.split(",")[1].split(":")[1]
             # log.debug("c_fps = %d", int(c_fps))
-            self.clients_lock()
+            # self.clients_lock()
             for c in self.clients:
                 # log.debug("client ip :%s ", c.client_ip)
                 if c.client_ip == ip:
