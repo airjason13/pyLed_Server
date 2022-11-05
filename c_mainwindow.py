@@ -366,6 +366,11 @@ class MainUi(QMainWindow):
             else:
                 log.debug("SYSTEM fake reboot")
 
+    def is_sleep_time(self, now, light_start_time, light_end_time):
+        midnight_time = now.replace(hour=self.i_sleep_end_time_hour, minute=self.i_sleep_end_time_min,
+                                       second=0, microsecond=0)
+
+
     def check_brightness_by_date_timer(self):
         if self.brightness_test_log is True:
             log.debug("frame_brightness_algorithm = %d",
@@ -1075,7 +1080,11 @@ class MainUi(QMainWindow):
             self.sleep_start_time = time_tmp.split(";")[0]
             self.sleep_end_time = time_tmp.split(";")[1]
             utils.file_utils.set_sleep_params(self.sleep_start_time, self.sleep_end_time)
-
+            self.i_sleep_start_time_hour = int(self.sleep_start_time.split(":")[0])
+            self.i_sleep_start_time_min = int(self.sleep_start_time.split(":")[1])
+            self.i_sleep_end_time_hour = int(self.sleep_end_time.split(":")[0])
+            self.i_sleep_end_time_min = int(self.sleep_end_time.split(":")[1])
+            
         elif data.get("set_target_city"):
             log.debug("recv : %s ", data.get("set_target_city"))
             if utils.astral_utils.check_city_valid(data.get("set_target_city")) is False:

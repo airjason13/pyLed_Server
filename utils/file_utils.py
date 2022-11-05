@@ -282,7 +282,7 @@ def get_sleep_time_from_file():
     root_dir = os.path.dirname(sys.modules['__main__'].__file__)
     led_config_dir = os.path.join(root_dir, 'video_params_config')
     if os.path.isfile(os.path.join(led_config_dir, ".sleep_time_config")) is False:
-        init_reboot_params()
+        init_sleep_time_params()
 
     with open(os.path.join(led_config_dir, ".sleep_time_config"), "r") as f:
         lines = f.readlines()
