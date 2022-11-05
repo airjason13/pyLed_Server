@@ -367,9 +367,18 @@ class MainUi(QMainWindow):
                 log.debug("SYSTEM fake reboot")
 
     def is_sleep_time(self, now, light_start_time, light_end_time):
-        midnight_time = now.replace(hour=self.i_sleep_end_time_hour, minute=self.i_sleep_end_time_min,
-                                       second=0, microsecond=0)
-
+        midnight_time = now.replace(hour=23, minute=59, second=59, microsecond=0)
+        if light_end_time > light_start_time:
+            if now < light_start_time or now > light_end_time:
+                return True
+            else:
+                return False
+        else:
+            if light_end_time < now < light_start_time:
+                return True
+            else:
+                return False
+        return False
 
     def check_brightness_by_date_timer(self):
         if self.brightness_test_log is True:
@@ -424,7 +433,8 @@ class MainUi(QMainWindow):
             f.close()
         # train info stop
         if light_start_time is not None and light_end_time is not None:
-            if now < light_start_time or now > light_end_time:
+            # if now < light_start_time or now > light_end_time:
+            if self.is_sleep_time(now, light_start_time, light_end_time) is True:
                 if self.brightness_test_log is True:
                     file_uri = os.getcwd() + "/test_log.dat"
                     f = open(file_uri, "a+")
@@ -468,12 +478,7 @@ class MainUi(QMainWindow):
 
     def kill_ffmpy_process(self):
         log.debug("kill ffmpy process")
-        #self.clients_lock()
-        #self.test_count += 1
-        #cmd = "echo " + str(self.test_count) + " /home/root/test_force_kill_ffmpy.dat"
-        #os.popen(cmd)
-        #self.force_kill_ffmpy_count = 0
-        #self.clients_unlock()
+
         try:
             log.debug("**************************************************************")
             os.kill(self.media_engine.media_processor.ffmpy_process.pid, signal.SIGTERM)
@@ -1084,7 +1089,7 @@ class MainUi(QMainWindow):
             self.i_sleep_start_time_min = int(self.sleep_start_time.split(":")[1])
             self.i_sleep_end_time_hour = int(self.sleep_end_time.split(":")[0])
             self.i_sleep_end_time_min = int(self.sleep_end_time.split(":")[1])
-            
+
         elif data.get("set_target_city"):
             log.debug("recv : %s ", data.get("set_target_city"))
             if utils.astral_utils.check_city_valid(data.get("set_target_city")) is False:
