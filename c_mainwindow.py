@@ -224,6 +224,9 @@ class MainUi(QMainWindow):
         self.bt_handle = BlueTooth()
         self.bt_handle.start()
 
+        self.sleep_start_time, self.sleep_end_time = utils.file_utils.get_sleep_time_from_file()
+        log.debug("self.sleep_start_time = %s", self.sleep_start_time)
+        log.debug("self.sleep_end_time = %s", self.sleep_end_time)
         self.date_timer = QTimer(self)
         self.date_timer.timeout.connect(self.check_brightness_by_date_timer)
         # self.date_timer.start(1*60*1000)
@@ -1064,6 +1067,13 @@ class MainUi(QMainWindow):
                 utils.file_utils.set_reboot_params(False, data.get("set_reboot_time"))
             self.reboot_time = utils.file_utils.get_reboot_time_default_from_file()
             self.reboot_mode = utils.file_utils.get_reboot_mode_default_from_file()
+        elif data.get("set_sleep_time"):
+            log.debug("set_sleep_time: %s", data.get("set_sleep_time"))
+            time_tmp = data.get("set_sleep_time")
+            self.sleep_start_time = time_tmp.split(";")[0]
+            self.sleep_end_time = time_tmp.split(";")[1]
+            utils.file_utils.set_sleep_params(self.sleep_start_time, self.sleep_end_time)
+
         elif data.get("set_target_city"):
             log.debug("recv : %s ", data.get("set_target_city"))
             if utils.astral_utils.check_city_valid(data.get("set_target_city")) is False:

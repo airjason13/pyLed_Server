@@ -236,7 +236,7 @@ function remove_playlist(playlist) {
 
 function remove_file_from_playlist(playlist, file ) {
     data = "playlist:" + playlist + ";file:" + file
-    /*alert("data :" + data)*/
+    /*alert("data :" + data);*/
     var url = "/remove_file_from_playlist/" + data;
     $.post(url, {
         /*javascript_data: data*/
@@ -245,7 +245,7 @@ function remove_file_from_playlist(playlist, file ) {
 
 function submit_frame_brightness_mode_option(){
     /*var frame_brightness_mode = document.querySelector('input[name="brightness_mode_switcher"]:checked').value;
-    alert(frame_brightness_mode)*/
+    alert(frame_brightness_mode);*/
 
     var data = document.querySelector('input[name="brightness_mode_switcher"]:checked').value;
 
@@ -262,7 +262,7 @@ function submit_sleep_mode_option(){
     alert(sleep_mode)*/
 
     var data = document.querySelector('input[name="sleep_mode_switcher"]:checked').value;
-    alert(data)
+    alert(data);
     /* alert("data:" + data)*/
     var url = "/set_sleep_mode/" + data;
     $.post(url, {
@@ -295,7 +295,7 @@ function submit_target_city_option(){
 
 function submit_reboot_option(){
     var data = document.querySelector('input[name="reboot_mode_switcher"]:checked').value;
-    alert("Reboot Mode : " + data)
+    alert("Reboot Mode : " + data);
     var url = "/set_reboot_mode/" + data;
     $.post(url, {
         /*javascript_data: data*/
@@ -304,8 +304,21 @@ function submit_reboot_option(){
 
 function submit_reboot_time_option(){
     var data = document.getElementById("appt-time").value;
-    alert("Reboot Time : " + data)
+    alert("Reboot Time : " + data);
     var url = "/set_reboot_time/" + data;
+    $.post(url, {
+        /*javascript_data: data*/
+        });
+}
+
+function submit_sleep_time_option(){
+    var sleep_start_time = document.getElementById("app-sleep-start-time").value;
+    var sleep_end_time = document.getElementById("app-sleep-end-time").value;
+    alert("Sleep Start Time : " + sleep_start_time);
+    alert("Sleep End Time : " + sleep_end_time);
+    data = sleep_start_time + ";" + sleep_end_time
+    alert("data : " + data);
+    var url = "/set_sleep_time/" + data;
     $.post(url, {
         /*javascript_data: data*/
         });
@@ -525,6 +538,13 @@ function submit_reboot_time_option(){
                         -webkit-text-fill-color: transparent;
                         " ><font color="#0000FF">{{ form.brightness_mode_switcher.label() }}</font></label>
                 {{ form.brightness_mode_switcher(onchange="submit_frame_brightness_mode_option()") }}
+        <label style="font-size:36px;
+                        background: -webkit-linear-gradient(#77e, #77a);
+                        -webkit-background-clip: text;
+                        -webkit-text-fill-color: transparent;
+                        " ><font color="#0000FF">{{ form.city_selectfiled.label() }}</font></label>
+                {{ form.city_selectfiled(onchange="submit_target_city_option()") }}
+
         </div>
     <div style="float:left;margin-right:10px;">
         <label style="font-size:36px;
@@ -533,13 +553,29 @@ function submit_reboot_time_option(){
                         -webkit-text-fill-color: transparent;
                         " ><font color="#0000FF">{{ form.sleep_mode_switcher.label() }}</font></label>
                 {{ form.sleep_mode_switcher(onchange="submit_sleep_mode_option()") }}
-        <label style="font-size:36px;
-                        background: -webkit-linear-gradient(#77e, #77a);
+        <label style="font-size:24px;
+                        background: -webkit-linear-gradient(#eee, #eee);
                         -webkit-background-clip: text;
                         -webkit-text-fill-color: transparent;
-                        " ><font color="#0000FF">{{ form.city_selectfiled.label() }}</font></label>
-                {{ form.city_selectfiled(onchange="submit_target_city_option()") }}
-
+                        " ><font color="#FFFFFF">Sleep Start Time</font></label>
+        <input style="font-size:36px;
+                    background: -webkit-linear-gradient(#77e, #77a);
+                    -webkit-background-clip: text;
+                    -webkit-text-fill-color: transparent;
+                    " id="app-sleep-start-time" type="time" name="app-sleep-start-time" value={{sleep_start_time}}  />
+        <br>
+        <label style="font-size:24px;
+                        background: -webkit-linear-gradient(#eee, #eee);
+                        -webkit-background-clip: text;
+                        -webkit-text-fill-color: transparent;
+                        " ><font color="#FFFFFF">Sleep End Time</font></label>
+        <input style="font-size:36px;
+                    background: -webkit-linear-gradient(#77e, #77a);
+                    -webkit-background-clip: text;
+                    -webkit-text-fill-color: transparent;
+                    " id="app-sleep-end-time" type="time" name="app-sleep-end-time" value={{sleep_end_time}}  />
+        <br>
+        <input class="button-84" type="submit" id="sleep_time_confirm" name="sleep_time_confirm" value="Set Sleep Time" onclick="submit_sleep_time_option()">
         </div>
     <div>
             <label style="font-size:36px;
@@ -555,6 +591,7 @@ function submit_reboot_time_option(){
                     -webkit-background-clip: text;
                     -webkit-text-fill-color: transparent;
                     " id="appt-time" type="time" name="appt-time" value={{reboot_time}}  />
+            <br>
             <input class="button-84" type="submit" id="reboot_time_confirm" name="reboot_time_confirm" value="Set Reboot Time" onclick="submit_reboot_time_option()">
         </div>
     <div style="clear:both;"></div>

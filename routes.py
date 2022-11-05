@@ -188,6 +188,42 @@ def get_reboot_time_default():
     log.debug("reboot_time = %s", reboot_time)
     return reboot_time
 
+def get_sleep_start_time_default():
+    sleep_start_time = "11:50"
+    root_dir = os.path.dirname(sys.modules['__main__'].__file__)
+    led_config_dir = os.path.join(root_dir, 'video_params_config')
+    if os.path.isfile(os.path.join(led_config_dir, ".sleep_time_config")) is False:
+        init_sleep_time_params()
+        # init_reboot_params()
+
+    with open(os.path.join(led_config_dir, ".sleep_time_config"), "r") as f:
+        lines = f.readlines()
+    f.close()
+    for line in lines:
+        if "sleep_start_time" in line:
+            sleep_start_time = line.split("=")[1]
+    log.debug("sleep_start_time = %s", sleep_start_time)
+    return sleep_start_time
+
+
+def get_sleep_end_time_default():
+    sleep_end_time = "11:50"
+    root_dir = os.path.dirname(sys.modules['__main__'].__file__)
+    led_config_dir = os.path.join(root_dir, 'video_params_config')
+    if os.path.isfile(os.path.join(led_config_dir, ".sleep_time_config")) is False:
+        init_sleep_time_params()
+        # init_reboot_params()
+
+    with open(os.path.join(led_config_dir, ".sleep_time_config"), "r") as f:
+        lines = f.readlines()
+    f.close()
+    for line in lines:
+        if "sleep_end_time" in line:
+            sleep_end_time = line.split("=")[1]
+    log.debug("sleep_end_time = %s", sleep_end_time)
+    return sleep_end_time
+
+
 @app.route('/play_with_refresh_page/<filename>')
 def play_with_refresh_page(filename):
     log.debug("route play filename : %s", filename)
@@ -290,6 +326,7 @@ def set_text_period(period):
     send_message(set_text_period=str(period))
     status_code = Response(status=200)
     return status_code
+
 
 @app.route('/start_color_test/<data>', methods=['POST'])
 def start_color_test(data):
@@ -424,6 +461,7 @@ def init_video_params():
     config_file.close()
     os.system('sync')
 
+
 def init_reboot_params():
     content_lines = [
         "reboot_mode_enable=1\n",
@@ -436,6 +474,21 @@ def init_reboot_params():
     config_file.writelines(content_lines)
     config_file.close()
     os.system('sync')
+
+
+def init_sleep_time_params():
+    content_lines = [
+        "sleep_start_time=00:30\n",
+        "sleep_end_time=04:30\n",
+    ]
+    root_dir = os.path.dirname(sys.modules['__main__'].__file__)
+    led_config_dir = os.path.join(root_dir, 'video_params_config')
+    file_uri = os.path.join(led_config_dir, ".sleep_time_config")
+    config_file = open(file_uri, 'w')
+    config_file.writelines(content_lines)
+    config_file.close()
+    os.system('sync')
+
 
 def get_brightness_value_default():
     root_dir = os.path.dirname(sys.modules['__main__'].__file__)
@@ -605,13 +658,6 @@ class BrightnessAlgoForm(Form):
     )
 
 
-    '''reboot_mode_input = DateTimeField(
-        "Reboot Time",
-        id="reboot_mode_input",
-        # default=datetime.datetime.now().strftime("%H:%M"),
-        render_kw=style,
-    )'''
-
 @app.route('/remove_media_file/<data>', methods=['POST'])
 def remove_media_file(data):
     log.debug("route remove_media_file data : %s", data)
@@ -701,6 +747,16 @@ def set_reboot_time(data):
     send_message(set_reboot_time=data)
     status_code = Response(status=200)
     return status_code
+
+
+@app.route('/set_sleep_time/<data>', methods=['POST'])
+def set_sleep_time(data):
+    log.debug("set_sleep_time, data = %s", data)
+
+    send_message(set_sleep_time=data)
+    status_code = Response(status=200)
+    return status_code
+
 
 @app.route('/set_target_city/<data>', methods=['POST'])
 def set_target_city(data):
@@ -923,11 +979,15 @@ def index():
     # get brightness setting values
     brightnessvalues = get_brightness_value_default()
     reboot_time = get_reboot_time_default()
+    sleep_start_time = get_sleep_start_time_default()
+    sleep_end_time = get_sleep_end_time_default()
+
 
     return render_template("index.html", files=maps, playlist_nest_dict=playlist_nest_dict,
                            repeat_option=routes_repeat_option, text_size=route_text_size,
                            text_content=route_text_content, text_period=20, form=brightnessAlgoform,
-                           brightnessvalues=brightnessvalues, reboot_time=reboot_time)
+                           brightnessvalues=brightnessvalues, reboot_time=reboot_time,
+                           sleep_start_time=sleep_start_time, sleep_end_time=sleep_end_time)
 
 
 
