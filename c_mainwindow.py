@@ -214,10 +214,7 @@ class MainUi(QMainWindow):
         log.debug("self.geo x : %d", self.geometry().x())
         log.debug("self.geo y : %d", self.geometry().y())
         self.page_ui_mutex = QMutex()
-        # QTimer.singleShot(5000, self.demo_start_playlist)
-        # QTimer.singleShot(5000, self.demo_start_hdmi_in)
-        # QTimer.singleShot(5000, self.demo_start_cms)
-        # self.select_preview_v4l2_device()
+
         utils.file_utils.find_ffmpeg_process()
         utils.file_utils.kill_all_ffmpeg_process()
 
@@ -227,15 +224,24 @@ class MainUi(QMainWindow):
         self.sleep_start_time, self.sleep_end_time = utils.file_utils.get_sleep_time_from_file()
         log.debug("self.sleep_start_time = %s", self.sleep_start_time)
         log.debug("self.sleep_end_time = %s", self.sleep_end_time)
+        self.i_sleep_start_time_hour = int(self.sleep_start_time.split(":")[0])
+        self.i_sleep_start_time_min = int(self.sleep_start_time.split(":")[1])
+        self.i_sleep_end_time_hour = int(self.sleep_end_time.split(":")[0])
+        self.i_sleep_end_time_min = int(self.sleep_end_time.split(":")[1])
+
         self.date_timer = QTimer(self)
         self.date_timer.timeout.connect(self.check_brightness_by_date_timer)
         # self.date_timer.start(1*60*1000)
         self.date_timer.start(1 * 60 * 1000)
 
+        # reboot flag
+        self.reboot_mode = utils.file_utils.get_reboot_mode_default_from_file()
+        log.debug("self.reboot_mode = %s", self.reboot_mode)
+        self.reboot_time = utils.file_utils.get_reboot_time_default_from_file()
+        log.debug("self.reboot_time = %s", self.reboot_time)
         self.client_check_reboot_timer = QTimer(self)
         self.client_check_reboot_timer.timeout.connect(self.client_reboot_timer)
         # set one miniute timer
-        # self.client_check_reboot_timer.start(1 * 60 * 1000)
         self.client_check_reboot_timer.start(1 * 60 * 1000)
         
         '''self.dmesg_timer = QTimer(self)
@@ -245,22 +251,16 @@ class MainUi(QMainWindow):
         # utils.astral_utils.get_sun_times("KK")
         self.city = City_Map[self.media_engine.media_processor.video_params.get_target_city_index()].get("City")
         # for test
-        self.brightness_test_log = False
+        self.brightness_test_log = True
 
         # QTimer.singleShot(5000, self.demo_start_playlist)
-        # QTimer.singleShot(5000, self.demo_start_hdmi_in)
+        QTimer.singleShot(5000, self.demo_start_hdmi_in)
         # QTimer.singleShot(5000, self.demo_start_cms)
-        # self.select_preview_v4l2_device()
 
         self.web_cmd_time = time.time()
         self.tmp_clients_count = 0
         self.force_kill_ffmpy_count = 0
 
-        # reboot flag
-        self.reboot_mode = utils.file_utils.get_reboot_mode_default_from_file()
-        log.debug("self.reboot_mode = %s", self.reboot_mode)
-        self.reboot_time = utils.file_utils.get_reboot_time_default_from_file()
-        log.debug("self.reboot_time = %s", self.reboot_time)
         self.test_count = 0
 
     def check_dmesg(self):
@@ -395,10 +395,12 @@ class MainUi(QMainWindow):
         light_end_time = None
         if utils.astral_utils.get_sleep_mode_enable() is True:
             # log.debug("Sleep Mode is True")
-            # train start
-            light_start_time = now.replace(hour=5, minute=0, second=0, microsecond=0)
-            # train stop
-            light_end_time = now.replace(hour=23, minute=50, second=0, microsecond=0)
+            # sleep start ==> train start
+            light_start_time = now.replace(hour=self.i_sleep_end_time_hour, minute=self.i_sleep_end_time_min,
+                                           second=0, microsecond=0)
+            # sleep start ==> light_end
+            light_end_time = now.replace(hour=self.i_sleep_start_time_hour, minute=self.i_sleep_start_time_min,
+                                         second=0, microsecond=0)
         else:
             if self.brightness_test_log is True:
                 log.debug("Sleep Mode is False")
