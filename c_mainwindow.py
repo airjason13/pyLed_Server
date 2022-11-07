@@ -251,7 +251,7 @@ class MainUi(QMainWindow):
         # utils.astral_utils.get_sun_times("KK")
         self.city = City_Map[self.media_engine.media_processor.video_params.get_target_city_index()].get("City")
         # for test
-        self.brightness_test_log = True
+        self.brightness_test_log = False
 
         # QTimer.singleShot(5000, self.demo_start_playlist)
         QTimer.singleShot(5000, self.demo_start_hdmi_in)
