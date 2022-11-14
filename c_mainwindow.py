@@ -410,7 +410,7 @@ class MainUi(QMainWindow):
 
         # log.debug("get_sleep_mode_enable : %d",
         # self.media_engine.media_processor.video_params.get_sleep_mode_enable())
-        if self.media_engine.media_processor.video_params.get_sleep_mode_enable() is True:
+        if self.media_engine.media_processor.video_params.get_sleep_mode_enable() == 1:
             # log.debug("Sleep Mode is True")
             # sleep start ==> train start
             light_start_time = now.replace(hour=self.i_sleep_end_time_hour, minute=self.i_sleep_end_time_min,
@@ -1062,6 +1062,7 @@ class MainUi(QMainWindow):
                 self.media_engine.media_processor.set_sleep_mode(0)
                 self.medialist_page.radiobutton_sleep_mode_disable_set()
                 self.hdmi_in_page.radiobutton_sleep_mode_disable_set()
+            self.check_brightness_by_date_timer()
         elif data.get("set_reboot_mode"):
             log.debug("set_reboot_mode")
             reboot_time = utils.file_utils.get_reboot_time_default_from_file()
