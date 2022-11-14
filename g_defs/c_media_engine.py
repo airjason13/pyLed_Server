@@ -336,7 +336,8 @@ class media_processor(QObject):
                         else:
                             os.popen("kill -9 $(pgrep -f libx264)")
                         # os.kill(self.ffmpy_process.pid, signal.SIGTERM)
-                    self.play_single_file_thread.quit()
+                    # self.play_single_file_thread.quit()
+                    self.play_playlist_thread.quit()
                     # self.play_single_file_worker.finished.emit()
                     for i in range(10):
                         log.debug("self.play_playlist_thread.isFinished() = %d",
