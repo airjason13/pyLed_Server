@@ -5,8 +5,8 @@ log/
 *.swp
 test_log.dat
 sun_time.dat
-client_info.dat
+static/client_info.dat
 .led_config
-.video_params_config
+video_params_config/.video_params_config
 .reboot_config
 .sleep_time_config

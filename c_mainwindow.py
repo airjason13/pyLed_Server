@@ -407,7 +407,10 @@ class MainUi(QMainWindow):
         # test_hour = now
         light_start_time = None
         light_end_time = None
-        if utils.astral_utils.get_sleep_mode_enable() is True:
+
+        # log.debug("get_sleep_mode_enable : %d",
+        # self.media_engine.media_processor.video_params.get_sleep_mode_enable())
+        if self.media_engine.media_processor.video_params.get_sleep_mode_enable() is True:
             # log.debug("Sleep Mode is True")
             # sleep start ==> train start
             light_start_time = now.replace(hour=self.i_sleep_end_time_hour, minute=self.i_sleep_end_time_min,
