@@ -6,6 +6,7 @@ log/
 test_log.dat
 sun_time.dat
 static/client_info.dat
+client_info.dat
 .led_config
 video_params_config/.video_params_config
 .reboot_config

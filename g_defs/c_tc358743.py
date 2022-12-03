@@ -35,11 +35,11 @@ class TC358743(QObject):
 
 	def check_hdmi_status_lock(self):
 		if self.check_hdmi_status_mutex is not None:
-			self.check_hdmi_status_mutex.lock
+			self.check_hdmi_status_mutex.lock()
 
 	def check_hdmi_status_unlock(self):
 		if self.check_hdmi_status_mutex is not None:
-			self.check_hdmi_status_mutex.unlock
+			self.check_hdmi_status_mutex.unlock()
 
 	def x86_get_video0_timing(self):
 		log.debug("")
