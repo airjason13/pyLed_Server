@@ -534,14 +534,14 @@ class Hdmi_In_Page(QObject):
                     #if self.tc358743.set_tc358743_dv_bt_timing() is True:
                     #    self.tc358743.reinit_tc358743_dv_timing()
                     self.start_hdmi_in_preview()
-                    ''' below will cause timer hang
+
                     if self.play_hdmi_in_keep is True:
                         self.start_hdmi_in_streaming()
-                        log.debug("start_hdmi_in end")'''
+                        log.debug("start_hdmi_in end")
             else:
                 log.debug("lost connect, play_hdmi_in_status : %d", self.play_hdmi_in_status)
-                # if self.play_hdmi_in_keep is True:
-                #    self.stop_hdmi_in_streaming()
+                if self.play_hdmi_in_keep is True:
+                    self.stop_hdmi_in_streaming()
                 if self.tc358743.set_tc358743_dv_bt_timing() is True:
                     self.tc358743.reinit_tc358743_dv_timing()
                 #self.tc358743.reinit_tc358743_dv_timing()
