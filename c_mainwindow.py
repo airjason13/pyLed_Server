@@ -22,6 +22,7 @@ from pyqt_worker import Worker
 from qtui.c_page_client import *
 from qtui.c_page_hdmi_in import *
 from qtui.c_page_cms import *
+from qtui.c_page_test import *
 from qtui.c_page_medialist import *
 from PyQt5.QtCore import QThread, pyqtSignal, QDateTime, QObject
 from str_define import *
@@ -34,6 +35,7 @@ from qt_web_comunication import *
 log = utils.log_utils.logging_init(__file__)
 from zoneinfo import ZoneInfo
 
+
 class MainUi(QMainWindow):
     signal_add_cabinet_label = pyqtSignal(cabinet_params)
 
@@ -43,6 +45,10 @@ class MainUi(QMainWindow):
 
     option_btn_width = 240
     option_btn_height = 60
+
+    from _handle_qlocal_message import test_qlocal_message, parser_cmd_from_qlocalserver
+    from _handle_brightness_by_time import check_daymode_nightmode, client_reboot_timer, \
+                                            is_sleep_time, check_brightness_by_date_timer
 
     def __init__(self):
         super().__init__()
@@ -243,10 +249,6 @@ class MainUi(QMainWindow):
         self.client_check_reboot_timer.timeout.connect(self.client_reboot_timer)
         # set one miniute timer
         self.client_check_reboot_timer.start(1 * 60 * 1000)
-        
-        '''self.dmesg_timer = QTimer(self)
-        self.dmesg_timer.timeout.connect(self.check_dmesg)
-        self.dmesg_timer.start(5 * 1000)'''
 
         # utils.astral_utils.get_sun_times("KK")
         self.city = City_Map[self.media_engine.media_processor.video_params.get_target_city_index()].get("City")
@@ -263,216 +265,6 @@ class MainUi(QMainWindow):
 
         self.test_count = 0
 
-    def check_dmesg(self):
-        # log.debug("dmesg")
-        dmesg_res = os.popen("dmesg | grep mutex").read()
-        if len(dmesg_res) != 0:
-            log.debug("#######found error############")
-            os.popen("reboot")
-
-
-    def check_daymode_nightmode(self, sunrise_time, sunset_time, now):
-        if self.brightness_test_log is True:
-            file_uri = os.getcwd() + "/test_log.dat"
-            f = open(file_uri, "a+")
-
-        if sunrise_time < now < sunset_time:
-            if self.brightness_test_log is True:
-                log.debug("day mode")
-
-            # log.debug("day_mode_brightness = %d", day_mode_brightness)
-            if self.media_engine.media_processor.video_params.frame_brightness \
-                    != self.media_engine.media_processor.video_params.get_day_mode_frame_brightness():
-                self.media_engine.media_processor.set_frame_brightness_value(
-                    self.media_engine.media_processor.video_params.get_day_mode_frame_brightness())
-                self.hdmi_in_page.client_brightness_edit.setText(
-                    str(self.media_engine.media_processor.video_params.get_frame_brightness()))
-                self.medialist_page.client_brightness_edit.setText(
-                    str(self.media_engine.media_processor.video_params.get_frame_brightness()))
-
-                clients = self.clients
-                for c in clients:
-                    c.send_cmd(cmd_set_frame_brightness,
-                               self.cmd_seq_id_increase(),
-                               str(self.media_engine.media_processor.video_params.get_frame_brightness()))
-            if self.brightness_test_log is True:
-                log.debug("self.media_engine.media_processor.video_params.frame_brightness = %d",
-                      self.media_engine.media_processor.video_params.frame_brightness)
-
-                data = self.city + " " + now.strftime("%Y-%m-%d %H:%M:%S")
-                str_sunrise_time = sunrise_time.strftime("%Y-%m-%d %H:%M:%S")
-                str_sunset_time = sunset_time.strftime("%Y-%m-%d %H:%M:%S")
-                f.write(data + "==> day mode" + "==>br:" +
-                        str(self.media_engine.media_processor.video_params.get_frame_brightness()) +
-                        "==>sunrisetime:" + str_sunrise_time +
-                        "==>sunrisetime:" + str_sunset_time + "\n")
-                f.flush()
-        else:
-            if self.brightness_test_log is True:
-                log.debug("night mode")
-            if self.media_engine.media_processor.video_params.frame_brightness \
-                    != self.media_engine.media_processor.video_params.get_night_mode_frame_brightness():
-                self.media_engine.media_processor.set_frame_brightness_value(
-                    self.media_engine.media_processor.video_params.get_night_mode_frame_brightness())
-
-                self.hdmi_in_page.client_brightness_edit.setText(
-                    str(self.media_engine.media_processor.video_params.get_frame_brightness()))
-                self.medialist_page.client_brightness_edit.setText(
-                    str(self.media_engine.media_processor.video_params.get_frame_brightness()))
-
-                clients = self.clients
-                for c in clients:
-                    c.send_cmd(cmd_set_frame_brightness,
-                               self.cmd_seq_id_increase(),
-                               str(self.media_engine.media_processor.video_params.get_frame_brightness()))
-            if self.brightness_test_log is True:
-                log.debug("self.media_engine.media_processor.video_params.frame_brightness = %d",
-                          self.media_engine.media_processor.video_params.get_frame_brightness())
-
-                data = self.city + " " + now.strftime("%Y-%m-%d %H:%M:%S")
-                str_sunrise_time = sunrise_time.strftime("%Y-%m-%d %H:%M:%S")
-                str_sunset_time = sunset_time.strftime("%Y-%m-%d %H:%M:%S")
-                f.write(data + "==> night mode" + "==>br:" +
-                        str(self.media_engine.media_processor.video_params.frame_brightness) +
-                        "==>sunrisetime:" + str_sunrise_time +
-                        "==>sunrisetime:" + str_sunset_time + "\n")
-                f.flush()
-        if self.brightness_test_log is True:
-            f.close()
-
-    def client_reboot_timer(self):
-        if 'Disable' in self.reboot_mode:
-            return
-        # log.debug("client_reboot_timer")
-        i_reboot_hour = int(self.reboot_time.split(":")[0])
-        i_reboot_min = int(self.reboot_time.split(":")[1])
-        # log.debug("client_reboot_timer : %d:%d", i_reboot_hour, i_reboot_min)
-        now = datetime.now().replace(tzinfo=ZoneInfo(utils.astral_utils.get_time_zone(self.city)))
-        start_client_reboot_time = now.replace(hour=i_reboot_hour, minute=i_reboot_min, second=0, microsecond=0)
-        end_client_reboot_time = now.replace(hour=i_reboot_hour, minute=i_reboot_min + 1, second=0, microsecond=0)
-        if start_client_reboot_time < now < end_client_reboot_time:
-            log.debug("It's time to trigger reboot cmd!") 
-            self.client_reboot_flags = True
-            try:
-                for i in range(10):
-                    self.server_broadcast_client_reboot()
-                    time.sleep(0.1)
-            except Exception as e:
-                log.debug(e)
-            self.client_reboot_flags = False
-            time.sleep(30)
-            if platform.machine() in ('arm', 'arm64', 'aarch64'):
-                os.popen("reboot")
-            else:
-                log.debug("SYSTEM fake reboot")
-
-    def is_sleep_time(self, now, light_start_time, light_end_time):
-        midnight_time = now.replace(hour=23, minute=59, second=59, microsecond=0)
-        if light_end_time > light_start_time:
-            if now < light_start_time or now > light_end_time:
-                return True
-            else:
-                return False
-        else:
-            if light_end_time < now < light_start_time:
-                return True
-            else:
-                return False
-        return False
-
-    def check_brightness_by_date_timer(self):
-        if self.brightness_test_log is True:
-            log.debug("frame_brightness_algorithm = %d",
-                      self.media_engine.media_processor.video_params.frame_brightness_algorithm)
-
-        if self.media_engine.media_processor.video_params.frame_brightness_algorithm \
-                == frame_brightness_adjust.fix_mode:
-            clients = self.clients
-            for c in clients:
-                c.send_cmd(cmd_set_frame_brightness,
-                           self.cmd_seq_id_increase(),
-                           str(self.media_engine.media_processor.video_params.get_frame_brightness()))
-            if self.brightness_test_log is True:
-                log.debug("frame_brightness_adjust.fix_mode")
-            return
-        self.city = City_Map[self.media_engine.media_processor.video_params.get_target_city_index()].get("City")
-        sunrise_time, sunset_time = utils.astral_utils.get_sun_times(self.city)
-        # now = datetime.now().replace(tzinfo=(pytz.timezone(utils.astral_utils.get_time_zone(self.city))))
-        # pytz have +08:06 ??!! the min is 06??? strange!!!
-        now = datetime.now().replace(tzinfo=ZoneInfo(utils.astral_utils.get_time_zone(self.city)))
-        # test_now = datetime.now(sunrise_time.tzinfo)
-        # now = datetime.now(sunrise_time.tzinfo)
-        # log.debug("now: %s", now.strftime("%Y-%m-%d %H:%M:%S"))
-        # log.debug("test_now: %s", test_now.strftime("%Y-%m-%d %H:%M:%S"))
-        # test_hour = now
-        light_start_time = None
-        light_end_time = None
-
-        # log.debug("get_sleep_mode_enable : %d",
-        # self.media_engine.media_processor.video_params.get_sleep_mode_enable())
-        if self.media_engine.media_processor.video_params.get_sleep_mode_enable() == 1:
-            # log.debug("Sleep Mode is True")
-            # sleep start ==> train start
-            light_start_time = now.replace(hour=self.i_sleep_end_time_hour, minute=self.i_sleep_end_time_min,
-                                           second=0, microsecond=0)
-            # sleep start ==> light_end
-            light_end_time = now.replace(hour=self.i_sleep_start_time_hour, minute=self.i_sleep_start_time_min,
-                                         second=0, microsecond=0)
-        else:
-            if self.brightness_test_log is True:
-                log.debug("Sleep Mode is False")
-            pass
-
-        # now = test_hour.replace(hour=self.test_hour, minute=self.test_min, second=0, microsecond=0)
-
-        # sunrise_time, sunset_time = utils.astral_utils.get_sun_times(self.city)
-        if self.brightness_test_log is True:
-            log.debug("sunrise_time: %s", sunrise_time)
-            log.debug("sunset_time: %s", sunset_time)
-        with open(os.getcwd() + "/static/sun_time.dat", "w+") as f:
-            file_content = "sunrise_time:" + sunrise_time.strftime("%Y-%m-%d %H:%M:%S") + \
-                           "\n" + "sunset_time:" + sunset_time.strftime("%Y-%m-%d %H:%M:%S")
-            f.write(file_content)
-            f.close()
-        # train info stop
-        if light_start_time is not None and light_end_time is not None:
-            # if now < light_start_time or now > light_end_time:
-            if self.is_sleep_time(now, light_start_time, light_end_time) is True:
-                if self.brightness_test_log is True:
-                    file_uri = os.getcwd() + "/test_log.dat"
-                    f = open(file_uri, "a+")
-                    log.debug("sleep mode")
-                if self.media_engine.media_processor.video_params.frame_brightness \
-                        != self.media_engine.media_processor.video_params.get_sleep_mode_frame_brightness():
-                    self.media_engine.media_processor.set_frame_brightness_value(
-                        self.media_engine.media_processor.video_params.get_sleep_mode_frame_brightness())
-                    self.hdmi_in_page.client_brightness_edit.setText(
-                        str(self.media_engine.media_processor.video_params.get_frame_brightness()))
-                    self.medialist_page.client_brightness_edit.setText(
-                        str(self.media_engine.media_processor.video_params.get_frame_brightness()))
-
-                    clients = self.clients
-                    for c in clients:
-                        c.send_cmd(cmd_set_frame_brightness,
-                                   self.cmd_seq_id_increase(),
-                                   str(self.media_engine.media_processor.video_params.get_frame_brightness()))
-                if self.brightness_test_log is True:
-                    log.debug("self.media_engine.media_processor.video_params.frame_brightness = %d",
-                              self.media_engine.media_processor.video_params.frame_brightness)
-
-                    data = self.city + " " + now.strftime("%Y-%m-%d %H:%M:%S")
-                    str_sunrise_time = sunrise_time.strftime("%Y-%m-%d %H:%M:%S")
-                    str_sunset_time = sunset_time.strftime("%Y-%m-%d %H:%M:%S")
-                    f.write(data + "==> sleep mode" + "==>br:" +
-                            str(self.media_engine.media_processor.video_params.frame_brightness) +
-                            "==>sunrisetime:" + str_sunrise_time +
-                            "==>sunrisetime:" + str_sunset_time + "\n")
-                    f.flush()
-                    f.close()
-            else:
-                self.check_daymode_nightmode(sunrise_time, sunset_time, now)
-        else:
-            self.check_daymode_nightmode(sunrise_time, sunset_time, now)
 
     def demo_start_cms(self):
         self.func_cms_setting()
@@ -562,17 +354,23 @@ class MainUi(QMainWindow):
         hdmi_in_btn.clicked.connect(self.func_hdmi_in_contents)
         button_layout.addWidget(hdmi_in_btn)
 
-        test_btn = QPushButton(top_left_frame)
-        test_btn.setFixedSize(self.option_btn_width, self.option_btn_height), test_btn.setText(STR_LED_SETTING)
-        test_btn.setFont(QFont(qfont_style_default, qfont_style_size_large))
-        test_btn.clicked.connect(self.func_led_setting)
-        button_layout.addWidget(test_btn)
+        led_setting_btn = QPushButton(top_left_frame)
+        led_setting_btn.setFixedSize(self.option_btn_width, self.option_btn_height), led_setting_btn.setText(STR_LED_SETTING)
+        led_setting_btn.setFont(QFont(qfont_style_default, qfont_style_size_large))
+        led_setting_btn.clicked.connect(self.func_led_setting)
+        button_layout.addWidget(led_setting_btn)
 
-        test2_btn = QPushButton(top_left_frame)
-        test2_btn.setFixedSize(self.option_btn_width, self.option_btn_height), test2_btn.setText(STR_CMS)
-        test2_btn.setFont(QFont(qfont_style_default, qfont_style_size_large))
-        test2_btn.clicked.connect(self.func_cms_setting)
-        button_layout.addWidget(test2_btn)
+        cms_btn = QPushButton(top_left_frame)
+        cms_btn.setFixedSize(self.option_btn_width, self.option_btn_height), cms_btn.setText(STR_CMS)
+        cms_btn.setFont(QFont(qfont_style_default, qfont_style_size_large))
+        cms_btn.clicked.connect(self.func_cms_setting)
+        button_layout.addWidget(cms_btn)
+
+        test_btn = QPushButton(top_left_frame)
+        test_btn.setFixedSize(self.option_btn_width, self.option_btn_height), test_btn.setText(STR_TEST)
+        test_btn.setFont(QFont(qfont_style_default, qfont_style_size_large))
+        test_btn.clicked.connect(self.func_test)
+        button_layout.addWidget(test_btn)
         """Left UI End"""
 
         """Right UI"""
@@ -597,9 +395,12 @@ class MainUi(QMainWindow):
         "CMS Page"
         self.initial_cms_page()
 
+        "TEST Page"
+        self.initial_test_page()
+
         self.splitter1 = QSplitter(Qt.Vertical)
         self.splitter1.setMouseTracking(True)
-        top_left_frame.setFixedHeight(360)
+        top_left_frame.setFixedHeight(420)
         top_left_frame.setFixedWidth(260)
         self.splitter1.addWidget(top_left_frame)
         self.splitter1.addWidget(btm_left_frame)
@@ -756,14 +557,10 @@ class MainUi(QMainWindow):
         self.port_layout_information_widget = port_layout_information_widget
 
     def initial_cms_page(self):
-        """self.cms_widget = QWidget(self.right_frame)
-        self.right_layout.addWidget(self.cms_widget)
-        self.cms_widget_layout = QGridLayout()
-        self.btn_test_cms = QPushButton(self.cms_widget)
-        self.cms_widget_layout.addWidget(self.btn_test_cms,0, 1)
-        self.cms_widget.setLayout(self.cms_widget_layout)"""
-
         self.cms_page = CmsPage(self)
+
+    def initial_test_page(self):
+        self.test_page = TestPage(self)
 
     def center(self):
         # get the geomertry of the screen and set the postion in the center of screen
@@ -811,15 +608,6 @@ class MainUi(QMainWindow):
             log.debug("stop hdmi-in preview")
             self.hdmi_in_page.stop_send_to_led()
             self.hdmi_in_page.stop_hdmi_in_preview()
-
-        # handle page_cms_setting_idx enter and exit
-        #if pre_idx != page_cms_setting_idx and going_idx == page_cms_setting_idx:
-            '''try:
-                self.media_engine.stop_play()
-                self.cms_page.start_play_cms()
-            except Exception as e:
-                log.debug(e)'''
-            
         if pre_idx == page_cms_setting_idx and going_idx != page_cms_setting_idx:
             try:
                 self.cms_page.stop_play_cms()
@@ -836,17 +624,7 @@ class MainUi(QMainWindow):
         log.debug("self.page_idx = %d", self.page_idx)
         self.right_layout.setCurrentIndex(self.page_idx)
         self.page_ui_mutex.unlock()
-
         log.debug("change page ok!")
-        # for test
-        '''if going_idx == page_cms_setting_idx:
-            self.media_engine.stop_play()
-            self.cms_page.start_play_cms()
-        else :
-            self.cms_page.stop_play_cms()
-            self.media_engine.resume_play()
-            self.media_engine.stop_play()
-            subprocess.Popen("pkill chromium", shell=True)'''
 
     def fun_connect_clients(self):
         log.debug("connect clients")
@@ -877,6 +655,11 @@ class MainUi(QMainWindow):
         self.page_status_change()
         self.led_layout_window.show()
 
+    def func_test(self):
+        log.debug("func_test")
+        self.signal_right_page_changed.emit(self.page_idx, page_test)
+        self.page_status_change()
+
     def func_cms_setting(self):
         log.debug("func_cms_setting")
         self.signal_right_page_changed.emit(self.page_idx, page_cms_setting_idx)
@@ -896,301 +679,6 @@ class MainUi(QMainWindow):
         self.medialist_page.client_brightness_edit.setText(str(i))
         self.medialist_page.video_params_confirm_btn_clicked()
 
-    """ handle the command from qlocalserver"""
-    def parser_cmd_from_qlocalserver(self, data):
-        if data.get("play_file"):
-            now_time = time.time()
-            if now_time - self.web_cmd_time < web_cmd_interval:
-                log.debug("cmd too quick")
-                return
-            self.web_cmd_time = time.time()
-            got_lock = self.web_cmd_mutex.tryLock()
-            if got_lock is False:
-                log.debug("Cannot get lock!")
-                return
-            else:
-                pass
-            try:
-                self.func_file_contents()
-                log.debug("play single file : %s!", data.get("play_file"))
-                self.medialist_page.right_clicked_select_file_uri = \
-                    internal_media_folder + "/" + data.get("play_file")
-                log.debug("file_uri :%s",
-                          self.medialist_page.right_clicked_select_file_uri)
-                self.media_engine.play_single_file(
-                    self.medialist_page.right_clicked_select_file_uri)
-            except Exception as e:
-                log.debug(e)
-            self.web_cmd_mutex.unlock()
-        elif data.get("play_cms"):
-            now_time = time.time()
-            if now_time - self.web_cmd_time < web_cmd_interval:
-                log.debug("cmd too quick")
-                return
-            self.web_cmd_time = time.time()
-            got_lock = self.web_cmd_mutex.tryLock()
-            if got_lock is False:
-                log.debug("Cannot get lock!")
-                return
-            else:
-                pass
-            try:
-                log.debug("got play_cms ")
-                self.func_cms_setting()
-                self.cms_page.start_play_cms()
-            except Exception as e:
-                log.debug(e)
-            self.web_cmd_mutex.unlock()
-        elif data.get("play_playlist"):
-            now_time = time.time()
-            if now_time - self.web_cmd_time < web_cmd_interval:
-                log.debug("cmd too quick")
-                return
-            self.web_cmd_time = time.time()
-            got_lock = self.web_cmd_mutex.tryLock()
-            if got_lock is False:
-                log.debug("Cannot get lock!")
-                return
-            else:
-                pass
-            try:
-                self.func_file_contents()
-                log.debug("play playlist")
-                self.media_engine.play_playlsit(data.get("play_playlist"))
-            except Exception as e:
-                log.debug(e)
-            self.web_cmd_mutex.unlock()
-        elif data.get("play_hdmi_in"):
-            now_time = time.time()
-            if now_time - self.web_cmd_time < web_cmd_interval:
-                log.debug("cmd too quick")
-                return
-            self.web_cmd_time = time.time()
-            got_lock = self.web_cmd_mutex.tryLock()
-            if got_lock is False:
-                log.debug("Cannot get lock!")
-                return
-            else:
-                pass
-            try:
-                self.func_hdmi_in_contents()
-                if "start" in data.get("play_hdmi_in"):
-                    log.debug("play_hdmi_in start")
-                    # self.hdmi_in_page.play_action_btn.click()
-                    self.hdmi_in_page.send_to_led_parser()
-                elif "stop" in data.get("play_hdmi_in"):
-                    log.debug("play_hdmi_in stop")
-                    self.hdmi_in_page.stop_send_to_led()
-            except Exception as e:
-                log.debug(e)
-            self.web_cmd_mutex.unlock()
-        elif data.get("play_text"):
-            now_time = time.time()
-            if now_time - self.web_cmd_time < web_cmd_interval:
-                log.debug("cmd too quick")
-                return
-            self.web_cmd_time = time.time()
-            got_lock = self.web_cmd_mutex.tryLock()
-            if got_lock is False:
-                log.debug("Cannot get lock!")
-                return
-            else:
-                pass
-            try:
-                self.func_file_contents()
-                log.debug("play_text")
-                utils.file_utils.change_text_content(data.get("play_text"))
-                self.medialist_page.right_clicked_select_file_uri = internal_media_folder + subtitle_blank_jpg
-                log.debug("file_uri :%s", self.medialist_page.right_clicked_select_file_uri)
-                self.media_engine.play_single_file(self.medialist_page.right_clicked_select_file_uri)
-            except Exception as e:
-                log.debug(e)
-            self.web_cmd_mutex.unlock()
-        elif data.get("set_text_size"):
-            log.debug("set_text_size")
-            utils.file_utils.change_text_size(data.get("set_text_size"))
-        elif data.get("set_text_speed"):
-            log.debug("set_text_speed")
-            utils.file_utils.change_text_speed(data.get("set_text_speed"))
-        elif data.get("set_text_position"):
-            log.debug("set_text_position")
-            utils.file_utils.change_text_position(data.get("set_text_position"))
-        elif data.get("set_text_period"):
-            log.debug("set_text_period")
-            utils.file_utils.change_text_period(data.get("set_text_period"))
-        elif data.get("set_repeat_option"):
-            log.debug("set_repeat_option")
-            if data.get("set_repeat_option") == "Repeat_Random":
-                self.medialist_page.play_option_repeat = repeat_option.repeat_random
-                self.medialist_page.btn_repeat.setText("Repeat Random")
-            elif data.get("set_repeat_option") == "Repeat_All":
-                self.medialist_page.play_option_repeat = repeat_option.repeat_all
-                self.medialist_page.btn_repeat.setText("Repeat All")
-            elif data.get("set_repeat_option") == "Repeat_One":
-                self.medialist_page.play_option_repeat = repeat_option.repeat_one
-                self.medialist_page.btn_repeat.setText("Repeat One")
-            elif data.get("set_repeat_option") == "Repeat_None":
-                self.medialist_page.play_option_repeat = repeat_option.repeat_none
-                self.medialist_page.btn_repeat.setText("Repeat None")
-            self.mainwindow.repeat_option_set(self.medialist_page.play_option_repeat)
-        elif data.get("set_frame_brightness_option"):
-            log.debug("set_frame_brightness_option")
-            self.media_engine.media_processor.set_frame_brightness_value(int(data.get("set_frame_brightness_option")))
-            # print("type(self.media_engine.media_processor.video_params.get_frame_brightness()):", self.media_engine.media_processor.video_params.get_frame_brightness())
-            self.hdmi_in_page.client_brightness_edit.setText(
-                str(self.media_engine.media_processor.video_params.get_frame_brightness()))
-            self.medialist_page.client_brightness_edit.setText(
-                str(self.media_engine.media_processor.video_params.get_frame_brightness()))
-
-            clients = self.clients
-            for c in clients:
-                c.send_cmd(cmd_set_frame_brightness,
-                           self.cmd_seq_id_increase(),
-                           str(self.media_engine.media_processor.video_params.frame_brightness))
-        elif data.get("set_sleep_mode"):
-            log.debug("recv : %s ", data.get("set_sleep_mode"))
-            if data.get("set_sleep_mode") == "Enable":
-                log.debug("sleep_mode_set_enable")
-                self.media_engine.media_processor.set_sleep_mode(1)
-                log.debug("sleep_mode_set_enableA")
-                self.medialist_page.radiobutton_sleep_mode_enable_set()
-                log.debug("sleep_mode_set_enableB")
-                self.hdmi_in_page.radiobutton_sleep_mode_enable_set()
-                log.debug("sleep_mode_set_enableC")
-            else:
-                log.debug("sleep_mode_set_disable")
-                self.media_engine.media_processor.set_sleep_mode(0)
-                self.medialist_page.radiobutton_sleep_mode_disable_set()
-                self.hdmi_in_page.radiobutton_sleep_mode_disable_set()
-            self.check_brightness_by_date_timer()
-        elif data.get("set_reboot_mode"):
-            log.debug("set_reboot_mode")
-            reboot_time = utils.file_utils.get_reboot_time_default_from_file()
-            if data.get("set_reboot_mode") == "Enable":
-                log.debug("set_reboot_mode : Enable")
-                utils.file_utils.set_reboot_params(True, reboot_time)
-            else:
-                log.debug("set_reboot_mode : Disable")
-                utils.file_utils.set_reboot_params(False, reboot_time)
-            self.reboot_mode = utils.file_utils.get_reboot_mode_default_from_file()
-            self.reboot_time = utils.file_utils.get_reboot_time_default_from_file()
-        elif data.get("set_reboot_time"):
-            log.debug("set_reboot_time: %s", data.get("set_reboot_time"))
-            reboot_mode = utils.file_utils.get_reboot_mode_default_from_file()
-            if reboot_mode is "Enable":
-                utils.file_utils.set_reboot_params(True, data.get("set_reboot_time"))
-            else:
-                utils.file_utils.set_reboot_params(False, data.get("set_reboot_time"))
-            self.reboot_time = utils.file_utils.get_reboot_time_default_from_file()
-            self.reboot_mode = utils.file_utils.get_reboot_mode_default_from_file()
-        elif data.get("set_sleep_time"):
-            log.debug("set_sleep_time: %s", data.get("set_sleep_time"))
-            time_tmp = data.get("set_sleep_time")
-            self.sleep_start_time = time_tmp.split(";")[0]
-            self.sleep_end_time = time_tmp.split(";")[1]
-            utils.file_utils.set_sleep_params(self.sleep_start_time, self.sleep_end_time)
-            self.i_sleep_start_time_hour = int(self.sleep_start_time.split(":")[0])
-            self.i_sleep_start_time_min = int(self.sleep_start_time.split(":")[1])
-            self.i_sleep_end_time_hour = int(self.sleep_end_time.split(":")[0])
-            self.i_sleep_end_time_min = int(self.sleep_end_time.split(":")[1])
-
-        elif data.get("set_target_city"):
-            log.debug("recv : %s ", data.get("set_target_city"))
-            if utils.astral_utils.check_city_valid(data.get("set_target_city")) is False:
-                log.debug("City Invalid")
-                return
-            # self.city = data.get("set_target_city")
-            c = 0
-            city_index = 0
-            for city in City_Map:
-                if city.get("City") == data.get("set_target_city"):
-                    city_index = c
-                    break
-                c += 1
-            self.medialist_page.combobox_target_city_change(city_index)
-            self.city = City_Map[self.media_engine.media_processor.video_params.get_target_city_index()].get("City")
-
-        elif data.get("set_brightness_algo"):
-            log.debug("recv : %s ", data.get("set_brightness_algo"))
-            if "fix_mode" == data.get("set_brightness_algo"):
-                self.medialist_page.radiobutton_client_br_method_fix_mode_set()
-                self.hdmi_in_page.radiobutton_client_br_method_fix_mode_set()
-            elif "auto_time_mode" == data.get("set_brightness_algo"):
-                self.medialist_page.radiobutton_client_br_method_time_mode_set()
-                self.hdmi_in_page.radiobutton_client_br_method_time_mode_set()
-            elif "auto_als_mode" == data.get("set_brightness_algo"):
-                self.medialist_page.radiobutton_client_br_method_als_mode_set()
-                self.hdmi_in_page.radiobutton_client_br_method_als_mode_set()
-            elif "test_mode" == data.get("set_brightness_algo"):
-                self.medialist_page.radiobutton_client_br_method_test_mode_set()
-                self.hdmi_in_page.radiobutton_client_br_method_test_mode_set()
-        elif data.get("set_frame_brightness_values_option"):
-            log.debug("recv : %s", data.get("set_frame_brightness_values_option"))
-            data_tmp = data.get("set_frame_brightness_values_option")
-            fr_br = data_tmp.split(";")[0].split(":")[1]
-            day_mode_fr_br = data_tmp.split(";")[1].split(":")[1]
-            night_mode_fr_br = data_tmp.split(";")[2].split(":")[1]
-            sleep_mode_fr_br = data_tmp.split(";")[3].split(":")[1]
-            log.debug("fr_br : %s", fr_br)
-            log.debug("day_mode_fr_br : %s", day_mode_fr_br)
-            log.debug("night_mode_fr_br : %s", night_mode_fr_br)
-            log.debug("sleep_mode_fr_br : %s", sleep_mode_fr_br)
-            self.media_engine.media_processor.set_frame_brightness_value(int(fr_br))
-            self.media_engine.media_processor.set_day_mode_frame_brightness_value(int(day_mode_fr_br))
-            self.media_engine.media_processor.set_night_mode_frame_brightness_value(int(night_mode_fr_br))
-            self.media_engine.media_processor.set_sleep_mode_frame_brightness_value(int(sleep_mode_fr_br))
-            self.hdmi_in_page.client_brightness_edit.setText(
-                str(self.media_engine.media_processor.video_params.get_frame_brightness()))
-            self.medialist_page.client_brightness_edit.setText(
-                str(self.media_engine.media_processor.video_params.get_frame_brightness()))
-            self.hdmi_in_page.client_day_mode_brightness_edit.setText(
-                str(self.media_engine.media_processor.video_params.get_day_mode_frame_brightness()))
-            self.medialist_page.client_day_mode_brightness_edit.setText(
-                str(self.media_engine.media_processor.video_params.get_day_mode_frame_brightness()))
-            self.hdmi_in_page.client_night_mode_brightness_edit.setText(
-                str(self.media_engine.media_processor.video_params.get_night_mode_frame_brightness()))
-            self.medialist_page.client_night_mode_brightness_edit.setText(
-                str(self.media_engine.media_processor.video_params.get_night_mode_frame_brightness()))
-            self.hdmi_in_page.client_sleep_mode_brightness_edit.setText(
-                str(self.media_engine.media_processor.video_params.get_sleep_mode_frame_brightness()))
-            self.medialist_page.client_sleep_mode_brightness_edit.setText(
-                str(self.media_engine.media_processor.video_params.get_sleep_mode_frame_brightness()))
-
-            self.check_brightness_by_date_timer()
-
-        elif data.get("set_ledclients_reboot_option"):
-            log.debug("set_ledclients_reboot_option")
-            # clients = self.clients
-            
-            self.client_reboot_flags = True
-            try:
-                for i in range(10):
-                    self.server_broadcast_client_reboot()
-                    time.sleep(0.1)
-            except Exception as e:
-                log.debug(e)
-            self.client_reboot_flags = False
-            '''for c in clients:
-                reboot_cmd = "sshpass -p workout13 ssh -o StrictHostKeyChecking=no root@" + c.client_ip + " " + "reboot"
-                log.debug("reboot_cmd : %s", reboot_cmd)
-                k = os.popen(reboot_cmd)
-                k.close()'''
-
-
-        elif data.get("start_color_test"):
-            log.debug("start_color_test")
-            clients = self.clients
-            for c in clients:
-                c.send_cmd(cmd_set_test_color,
-                           self.cmd_seq_id_increase(),
-                           str(data.get("start_color_test")))
-        elif data.get("stop_color_test"):
-            log.debug("stop_color_test")
-            clients = self.clients
-            for c in clients:
-                c.send_cmd(cmd_set_test_color,
-                           self.cmd_seq_id_increase(),
-                           str(data.get("stop_color_test")))
 
     def check_client(self, ip, data):
         is_found = False
@@ -1273,8 +761,6 @@ class MainUi(QMainWindow):
             log.debug(e)
         finally:
             self.clients_unlock()
-
-
 
 
     def sync_cabinet_params(self, cab_params):

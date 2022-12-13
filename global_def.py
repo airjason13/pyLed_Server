@@ -146,7 +146,8 @@ page_media_content_idx = 1
 page_hdmi_in_content_idx = 2
 page_led_setting_idx = 3
 page_cms_setting_idx = 4
-page_cmd_setting_idx = 5
+page_test = 5
+page_cmd_setting_idx = 6
 
 """ffmpy initial value"""
 still_image_loop_cnt = 1
