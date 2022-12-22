@@ -801,26 +801,34 @@ class MainUi(QMainWindow):
     
     """send broadcast on eth0"""
     def server_broadcast(self, arg):
-        data = arg.get("data")
-        port = arg.get("port")
+        try:
+            data = arg.get("data")
+            port = arg.get("port")
 
-        data_append = ";br:" + str(self.media_engine.media_processor.video_params.frame_brightness)
-        data += data_append
+            data_append = ";br:" + str(self.media_engine.media_processor.video_params.frame_brightness)
+            data += data_append
 
-        ip = net_utils.get_ip_address()
-        utils.net_utils.force_set_eth_ip()
+            ip = net_utils.get_ip_address()
+            utils.net_utils.force_set_eth_ip()
 
-        msg = data.encode()
-        if ip != "":
-            # print(f'sending on {ip}')
-            sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)  # UDP
-            sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
-            sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
-            sock.bind((ip, 0))
-            sock.sendto(msg, ("255.255.255.255", port))
-            sock.close()
+            msg = data.encode()
+            if ip != "":
+                # print(f'sending on {ip}')
+                sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)  # UDP
+                sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
+                sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
+                sock.bind((ip, 0))
+                sock.sendto(msg, ("255.255.255.255", port))
+                sock.close()
+            else:
+                if platform.machine() in ('arm', 'arm64', 'aarch64'):
+                    os.popen("ifconfig eth0 192.168.0.3")
+                else:
+                    os.popen("ifconfig eth0 192.168.0.2")
 
-        sleep(2)
+            sleep(2)
+        except Exception as e:
+            log.debug(e)
 
     def clients_lock(self):
         self.clients_mutex.lock()
