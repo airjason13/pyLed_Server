@@ -119,7 +119,7 @@ def neo_ffmpy_execute(video_path, brightness, contrast, red_bias, green_bias, bl
                 },
                 outputs={
                     udp_sink: ["-vcodec", video_encoder, '-filter_complex', filter_params, "-b:v", "2000k",
-                               "-r", fps_25, "-f", "h264", "-pix_fmt", "yuv420p", "-localaddr", localaddr]
+                               "-r", target_fps, "-f", "h264", "-pix_fmt", "yuv420p", "-localaddr", localaddr]
                 },
             )
         elif video_path.endswith("jpeg") or video_path.endswith("jpg") or video_path.endswith("png"):
@@ -131,7 +131,7 @@ def neo_ffmpy_execute(video_path, brightness, contrast, red_bias, green_bias, bl
                 },
                 outputs={
                     udp_sink: ["-vcodec", video_encoder, '-filter_complex', filter_params, "-b:v", "2000k",
-                               "-r", fps_25, "-f", "h264", "-pix_fmt", "yuv420p", "-localaddr", localaddr]
+                               "-r", target_fps, "-f", "h264", "-pix_fmt", "yuv420p", "-localaddr", localaddr]
 
                 },
             )
@@ -144,7 +144,7 @@ def neo_ffmpy_execute(video_path, brightness, contrast, red_bias, green_bias, bl
                 },
                 outputs={
                     udp_sink: ["-vcodec", video_encoder, '-filter_complex', filter_params, "-b:v", "2000k",
-                               "-r", fps_25, "-f", "h264", "-pix_fmt", "yuv420p", "-localaddr", localaddr]
+                               "-r", target_fps, "-f", "h264", "-pix_fmt", "yuv420p", "-localaddr", localaddr]
 
                 },
             )
@@ -156,7 +156,7 @@ def neo_ffmpy_execute(video_path, brightness, contrast, red_bias, green_bias, bl
 
                 outputs={
                     udp_sink: ["-preset", "ultrafast", "-vcodec", "libx264", '-filter_complex', filter_params,
-                               "-g", "60", "-r", fps_25, "-f", "h264", "-pix_fmt", "yuv420p", "-localaddr", localaddr],
+                               "-g", "60", "-r", target_fps, "-f", "h264", "-pix_fmt", "yuv420p", "-localaddr", localaddr],
                     #udp_sink: ["-preset", "ultrafast", "-vcodec", "libx264", '-filter_complex', filter_params,
                     #           "-g", "120", "-f", "h264", "-localaddr", "192.168.0.2"],
                 }
@@ -170,7 +170,7 @@ def neo_ffmpy_execute(video_path, brightness, contrast, red_bias, green_bias, bl
                 },
                 outputs={
                     udp_sink: ["-vcodec", video_encoder, '-filter_complex', filter_params, "-b:v", "2000k",
-                               "-r", fps_25, "-f", "h264", "-pix_fmt", "yuv420p", "-localaddr", localaddr]
+                               "-r", target_fps, "-f", "h264", "-pix_fmt", "yuv420p", "-localaddr", localaddr]
 
                 },
             )
@@ -183,7 +183,7 @@ def neo_ffmpy_execute(video_path, brightness, contrast, red_bias, green_bias, bl
                 },
                 outputs={
                     udp_sink: ["-vcodec", video_encoder, '-filter_complex', filter_params, "-b:v", "2000k",
-                               "-r", fps_25, "-f", "h264", "-pix_fmt", "yuv420p", "-localaddr", localaddr]
+                               "-r", target_fps, "-f", "h264", "-pix_fmt", "yuv420p", "-localaddr", localaddr]
 
                 },
             )
@@ -370,7 +370,7 @@ def neo_ffmpy_cast_video_h264(video_path, cast_dst, brightness, contrast, red_bi
     else:
         video_encoder = "libx264"
     for i in cast_dst:
-        output[i] = ["-vcodec", video_encoder, '-filter_complex', filter_params, "-b:v", "2000k", "-r", fps_25, "-f",
+        output[i] = ["-vcodec", video_encoder, '-filter_complex', filter_params, "-b:v", "2000k", "-r", target_fps, "-f",
                                  "h264", "-preset", "ultrafast", "-pix_fmt", "yuv420p", "-localaddr", localaddr]
 
     ff = ffmpy.FFmpeg(
@@ -452,7 +452,7 @@ def neo_ffmpy_cast_cms(video_path, cast_dst, window_width, window_height, window
             video_path: ["-f", "x11grab", "-video_size", window_size_params, "-r", "30"]
         },
         outputs={
-            udp_sink: ["-vcodec", video_encoder, '-filter_complex', filter_params, "-b:v", "2000k", "-r", fps_25,"-f",
+            udp_sink: ["-vcodec", video_encoder, '-filter_complex', filter_params, "-b:v", "2000k", "-r", target_fps,"-f",
                        "h264", "-pix_fmt", "yuv420p", "-localaddr", localaddr]
         },
     )
