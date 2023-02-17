@@ -699,7 +699,7 @@ class MainUi(QMainWindow):
                     if "fps" in data:
                         if int(c_fps) == 0:
                             c.fps_zero_count += 1
-                            if c.fps_zero_count >= 10:
+                            if c.fps_zero_count >= 20:
                                 log.debug("+++++++++++kill ffmpy process timer launch!+++++++++++")
                                 QTimer.singleShot(2000, self.kill_ffmpy_process)
                                 c.fps_zero_count = 0

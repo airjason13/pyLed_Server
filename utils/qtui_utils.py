@@ -158,7 +158,7 @@ def gen_led_cabinet_pixmap_with_cabinet_params_test(c_params, margin=0,
         for i in range(max_line):
             start_point = QPoint(c_params.start_x - 1 , int(c_params.start_y - 1 + line_interval))
             start_point_bak = QPoint(c_params.start_x - 1 , int(c_params.start_y - 1 + line_interval))
-            print(start_point)
+            # print(start_point)
             pixel_num = c_params.cabinet_width * c_params.cabinet_height
             reverse = 0
             for p in range(pixel_num -1 ):
@@ -214,7 +214,7 @@ def gen_led_cabinet_pixmap_with_cabinet_params_test(c_params, margin=0,
         reverse = 1
         for p in range(pixel_num - 1):
             next_point = start_point_bak - (scale_factor*QPoint(1, 0))
-            print(next_point)
+            # print(next_point)
 
             pixmap_paint.drawLine(start_point_bak, next_point)
             start_point_bak = next_point

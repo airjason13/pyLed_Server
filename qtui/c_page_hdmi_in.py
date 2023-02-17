@@ -741,13 +741,17 @@ class Hdmi_In_Page(QObject):
                 os.kill(self.ffmpy_hdmi_in_cast_process.pid, signal.SIGTERM)
             else:
                 log.debug("self.ffmpy_hdmi_in_cast_process is None")
+                log.debug("try to show no signal jpg")
+                #self.media_engine.play_single_file("/home/root/Videos/no_signal.jpg")
                 p = os.popen("pgrep ffmpeg").read()
-                # log.debug("p :%s", p)
-                # log.debug("len(p) : %d", len(p))
                 if len(p) > 0:
                     log.fatal("still got ffmpeg process")
                     k = os.popen("pkill ffmpeg")
                     k.close()
+                self.media_engine.play_single_file("/home/root/Videos/no_signal.jpg")
+                time.sleep(3)
+                k = os.popen("write_tc358743_edid.sh")
+                k.close()
         except Exception as e:
             log.debug(e)
 
@@ -880,6 +884,10 @@ class Hdmi_In_Page(QObject):
         log.debug("v4l2loopback device open count: %d", self.v4l2loopback_dev_open_count)
         if video_src_ok != 0: # /dev/video6 is not ok!
             log.fatal("video_src got some problems")
+            log.debug("try to show no signal jpg")
+            self.media_engine.play_single_file("/home/root/Videos/no_signal.jpg")
+            k = os.popen("write_tc358743_edid.sh")
+            k.close()
             return
         self.media_engine.resume_play()
         self.media_engine.stop_play()

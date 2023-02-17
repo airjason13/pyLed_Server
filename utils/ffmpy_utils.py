@@ -188,6 +188,9 @@ def neo_ffmpy_execute(video_path, brightness, contrast, red_bias, green_bias, bl
                 },
             )
 
+    #log.debug("%s", ff.cmd)
+    if video_path.endswith("mp4"):
+        ff.cmd += " -acodec ac3 -f ac3 - | ffplay -vn -probesize 64 -"
     log.debug("%s", ff.cmd)
     return ff.cmd
     try:
