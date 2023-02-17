@@ -54,9 +54,18 @@ class MainUi(QMainWindow):
         super().__init__()
         pg.setConfigOptions(antialias=True)
 
-        #keep the screen on for cms
-        keep_screen_alive = os.popen("xset s off -dpms")
-        keep_screen_alive.close()
+        if platform.machine() in ('arm', 'arm64', 'aarch64'):
+            #keep the screen on for cms
+            keep_screen_alive = os.popen("xset s off -dpms")
+            keep_screen_alive.close()
+
+            # open pulseaudio with root
+            pulseaudio_with_root = os.popen("pulseaudio -D")
+            pulseaudio_with_root.close()
+
+            # export DISPLAY
+            export_display = os.popen("pulseaudio -D")
+            export_display.close()
 
         self.center()
         self.setWindowOpacity(1.0)  # 窗口透明度
