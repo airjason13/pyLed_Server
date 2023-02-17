@@ -188,9 +188,14 @@ def neo_ffmpy_execute(video_path, brightness, contrast, red_bias, green_bias, bl
                 },
             )
 
-    #log.debug("%s", ff.cmd)
+    # log.debug("%s", ff.cmd)
+    # append audio 
     if video_path.endswith("mp4"):
-        ff.cmd += " -acodec ac3 -f ac3 - | ffplay -vn -probesize 64 -"
+        ffprobe_cmd = "ffprobe " + video_path + " 2>&1"
+        ffprobe_res = os.popen(ffprobe_cmd).read()
+        log.debug("%s\n", ffprobe_res)
+        if "Audio" in ffprobe_res:
+            ff.cmd += " -acodec ac3 -f ac3 - | ffplay -vn -probesize 64 -"
     log.debug("%s", ff.cmd)
     return ff.cmd
     try:

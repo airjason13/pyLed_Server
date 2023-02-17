@@ -306,6 +306,10 @@ class media_processor(QObject):
                     if self.ffmpy_process is not None:
                         if platform.machine() in ('arm', 'arm64', 'aarch64'):
                             os.popen("kill -9 $(pgrep -f h264_v4l2m2m)")
+                            try:
+                                os.popen("pkill ffplay")
+                            except Exception as e:
+                                log.debug(e)
                             # os.kill(self.ffmpy_process.pid, signal.SIGTERM)
                         else:
                             os.popen("kill -9 $(pgrep -f libx264)")
@@ -333,6 +337,10 @@ class media_processor(QObject):
                     if self.ffmpy_process is not None:
                         if platform.machine() in ('arm', 'arm64', 'aarch64'):
                             os.popen("kill -9 $(pgrep -f h264_v4l2m2m)")
+                            try:
+                                os.popen("pkill ffplay")
+                            except Exception as e:
+                                log.debug(e)
                         else:
                             os.popen("kill -9 $(pgrep -f libx264)")
                         # os.kill(self.ffmpy_process.pid, signal.SIGTERM)
@@ -705,6 +713,10 @@ class media_processor(QObject):
                                 os.kill(self.media_processor.ffmpy_process.pid, signal.SIGCONT)
                                 # time.sleep(1)
                         os.kill(self.media_processor.ffmpy_process.pid, signal.SIGTERM)
+                        try:
+                            os.popen("pkill ffplay")
+                        except Exception as e:
+                            log.debug(e)
                         # time.sleep(1)
                         log.debug("kill")
                     except Exception as e:
@@ -756,6 +768,10 @@ class media_processor(QObject):
                             log.debug("self.force_stop is True A!")
                             if self.media_processor.ffmpy_process is not None:
                                 os.kill(self.media_processor.ffmpy_process.pid, signal.SIGTERM)
+                                try:
+                                    os.popen("pkill ffplay")
+                                except Exception as e:
+                                    log.debug(e)
                                 time.sleep(1)
                             break
                         # time.sleep(0.5)
@@ -764,6 +780,10 @@ class media_processor(QObject):
                             res, err = self.media_processor.ffmpy_process.communicate()
                             log.debug("%s %s", res, err)
                             os.kill(self.media_processor.ffmpy_process.pid, 0)
+                            try:
+                                os.popen("pkill ffplay")
+                            except Exception as e:
+                                log.debug(e)
                         except OSError:
                             log.debug("no such process")
                             time.sleep(2)
@@ -822,6 +842,10 @@ class media_processor(QObject):
                                 # time.sleep(1)
                         if self.media_processor.ffmpy_process is not None:
                             os.kill(self.media_processor.ffmpy_process.pid, signal.SIGTERM)
+                            try:
+                                os.popen("pkill ffplay")
+                            except Exception as e:
+                                log.debug(e)
                             # time.sleep(1)
                             log.debug("kill")
                     except Exception as e:
@@ -849,9 +873,9 @@ class media_processor(QObject):
                        self.media_processor.video_params.image_period,
                        self.media_processor.output_width,
                        self.media_processor.output_height)
-                log.debug("AAAAAAAAAAAAAAAAAAAAAAAA")
+                # log.debug("AAAAAAAAAAAAAAAAAAAAAAAA")
                 self.media_processor.ffmpy_process = subprocess.Popen(ffmpeg_cmd, shell=True)
-                log.debug("BBBBBBBBBBBBBBBBBBBBBBBBB")
+                # log.debug("BBBBBBBBBBBBBBBBBBBBBBBBB")
                 log.debug("self.media_processor.ffmpy_process.pid = %d", self.media_processor.ffmpy_process.pid)
                 if self.media_processor.ffmpy_process.pid > 0:
                     log.debug("self.media_processor.ffmpy_process.pid = %d", self.media_processor.ffmpy_process.pid)
@@ -865,6 +889,10 @@ class media_processor(QObject):
                             log.debug("self.force_stop is True A!")
                             if self.media_processor.ffmpy_process is not None:
                                 os.kill(self.media_processor.ffmpy_process.pid, signal.SIGTERM)
+                                try:
+                                    os.popen("pkill ffplay")
+                                except Exception as e:
+                                    log.debug(e)
                                 time.sleep(1)
                             break
                         # time.sleep(0.5)
@@ -873,8 +901,16 @@ class media_processor(QObject):
                             res, err = self.media_processor.ffmpy_process.communicate()
                             log.debug("%s %s", res, err)
                             os.kill(self.media_processor.ffmpy_process.pid, 0)
+                            try:
+                                os.popen("pkill ffplay")
+                            except Exception as e:
+                                log.debug(e)
                         except OSError:
                             log.debug("no such process")
+                            try:
+                                os.popen("pkill ffplay")
+                            except Exception as e:
+                                log.debug(e)
                             # time.sleep(2)
                             break
                         else:
@@ -893,6 +929,10 @@ class media_processor(QObject):
                 while True:
                     if len(os.popen("pgrep -f h264_v4l2m2m").read()) != 0:
                         os.popen("pkill -f h264_v4l2m2m")
+                        try:
+                            os.popen("pkill ffplay")
+                        except Exception as e:
+                            log.debug(e)
                         log.debug("still have ffmpeg v4l2m2m")
                     else:
                         log.debug("no ffmpeg v4l2m2m")
