@@ -3,7 +3,7 @@ import platform
 import os
 from pathlib import Path
 """Software version"""
-version = "LS230217002"
+version = "LS230323001"
 
 
 def get_led_role():
@@ -184,4 +184,5 @@ web_cmd_interval = 3
 
 fps_30="30/1"
 fps_25="25/1"
-target_fps=fps_25
+fps_23="23/1"
+target_fps=fps_23
