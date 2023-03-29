@@ -458,11 +458,12 @@ def neo_ffmpy_cast_cms(video_path, cast_dst, window_width, window_height, window
     ff = ffmpy.FFmpeg(
         global_options=global_opts,
         inputs={
-            video_path: ["-f", "x11grab", "-video_size", window_size_params, "-r", "30"]
+            video_path: ["-f", "x11grab", "-video_size", window_size_params]
+            # video_path: ["-f", "x11grab", "-video_size", window_size_params, "-r", target_fps]
         },
         outputs={
             udp_sink: ["-vcodec", video_encoder, '-filter_complex', filter_params, "-b:v", "2000k", "-r", target_fps,"-f",
-                       "h264", "-pix_fmt", "yuv420p", "-localaddr", localaddr]
+                       "h264", "-pix_fmt", "yuv420p", "-bufsize", "50","-localaddr", localaddr]
         },
     )
 

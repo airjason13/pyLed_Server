@@ -59,8 +59,8 @@ class CmsPage(QObject):
 		self.y_padding = 29
 		self.chromium_pos_x = 10
 		self.chromium_pos_y = 10
-		self.chromium_width = 640
-		self.chromium_height = 480
+		self.chromium_width = 480 # 640
+		self.chromium_height = 336 # 480
 
 	def launch_chromium(self):
 		try:
