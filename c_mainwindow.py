@@ -33,6 +33,9 @@ from astral_hashmap import *
 from qlocalmessage import send_message
 from qt_web_comunication import *
 log = utils.log_utils.logging_init(__file__)
+
+from utils import jholiday
+
 from zoneinfo import ZoneInfo
 
 
@@ -787,7 +790,12 @@ class MainUi(QMainWindow):
         data=server_broadcast_message
         port=server_broadcast_port
 
-        data_append = ";br:" + str(self.media_engine.media_processor.video_params.frame_brightness)
+
+        if jholiday.today_is_holiday_or_not() is True:
+            data_append = ";br:" + str(0)
+            log.debug("holiday br:0")
+        else:
+            data_append = ";br:" + str(self.media_engine.media_processor.video_params.frame_brightness)
         data += data_append
 
         if self.client_reboot_flags is True:

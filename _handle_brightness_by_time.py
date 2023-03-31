@@ -8,6 +8,7 @@ from datetime import datetime, time
 from zoneinfo import ZoneInfo
 import platform
 from global_def import *
+from utils import jholiday
 
 def check_daymode_nightmode(self, sunrise_time, sunset_time, now):
 	if self.brightness_test_log is True:
@@ -118,6 +119,14 @@ def is_sleep_time(self, now, light_start_time, light_end_time):
 
 
 def check_brightness_by_date_timer(self):
+	if jholiday.today_is_holiday_or_not() is True:
+		log.debug("holiday, set brightness 0")
+		clients = self.clients
+		for c in clients:
+			c.send_cmd(cmd_set_frame_brightness,
+			           self.cmd_seq_id_increase(),
+			           str(0))
+
 	if self.brightness_test_log is True:
 		log.debug("frame_brightness_algorithm = %d",
 		          self.media_engine.media_processor.video_params.frame_brightness_algorithm)

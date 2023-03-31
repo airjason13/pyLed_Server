@@ -3,7 +3,7 @@ import platform
 import os
 from pathlib import Path
 """Software version"""
-version = "LS230329001"
+version = "LS230331001"
 
 
 def get_led_role():
@@ -182,8 +182,10 @@ qfont_style_size_medium = 18
 
 web_cmd_interval = 3
 
+
 fps_30="30/1"
 fps_25="25/1"
 fps_23="23/1"
 fps_15="15/1"
 target_fps=fps_23
+
