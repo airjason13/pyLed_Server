@@ -210,6 +210,7 @@ class MainUi(QMainWindow):
             self.v4l2loopback_module_probed = True
 
         self.signal_right_page_changed.connect(self.right_page_change_index)
+        self.signal_right_page_changed.connect(self.play_status_changed)
 
         self.lcd1602 = LCD1602("LCD_TAG_VERSION_INFO", "LED SERVER", version, 5000)
         self.lcd1602.start()
@@ -593,13 +594,29 @@ class MainUi(QMainWindow):
             d0_str = "PAUSE"
         elif status == play_status.playing:
             d0_str = "PLAYING"
-        if self.media_engine.media_processor.ffmpy_process is not None:
+        
+        log.debug("self.page_idx = %d", self.page_idx)
+        if self.page_idx == page_hdmi_in_content_idx:
+            d1_str = "HDMI-In Source"
+        elif self.page_idx == page_media_content_idx:
+            d1_str = "FILE Source"
+        elif self.page_idx == page_cms_setting_idx:
+            d1_str = "CMS Source"
+        
+        '''if self.media_engine.media_processor.play_single_file_worker is not None:
+                d1_str = "FILE Source"
+        elif self.media_engine.media_processor.play_playlist_worker is not None:
+                d1_str = "PLAYLIST Source"
+        elif self.media_engine.media_processor.play_hdmi_in_worker is not None:
+                d1_str = "HDMI-In Source"
+        elif self.media_engine.media_processor.play_cms_worker is not None:
+                d1_str = "CMS Source"'''
             # log.debug("process name : %d", self.media_engine.media_processor.ffmpy_process.pid)
             # log.debug("process name : %s", self.media_engine.media_processor.ffmpy_process.args)
-            if "v4l2" in self.media_engine.media_processor.ffmpy_process.args:
-                d1_str = "HDMI-In Source"
-            else:
-                d1_str = "FILE Source"
+            # if "v4l2" in self.media_engine.media_processor.ffmpy_process.args:
+            #    d1_str = "HDMI-In Source"
+            # else:
+            #    d1_str = "FILE Source"
 
         # log.debug("d0_str = %s", d0_str)
         # log.debug("d1_str = %s", d1_str)
@@ -796,6 +813,7 @@ class MainUi(QMainWindow):
             log.debug("holiday br:0")
         else:
             data_append = ";br:" + str(self.media_engine.media_processor.video_params.frame_brightness)
+            log.debug("workday br: %s", str(self.media_engine.media_processor.video_params.frame_brightness))
         data += data_append
 
         if self.client_reboot_flags is True:
@@ -822,7 +840,13 @@ class MainUi(QMainWindow):
             data = arg.get("data")
             port = arg.get("port")
 
-            data_append = ";br:" + str(self.media_engine.media_processor.video_params.frame_brightness)
+            if jholiday.today_is_holiday_or_not() is True:
+                data_append = ";br:" + str(0)
+                log.debug("holiday br:0")
+            else:
+                data_append = ";br:" + str(self.media_engine.media_processor.video_params.frame_brightness)
+                log.debug("workday br: %s", str(self.media_engine.media_processor.video_params.frame_brightness))
+
             data += data_append
 
             ip = net_utils.get_ip_address()
