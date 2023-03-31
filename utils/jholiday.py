@@ -2,7 +2,7 @@
 from datetime import date
 #from global_def import *
 
-holiday_mode = True
+holiday_mode = False
 
 holidays_dict = {3: {4, 5, 11, 12, 18, 19, 25, 26},
                  4: {1, 2, 3, 4, 5, 8, 9, 15, 16, 22, 23, 29, 30},
