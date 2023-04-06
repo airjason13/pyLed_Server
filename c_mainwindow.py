@@ -923,7 +923,7 @@ class MainUi(QMainWindow):
             for c in self.clients:
                 client_led_layout = QTreeWidgetItem(self.led_client_layout_tree)
                 client_led_layout.setText(0, "id:" + str(c.client_id) + "(ip:" + c.client_ip + ")")
-                for i in range(8):
+                for i in range(c.num_of_cabinet):
                     port_layout = QTreeWidgetItem(client_led_layout)
                     port_layout.setText(0, "port" + str(i) + ":")
 
@@ -1198,8 +1198,19 @@ class MainUi(QMainWindow):
     def client_send_cmd_ret(self, ret, send_cmd, recv_data=None, client_ip=None, client_reply_port=None):
         if ret is False:
             log.fatal("client_ip : %s", client_ip)
+            log.debug("send_cmd = %s", send_cmd)
+            if "set_frame_brightness" in send_cmd:
+                clients = self.clients
+                for c in clients:
+                    if client_ip in c.client_ip:
+                        c.send_cmd(cmd_set_frame_brightness,
+                                    self.cmd_seq_id_increase(),
+                                    str(self.media_engine.media_processor.video_params.get_frame_brightness()))
+            # Do not show error window
+            pass
             # self.send_cmd_fail_msg.hide()
             if self.send_cmd_fail_msg is not None:
+
                 try:
                     self.send_cmd_fail_msg.setIcon(QMessageBox.Critical)
                     self.send_cmd_fail_msg.setText("Error")

@@ -121,16 +121,17 @@ def is_sleep_time(self, now, light_start_time, light_end_time):
 def check_brightness_by_date_timer(self):
 	if jholiday.today_is_holiday_or_not() is True:
 		log.debug("holiday, set brightness 0")
+		self.media_engine.media_processor.video_params.set_frame_brightness(0)
 		clients = self.clients
 		for c in clients:
 			c.send_cmd(cmd_set_frame_brightness,
 			           self.cmd_seq_id_increase(),
-			           str(0))
-
+			           str(self.media_engine.media_processor.video_params.get_frame_brightness()))
+		return
+	log.debug("work day")
 	if self.brightness_test_log is True:
 		log.debug("frame_brightness_algorithm = %d",
 		          self.media_engine.media_processor.video_params.frame_brightness_algorithm)
-
 	if self.media_engine.media_processor.video_params.frame_brightness_algorithm \
 			== frame_brightness_adjust.fix_mode:
 		clients = self.clients

@@ -37,7 +37,12 @@ class client(QObject):
         self.id = -1
         self.loop = asyncio.get_event_loop()
         self.fps_zero_count = 0
-        self.num_of_cabinet = 8
+        if 'G2' in self.client_version:
+            self.num_of_cabinet = 16
+        else:
+            self.num_of_cabinet = 8
+
+
         self.cabinets_setting = []
         for i in range(self.num_of_cabinet):
             '''client_ip, client_id, port_id, cabinet_width, cabinet_height, layout_type, start_x, start_y'''
@@ -87,7 +92,7 @@ class client(QObject):
     def parse_get_cmd_reply_get_cabinet_params(self, cmd, recv_data):
         try:
             data = recv_data.split(";")[2].split(":")[1]
-            print(data)
+            # print(data)
             str_params = data.split(",")
             for s in str_params:
                 if s.startswith("port_id"):

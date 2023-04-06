@@ -198,8 +198,8 @@ class LedLayoutWindow(QWidget):
 
 
     def add_cabinet_label(self, c_params):
-        log.debug("")
-        log.debug("len(self.single_cabinet_labels) = %d", len(self.single_cabinet_labels))
+        # log.debug("")
+        # log.debug("len(self.single_cabinet_labels) = %d", len(self.single_cabinet_labels))
         tmp_label = self.gen_single_cabinet_label(c_params, self.start_drag, self.label_drop_on_drag_label)
         tmp_cabinet_pixmap = utils.qtui_utils.gen_led_cabinet_pixmap_with_cabinet_params(tmp_label.c_params, margin=0,
                                                                                                 bg_color=Qt.GlobalColor.transparent,
@@ -216,7 +216,7 @@ class LedLayoutWindow(QWidget):
             (label_start_y * c_params.led_pinch) + default_led_wall_margin + y_compensation)
 
         self.single_cabinet_labels.append(tmp_label)
-        log.debug("len(self.single_cabinet_labels) = %d", len(self.single_cabinet_labels))
+        # log.debug("len(self.single_cabinet_labels) = %d", len(self.single_cabinet_labels))
         tmp_label.show()
 
     def remove_all_cabinet_label(self):
