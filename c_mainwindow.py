@@ -1230,6 +1230,7 @@ class MainUi(QMainWindow):
                         "Can not get response of " + send_cmd + " from " + client_ip)
                     self.send_cmd_fail_msg.setWindowTitle("Error")
                     self.send_cmd_fail_msg.setStyleSheet(qdarkstyle.load_stylesheet_pyqt5())
+                    self.send_cmd_fail_msg.move(800, 600)
                     self.send_cmd_fail_msg.show()
                 except Exception as e:
                     log.fatal(e)
