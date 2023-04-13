@@ -822,10 +822,10 @@ class MainUi(QMainWindow):
 
         if jholiday.today_is_holiday_or_not() is True:
             data_append = ";br:" + str(0)
-            log.debug("holiday br:0")
+            # log.debug("holiday br:0")
         else:
             data_append = ";br:" + str(self.media_engine.media_processor.video_params.frame_brightness)
-            log.debug("workday br: %s", str(self.media_engine.media_processor.video_params.frame_brightness))
+            # log.debug("workday br: %s", str(self.media_engine.media_processor.video_params.frame_brightness))
         data += data_append
 
         if self.client_reboot_flags is True:
