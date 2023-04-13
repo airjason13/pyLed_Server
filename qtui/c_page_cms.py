@@ -63,7 +63,10 @@ class CmsPage(QObject):
 		self.chromium_height = 336 # 480
 
 	def launch_chromium(self):
+
 		try:
+			#subprocess.Popen("ifconfig enp1s0u1u4 up", shell=True)
+			#time.sleep(5)
 			if self.browser_process is not None:
 				os.kill(self.browser_process.pid, signal.SIGTERM)
 				self.browser_process = None

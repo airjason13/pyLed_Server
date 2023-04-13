@@ -269,8 +269,8 @@ class MainUi(QMainWindow):
         self.brightness_test_log = False
 
         # QTimer.singleShot(5000, self.demo_start_playlist)
-        QTimer.singleShot(5000, self.demo_start_hdmi_in)
-        # QTimer.singleShot(5000, self.demo_start_cms)
+        # QTimer.singleShot(5000, self.demo_start_hdmi_in)
+        QTimer.singleShot(5000, self.demo_start_cms)
 
         self.web_cmd_time = time.time()
         self.tmp_clients_count = 0
@@ -278,11 +278,23 @@ class MainUi(QMainWindow):
 
         self.test_count = 0
 
+    def check_num_of_clients(self):
+        while True:
+            log.debug("check client!")
+            log.debug("client num : %d", len(self.clients))
+            if len(self.clients) == 12:
+                break
+            time.sleep(60)
+
+        self.cms_page.start_play_cms()
+
 
     def demo_start_cms(self):
         self.func_cms_setting()
         log.debug("demo_start play cms")
-        self.cms_page.start_play_cms()
+        thread_check_client = threading.Thread(target=self.check_num_of_clients, args=( ))
+        thread_check_client.start()
+        # self.cms_page.start_play_cms()
 
     def kill_ffmpy_process(self):
         log.debug("kill ffmpy process")
