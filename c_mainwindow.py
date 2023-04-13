@@ -282,9 +282,9 @@ class MainUi(QMainWindow):
         while True:
             log.debug("check client!")
             log.debug("client num : %d", len(self.clients))
-            if len(self.clients) == 12:
+            if len(self.clients) == total_num_of_clients:
                 break
-            time.sleep(60)
+            time.sleep(10)
 
         self.cms_page.start_play_cms()
 
