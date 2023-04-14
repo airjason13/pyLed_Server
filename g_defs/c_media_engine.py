@@ -315,16 +315,22 @@ class media_processor(QObject):
                             os.popen("kill -9 $(pgrep -f libx264)")
                         #os.kill(self.ffmpy_process.pid, signal.SIGTERM)
 
-                    self.play_single_file_thread.quit()
-                    # self.play_single_file_worker.finished.emit()
-                    for i in range(10):
-                        log.debug("self.play_single_file_thread.isFinished() = %d", self.play_single_file_thread.isFinished())
-                        if self.play_single_file_thread.isFinished() is True:
-                            break
-                        time.sleep(1)
-
-                    self.play_single_file_thread.wait()
-                    self.play_single_file_thread.exit(0)
+                    log.debug("single_file_worker is not None A1")
+                    try:
+                        if self.play_single_file_thread is not None:
+                            self.play_single_file_thread.quit()
+                        # self.play_single_file_worker.finished.emit()
+                        for i in range(10):
+                            log.debug("self.play_single_file_thread.isFinished() = %d", self.play_single_file_thread.isFinished())
+                            if self.play_single_file_thread.isFinished() is True:
+                                break
+                            time.sleep(1)
+                    
+                        log.debug("single_file_worker is not None A2")
+                        self.play_single_file_thread.wait()
+                        self.play_single_file_thread.exit(0)
+                    except Exception as e:
+                        log.debug(e)
                     # self.play_single_file_worker.stop()
                     # del self.play_single_file_worker
                     # del self.play_single_file_thread
