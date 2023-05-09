@@ -73,7 +73,7 @@ def parser_cmd_from_qlocalserver(self, data):
 		try:
 			self.func_file_contents()
 			log.debug("play playlist")
-			self.media_engine.play_playlsit(data.get("play_playlist"))
+			self.media_engine.play_playlist(data.get("play_playlist"))
 		except Exception as e:
 			log.debug(e)
 		self.web_cmd_mutex.unlock()

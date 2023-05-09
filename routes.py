@@ -104,6 +104,43 @@ def find_file_maps():
     return maps
 
 
+def get_file_list():
+    file_list = []
+    for fname in sorted(glob.glob(mp4_extends)):
+        if os.path.isfile(fname):
+            fname = fname.strip(internal_media_folder + "/")
+            file_list.append(fname)
+    for fname in sorted(glob.glob(jpg_extends)):
+        if os.path.isfile(fname):
+            fname = fname.strip(internal_media_folder + "/")
+            file_list.append(fname)
+    for fname in sorted(glob.glob(jpeg_extends)):
+        if os.path.isfile(fname):
+            fname = fname.strip(internal_media_folder + "/")
+            file_list.append(fname)
+    for fname in sorted(glob.glob(png_extends)):
+        if os.path.isfile(fname):
+            fname = fname.strip(internal_media_folder + "/")
+            file_list.append(fname)
+
+    return file_list
+
+def get_single_file_default():
+    try:
+        with open(os.getcwd() + "/static/default_launch_type.dat", "r") as launch_type_config_file:
+            tmp = launch_type_config_file.read()
+            default_launch_type_int = tmp.split(":")[0]
+            default_launch_type_params_str = tmp.split(":")[1]
+            if default_launch_type_int == play_type.play_single:
+                return default_launch_type_params_str
+            else:
+                file_list = get_file_list()
+                return file_list[0]
+    except Exception as e:
+        log.debug(e)
+    file_list = get_file_list()
+    return file_list[0]
+
 def find_playlist_maps():
     playlist_nest_dict = {}
     # log.debug("playlist_extends = %s", playlist_extends)
@@ -129,6 +166,35 @@ def find_playlist_maps():
     print(playlist_nest_dict)
 
     return playlist_nest_dict
+
+
+def get_playlist_list():
+    playlist_list = []
+    for playlist_tmp in sorted(glob.glob(playlist_extends)):
+        log.debug("playlist_tmp = %s", playlist_tmp)
+
+        if os.path.isfile(playlist_tmp):
+            fname_url = playlist_tmp.split("/")
+            fname = fname_url[len(fname_url) - 1]
+            log.debug("fname : %s", fname)
+            playlist_list.append(fname)
+    return playlist_list
+
+
+def get_playlist_default():
+    try:
+        with open(os.getcwd() + "/static/default_launch_type.dat", "r") as launch_type_config_file:
+            tmp = launch_type_config_file.read()
+            default_launch_type_int = tmp.split(":")[0]
+            default_launch_type_params_str = tmp.split(":")[1]
+            if default_launch_type_int == play_type.play_playlist:
+                return default_launch_type_params_str
+            else:
+                return get_playlist_list()[0]
+    except Exception as e:
+        log.debug(e)
+    log.debug("get_playlist_list()[0] = %s", get_playlist_list()[0])
+    return get_playlist_list()[0]
 
 def find_maps_depreciated():
     maps = {}
@@ -157,20 +223,6 @@ def get_nest_maps(maps):
     print("nest_dict :", dict_list)
     return dict_list
 
-
-'''class TestForm(Form):
-    style = {'class': 'ourClasses', 'style': 'font-size:24px;'}
-    color_switcher = RadioField(
-        'Led Color',
-        [validators.Required()],
-        choices=[('test_color:RED', 'RED'), ('test_color:GREEN', 'GREEN'), ('test_color:BLUE', 'BLUE'),
-                 ('test_color:WHITE', 'WHITE')],
-        default=led_color,
-        render_kw=style,
-        id='led_color'
-
-    )
-'''
 
 def get_reboot_time_default():
     reboot_time = "04:30"
@@ -414,6 +466,36 @@ def create_new_playlist(data):
                            text_content=route_text_content, text_period=20, form=brightnessAlgoform,
                            brightnessvalues=brightnessvalues)
 
+def get_default_play_mode_default():
+    try:
+        str_ret = ""
+        with open(os.getcwd() + "/static/default_launch_type.dat", "r") as launch_type_config_file:
+            tmp = launch_type_config_file.readline()
+            log.debug("launch_type_config : %s", tmp)
+            default_launch_type_int = int(tmp.split(":")[0])
+            default_launch_params_str = tmp.split(":")[1]
+            if default_launch_type_int == 0:
+                str_ret = "none_mode"
+            elif default_launch_type_int == 1:
+                str_ret = "single_file_mode"
+            elif default_launch_type_int == 2:
+                str_ret = "playlist_mode"
+            elif default_launch_type_int == 3:
+                if "AIO" in get_led_role():
+                    str_ret = "none_mode"
+                else:
+                    str_ret = "hdmi_in_mode"
+            elif default_launch_type_int == 4:
+                if "AIO" in get_led_role():
+                    str_ret = "none_mode"
+                else:
+                    str_ret = "cmd_mode"
+            log.debug("str_ret :%s", str_ret)
+            return str_ret
+    except Exception as e:
+        log.debug(e)
+    return "none_mode"
+
 
 def get_brightness_mode_default():
     root_dir = os.path.dirname(sys.modules['__main__'].__file__)
@@ -608,6 +690,56 @@ def get_city_list():
 
     return city_list
 
+class LaunchTypeForm(Form):
+    # default play mode switcher
+    style = {'class': 'ourClasses', 'style': 'font-size:24px;color:white', }
+    if "AIO" in get_led_role():
+        launch_type_switcher = RadioField(
+            label="Default Play Mode",
+            id="default_play_mode_switcher",
+            choices=[('none_mode', 'None MODE'),
+                     ('single_file_mode', 'Single File Mode'),
+                     ('playlist_mode', 'Playlist Mode')],
+            default=get_default_play_mode_default(),
+            render_kw=style,
+        )
+    else:
+        launch_type_switcher = RadioField(
+            label="Default Play Mode",
+            id="default_play_mode_switcher",
+            choices=[('none_mode', 'None MODE'),
+                     ('single_file_mode', 'Single File Mode'),
+                     ('playlist_mode', 'Playlist Mode'),
+                     ('hdmi_in_mode', 'HDMI-In Mode'),
+                     ('cms_mode', 'CMS Mode')],
+            default=get_default_play_mode_default(),
+            render_kw=style,
+        )
+
+    # single file list
+    single_file_selectfield_style = {'class': 'ourClasses',
+                                     'style': 'font-size:24px;color:black;size:320px;width:300px', }
+    single_file_selectfiled = SelectField(
+        "Default Play File Name",
+        id="single_file_selected",
+        # choices=get_city_hash_map(),
+        choices=get_file_list(),
+        default=get_single_file_default(),
+        render_kw=single_file_selectfield_style,
+    )
+
+    # playlist list
+    playlist_selectfield_style = {'class': 'ourClasses',
+                                     'style': 'font-size:24px;color:black;size:320px;width:300px', }
+    playlist_selectfield = SelectField(
+        "Default Playlist Name",
+        id="playlist_selected",
+        # choices=get_city_hash_map(),
+        choices=get_playlist_list(),
+        default=get_playlist_default(),
+        render_kw=single_file_selectfield_style,
+    )
+
 
 class BrightnessAlgoForm(Form):
 
@@ -777,6 +909,13 @@ def set_brightness_algo(data):
 def set_brightness_values(data):
     log.debug("set_brightness_values data :" + data)
     send_message(set_frame_brightness_values_option=data)
+    status_code = Response(status=200)
+    return status_code
+
+@app.route('/set_default_play_mode/<data>', methods=['POST'])
+def set_default_play_mode(data):
+    log.debug("set_default_play_mode data :" + data)
+    # send_message(set_frame_brightness_values_option=data)
     status_code = Response(status=200)
     return status_code
 
@@ -976,6 +1115,11 @@ def index():
     brightnessAlgoform.reboot_mode_switcher.data=get_reboot_mode_default()
     # print(type(brightnessAlgoform.city_selectfiled.choices))
     brightnessAlgoform.brightness_mode_switcher.data=get_brightness_mode_default()
+
+    default_play_form = LaunchTypeForm()
+    default_play_form.launch_type_switcher.data = get_default_play_mode_default()
+    default_play_form.single_file_selectfiled.data = get_single_file_default()
+    default_play_form.playlist_selectfield.data = get_playlist_default()
     # get brightness setting values
     brightnessvalues = get_brightness_value_default()
     reboot_time = get_reboot_time_default()
@@ -986,6 +1130,7 @@ def index():
     return render_template("index.html", files=maps, playlist_nest_dict=playlist_nest_dict,
                            repeat_option=routes_repeat_option, text_size=route_text_size,
                            text_content=route_text_content, text_period=20, form=brightnessAlgoform,
+                           default_play_form=default_play_form,
                            brightnessvalues=brightnessvalues, reboot_time=reboot_time,
                            sleep_start_time=sleep_start_time, sleep_end_time=sleep_end_time)
 

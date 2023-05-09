@@ -81,7 +81,7 @@ class media_engine(QObject):
             log.error("%s is not exist", file_uri)
         self.media_processor.single_play(file_uri)
 
-    def play_playlsit(self, playlist_name):
+    def play_playlist(self, playlist_name):
         log.debug("playlist_name = %s", playlist_name)
         self.stop_play()
         for pl in self.playlist:

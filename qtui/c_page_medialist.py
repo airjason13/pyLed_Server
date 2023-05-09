@@ -671,7 +671,7 @@ class media_page(QObject):
         elif q.text() == "Play Playlist":
             item = self.file_tree.itemAt(self.right_clicked_pos.x(), self.right_clicked_pos.y())
             play_playlist_name = item.text(0)
-            self.mainwindow.media_engine.play_playlsit(play_playlist_name)
+            self.mainwindow.media_engine.play_playlist(play_playlist_name)
         elif q.text() == "Delete":
             log.debug("file_uri :%s", self.right_clicked_select_file_uri)
             # remove file and thumbnail file

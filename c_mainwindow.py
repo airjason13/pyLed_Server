@@ -268,16 +268,48 @@ class MainUi(QMainWindow):
         # for test
         self.brightness_test_log = False
 
-        if platform.machine() in ('arm', 'arm64', 'aarch64'):
-            # QTimer.singleShot(5000, self.demo_start_playlist)
-            # QTimer.singleShot(5000, self.demo_start_hdmi_in)
-            QTimer.singleShot(5000, self.demo_start_cms)
+        self.default_launch_type_int = 0
+        self.default_launch_params_str = ""
+        self.launch_default_type()
 
         self.web_cmd_time = time.time()
         self.tmp_clients_count = 0
         self.force_kill_ffmpy_count = 0
 
         self.test_count = 0
+
+        if "AIO" in get_led_role():
+            self.led_role = "AIO"
+        else:
+            self.led_role = "Server"
+
+    ''' Only useful with arm/arm64/aarch64'''
+    def launch_default_type(self):
+        # we do not care about x86
+        if platform.machine() in ('arm', 'arm64', 'aarch64'):
+            try:
+                with open(os.getcwd() + "/static/default_launch_type.dat", "r") as launch_type_config_file:
+                    tmp = launch_type_config_file.readline()
+                    log.debug("launch_type_config : %s", tmp)
+                    self.default_launch_type_int = int(tmp.split(":")[0])
+                    self.default_launch_params_str = tmp.split(":")[1]
+            except Exception as e:
+                log.debug(e)
+            if self.default_launch_type_int == play_type.play_single:
+                QTimer.singleShot(5000, self.demo_start_play_single)
+            elif self.default_launch_type_int == play_type.play_playlist:
+                QTimer.singleShot(5000, self.demo_start_playlist)
+            elif self.default_launch_type_int == play_type.play_hdmi_in:
+                if self.led_role is "AIO":
+                    pass
+                else:
+                    QTimer.singleShot(5000, self.demo_start_hdmi_in)
+            elif self.default_launch_type_int == play_type.play_cms:
+                if self.led_role is "AIO":
+                    pass
+                else:
+                    QTimer.singleShot(5000, self.demo_start_cms)
+
 
     def check_num_of_clients(self):
         while True:
@@ -312,10 +344,16 @@ class MainUi(QMainWindow):
         log.debug("demo_start play_hdmi_in")
         self.hdmi_in_page.start_send_to_led()
 
+    def demo_start_play_single(self):
+        self.func_file_contents()
+        log.debug("play single file : %s", self.default_launch_params_str)
+        file_uri = internal_media_folder + "/" + self.default_launch_params_str
+        self.media_engine.play_single_file(file_uri)
+
     def demo_start_playlist(self):
         self.func_file_contents()
-        log.debug("play playlist")
-        self.media_engine.play_playlsit("TTDemo.playlist")
+        log.debug("play playlist : %s", self.default_launch_params_str)
+        self.media_engine.play_playlist(self.default_launch_params_str)
 
     # enter engineer mode
     def ctrl_e_trigger(self):
@@ -1061,7 +1099,7 @@ class MainUi(QMainWindow):
         elif q.text() == "Play Playlist":
             item = self.file_tree.itemAt(self.right_clicked_pos.x(), self.right_clicked_pos.y())
             play_playlist_name = item.text(0)
-            self.media_engine.play_playlsit(play_playlist_name)
+            self.media_engine.play_playlist(play_playlist_name)
         elif q.text() == "test":
             for c in self.clients:
                 if c.client_ip == self.right_click_select_client_ip:

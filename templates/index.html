@@ -243,6 +243,11 @@ function remove_file_from_playlist(playlist, file ) {
         });
 }
 
+function submit_default_play_mode_option(){
+    var data = document.querySelector('input[name="launch_type_switcher"]:checked').value;
+    alert("data :" + data);
+}
+
 function submit_frame_brightness_mode_option(){
     /*var frame_brightness_mode = document.querySelector('input[name="brightness_mode_switcher"]:checked').value;
     alert(frame_brightness_mode);*/
@@ -282,6 +287,34 @@ function submit_frame_brightness_values_option(){
     $.post(url, {
         /*javascript_data: data*/
         });
+}
+
+function submit_default_play_mode(){
+    var mode = document.querySelector('input[name="launch_type_switcher"]:checked').value;
+    var param = "";
+    if(mode == "single_file_mode"){
+        param = document.getElementById("single_file_selected").value;
+        alert("param :" + param);
+    }else if(mode == "playlist_mode"){
+        param = document.getElementById("playlist_selected").value;
+        alert("playlist_mode?")
+    }
+    alert("param :" + param);
+    data = mode + ":" + param
+    var url = "/set_default_play_mode/" + data;
+    $.post(url, {
+        /*javascript_data: data*/
+        });
+}
+
+function submit_single_file_seclectfield_option(){
+    var single_file_select = document.getElementById("single_file_selected").value;
+    alert(single_file_select);
+}
+
+function submit_playlist_seclectfield_option(){
+    var single_file_select = document.getElementById("playlist_selected").value;
+    alert(playlist_selectfield);
 }
 
 function submit_target_city_option(){
@@ -611,7 +644,37 @@ function submit_sleep_time_option(){
         <input class="button-84" type="submit" id="frame_brightness_confirm" name="frame_brightness_confirm" value="Set" onclick="submit_frame_brightness_values_option()">
     </div>
 
+    <div class="div_default_play_mode">
+        <div style="float:left;margin-right:50px;">
+        <label style="font-size:36px;
+                        background: -webkit-linear-gradient(#77e, #77a);
+                        -webkit-background-clip: text;
+                        -webkit-text-fill-color: transparent;
+                        " ><font color="#0000FF">{{ default_play_form.launch_type_switcher.label() }}</font></label><br>
+        {{ default_play_form.launch_type_switcher(onchange="submit_default_play_mode_option()") }}
+        </div>
+        <div style="float:left;margin-right:50px;">
+        <label style="font-size:36px;
+                        background: -webkit-linear-gradient(#77e, #77a);
+                        -webkit-background-clip: text;
+                        -webkit-text-fill-color: transparent;
+                        " ><font color="#0000FF">{{ default_play_form.single_file_selectfiled.label() }}</font></label><br>
+        {{ default_play_form.single_file_selectfiled(onchange="submit_single_file_seclectfield_option()") }}<br>
 
+        <label style="font-size:36px;
+                        background: -webkit-linear-gradient(#77e, #77a);
+                        -webkit-background-clip: text;
+                        -webkit-text-fill-color: transparent;
+                        " ><font color="#0000FF">{{ default_play_form.playlist_selectfield.label() }}</font></label><br>
+        {{ default_play_form.playlist_selectfield(onchange="submit_playlist_seclectfield_option()") }}<br>
+
+        <button class="button-84" id="btn_set_default_play_mode" value="btn_set_default_play_mode"
+                role="button" onclick="submit_default_play_mode(value)" >
+            Set Default Play Mode
+        </button>
+        </div>
+    </div>
+    <div style="clear:both;"></div>
     <div class="div_wifioption">
         <label style="font-size:36px;
                         background: -webkit-linear-gradient(#77e, #77a);
