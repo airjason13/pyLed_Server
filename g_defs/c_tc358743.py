@@ -137,7 +137,9 @@ class TC358743(QObject):
 		dv_timings = os.popen("v4l2-ctl --query-dv-timings").read()
 		self.check_hdmi_status_unlock()
 		list_dv_timings = dv_timings.split("\n")
-		# log.debug("list_dv_timings=%s", list_dv_timings)
+		log.debug("self.hdmi_width = %d", self.hdmi_width)
+		log.debug("self.hdmi_height = %d", self.hdmi_height)
+		log.debug("list_dv_timings=%s", list_dv_timings)
 		if 'fail' in list_dv_timings[0]:
 			log.debug("not connected")
 			connected = False
@@ -147,11 +149,13 @@ class TC358743(QObject):
 				if 'Active width:' in i:
 					width = int(i.split(":")[1])
 					if width != self.hdmi_width:
+						log.debug("hdmi width error")
 						connected = False
 						break
 				if 'Active height:' in i:
 					height = int(i.split(":")[1])
 					if height != self.hdmi_height:
+						log.debug("hdmi height error")
 						connected = False
 						break
 				'''if 'Pixelclock' in i:

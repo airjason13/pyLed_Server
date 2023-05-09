@@ -98,6 +98,7 @@ def parser_cmd_from_qlocalserver(self, data):
 			elif "stop" in data.get("play_hdmi_in"):
 				log.debug("play_hdmi_in stop")
 				self.hdmi_in_page.stop_send_to_led()
+
 		except Exception as e:
 			log.debug(e)
 		self.web_cmd_mutex.unlock()

@@ -268,9 +268,10 @@ class MainUi(QMainWindow):
         # for test
         self.brightness_test_log = False
 
-        # QTimer.singleShot(5000, self.demo_start_playlist)
-        # QTimer.singleShot(5000, self.demo_start_hdmi_in)
-        QTimer.singleShot(5000, self.demo_start_cms)
+        if platform.machine() in ('arm', 'arm64', 'aarch64'):
+            # QTimer.singleShot(5000, self.demo_start_playlist)
+            # QTimer.singleShot(5000, self.demo_start_hdmi_in)
+            QTimer.singleShot(5000, self.demo_start_cms)
 
         self.web_cmd_time = time.time()
         self.tmp_clients_count = 0
