@@ -398,7 +398,7 @@ function submit_sleep_time_option(){
                 "submit_text_content(document.getElementById('text_context').value, document.getElementById('text_font_size').value)"><br><br>
     </div>
 
-
+    {% if ledrole == "Server" %}
     <div class="div_hdmi_in">
         <button class="button-84" id="btn_hdmi_in_start" value="btn_hdmi_in_start"
                 role="button" onclick="submit_hdmi_in(value)" >
@@ -418,6 +418,7 @@ function submit_sleep_time_option(){
                             -webkit-text-fill-color: transparent;
                          " ><font color="#0000FF">Media Files</font></label><br>
     </div>
+    {% endif %}
 
     <div class="row">
         <div class="header">

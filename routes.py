@@ -1125,9 +1125,10 @@ def index():
     reboot_time = get_reboot_time_default()
     sleep_start_time = get_sleep_start_time_default()
     sleep_end_time = get_sleep_end_time_default()
+    role=get_led_role()
+    log.debug("role = %s", role)
 
-
-    return render_template("index.html", files=maps, playlist_nest_dict=playlist_nest_dict,
+    return render_template("index.html", title="GIS TLED", ledrole=role, files=maps, playlist_nest_dict=playlist_nest_dict,
                            repeat_option=routes_repeat_option, text_size=route_text_size,
                            text_content=route_text_content, text_period=20, form=brightnessAlgoform,
                            default_play_form=default_play_form,

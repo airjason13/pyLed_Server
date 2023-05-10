@@ -8,7 +8,6 @@ version = "LS230510001"
 
 def get_led_role():
     led_role = "Server"
-
     if platform.machine() in ('arm', 'arm64', 'aarch64'):
         pass
     else:
