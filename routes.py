@@ -915,7 +915,7 @@ def set_brightness_values(data):
 @app.route('/set_default_play_mode/<data>', methods=['POST'])
 def set_default_play_mode(data):
     log.debug("set_default_play_mode data :" + data)
-    # send_message(set_frame_brightness_values_option=data)
+    send_message(set_default_play_mode_option=data)
     status_code = Response(status=200)
     return status_code
 

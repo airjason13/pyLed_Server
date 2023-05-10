@@ -303,3 +303,38 @@ def parser_cmd_from_qlocalserver(self, data):
 			c.send_cmd(cmd_set_test_color,
 			           self.cmd_seq_id_increase(),
 			           str(data.get("stop_color_test")))
+	elif data.get("set_default_play_mode_option"):
+		log.debug("set_default_play_mode_option")
+		tmp = data.get("set_default_play_mode_option")
+		default_mode = "0"
+		default_params = ""
+		try:
+			if "none_mode" in tmp:
+				default_mode = "0"
+				default_params = ""
+			elif "single_file_mode" in tmp:
+				default_mode = "1"
+				default_params = tmp.split(":")[1]
+			elif "playlist_mode" in tmp:
+				default_mode = "2"
+				default_params = tmp.split(":")[1]
+			elif "hdmi_in_mode" in tmp:
+				default_mode = "3"
+				default_params = ""
+			elif "cms_mode" in tmp:
+				default_mode = "4"
+				default_params = ""
+		except Exception as e:
+			log.debug(e)
+
+		str_tmp = default_mode + ":" + default_params
+		log.debug("str_tmp = %s", str_tmp)
+
+		try:
+			with open(os.getcwd() + "/static/default_launch_type.dat", "w") as launch_type_config_file:
+				launch_type_config_file.write(str_tmp)
+		except Exception as e:
+			log.debug(e)
+
+
+

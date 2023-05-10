@@ -245,7 +245,6 @@ function remove_file_from_playlist(playlist, file ) {
 
 function submit_default_play_mode_option(){
     var data = document.querySelector('input[name="launch_type_switcher"]:checked').value;
-    alert("data :" + data);
 }
 
 function submit_frame_brightness_mode_option(){
@@ -294,12 +293,10 @@ function submit_default_play_mode(){
     var param = "";
     if(mode == "single_file_mode"){
         param = document.getElementById("single_file_selected").value;
-        alert("param :" + param);
     }else if(mode == "playlist_mode"){
         param = document.getElementById("playlist_selected").value;
-        alert("playlist_mode?")
     }
-    alert("param :" + param);
+
     data = mode + ":" + param
     var url = "/set_default_play_mode/" + data;
     $.post(url, {
@@ -309,12 +306,12 @@ function submit_default_play_mode(){
 
 function submit_single_file_seclectfield_option(){
     var single_file_select = document.getElementById("single_file_selected").value;
-    alert(single_file_select);
+
 }
 
 function submit_playlist_seclectfield_option(){
     var single_file_select = document.getElementById("playlist_selected").value;
-    alert(playlist_selectfield);
+
 }
 
 function submit_target_city_option(){
