@@ -152,6 +152,13 @@ function submit_ledclients_reboot(){
         });
 }
 
+function submit_aio_reboot(){
+
+    var url = "/set_ledserver_reboot_option/";
+    $.post(url, {
+        });
+}
+
 function submit_frame_brightness_option(){
 
     var f_br = document.getElementById("frame_brightness").value;
@@ -363,61 +370,65 @@ function submit_sleep_time_option(){
 <br>
 <body onload="startTime()">
     <div id="clock"></div>
-    <div id="sun_time"></div>
+    {% if ledrole == "Server" %}
+        <div id="sun_time"></div>
+    {% endif %}
     <div style="clear:both;"></div>
-  </body>
-    <div class="div_drawtext">
-        <label style="font-size:36px;
-                background: -webkit-linear-gradient(#77e, #77a);
-                -webkit-background-clip: text;
-                -webkit-text-fill-color: transparent;" ><font color="#CD99F5">Play Text Option</font></label><br>
-        <!--<label class="label_h1" for="text_context" style="font-size:36px" ><font color="#0000FF">Play Text Option</font></label><br>-->
-        <label class="label_h1" for="text_context" style="font-size:24px" ><font color="#0000FF">Font Size:</font></label>
-        <input id="text_font_size" type="number" id="text_font_size" name="text_font_size" size="6" style="font-size:24px" value={{ text_size }}>
-        <label class="label_h1" for="text_context" style="font-size:24px" ><font color="#0000FF">Text Period:</font></label>
-        <input id="text_period" type="number" name="text_period" size="6" style="font-size:24px" value={{ text_period }}>
-        <br>
-        <label class="label_h1" style="font-size:24px" ><font color="#0000FF">Text Speed: </font></label>
-        <select id="text_speed" name="Text_Speed" style="font-size:24px">
-        　   <option value="Slow">Slow</option>
-        　   <option value="Medium">Medium</option>
-             <option value="Fast">Fast</option>
-        </select>
+    </body>
+    {% if ledrole == "Server" %}
+        <div class="div_drawtext">
+            <label style="font-size:36px;
+                    background: -webkit-linear-gradient(#77e, #77a);
+                    -webkit-background-clip: text;
+                    -webkit-text-fill-color: transparent;" ><font color="#CD99F5">Play Text Option</font></label><br>
+            <!--<label class="label_h1" for="text_context" style="font-size:36px" ><font color="#0000FF">Play Text Option</font></label><br>-->
+            <label class="label_h1" for="text_context" style="font-size:24px" ><font color="#0000FF">Font Size:</font></label>
+            <input id="text_font_size" type="number" id="text_font_size" name="text_font_size" size="6" style="font-size:24px" value={{ text_size }}>
+            <label class="label_h1" for="text_context" style="font-size:24px" ><font color="#0000FF">Text Period:</font></label>
+            <input id="text_period" type="number" name="text_period" size="6" style="font-size:24px" value={{ text_period }}>
+            <br>
+            <label class="label_h1" style="font-size:24px" ><font color="#0000FF">Text Speed: </font></label>
+            <select id="text_speed" name="Text_Speed" style="font-size:24px">
+            　   <option value="Slow">Slow</option>
+            　   <option value="Medium">Medium</option>
+                 <option value="Fast">Fast</option>
+            </select>
 
-        <label class="label_h1" style="font-size:24px" ><font color="#0000FF">Text Position: </font></label>
-        <select id="text_position" name="Text_Positoin" style="font-size:24px">
-        　   <option value="High">High</option>
-        　   <option value="Medium">Medium</option>
-             <option value="Low">Low</option>
-        </select>
+            <label class="label_h1" style="font-size:24px" ><font color="#0000FF">Text Position: </font></label>
+            <select id="text_position" name="Text_Positoin" style="font-size:24px">
+            　   <option value="High">High</option>
+            　   <option value="Medium">Medium</option>
+                 <option value="Low">Low</option>
+            </select>
 
-        <br><br>
-        <label class="label_h1" for="text_context" style="font-size:24px" ><font color="#0000FF">Text Context:</font></label>
-        <input type="text" id="text_context" name="text_context" size="50" style="font-size:24px" value={{ text_content }}>
-        <input class="button-84" type="submit" value="Submit" onclick=
-                "submit_text_content(document.getElementById('text_context').value, document.getElementById('text_font_size').value)"><br><br>
-    </div>
+            <br><br>
+            <label class="label_h1" for="text_context" style="font-size:24px" ><font color="#0000FF">Text Context:</font></label>
+            <input type="text" id="text_context" name="text_context" size="50" style="font-size:24px" value={{ text_content }}>
+            <input class="button-84" type="submit" value="Submit" onclick=
+                    "submit_text_content(document.getElementById('text_context').value, document.getElementById('text_font_size').value)"><br><br>
+        </div>
+    {% endif %}
 
     {% if ledrole == "Server" %}
-    <div class="div_hdmi_in">
-        <button class="button-84" id="btn_hdmi_in_start" value="btn_hdmi_in_start"
-                role="button" onclick="submit_hdmi_in(value)" >
-            HDMI-In Start
-        </button>
-        <button class="button-84" id="btn_hdmi_in_stop" value="btn_hdmi_in_stop"
-                role="button" onclick="submit_hdmi_in(value)" >
-            HDMI-In Stop
-        </button>
-        <input class="button-84" type="submit" id="btn_repeat" name="btn_repeat" value={{ repeat_option }} onclick="submit_repeat_option(value)">
-        <input class="button-84" type="submit" id="cms_start" name="cms_start" value="cms_start" onclick="submit_cms_start(value)">
-    </div>
-    <div>
-    <label style="font-size:36px;
-                            background: -webkit-linear-gradient(#77e, #77a);
-                            -webkit-background-clip: text;
-                            -webkit-text-fill-color: transparent;
-                         " ><font color="#0000FF">Media Files</font></label><br>
-    </div>
+        <div class="div_hdmi_in">
+            <button class="button-84" id="btn_hdmi_in_start" value="btn_hdmi_in_start"
+                    role="button" onclick="submit_hdmi_in(value)" >
+                HDMI-In Start
+            </button>
+            <button class="button-84" id="btn_hdmi_in_stop" value="btn_hdmi_in_stop"
+                    role="button" onclick="submit_hdmi_in(value)" >
+                HDMI-In Stop
+            </button>
+            <input class="button-84" type="submit" id="btn_repeat" name="btn_repeat" value={{ repeat_option }} onclick="submit_repeat_option(value)">
+            <input class="button-84" type="submit" id="cms_start" name="cms_start" value="cms_start" onclick="submit_cms_start(value)">
+        </div>
+        <div>
+        <label style="font-size:36px;
+                                background: -webkit-linear-gradient(#77e, #77a);
+                                -webkit-background-clip: text;
+                                -webkit-text-fill-color: transparent;
+                             " ><font color="#0000FF">Media Files</font></label><br>
+        </div>
     {% endif %}
 
     <div class="row">
@@ -561,72 +572,72 @@ function submit_sleep_time_option(){
                 </div>
             {% endfor %}
     </div>
-
-    <div style="float:left;margin-right:10px;">
-        <label style="font-size:36px;
-                        background: -webkit-linear-gradient(#77e, #77a);
-                        -webkit-background-clip: text;
-                        -webkit-text-fill-color: transparent;
-                        " ><font color="#0000FF">{{ form.brightness_mode_switcher.label() }}</font></label>
-                {{ form.brightness_mode_switcher(onchange="submit_frame_brightness_mode_option()") }}
-        <label style="font-size:36px;
-                        background: -webkit-linear-gradient(#77e, #77a);
-                        -webkit-background-clip: text;
-                        -webkit-text-fill-color: transparent;
-                        " ><font color="#0000FF">{{ form.city_selectfiled.label() }}</font></label>
-                {{ form.city_selectfiled(onchange="submit_target_city_option()") }}
-
-        </div>
-    <div style="float:left;margin-right:10px;">
-        <label style="font-size:36px;
-                        background: -webkit-linear-gradient(#77e, #77a);
-                        -webkit-background-clip: text;
-                        -webkit-text-fill-color: transparent;
-                        " ><font color="#0000FF">{{ form.sleep_mode_switcher.label() }}</font></label>
-                {{ form.sleep_mode_switcher(onchange="submit_sleep_mode_option()") }}
-        <label style="font-size:24px;
-                        background: -webkit-linear-gradient(#eee, #eee);
-                        -webkit-background-clip: text;
-                        -webkit-text-fill-color: transparent;
-                        " ><font color="#FFFFFF">Sleep Start Time</font></label>
-        <input style="font-size:36px;
-                    background: -webkit-linear-gradient(#77e, #77a);
-                    -webkit-background-clip: text;
-                    -webkit-text-fill-color: transparent;
-                    " id="app-sleep-start-time" type="time" name="app-sleep-start-time" value={{sleep_start_time}}  />
-        <br>
-        <label style="font-size:24px;
-                        background: -webkit-linear-gradient(#eee, #eee);
-                        -webkit-background-clip: text;
-                        -webkit-text-fill-color: transparent;
-                        " ><font color="#FFFFFF">Sleep End Time</font></label>
-        <input style="font-size:36px;
-                    background: -webkit-linear-gradient(#77e, #77a);
-                    -webkit-background-clip: text;
-                    -webkit-text-fill-color: transparent;
-                    " id="app-sleep-end-time" type="time" name="app-sleep-end-time" value={{sleep_end_time}}  />
-        <br>
-        <input class="button-84" type="submit" id="sleep_time_confirm" name="sleep_time_confirm" value="Set Sleep Time" onclick="submit_sleep_time_option()">
-        </div>
-    <div>
+    {% if ledrole == "Server" %}
+        <div style="float:left;margin-right:10px;">
             <label style="font-size:36px;
-                    background: -webkit-linear-gradient(#77e, #77a);
-                    -webkit-background-clip: text;
-                    -webkit-text-fill-color: transparent;
-                    " ><font color="#0000FF">Reboot Time</font></label>
-            {{ form.reboot_mode_switcher(onchange="submit_reboot_option()") }}
+                            background: -webkit-linear-gradient(#77e, #77a);
+                            -webkit-background-clip: text;
+                            -webkit-text-fill-color: transparent;
+                            " ><font color="#0000FF">{{ form.brightness_mode_switcher.label() }}</font></label>
+                    {{ form.brightness_mode_switcher(onchange="submit_frame_brightness_mode_option()") }}
+            <label style="font-size:36px;
+                            background: -webkit-linear-gradient(#77e, #77a);
+                            -webkit-background-clip: text;
+                            -webkit-text-fill-color: transparent;
+                            " ><font color="#0000FF">{{ form.city_selectfiled.label() }}</font></label>
+                    {{ form.city_selectfiled(onchange="submit_target_city_option()") }}
 
-
+            </div>
+        <div style="float:left;margin-right:10px;">
+            <label style="font-size:36px;
+                            background: -webkit-linear-gradient(#77e, #77a);
+                            -webkit-background-clip: text;
+                            -webkit-text-fill-color: transparent;
+                            " ><font color="#0000FF">{{ form.sleep_mode_switcher.label() }}</font></label>
+                    {{ form.sleep_mode_switcher(onchange="submit_sleep_mode_option()") }}
+            <label style="font-size:24px;
+                            background: -webkit-linear-gradient(#eee, #eee);
+                            -webkit-background-clip: text;
+                            -webkit-text-fill-color: transparent;
+                            " ><font color="#FFFFFF">Sleep Start Time</font></label>
             <input style="font-size:36px;
-                    background: -webkit-linear-gradient(#77e, #77a);
-                    -webkit-background-clip: text;
-                    -webkit-text-fill-color: transparent;
-                    " id="appt-time" type="time" name="appt-time" value={{reboot_time}}  />
+                        background: -webkit-linear-gradient(#77e, #77a);
+                        -webkit-background-clip: text;
+                        -webkit-text-fill-color: transparent;
+                        " id="app-sleep-start-time" type="time" name="app-sleep-start-time" value={{sleep_start_time}}  />
             <br>
-            <input class="button-84" type="submit" id="reboot_time_confirm" name="reboot_time_confirm" value="Set Reboot Time" onclick="submit_reboot_time_option()">
-        </div>
-    <div style="clear:both;"></div>
+            <label style="font-size:24px;
+                            background: -webkit-linear-gradient(#eee, #eee);
+                            -webkit-background-clip: text;
+                            -webkit-text-fill-color: transparent;
+                            " ><font color="#FFFFFF">Sleep End Time</font></label>
+            <input style="font-size:36px;
+                        background: -webkit-linear-gradient(#77e, #77a);
+                        -webkit-background-clip: text;
+                        -webkit-text-fill-color: transparent;
+                        " id="app-sleep-end-time" type="time" name="app-sleep-end-time" value={{sleep_end_time}}  />
+            <br>
+            <input class="button-84" type="submit" id="sleep_time_confirm" name="sleep_time_confirm" value="Set Sleep Time" onclick="submit_sleep_time_option()">
+            </div>
+        <div>
+                <label style="font-size:36px;
+                        background: -webkit-linear-gradient(#77e, #77a);
+                        -webkit-background-clip: text;
+                        -webkit-text-fill-color: transparent;
+                        " ><font color="#0000FF">Reboot Time</font></label>
+                {{ form.reboot_mode_switcher(onchange="submit_reboot_option()") }}
 
+
+                <input style="font-size:36px;
+                        background: -webkit-linear-gradient(#77e, #77a);
+                        -webkit-background-clip: text;
+                        -webkit-text-fill-color: transparent;
+                        " id="appt-time" type="time" name="appt-time" value={{reboot_time}}  />
+                <br>
+                <input class="button-84" type="submit" id="reboot_time_confirm" name="reboot_time_confirm" value="Set Reboot Time" onclick="submit_reboot_time_option()">
+            </div>
+        <div style="clear:both;"></div>
+    {% endif %}
     <div>
         <label style="font-size:36px;
                         background: -webkit-linear-gradient(#77e, #77a);
@@ -635,11 +646,10 @@ function submit_sleep_time_option(){
                         " ><font color="#0000FF">Brightness Values Setting:</font></label><br>
 
         {% for k,v in brightnessvalues.items() %}
-
             <label class="label_h1" for="text_context" style="font-size:24px" ><font color="#0000FF">{{k}}</font></label>
             <input type="number" name="frame_brightness" id={{k}} size="6" style="font-size:24px" value={{v}}></br>
         {% endfor %}
-        <input class="button-84" type="submit" id="frame_brightness_confirm" name="frame_brightness_confirm" value="Set" onclick="submit_frame_brightness_values_option()">
+        <input class="button-84" type="submit" id="frame_brightness_confirm" name="frame_brightness_confirm" value="Set Brightness" onclick="submit_frame_brightness_values_option()">
     </div>
 
     <div class="div_default_play_mode">
@@ -673,65 +683,73 @@ function submit_sleep_time_option(){
         </div>
     </div>
     <div style="clear:both;"></div>
-    <div class="div_wifioption">
-        <label style="font-size:36px;
-                        background: -webkit-linear-gradient(#77e, #77a);
-                        -webkit-background-clip: text;
-                        -webkit-text-fill-color: transparent;
-                        " ><font color="#0000FF">Wifi Options:</font></label><br>
+    {% if ledrole == "Server" %}
+        <div class="div_wifioption">
+            <label style="font-size:36px;
+                            background: -webkit-linear-gradient(#77e, #77a);
+                            -webkit-background-clip: text;
+                            -webkit-text-fill-color: transparent;
+                            " ><font color="#0000FF">Wifi Options:</font></label><br>
 
-        <label class="label_h1" style="font-size:24px" ><font color="#0000FF">Wifi Bands: </font></label>
-        <select id="wifi_bands" name="Wifi Bands" style="font-size:24px">
-        　<option value="2.4G">2.4G</option>
-        　<option value="5G">5G</option>
-        </select>
-        <label class="label_h1" style="font-size:24px" ><font color="#0000FF">Wifi Channels: </font></label>
-        <select id="wifi_channels" name="Wifi Channels" style="font-size:24px">
-            <option value="1">1</option>
-            <option value="2">2</option>
-            <option value="3">3</option>
-            <option value="4">4</option>
-            <option value="5">5</option>
-            <option value="6">6</option>
-            <option value="7">7</option>
-            <option value="8">8</option>
-            <option value="9">9</option>
-            <option value="10">10</option>
-            <option value="11">11</option>
-            <option value="12">12</option>
-            <option value="13">13</option>
-            <option value="14">14</option>
-            <option value="36">36</option>
-            <option value="40">40</option>
-            <option value="44">44</option>
-            <option value="48">48</option>
-            <option value="52">52</option>
-            <option value="56">56</option>
-            <option value="60">60</option>
-            <option value="64">64</option>
-            <option value="100">100</option>
-            <option value="116">116</option>
-            <option value="132">132</option>
-            <option value="149">149</option>
-            <option value="165">165</option>
-        </select>
-        <button class="button-84" id="btn_wifi_configure"
-                role="button" onclick="submit_wifi_configure()" >
-            Wifi Configure
-        </button>
-    </div>
+            <label class="label_h1" style="font-size:24px" ><font color="#0000FF">Wifi Bands: </font></label>
+            <select id="wifi_bands" name="Wifi Bands" style="font-size:24px">
+            　<option value="2.4G">2.4G</option>
+            　<option value="5G">5G</option>
+            </select>
+            <label class="label_h1" style="font-size:24px" ><font color="#0000FF">Wifi Channels: </font></label>
+            <select id="wifi_channels" name="Wifi Channels" style="font-size:24px">
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+                <option value="6">6</option>
+                <option value="7">7</option>
+                <option value="8">8</option>
+                <option value="9">9</option>
+                <option value="10">10</option>
+                <option value="11">11</option>
+                <option value="12">12</option>
+                <option value="13">13</option>
+                <option value="14">14</option>
+                <option value="36">36</option>
+                <option value="40">40</option>
+                <option value="44">44</option>
+                <option value="48">48</option>
+                <option value="52">52</option>
+                <option value="56">56</option>
+                <option value="60">60</option>
+                <option value="64">64</option>
+                <option value="100">100</option>
+                <option value="116">116</option>
+                <option value="132">132</option>
+                <option value="149">149</option>
+                <option value="165">165</option>
+            </select>
+            <button class="button-84" id="btn_wifi_configure"
+                    role="button" onclick="submit_wifi_configure()" >
+                Wifi Configure
+            </button>
+        </div>
+    {% endif %}
+    {% if ledrole == "AIO" %}
+        <button class="button-84" id="btn_aio_reboot"
+                    role="button" onclick="submit_aio_reboot()" >
+                Reboot
+            </button>
 
-    <!-- led server reboot btn-->
-    <button class="button-84" id="btn_server_reboot"
-                role="button" onclick="submit_ledserver_reboot()" >
-            LedServer Reboot
-        </button>
-    <!-- led clients reboot btn-->
-    <button class="button-84" id="btn_clients_reboot"
-                role="button" onclick="submit_ledclients_reboot()" >
-            LedClients Reboot
-        </button>
-
+    {% else %}
+        <!-- led server reboot btn-->
+        <button class="button-84" id="btn_server_reboot"
+                    role="button" onclick="submit_ledserver_reboot()" >
+                LedServer Reboot
+            </button>
+        <!-- led clients reboot btn-->
+        <button class="button-84" id="btn_clients_reboot"
+                    role="button" onclick="submit_ledclients_reboot()" >
+                LedClients Reboot
+            </button>
+    {% endif %}
     </body>
 
 

@@ -576,6 +576,7 @@ def get_brightness_value_default():
     root_dir = os.path.dirname(sys.modules['__main__'].__file__)
     led_config_dir = os.path.join(root_dir, 'video_params_config')
     brightness_values_maps = {}
+    led_role = get_led_role()
     str_fr_br = "0"
     str_fr_br_day_mode = "0"
     str_fr_br_night_mode = "0"
@@ -594,13 +595,16 @@ def get_brightness_value_default():
             brightness_values_maps["frame_brightness"] = str_fr_br
         elif "day_mode_frame_brightness" == tag:
             str_fr_br_day_mode = line.strip("\n").split("=")[1]
-            brightness_values_maps["day_mode_frame_brightness"] = str_fr_br_day_mode
+            if "Server" in led_role:
+                brightness_values_maps["day_mode_frame_brightness"] = str_fr_br_day_mode
         elif "night_mode_frame_brightness" == tag:
             str_fr_br_night_mode = line.strip("\n").split("=")[1]
-            brightness_values_maps["night_mode_frame_brightness"] = str_fr_br_night_mode
+            if "Server" in led_role:
+                brightness_values_maps["night_mode_frame_brightness"] = str_fr_br_night_mode
         elif "sleep_mode_frame_brightness" == tag:
             str_fr_br_sleep_mode = line.strip("\n").split("=")[1]
-            brightness_values_maps["sleep_mode_frame_brightness"] = str_fr_br_sleep_mode
+            if "Server" in led_role:
+                brightness_values_maps["sleep_mode_frame_brightness"] = str_fr_br_sleep_mode
 
     f.close()
     log.debug("str_fr_br : %s", str_fr_br)
@@ -1128,7 +1132,7 @@ def index():
     role=get_led_role()
     log.debug("role = %s", role)
 
-    return render_template("index.html", title="GIS TLED", ledrole=role, files=maps, playlist_nest_dict=playlist_nest_dict,
+    return render_template("index.html", title="GIS TLED", ledrole=role, sw_version=version, files=maps, playlist_nest_dict=playlist_nest_dict,
                            repeat_option=routes_repeat_option, text_size=route_text_size,
                            text_content=route_text_content, text_period=20, form=brightnessAlgoform,
                            default_play_form=default_play_form,
