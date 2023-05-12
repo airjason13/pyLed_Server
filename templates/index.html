@@ -2,32 +2,11 @@
 {% block content %}
 <link rel="stylesheet" href="{{ url_for('static',    filename='template.css') }}">
 
-<!--防右鍵-->
-<!--<script>
-document.oncontextmenu = new Function("return false");
-oncontextmenu="return false;"
-</script>-->
 
-<!--<script src="https://cdn.bootcss.com/jquery/1.10.2/jquery.min.js"></script>-->
-
-<!--<script src="static/jquery.min.js"></script>-->
-<!--<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.11.3/jquery.min.js" ></script>
-<script type="text/javascript" src="https://swisnl.github.io/jQuery-contextMenu/dist/jquery.contextMenu.js" ></script>
-<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0/js/bootstrap.min.js" ></script>-->
-<!--<script>window.jQuery || document.write('<script src="static/jquery.min.js"><\/script>')</script>
-<script src="static/script.js" defer></script>-->
-<!--<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-contextmenu/2.7.1/jquery.contextMenu.min.css">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-contextmenu/2.7.1/jquery.contextMenu.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-contextmenu/2.7.1/jquery.ui.position.js"></script>-->
-
-<!-- contextmenu ok -->
-<!--<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-contextmenu/2.9.2/jquery.contextMenu.min.js" integrity="sha512-kvg/Lknti7OoAw0GqMBP8B+7cGHvp4M9O9V6nAYG91FZVDMW3Xkkq5qrdMhrXiawahqU7IZ5CNsY/wWy1PpGTQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-contextmenu/2.9.2/jquery.contextMenu.css" integrity="sha512-EF5k2tHv4ShZB7zESroCVlbLaZq2n8t1i8mr32tgX0cyoHc3GfxuP7IoT8w/pD+vyoq7ye//qkFEqQao7Ofrag==" crossorigin="anonymous" referrerpolicy="no-referrer"
-/>-->
 <script src="static/jquery.min.js"></script>
 <script src="static/jquery.contextMenu.min.js" integrity="sha512-kvg/Lknti7OoAw0GqMBP8B+7cGHvp4M9O9V6nAYG91FZVDMW3Xkkq5qrdMhrXiawahqU7IZ5CNsY/wWy1PpGTQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<!-- suggested by Doris -->
+<script src="static/sweetalert2.all.min.js"></script>
 <link rel="stylesheet" href="static/jquery.contextMenu.css" integrity="sha512-EF5k2tHv4ShZB7zESroCVlbLaZq2n8t1i8mr32tgX0cyoHc3GfxuP7IoT8w/pD+vyoq7ye//qkFEqQao7Ofrag==" crossorigin="anonymous" referrerpolicy="no-referrer"
 />
 <!--slider ok-->
@@ -308,12 +287,25 @@ function submit_aio_frame_brightness_values_option(){
 
 
 function submit_default_play_mode(){
+    // Swal.fire('Any fool can use a computer')
     var mode = document.querySelector('input[name="launch_type_switcher"]:checked').value;
     var param = "";
     if(mode == "single_file_mode"){
         param = document.getElementById("single_file_selected").value;
+
+        Swal.fire({
+                  title: 'Single File Mode with ' + param,
+                  showConfirmButton: false,
+                  timer: 1500
+                })
     }else if(mode == "playlist_mode"){
         param = document.getElementById("playlist_selected").value;
+
+        Swal.fire({
+                  title: 'Playlist Mode with ' + param,
+                  showConfirmButton: false,
+                  timer: 1500
+                })
     }
 
     data = mode + ":" + param

@@ -129,7 +129,7 @@ def get_single_file_default():
     try:
         with open(os.getcwd() + "/static/default_launch_type.dat", "r") as launch_type_config_file:
             tmp = launch_type_config_file.read()
-            default_launch_type_int = tmp.split(":")[0]
+            default_launch_type_int = int(tmp.split(":")[0])
             default_launch_type_params_str = tmp.split(":")[1]
             if default_launch_type_int == play_type.play_single:
                 return default_launch_type_params_str
@@ -172,7 +172,6 @@ def get_playlist_list():
     playlist_list = []
     for playlist_tmp in sorted(glob.glob(playlist_extends)):
         log.debug("playlist_tmp = %s", playlist_tmp)
-
         if os.path.isfile(playlist_tmp):
             fname_url = playlist_tmp.split("/")
             fname = fname_url[len(fname_url) - 1]
@@ -185,7 +184,7 @@ def get_playlist_default():
     try:
         with open(os.getcwd() + "/static/default_launch_type.dat", "r") as launch_type_config_file:
             tmp = launch_type_config_file.read()
-            default_launch_type_int = tmp.split(":")[0]
+            default_launch_type_int = int(tmp.split(":")[0])
             default_launch_type_params_str = tmp.split(":")[1]
             if default_launch_type_int == play_type.play_playlist:
                 return default_launch_type_params_str
@@ -436,7 +435,10 @@ def create_new_playlist(data):
     except Exception as e:
         log.debug(e)
 
-    # send_message(set_frame_brightness_option=data)
+
+    return refresh_template()
+
+    ''''# send_message(set_frame_brightness_option=data)
     # status_code = Response(status=200)
     # return status_code
     maps = find_file_maps()
@@ -464,7 +466,7 @@ def create_new_playlist(data):
     return render_template("index.html", files=maps, playlist_nest_dict=playlist_nest_dict,
                            repeat_option=routes_repeat_option, text_size=route_text_size,
                            text_content=route_text_content, text_period=20, form=brightnessAlgoform,
-                           brightnessvalues=brightnessvalues)
+                           brightnessvalues=brightnessvalues)'''
 
 def get_default_play_mode_default():
     try:
@@ -827,8 +829,9 @@ def remove_media_file(data):
                     playlist_fd.flush()
                     playlist_fd.truncate()
                     playlist_fd.close()
+    return refresh_template()
 
-    maps = find_file_maps()
+    '''maps = find_file_maps()
     playlist_nest_dict = find_playlist_maps()
     # handle remove file uri in playlists
     for playlist in playlist_nest_dict:
@@ -855,7 +858,7 @@ def remove_media_file(data):
     return render_template("index.html", files=maps, playlist_nest_dict=playlist_nest_dict,
                            repeat_option=routes_repeat_option, text_size=route_text_size,
                            text_content=route_text_content, text_period=20, form=brightnessAlgoform,
-                           brightnessvalues=brightnessvalues)
+                           brightnessvalues=brightnessvalues)'''
 
 
 @app.route('/set_sleep_mode/<data>', methods=['POST'])
@@ -939,7 +942,9 @@ def add_to_playlist(data):
     playlist_fd.close()
     os.popen("sync")
 
-    maps = find_file_maps()
+    return refresh_template()
+
+    '''maps = find_file_maps()
     playlist_nest_dict = find_playlist_maps()
     # handle remove file uri in playlists
     for playlist in playlist_nest_dict:
@@ -966,7 +971,7 @@ def add_to_playlist(data):
     return render_template("index.html", files=maps, playlist_nest_dict=playlist_nest_dict,
                            repeat_option=routes_repeat_option, text_size=route_text_size,
                            text_content=route_text_content, text_period=20, form=brightnessAlgoform,
-                           brightnessvalues=brightnessvalues)
+                           brightnessvalues=brightnessvalues)'''
 
 
 @app.route('/remove_playlist/<data>', methods=['POST'])
@@ -978,7 +983,9 @@ def remove_playlist(data):
         os.remove(playlist_uri)
         os.popen("sync")
 
-    maps = find_file_maps()
+    return refresh_template()
+
+    '''maps = find_file_maps()
     playlist_nest_dict = find_playlist_maps()
     # handle remove file uri in playlists
     for playlist in playlist_nest_dict:
@@ -1005,7 +1012,7 @@ def remove_playlist(data):
     return render_template("index.html", files=maps, playlist_nest_dict=playlist_nest_dict,
                            repeat_option=routes_repeat_option, text_size=route_text_size,
                            text_content=route_text_content, text_period=20, form=brightnessAlgoform,
-                           brightnessvalues=brightnessvalues)
+                           brightnessvalues=brightnessvalues)'''
 
 @app.route('/remove_file_from_playlist/<data>', methods=['POST'])
 def remove_file_from_playlist(data):
@@ -1026,7 +1033,8 @@ def remove_file_from_playlist(data):
                     fw.truncate()
                     fw.close()
 
-    maps = find_file_maps()
+    return refresh_template()
+    '''maps = find_file_maps()
     playlist_nest_dict = find_playlist_maps()
     # handle remove file uri in playlists
     for playlist in playlist_nest_dict:
@@ -1052,7 +1060,7 @@ def remove_file_from_playlist(data):
     return render_template("index.html", files=maps, playlist_nest_dict=playlist_nest_dict,
                            repeat_option=routes_repeat_option, text_size=route_text_size,
                            text_content=route_text_content, text_period=20, form=brightnessAlgoform,
-                           brightnessvalues=brightnessvalues)
+                           brightnessvalues=brightnessvalues)'''
 
 
 @app.route('/set_ledserver_reboot_option/', methods=['POST'])
@@ -1089,7 +1097,8 @@ def test_page():
 
 @app.route("/")
 def index():
-    maps = find_file_maps()
+    return refresh_template()
+    '''maps = find_file_maps()
     playlist_nest_dict = find_playlist_maps()
     log.debug("playlist_maps = %s", playlist_nest_dict)
     log.debug("routes_repeat_option = %s", routes_repeat_option)
@@ -1127,7 +1136,7 @@ def index():
                            text_content=route_text_content, text_period=20, form=brightnessAlgoform,
                            default_play_form=default_play_form,
                            brightnessvalues=brightnessvalues, reboot_time=reboot_time,
-                           sleep_start_time=sleep_start_time, sleep_end_time=sleep_end_time)
+                           sleep_start_time=sleep_start_time, sleep_end_time=sleep_end_time)'''
 
 def refresh_template():
     maps = find_file_maps()
@@ -1152,8 +1161,11 @@ def refresh_template():
 
     default_play_form = LaunchTypeForm()
     default_play_form.launch_type_switcher.data = get_default_play_mode_default()
-    default_play_form.single_file_selectfiled.data = get_single_file_default()
-    default_play_form.playlist_selectfield.data = get_playlist_default()
+    default_play_form.single_file_selectfiled.choices = get_file_list()
+    default_play_form.playlist_selectfield.choices = get_playlist_list()
+    default_play_form.single_file_selectfiled.default = get_single_file_default()
+    default_play_form.playlist_selectfield.default = get_playlist_default()
+
     # get brightness setting values
     brightnessvalues = get_brightness_value_default()
     reboot_time = get_reboot_time_default()

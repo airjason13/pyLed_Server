@@ -890,19 +890,15 @@ class MainUi(QMainWindow):
         try:
             data = arg.get("data")
             port = arg.get("port")
-
             if jholiday.today_is_holiday_or_not() is True:
                 data_append = ";br:" + str(0)
-                log.debug("holiday br:0")
+                # log.debug("holiday br:0")
             else:
                 data_append = ";br:" + str(self.media_engine.media_processor.video_params.frame_brightness)
-                log.debug("workday br: %s", str(self.media_engine.media_processor.video_params.frame_brightness))
-
+                # log.debug("workday br: %s", str(self.media_engine.media_processor.video_params.frame_brightness))
             data += data_append
-
             ip = net_utils.get_ip_address()
             utils.net_utils.force_set_eth_ip()
-
             msg = data.encode()
             if ip != "":
                 # print(f'sending on {ip}')
