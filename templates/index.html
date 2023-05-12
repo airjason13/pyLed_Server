@@ -295,6 +295,18 @@ function submit_frame_brightness_values_option(){
         });
 }
 
+function submit_aio_frame_brightness_values_option(){
+    var fr_br = document.getElementById("frame_brightness").value;
+
+    var data = "fr_br:" + fr_br + ";day_mode_fr_br:" + fr_br +";night_mode_fr_br:" + fr_br + ";sleep_mode_fr_br:" + fr_br;
+
+    var url = "/set_brightness_values/" + data;
+    $.post(url, {
+        /*javascript_data: data*/
+        });
+}
+
+
 function submit_default_play_mode(){
     var mode = document.querySelector('input[name="launch_type_switcher"]:checked').value;
     var param = "";
@@ -649,7 +661,11 @@ function submit_sleep_time_option(){
             <label class="label_h1" for="text_context" style="font-size:24px" ><font color="#0000FF">{{k}}</font></label>
             <input type="number" name="frame_brightness" id={{k}} size="6" style="font-size:24px" value={{v}}></br>
         {% endfor %}
-        <input class="button-84" type="submit" id="frame_brightness_confirm" name="frame_brightness_confirm" value="Set Brightness" onclick="submit_frame_brightness_values_option()">
+        {% if ledrole == "Server" %}
+            <input class="button-84" type="submit" id="frame_brightness_confirm" name="frame_brightness_confirm" value="Set Brightness" onclick="submit_frame_brightness_values_option()">
+        {% else %}
+            <input class="button-84" type="submit" id="aio_frame_brightness_confirm" name="aio_frame_brightness_confirm" value="Set Brightness" onclick="submit_aio_frame_brightness_values_option()">
+        {% endif %}
     </div>
 
     <div class="div_default_play_mode">

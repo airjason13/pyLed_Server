@@ -1102,16 +1102,6 @@ def index():
     playlist_js_file.truncate()
     playlist_js_file.close()
 
-    # get client information
-    # tmp_clients = get_tmp_clients()
-    # log.debug("len(tmp_clients)  =%d", len(tmp_clients))
-    # log.debug("tmp_clients[0].client_ip  =%s", tmp_clients[0].client_ip)
-    # test_city = get_city_hash_map()
-    # print(test_city)
-    # print(type(test_city))
-    # test_city_list = get_city_list()
-    # print(test_city_list)
-    # print(type(test_city_list))
     # brightness Algo radio form
     brightnessAlgoform = BrightnessAlgoForm()
     brightnessAlgoform.sleep_mode_switcher.data=get_sleep_mode_default()
@@ -1139,5 +1129,43 @@ def index():
                            brightnessvalues=brightnessvalues, reboot_time=reboot_time,
                            sleep_start_time=sleep_start_time, sleep_end_time=sleep_end_time)
 
+def refresh_template():
+    maps = find_file_maps()
+    playlist_nest_dict = find_playlist_maps()
+    log.debug("playlist_maps = %s", playlist_nest_dict)
+    log.debug("routes_repeat_option = %s", routes_repeat_option)
+    import json
+    playlist_js_file = open("static/playlist.js", "w")
+    playlist_json = json.dumps(playlist_nest_dict)
 
+    playlist_js_file.write("var jsonstr = " + playlist_json)
+    playlist_js_file.flush()
+    playlist_js_file.truncate()
+    playlist_js_file.close()
+    # brightness Algo radio form
+    brightnessAlgoform = BrightnessAlgoForm()
+    brightnessAlgoform.sleep_mode_switcher.data = get_sleep_mode_default()
+    brightnessAlgoform.city_selectfiled.data = get_target_city_default()
+    brightnessAlgoform.reboot_mode_switcher.data = get_reboot_mode_default()
+    # print(type(brightnessAlgoform.city_selectfiled.choices))
+    brightnessAlgoform.brightness_mode_switcher.data = get_brightness_mode_default()
 
+    default_play_form = LaunchTypeForm()
+    default_play_form.launch_type_switcher.data = get_default_play_mode_default()
+    default_play_form.single_file_selectfiled.data = get_single_file_default()
+    default_play_form.playlist_selectfield.data = get_playlist_default()
+    # get brightness setting values
+    brightnessvalues = get_brightness_value_default()
+    reboot_time = get_reboot_time_default()
+    sleep_start_time = get_sleep_start_time_default()
+    sleep_end_time = get_sleep_end_time_default()
+    role = get_led_role()
+    # log.debug("role = %s", role)
+
+    return render_template("index.html", title="GIS TLED", ledrole=role, sw_version=version, files=maps,
+                           playlist_nest_dict=playlist_nest_dict,
+                           repeat_option=routes_repeat_option, text_size=route_text_size,
+                           text_content=route_text_content, text_period=20, form=brightnessAlgoform,
+                           default_play_form=default_play_form,
+                           brightnessvalues=brightnessvalues, reboot_time=reboot_time,
+                           sleep_start_time=sleep_start_time, sleep_end_time=sleep_end_time)
