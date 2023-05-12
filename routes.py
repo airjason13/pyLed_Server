@@ -132,9 +132,11 @@ def get_single_file_default():
             default_launch_type_int = int(tmp.split(":")[0])
             default_launch_type_params_str = tmp.split(":")[1]
             if default_launch_type_int == play_type.play_single:
+                log.debug("get_single_file_default :"+ default_launch_type_params_str)
                 return default_launch_type_params_str
             else:
                 file_list = get_file_list()
+                log.debug("file_list[0] :" + file_list[0])
                 return file_list[0]
     except Exception as e:
         log.debug(e)
@@ -171,11 +173,11 @@ def find_playlist_maps():
 def get_playlist_list():
     playlist_list = []
     for playlist_tmp in sorted(glob.glob(playlist_extends)):
-        log.debug("playlist_tmp = %s", playlist_tmp)
+        # log.debug("playlist_tmp = %s", playlist_tmp)
         if os.path.isfile(playlist_tmp):
             fname_url = playlist_tmp.split("/")
             fname = fname_url[len(fname_url) - 1]
-            log.debug("fname : %s", fname)
+            # log.debug("fname : %s", fname)
             playlist_list.append(fname)
     return playlist_list
 
@@ -192,7 +194,7 @@ def get_playlist_default():
                 return get_playlist_list()[0]
     except Exception as e:
         log.debug(e)
-    log.debug("get_playlist_list()[0] = %s", get_playlist_list()[0])
+
     return get_playlist_list()[0]
 
 def find_maps_depreciated():
@@ -922,7 +924,41 @@ def set_brightness_values(data):
 @app.route('/set_default_play_mode/<data>', methods=['POST'])
 def set_default_play_mode(data):
     log.debug("set_default_play_mode data :" + data)
-    send_message(set_default_play_mode_option=data)
+    # send_message(set_default_play_mode_option=data)
+    tmp = data
+    default_mode = "0"
+    default_params = ""
+    try:
+        if "none_mode" in tmp:
+            default_mode = "0"
+            default_params = ""
+        elif "single_file_mode" in tmp:
+            default_mode = "1"
+            default_params = tmp.split(":")[1]
+        elif "playlist_mode" in tmp:
+            default_mode = "2"
+            default_params = tmp.split(":")[1]
+        elif "hdmi_in_mode" in tmp:
+            default_mode = "3"
+            default_params = ""
+        elif "cms_mode" in tmp:
+            default_mode = "4"
+            default_params = ""
+    except Exception as e:
+        log.debug(e)
+
+    str_tmp = default_mode + ":" + default_params
+    log.debug("str_tmp = %s", str_tmp)
+
+    try:
+        with open(os.getcwd() + "/static/default_launch_type.dat", "w") as launch_type_config_file:
+            launch_type_config_file.write(str_tmp)
+            launch_type_config_file.flush()
+            launch_type_config_file.truncate()
+            launch_type_config_file.close()
+            os.popen("sync")
+    except Exception as e:
+        log.debug(e)
     status_code = Response(status=200)
     return status_code
 
@@ -1161,10 +1197,14 @@ def refresh_template():
 
     default_play_form = LaunchTypeForm()
     default_play_form.launch_type_switcher.data = get_default_play_mode_default()
+
     default_play_form.single_file_selectfiled.choices = get_file_list()
     default_play_form.playlist_selectfield.choices = get_playlist_list()
-    default_play_form.single_file_selectfiled.default = get_single_file_default()
-    default_play_form.playlist_selectfield.default = get_playlist_default()
+    log.debug("get_single_file_default() = %s", get_single_file_default())
+    default_play_form.single_file_selectfiled.data = get_single_file_default()
+    default_play_form.playlist_selectfield.data = get_playlist_default()
+    
+
 
     # get brightness setting values
     brightnessvalues = get_brightness_value_default()

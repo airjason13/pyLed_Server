@@ -333,6 +333,9 @@ def parser_cmd_from_qlocalserver(self, data):
 		try:
 			with open(os.getcwd() + "/static/default_launch_type.dat", "w") as launch_type_config_file:
 				launch_type_config_file.write(str_tmp)
+				launch_type_config_file.flush()
+				launch_type_config_file.truncate()
+				launch_type_config_file.close()
 		except Exception as e:
 			log.debug(e)
 
