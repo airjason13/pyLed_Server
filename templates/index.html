@@ -13,7 +13,7 @@
 <script src="static/script.js" defer></script>
 
 <script type="text/javascript" src="static/playlist.js"></script>
-<script>
+<!--<script>
 
 var cot=0;//設置一個計數器，初始值為0；作用是用來監聽點擊切換的時候哪一個圖片應該隱藏或者顯示
 var max_cot=0;
@@ -365,7 +365,7 @@ function submit_sleep_time_option(){
         });
 }
 
-</script>
+</script> -->
 
 
 
@@ -379,6 +379,16 @@ function submit_sleep_time_option(){
     {% endif %}
     <div style="clear:both;"></div>
     </body>
+    <div >
+        <label class="label_h1" style="font-size:36px;background: -webkit-linear-gradient(#77e, #77a);
+                                                -webkit-background-clip: text;
+                                                -webkit-text-fill-color: transparent;">
+                                        <font color="#0000FF">File Upload</font></label>
+            <form action="uploads" method=post accept="image/png, image/jpg, image/jpeg, video/mp4" enctype=multipart/form-data>
+              <p><input type=file name=file accept="image/png, image/jpg, image/jpeg, video/mp4" >
+                 <input type=submit value=Upload>
+        </form>
+    </div>
     {% if ledrole == "Server" %}
         <div class="div_drawtext">
             <label style="font-size:36px;
@@ -437,7 +447,10 @@ function submit_sleep_time_option(){
 
     <div class="row">
         <div class="header">
-          <label class="label_h1" style="font-size:36px">
+          <label class="label_h1" style="font-size:36px;
+                                            background: -webkit-linear-gradient(#77e, #77a);
+                                            -webkit-background-clip: text;
+                                            -webkit-text-fill-color: transparent;">
                                         <font color="#0000FF">Files</font></label>
           <div class="progress-bar"></div>
         </div>

@@ -22,10 +22,19 @@ log = utils.log_utils.logging_init(__file__)
 SECRET_KEY = os.urandom(32)
 app.config['SECRET_KEY'] = SECRET_KEY
 
+UPLOAD_FOLDER = internal_media_folder
+ALLOWED_EXTENSIONS = set(['mp4', 'png', 'jpg', 'jpeg'])
+
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB
+
 routes_repeat_option = ""
 route_text_size = 16
 route_text_content = ""
 
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
 
 def route_set_text_size(size):
     global route_text_size
@@ -1129,6 +1138,20 @@ def route_get_thumbnail(filename):
 @app.route("/test_page")
 def test_page():
     return render_template("test_page.html")
+
+
+@app.route('/uploads', methods=['POST'])
+def uploads():
+    log.debug("request.method : %s", request.method)
+    print("request.files['file']", request.files['file'])
+    f = request.files['file']
+    f.save(internal_media_folder + "/" + f.filename)
+
+    '''if request.method == 'POST':
+        f = request.files['file']
+        f.save(f.filename)'''
+    return refresh_template()
+
 
 
 @app.route("/")
