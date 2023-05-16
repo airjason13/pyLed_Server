@@ -1146,7 +1146,7 @@ def uploads():
     print("request.files['file']", request.files['file'])
     f = request.files['file']
     f.save(internal_media_folder + "/" + f.filename)
-
+    # send_message(internal_medialist_change=True)
     '''if request.method == 'POST':
         f = request.files['file']
         f.save(f.filename)'''

@@ -276,3 +276,28 @@ width:20px;
   float:left;
 }
 
+.upload-box{
+    font-size:24px;
+    background:white;
+    color:black;
+    border-radius:50px;
+    box-shadow:5px 5px 10px black;
+    width:480px;
+    outline:none;
+
+}
+
+::-webkit-file-upload-button{
+    color:white;
+    background-color: initial;
+    background-image: linear-gradient(#464d55, #25292e);
+    padding:20px;
+    border:none;
+    border-radius:50px;
+    box-shadow:1px 0 1px 1px #6b4559;
+    outline:none;
+}
+
+::-webkit-file-upload-button:hover{
+    background:#25292e;
+}

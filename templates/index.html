@@ -384,9 +384,10 @@ function submit_sleep_time_option(){
                                                 -webkit-background-clip: text;
                                                 -webkit-text-fill-color: transparent;">
                                         <font color="#0000FF">File Upload</font></label>
-            <form action="uploads" method=post accept="image/png, image/jpg, image/jpeg, video/mp4" enctype=multipart/form-data>
-              <p><input type=file name=file accept="image/png, image/jpg, image/jpeg, video/mp4" >
-                 <input type=submit value=Upload>
+            <form action="uploads" method=post enctype=multipart/form-data>
+              <p><input type=file class="upload-box" name=file accept="image/png, image/jpg, image/jpeg, video/mp4" />
+                 <!--<input type=submit value=Upload>-->
+                 <input class="button-84" type="submit" value="Submit"/>
         </form>
     </div>
     {% if ledrole == "Server" %}
