@@ -1,6 +1,8 @@
 import datetime
 import os
 import glob
+import time
+
 from main import app
 from qlocalmessage import send_message
 from flask import Flask, render_template, send_from_directory, request, redirect, url_for, Response, json
@@ -26,7 +28,7 @@ UPLOAD_FOLDER = internal_media_folder
 ALLOWED_EXTENSIONS = set(['mp4', 'png', 'jpg', 'jpeg'])
 
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB
+app.config['MAX_CONTENT_LENGTH'] = 1024 * 1024 * 1024  # 1024MB
 
 routes_repeat_option = ""
 route_text_size = 16
@@ -154,7 +156,6 @@ def get_single_file_default():
 
 def find_playlist_maps():
     playlist_nest_dict = {}
-    # log.debug("playlist_extends = %s", playlist_extends)
     for playlist_tmp in sorted(glob.glob(playlist_extends)):
         # log.debug("playlist_tmp = %s", playlist_tmp)
         if os.path.isfile(playlist_tmp):
@@ -177,6 +178,7 @@ def find_playlist_maps():
     print(playlist_nest_dict)
 
     return playlist_nest_dict
+
 
 
 def get_playlist_list():
@@ -446,38 +448,7 @@ def create_new_playlist(data):
     except Exception as e:
         log.debug(e)
 
-
     return refresh_template()
-
-    ''''# send_message(set_frame_brightness_option=data)
-    # status_code = Response(status=200)
-    # return status_code
-    maps = find_file_maps()
-    playlist_nest_dict = find_playlist_maps()
-    log.debug("playlist_maps = %s", playlist_nest_dict)
-    log.debug("routes_repeat_option = %s", routes_repeat_option)
-    import json
-
-    playlist_js_file = open("static/playlist.js", "w")
-    playlist_json = json.dumps(playlist_nest_dict)
-    # print("playlist_json : " + playlist_json)
-
-    playlist_js_file.write("var jsonstr = " + playlist_json)
-    playlist_js_file.truncate()
-    playlist_js_file.close()
-
-    # brightness Algo radio form
-    brightnessAlgoform = BrightnessAlgoForm()
-    brightnessAlgoform.sleep_mode_switcher.data=get_sleep_mode_default()
-    brightnessAlgoform.city_selectfiled.data=get_target_city_default()
-    brightnessAlgoform.brightness_mode_switcher.data=get_brightness_mode_default()
-    # get brightness setting values
-    brightnessvalues = get_brightness_value_default()
-
-    return render_template("index.html", files=maps, playlist_nest_dict=playlist_nest_dict,
-                           repeat_option=routes_repeat_option, text_size=route_text_size,
-                           text_content=route_text_content, text_period=20, form=brightnessAlgoform,
-                           brightnessvalues=brightnessvalues)'''
 
 def get_default_play_mode_default():
     try:
@@ -842,34 +813,7 @@ def remove_media_file(data):
                     playlist_fd.close()
     return refresh_template()
 
-    '''maps = find_file_maps()
-    playlist_nest_dict = find_playlist_maps()
-    # handle remove file uri in playlists
-    for playlist in playlist_nest_dict:
-        log.debug("playlist :%s ", playlist)
-    log.debug("playlist_maps = %s", playlist_nest_dict)
-    log.debug("routes_repeat_option = %s", routes_repeat_option)
-    import json
 
-    playlist_js_file = open("static/playlist.js", "w")
-    playlist_json = json.dumps(playlist_nest_dict)
-
-    playlist_js_file.write("var jsonstr = " + playlist_json)
-    playlist_js_file.truncate()
-    playlist_js_file.close()
-
-    # brightness Algo radio form
-    brightnessAlgoform = BrightnessAlgoForm()
-    brightnessAlgoform.sleep_mode_switcher.data=get_sleep_mode_default()
-    brightnessAlgoform.city_selectfiled.data=get_target_city_default()
-    brightnessAlgoform.brightness_mode_switcher.data=get_brightness_mode_default()
-    # get brightness setting values
-    brightnessvalues = get_brightness_value_default()
-
-    return render_template("index.html", files=maps, playlist_nest_dict=playlist_nest_dict,
-                           repeat_option=routes_repeat_option, text_size=route_text_size,
-                           text_content=route_text_content, text_period=20, form=brightnessAlgoform,
-                           brightnessvalues=brightnessvalues)'''
 
 
 @app.route('/set_sleep_mode/<data>', methods=['POST'])
@@ -989,34 +933,7 @@ def add_to_playlist(data):
 
     return refresh_template()
 
-    '''maps = find_file_maps()
-    playlist_nest_dict = find_playlist_maps()
-    # handle remove file uri in playlists
-    for playlist in playlist_nest_dict:
-        log.debug("playlist :%s ", playlist)
-    log.debug("playlist_maps = %s", playlist_nest_dict)
-    log.debug("routes_repeat_option = %s", routes_repeat_option)
-    import json
 
-    playlist_js_file = open("static/playlist.js", "w")
-    playlist_json = json.dumps(playlist_nest_dict)
-
-    playlist_js_file.write("var jsonstr = " + playlist_json)
-    playlist_js_file.truncate()
-    playlist_js_file.close()
-
-    # brightness Algo radio form
-    brightnessAlgoform = BrightnessAlgoForm()
-    brightnessAlgoform.sleep_mode_switcher.data=get_sleep_mode_default()
-    brightnessAlgoform.city_selectfiled.data=get_target_city_default()
-    brightnessAlgoform.brightness_mode_switcher.data=get_brightness_mode_default()
-    # get brightness setting values
-    brightnessvalues = get_brightness_value_default()
-
-    return render_template("index.html", files=maps, playlist_nest_dict=playlist_nest_dict,
-                           repeat_option=routes_repeat_option, text_size=route_text_size,
-                           text_content=route_text_content, text_period=20, form=brightnessAlgoform,
-                           brightnessvalues=brightnessvalues)'''
 
 
 @app.route('/remove_playlist/<data>', methods=['POST'])
@@ -1030,34 +947,7 @@ def remove_playlist(data):
 
     return refresh_template()
 
-    '''maps = find_file_maps()
-    playlist_nest_dict = find_playlist_maps()
-    # handle remove file uri in playlists
-    for playlist in playlist_nest_dict:
-        log.debug("playlist :%s ", playlist)
-    log.debug("playlist_maps = %s", playlist_nest_dict)
-    log.debug("routes_repeat_option = %s", routes_repeat_option)
-    import json
 
-    playlist_js_file = open("static/playlist.js", "w")
-    playlist_json = json.dumps(playlist_nest_dict)
-
-    playlist_js_file.write("var jsonstr = " + playlist_json)
-    playlist_js_file.truncate()
-    playlist_js_file.close()
-
-    # brightness Algo radio form
-    brightnessAlgoform = BrightnessAlgoForm()
-    brightnessAlgoform.sleep_mode_switcher.data=get_sleep_mode_default()
-    brightnessAlgoform.city_selectfiled.data=get_target_city_default()
-    brightnessAlgoform.brightness_mode_switcher.data=get_brightness_mode_default()
-    # get brightness setting values
-    brightnessvalues = get_brightness_value_default()
-
-    return render_template("index.html", files=maps, playlist_nest_dict=playlist_nest_dict,
-                           repeat_option=routes_repeat_option, text_size=route_text_size,
-                           text_content=route_text_content, text_period=20, form=brightnessAlgoform,
-                           brightnessvalues=brightnessvalues)'''
 
 @app.route('/remove_file_from_playlist/<data>', methods=['POST'])
 def remove_file_from_playlist(data):
@@ -1079,33 +969,7 @@ def remove_file_from_playlist(data):
                     fw.close()
 
     return refresh_template()
-    '''maps = find_file_maps()
-    playlist_nest_dict = find_playlist_maps()
-    # handle remove file uri in playlists
-    for playlist in playlist_nest_dict:
-        log.debug("playlist :%s ", playlist)
-    log.debug("playlist_maps = %s", playlist_nest_dict)
-    log.debug("routes_repeat_option = %s", routes_repeat_option)
-    import json
 
-    playlist_js_file = open("static/playlist.js", "w")
-    playlist_json = json.dumps(playlist_nest_dict)
-
-    playlist_js_file.write("var jsonstr = " + playlist_json)
-    playlist_js_file.truncate()
-    playlist_js_file.close()
-    # brightness Algo radio form
-    brightnessAlgoform = BrightnessAlgoForm()
-    brightnessAlgoform.sleep_mode_switcher.data=get_sleep_mode_default()
-    brightnessAlgoform.city_selectfiled.data=get_target_city_default()
-    brightnessAlgoform.brightness_mode_switcher.data=get_brightness_mode_default()
-    # get brightness setting values
-    brightnessvalues = get_brightness_value_default()
-
-    return render_template("index.html", files=maps, playlist_nest_dict=playlist_nest_dict,
-                           repeat_option=routes_repeat_option, text_size=route_text_size,
-                           text_content=route_text_content, text_period=20, form=brightnessAlgoform,
-                           brightnessvalues=brightnessvalues)'''
 
 
 @app.route('/set_ledserver_reboot_option/', methods=['POST'])
@@ -1150,52 +1014,15 @@ def uploads():
     '''if request.method == 'POST':
         f = request.files['file']
         f.save(f.filename)'''
-    return refresh_template()
-
+    # return refresh_template()
+    time.sleep(10)
+    return redirect(url_for("index"))
 
 
 @app.route("/")
 def index():
     return refresh_template()
-    '''maps = find_file_maps()
-    playlist_nest_dict = find_playlist_maps()
-    log.debug("playlist_maps = %s", playlist_nest_dict)
-    log.debug("routes_repeat_option = %s", routes_repeat_option)
-    import json
-    playlist_js_file = open("static/playlist.js", "w")
-    playlist_json = json.dumps(playlist_nest_dict)
 
-    playlist_js_file.write("var jsonstr = " + playlist_json)
-    playlist_js_file.flush()
-    playlist_js_file.truncate()
-    playlist_js_file.close()
-
-    # brightness Algo radio form
-    brightnessAlgoform = BrightnessAlgoForm()
-    brightnessAlgoform.sleep_mode_switcher.data=get_sleep_mode_default()
-    brightnessAlgoform.city_selectfiled.data=get_target_city_default()
-    brightnessAlgoform.reboot_mode_switcher.data=get_reboot_mode_default()
-    # print(type(brightnessAlgoform.city_selectfiled.choices))
-    brightnessAlgoform.brightness_mode_switcher.data=get_brightness_mode_default()
-
-    default_play_form = LaunchTypeForm()
-    default_play_form.launch_type_switcher.data = get_default_play_mode_default()
-    default_play_form.single_file_selectfiled.data = get_single_file_default()
-    default_play_form.playlist_selectfield.data = get_playlist_default()
-    # get brightness setting values
-    brightnessvalues = get_brightness_value_default()
-    reboot_time = get_reboot_time_default()
-    sleep_start_time = get_sleep_start_time_default()
-    sleep_end_time = get_sleep_end_time_default()
-    role=get_led_role()
-    log.debug("role = %s", role)
-
-    return render_template("index.html", title="GIS TLED", ledrole=role, sw_version=version, files=maps, playlist_nest_dict=playlist_nest_dict,
-                           repeat_option=routes_repeat_option, text_size=route_text_size,
-                           text_content=route_text_content, text_period=20, form=brightnessAlgoform,
-                           default_play_form=default_play_form,
-                           brightnessvalues=brightnessvalues, reboot_time=reboot_time,
-                           sleep_start_time=sleep_start_time, sleep_end_time=sleep_end_time)'''
 
 def refresh_template():
     maps = find_file_maps()

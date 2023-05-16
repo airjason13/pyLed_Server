@@ -12,6 +12,7 @@ from c_new_playlist_dialog import NewPlaylistDialog
 from commands_def import *
 import utils.log_utils
 import utils.ffmpy_utils
+import utils.file_utils
 import hashlib
 from astral_hashmap import *
 log = utils.log_utils.logging_init(__file__)
@@ -120,6 +121,10 @@ class media_page(QObject):
             # utils.ffmpy_utils.gen_webp_from_video(internal_media_folder, os.path.basename(f))  # need to remove later
             utils.ffmpy_utils.gen_webp_from_video_threading(internal_media_folder, os.path.basename(f))
             self.internal_media_root.addChild(internal_file_item)
+        log.debug("start to check playlist")
+        utils.file_utils.sync_playlist()
+
+
 
     def play_option_init(self):
         """play singal file btn"""

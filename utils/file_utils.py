@@ -294,3 +294,29 @@ def get_sleep_time_from_file():
             s_end_time = line.split("=")[1].strip("\n")
 
     return s_start_time, s_end_time
+
+def sync_playlist():
+    for playlist_tmp in sorted(glob.glob(playlist_extends)):
+        if os.path.isfile(playlist_tmp):
+            try:
+                with open(playlist_tmp, "r") as playlist_tmp_file:
+                    playlist_tmp_content = playlist_tmp_file.read()
+                    playlist_tmp_file.close()
+            except Exception as e:
+                log.debug(e)
+            log.debug("playlist_tmp_content : %s", playlist_tmp_content)
+            playlist_tmp_content_list = playlist_tmp_content.splitlines()
+            for file_uri in playlist_tmp_content_list:
+                if os.path.isfile(file_uri) is False:
+                    playlist_tmp_content_list.remove(file_uri)
+
+            try:
+                with open(playlist_tmp, "w") as playlist_tmp_file:
+                    for file_uri in playlist_tmp_content_list:
+                        playlist_tmp_file.write(file_uri + "\n")
+                    playlist_tmp_file.close()
+                    playlist_tmp_file.flush()
+                    playlist_tmp_file.truncate()
+                    playlist_tmp_file.close()
+            except Exception as e:
+                log.debug(e)
