@@ -190,6 +190,8 @@ def get_playlist_list():
             fname = fname_url[len(fname_url) - 1]
             # log.debug("fname : %s", fname)
             playlist_list.append(fname)
+    if len(playlist_list) == 0:
+        playlist_list.append("")
     return playlist_list
 
 

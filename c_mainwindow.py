@@ -291,6 +291,7 @@ class MainUi(QMainWindow):
                 with open(os.getcwd() + "/static/default_launch_type.dat", "r") as launch_type_config_file:
                     tmp = launch_type_config_file.readline()
                     log.debug("launch_type_config : %s", tmp)
+
                     self.default_launch_type_int = int(tmp.split(":")[0])
                     self.default_launch_params_str = tmp.split(":")[1]
             except Exception as e:
@@ -353,6 +354,7 @@ class MainUi(QMainWindow):
     def demo_start_playlist(self):
         self.func_file_contents()
         log.debug("play playlist : %s", self.default_launch_params_str)
+
         self.media_engine.play_playlist(self.default_launch_params_str)
 
     # enter engineer mode

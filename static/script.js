@@ -431,12 +431,19 @@ function submit_default_play_mode(){
                 })
     }else if(mode == "playlist_mode"){
         param = document.getElementById("playlist_selected").value;
-
-        Swal.fire({
-                  title: 'Playlist Mode with ' + param,
-                  showConfirmButton: false,
-                  timer: 1500
-                })
+        if(param == ""){
+            Swal.fire({
+                      title: 'No Playlist Selected',
+                      showConfirmButton: false,
+                      timer: 1500
+                    })
+        }else{
+            Swal.fire({
+                      title: 'Playlist Mode with ' + param,
+                      showConfirmButton: false,
+                      timer: 1500
+                    })
+        }
     }
 
     data = mode + ":" + param

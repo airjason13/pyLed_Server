@@ -3,7 +3,7 @@ import platform
 import os
 from pathlib import Path
 """Software version"""
-version = "LS230517001"
+version = "LS230517002"
 
 
 def get_led_role():
