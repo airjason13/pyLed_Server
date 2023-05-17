@@ -58,6 +58,15 @@ class media_engine(QObject):
         self.media_processor.signal_media_play_status_changed.connect(self.play_status_changed)
         '''hdmi-in cast'''
 
+    def sync_playlist(self):
+        self.playlist_files = get_playlist_file_list(internal_media_folder + PlaylistFolder)
+        log.debug(self.playlist_files)
+        self.playlist = []
+        for file in self.playlist_files:
+            playlist_tmp = playlist(file)
+            self.playlist.append(playlist_tmp)
+        log.debug("self.playlist = %s", self.playlist)
+
     # hdmi_in_src : string
     # cast_dst : array of string
     def start_hdmi_in_v4l2(self, hdmi_in_src, cast_dst):

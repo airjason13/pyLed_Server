@@ -1484,8 +1484,8 @@ class MainUi(QMainWindow):
                 child_count += 1
 
     def internaldef_medialist_changed(self):
-        log.debug("self.medialist_page.internal_media_root.childCount() = %d",
-                  self.medialist_page.internal_media_root.childCount())
+        # log.debug("self.medialist_page.internal_media_root.childCount() = %s",
+        #          self.medialist_page.internal_media_root.childCount())
         self.media_engine.refresh_internal_medialist()
 
         self.medialist_page.refresh_internal_medialist()

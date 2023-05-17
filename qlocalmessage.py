@@ -24,7 +24,7 @@ def send_message(**data):
         try:
             b_recv_data = socket.readAll()
             recv_data = b_recv_data.data().decode()
-            log.debug("recv_data = %s", recv_data)
+            # log.debug("recv_data = %s", recv_data)
         except Exception as e:
             log.fatal(e)
         socket.disconnectFromServer()

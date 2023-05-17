@@ -605,7 +605,7 @@ def gen_webp_from_video(file_folder, video):
                 break
             continue
         break
-    log.debug("%s generated good", thumbnail_path)
+    # log.debug("%s generated good", thumbnail_path)
     return thumbnail_path
 
 

@@ -109,9 +109,13 @@ class media_page(QObject):
         self.signal_refresh_internal_medialist.connect(self.mainwindow.internaldef_medialist_changed)
 
     def refresh_internal_medialist(self):
+        log.debug("start to check playlist")
+        utils.file_utils.sync_playlist()
+        self.media_engine.sync_playlist()
+        # print( self.mainwindow.media_engine.playlist)
         for i in reversed(range(self.internal_media_root.childCount())):
-            log.debug("self.medialist_page.internal_media_root.child() = %s",
-                      self.internal_media_root.child(i).text(0))
+            # log.debug("self.medialist_page.internal_media_root.child() = %s",
+            #          self.internal_media_root.child(i).text(0))
             self.internal_media_root.removeChild(self.internal_media_root.child(i))
 
         self.internal_media_root.setText(0, "Internal Media")
@@ -121,8 +125,20 @@ class media_page(QObject):
             # utils.ffmpy_utils.gen_webp_from_video(internal_media_folder, os.path.basename(f))  # need to remove later
             utils.ffmpy_utils.gen_webp_from_video_threading(internal_media_folder, os.path.basename(f))
             self.internal_media_root.addChild(internal_file_item)
-        log.debug("start to check playlist")
-        utils.file_utils.sync_playlist()
+        self.refresh_playlist_items()
+
+    def refresh_playlist_items(self):
+        for i in reversed(range(self.qtw_media_play_list.childCount())):
+            self.qtw_media_play_list.removeChild(self.qtw_media_play_list.child(i))
+        for playlist in self.mainwindow.media_engine.playlist:
+            log.debug("playlist = %s", playlist)
+            playlist_root = QTreeWidgetItem(self.qtw_media_play_list)
+            playlist_root.setText(0, playlist.name)
+            for file_name in playlist.fileslist:
+                #log.debug("playlist.fileslist :%s", file_name)
+                file_name_item = QTreeWidgetItem(playlist_root)
+                file_name_item.setText(0, os.path.basename(file_name))
+                playlist_root.addChild(file_name_item)
 
 
 

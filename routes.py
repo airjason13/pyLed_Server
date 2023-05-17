@@ -111,7 +111,7 @@ def find_file_maps():
             # log.debug("video_extension = %s", video_extension)
             preview_file_name = hashlib.md5(prefix_video_name.encode('utf-8')).hexdigest() + ".webp"
             maps[key] = preview_file_name
-    print("maps :", maps)
+    # print("maps :", maps)
     return maps
 
 
@@ -175,7 +175,7 @@ def find_playlist_maps():
                 # if the fname is the same as item before, there is only one in nest!!!!!
                 playlist_nest_dict[playlist_name][fname] = preview_file_name
 
-    print(playlist_nest_dict)
+    # print(playlist_nest_dict)
 
     return playlist_nest_dict
 
@@ -216,7 +216,7 @@ def find_maps_depreciated():
             list_file_url = fname.split("/")
             key = list_file_url[len(list_file_url) - 1]
             maps[key] = round(os.path.getsize(fname) / SIZE_MB, 3)
-    print("maps :", maps)
+    # print("maps :", maps)
 
     return maps
 
@@ -226,13 +226,13 @@ def get_nest_maps(maps):
     for x in maps:
         fl_dic = {}
         try:
-            print("x: ", x)
+            # print("x: ", x)
             fl_dic["filename"] = x
             fl_dic["size"] = maps[x]
         except:
             print(traceback.print_exc())
         dict_list.append(fl_dic)
-    print("nest_dict :", dict_list)
+    # print("nest_dict :", dict_list)
     return dict_list
 
 
@@ -249,7 +249,7 @@ def get_reboot_time_default():
     for line in lines:
         if "reboot_time" in line:
             reboot_time = line.split("=")[1]
-    log.debug("reboot_time = %s", reboot_time)
+    # log.debug("reboot_time = %s", reboot_time)
     return reboot_time
 
 def get_sleep_start_time_default():
@@ -266,7 +266,7 @@ def get_sleep_start_time_default():
     for line in lines:
         if "sleep_start_time" in line:
             sleep_start_time = line.split("=")[1]
-    log.debug("sleep_start_time = %s", sleep_start_time)
+    # log.debug("sleep_start_time = %s", sleep_start_time)
     return sleep_start_time
 
 
@@ -284,7 +284,7 @@ def get_sleep_end_time_default():
     for line in lines:
         if "sleep_end_time" in line:
             sleep_end_time = line.split("=")[1]
-    log.debug("sleep_end_time = %s", sleep_end_time)
+    # log.debug("sleep_end_time = %s", sleep_end_time)
     return sleep_end_time
 
 
@@ -447,7 +447,7 @@ def create_new_playlist(data):
             playlist_file.close()
     except Exception as e:
         log.debug(e)
-
+    send_message(sync_playlist=data)
     return refresh_template()
 
 def get_default_play_mode_default():
@@ -474,7 +474,7 @@ def get_default_play_mode_default():
                     str_ret = "none_mode"
                 else:
                     str_ret = "cmd_mode"
-            log.debug("str_ret :%s", str_ret)
+            # log.debug("str_ret :%s", str_ret)
             return str_ret
     except Exception as e:
         log.debug(e)
@@ -486,7 +486,7 @@ def get_brightness_mode_default():
     led_config_dir = os.path.join(root_dir, 'video_params_config')
 
     str_ret = 'fix_mode'
-    log.debug("video_params file is %s: ", os.path.join(led_config_dir, ".video_params_config"))
+    # log.debug("video_params file is %s: ", os.path.join(led_config_dir, ".video_params_config"))
     if os.path.exists(os.path.join(led_config_dir, ".video_params_config")) is False:
         init_video_params()
 
@@ -565,7 +565,7 @@ def get_brightness_value_default():
     str_fr_br_day_mode = "0"
     str_fr_br_night_mode = "0"
     str_fr_br_sleep_mode = "0"
-    log.debug("video_params file is %s: ", os.path.join(led_config_dir, ".video_params_config"))
+    # log.debug("video_params file is %s: ", os.path.join(led_config_dir, ".video_params_config"))
     if os.path.exists(os.path.join(led_config_dir, ".video_params_config")) is False:
         init_video_params()
 
@@ -591,10 +591,10 @@ def get_brightness_value_default():
                 brightness_values_maps["sleep_mode_frame_brightness"] = str_fr_br_sleep_mode
 
     f.close()
-    log.debug("str_fr_br : %s", str_fr_br)
-    log.debug("str_fr_br_day_mode : %s", str_fr_br_day_mode)
-    log.debug("str_fr_br_night_mode : %s", str_fr_br_night_mode)
-    log.debug("str_fr_br_sleep_mode : %s", str_fr_br_sleep_mode)
+    # log.debug("str_fr_br : %s", str_fr_br)
+    # log.debug("str_fr_br_day_mode : %s", str_fr_br_day_mode)
+    # log.debug("str_fr_br_night_mode : %s", str_fr_br_night_mode)
+    # log.debug("str_fr_br_sleep_mode : %s", str_fr_br_sleep_mode)
     return brightness_values_maps
 
 
@@ -635,10 +635,10 @@ def get_reboot_mode_default():
             i_reboot_mode = line.strip("\n").split("=")[1]
             if i_reboot_mode == "1":
                 reboot_mode = "Enable"
-                log.debug("reboot_mode : %s", reboot_mode)
+                # log.debug("reboot_mode : %s", reboot_mode)
                 return reboot_mode
             else:
-                log.debug("reboot_mode : %s", reboot_mode)
+                # log.debug("reboot_mode : %s", reboot_mode)
                 return reboot_mode
     log.debug("reboot_mode : %s", reboot_mode)
     return reboot_mode
@@ -667,7 +667,7 @@ def get_city_hash_map():
     city_hash_map = {}
     for city in City_Map:
         city_hash_map[city.get("City")] = city.get("City")
-    print(city_hash_map)
+    # print(city_hash_map)
     return city_hash_map
 
 
@@ -793,6 +793,7 @@ def remove_media_file(data):
         # log.debug("video_extension = %s", video_extension)
         preview_file_name = hashlib.md5(prefix_video_name.encode('utf-8')).hexdigest() + ".webp"
         preview_file_uri = internal_media_folder + "/" + ThumbnailFileFolder + preview_file_name
+
         if os.path.isfile(preview_file_uri) is True:
             log.debug("preview_file_uri exists")
             os.remove(preview_file_uri)
@@ -811,6 +812,7 @@ def remove_media_file(data):
                     playlist_fd.flush()
                     playlist_fd.truncate()
                     playlist_fd.close()
+        send_message(sync_playlist=data)
     return refresh_template()
 
 
@@ -930,7 +932,7 @@ def add_to_playlist(data):
     playlist_fd.truncate()
     playlist_fd.close()
     os.popen("sync")
-
+    send_message(sync_playlist=data)
     return refresh_template()
 
 
@@ -944,7 +946,7 @@ def remove_playlist(data):
     if os.path.isfile(playlist_uri):
         os.remove(playlist_uri)
         os.popen("sync")
-
+    send_message(sync_playlist=data)
     return refresh_template()
 
 
@@ -967,7 +969,7 @@ def remove_file_from_playlist(data):
                     fw.flush()
                     fw.truncate()
                     fw.close()
-
+    send_message(sync_playlist=data)
     return refresh_template()
 
 
@@ -1007,7 +1009,7 @@ def test_page():
 @app.route('/uploads', methods=['POST'])
 def uploads():
     log.debug("request.method : %s", request.method)
-    print("request.files['file']", request.files['file'])
+    # print("request.files['file']", request.files['file'])
     f = request.files['file']
     f.save(internal_media_folder + "/" + f.filename)
     # send_message(internal_medialist_change=True)
@@ -1015,7 +1017,7 @@ def uploads():
         f = request.files['file']
         f.save(f.filename)'''
     # return refresh_template()
-    time.sleep(10)
+    # time.sleep(10)
     return redirect(url_for("index"))
 
 
@@ -1027,8 +1029,8 @@ def index():
 def refresh_template():
     maps = find_file_maps()
     playlist_nest_dict = find_playlist_maps()
-    log.debug("playlist_maps = %s", playlist_nest_dict)
-    log.debug("routes_repeat_option = %s", routes_repeat_option)
+    # log.debug("playlist_maps = %s", playlist_nest_dict)
+    # log.debug("routes_repeat_option = %s", routes_repeat_option)
     import json
     playlist_js_file = open("static/playlist.js", "w")
     playlist_json = json.dumps(playlist_nest_dict)

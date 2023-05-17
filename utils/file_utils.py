@@ -19,7 +19,7 @@ def get_media_file_list(dir, with_path=False):
 def get_playlist_file_list(dir, with_path=False):
     log.debug("dir : %s", dir)
     file_list = glob.glob(dir + "/*.playlist")
-
+    print("type(file_list) = %s", type(file_list))
     return file_list
 
 
@@ -309,14 +309,19 @@ def sync_playlist():
             for file_uri in playlist_tmp_content_list:
                 if os.path.isfile(file_uri) is False:
                     playlist_tmp_content_list.remove(file_uri)
+            log.debug("len(playlist_tmp_content_list) = %d", len(playlist_tmp_content_list))
+            if len(playlist_tmp_content_list) == 0:
+                log.debug("remove %s", playlist_tmp)
+                os.remove(playlist_tmp)
+                os.popen("sync")
+            else:
+                try:
+                    with open(playlist_tmp, "w") as playlist_tmp_file:
+                        for file_uri in playlist_tmp_content_list:
+                            playlist_tmp_file.write(file_uri + "\n")
 
-            try:
-                with open(playlist_tmp, "w") as playlist_tmp_file:
-                    for file_uri in playlist_tmp_content_list:
-                        playlist_tmp_file.write(file_uri + "\n")
-                    playlist_tmp_file.close()
-                    playlist_tmp_file.flush()
-                    playlist_tmp_file.truncate()
-                    playlist_tmp_file.close()
-            except Exception as e:
-                log.debug(e)
+                        playlist_tmp_file.flush()
+                        playlist_tmp_file.truncate()
+                        playlist_tmp_file.close()
+                except Exception as e:
+                    log.debug(e)
