@@ -268,6 +268,11 @@ class MainUi(QMainWindow):
         # for test
         self.brightness_test_log = False
 
+        if "AIO" in get_led_role():
+            self.led_role = "AIO"
+        else:
+            self.led_role = "Server"
+
         self.default_launch_type_int = 0
         self.default_launch_params_str = ""
         self.launch_default_type()
@@ -278,10 +283,7 @@ class MainUi(QMainWindow):
 
         self.test_count = 0
 
-        if "AIO" in get_led_role():
-            self.led_role = "AIO"
-        else:
-            self.led_role = "Server"
+
 
     ''' Only useful with arm/arm64/aarch64'''
     def launch_default_type(self):

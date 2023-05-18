@@ -475,7 +475,7 @@ def get_default_play_mode_default():
                 if "AIO" in get_led_role():
                     str_ret = "none_mode"
                 else:
-                    str_ret = "cmd_mode"
+                    str_ret = "cms_mode"
             # log.debug("str_ret :%s", str_ret)
             return str_ret
     except Exception as e:
