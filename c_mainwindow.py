@@ -219,7 +219,7 @@ class MainUi(QMainWindow):
             # initial subtitle_blank.jpg
             try:
                 ori_text_blank_jpg_uri = internal_media_folder + SubtitleFolder + subtitle_blank_jpg
-                neo_text_blank_jpg_uri = internal_media_folder + subtitle_blank_jpg
+                neo_text_blank_jpg_uri = internal_media_folder + SubtitleFolder + neo_subtitle_blank_jpg
                 log.debug("%d", self.led_wall_width)
                 log.debug("%d", self.led_wall_height)
                 utils.ffmpy_utils.neo_ffmpy_scale(ori_text_blank_jpg_uri, neo_text_blank_jpg_uri,
@@ -237,8 +237,9 @@ class MainUi(QMainWindow):
         utils.file_utils.find_ffmpeg_process()
         utils.file_utils.kill_all_ffmpeg_process()
 
-        self.bt_handle = BlueTooth()
-        self.bt_handle.start()
+        # Disable bluetooth functions
+        # self.bt_handle = BlueTooth()
+        # self.bt_handle.start()
 
         self.sleep_start_time, self.sleep_end_time = utils.file_utils.get_sleep_time_from_file()
         log.debug("self.sleep_start_time = %s", self.sleep_start_time)

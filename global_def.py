@@ -3,7 +3,7 @@ import platform
 import os
 from pathlib import Path
 """Software version"""
-version = "LS230518001"
+version = "LS230522001"
 
 
 def get_led_role():
@@ -70,6 +70,7 @@ SubtitleFolder = "/.subtitle_data"
 
 init_config_file = "/.config_video_param"
 subtitle_blank_jpg = "/subtitle_blank.jpg"
+neo_subtitle_blank_jpg = "/neo_subtitle_blank.jpg"
 subtitle_file_name = "/subtitle.dat"
 subtitle_size_file_name = "/subtitle_size.dat"
 subtitle_speed_file_name = "/subtitle_speed.dat"

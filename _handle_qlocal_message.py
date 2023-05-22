@@ -118,7 +118,7 @@ def parser_cmd_from_qlocalserver(self, data):
 			self.func_file_contents()
 			log.debug("play_text")
 			utils.file_utils.change_text_content(data.get("play_text"))
-			self.medialist_page.right_clicked_select_file_uri = internal_media_folder + subtitle_blank_jpg
+			self.medialist_page.right_clicked_select_file_uri = internal_media_folder + SubtitleFolder + subtitle_blank_jpg
 			log.debug("file_uri :%s", self.medialist_page.right_clicked_select_file_uri)
 			self.media_engine.play_single_file(self.medialist_page.right_clicked_select_file_uri)
 		except Exception as e:
