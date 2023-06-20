@@ -34,7 +34,7 @@ class client(QObject):
         self.client_brightness = -1
         self.client_br_divisor = -1
         self.icled_red_current_gain, self.green_current_gain, self.blue_current_gain \
-            = self.get_red_current_gain_from_config()
+            = self.get_current_gain_from_config()
 
         self.alive_val = self.alive_val_def
         self.id = -1
