@@ -325,3 +325,80 @@ def sync_playlist():
                         playlist_tmp_file.close()
                 except Exception as e:
                     log.debug(e)
+
+def init_icled_current_gain_params():
+    root_dir = os.path.dirname(sys.modules['__main__'].__file__)
+    led_config_dir = os.path.join(root_dir, 'video_params_config')
+    with open(os.path.join(led_config_dir, ".icled_current_gain_config"), "w") as f:
+        f.writelines(["red_current_gain:3", "green_current_gain:3", "blue_current_gain:3"])
+    f.close()
+
+def get_current_gain_from_config():
+    root_dir = os.path.dirname(sys.modules['__main__'].__file__)
+    led_config_dir = os.path.join(root_dir, 'video_params_config')
+    if os.path.isfile(os.path.join(led_config_dir, ".icled_current_gain_config")) is False:
+        init_icled_current_gain_params()
+        # init_reboot_params()
+
+    with open(os.path.join(led_config_dir, ".icled_current_gain_config"), "r") as f:
+        lines = f.readlines()
+    f.close()
+    for line in lines:
+        if "red_current_gain" in line:
+            red_current_gain = line.split(":")[1]
+        elif "green_current_gain" in line:
+            green_current_gain = line.split(":")[1]
+        elif "blue_current_gain" in line:
+            blue_current_gain = line.split(":")[1]
+
+    # log.debug("sleep_start_time = %s", sleep_start_time)
+    return red_current_gain, green_current_gain, blue_current_gain
+
+def get_red_current_gain_from_config():
+    root_dir = os.path.dirname(sys.modules['__main__'].__file__)
+    led_config_dir = os.path.join(root_dir, 'video_params_config')
+    if os.path.isfile(os.path.join(led_config_dir, ".icled_current_gain_config")) is False:
+        init_icled_current_gain_params()
+        # init_reboot_params()
+
+    with open(os.path.join(led_config_dir, ".icled_current_gain_config"), "r") as f:
+        lines = f.readlines()
+    f.close()
+    for line in lines:
+        if "red_current_gain" in line:
+            red_current_gain = line.split(":")[1]
+
+
+    return red_current_gain
+
+def get_green_current_gain_from_config():
+    root_dir = os.path.dirname(sys.modules['__main__'].__file__)
+    led_config_dir = os.path.join(root_dir, 'video_params_config')
+    if os.path.isfile(os.path.join(led_config_dir, ".icled_current_gain_config")) is False:
+        init_icled_current_gain_params()
+        # init_reboot_params()
+
+    with open(os.path.join(led_config_dir, ".icled_current_gain_config"), "r") as f:
+        lines = f.readlines()
+    f.close()
+    for line in lines:
+        if "green_current_gain" in line:
+            green_current_gain = line.split(":")[1]
+
+    return green_current_gain
+
+def get_blue_current_gain_from_config():
+    root_dir = os.path.dirname(sys.modules['__main__'].__file__)
+    led_config_dir = os.path.join(root_dir, 'video_params_config')
+    if os.path.isfile(os.path.join(led_config_dir, ".icled_current_gain_config")) is False:
+        init_icled_current_gain_params()
+        # init_reboot_params()
+
+    with open(os.path.join(led_config_dir, ".icled_current_gain_config"), "r") as f:
+        lines = f.readlines()
+    f.close()
+    for line in lines:
+        if "blue_current_gain" in line:
+            blue_current_gain = line.split(":")[1]
+
+    return blue_current_gain

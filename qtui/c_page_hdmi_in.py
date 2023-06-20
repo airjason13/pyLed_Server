@@ -751,6 +751,7 @@ class Hdmi_In_Page(QObject):
                 self.media_engine.play_single_file("/home/root/Videos/no_signal.jpg")
                 time.sleep(3)
                 k = os.popen("write_tc358743_edid.sh")
+                time.sleep(5)
                 k.close()
         except Exception as e:
             log.debug(e)
@@ -887,6 +888,7 @@ class Hdmi_In_Page(QObject):
             log.debug("try to show no signal jpg")
             self.media_engine.play_single_file("/home/root/Videos/no_signal.jpg")
             k = os.popen("write_tc358743_edid.sh")
+            time.sleep(5)
             k.close()
             return
         self.media_engine.resume_play()

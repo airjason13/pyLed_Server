@@ -8,6 +8,7 @@ from g_defs.c_cabinet_params import cabinet_params
 from global_def import *
 import threading
 import asyncio
+import sys
 from commands_def import *
 
 log = utils.log_utils.logging_init(__file__)
@@ -32,6 +33,8 @@ class client(QObject):
         self.client_id = client_id
         self.client_brightness = -1
         self.client_br_divisor = -1
+        self.icled_red_current_gain, self.green_current_gain, self.blue_current_gain \
+            = self.get_red_current_gain_from_config()
 
         self.alive_val = self.alive_val_def
         self.id = -1
@@ -127,4 +130,32 @@ class client(QObject):
     def parse_get_cmd_reply(self, cmd, recv_data):
         if cmd == cmd_get_cabinet_params:
             self.parse_get_cmd_reply_get_cabinet_params(cmd, recv_data)
+
+    def init_icled_current_gain_params(self):
+        root_dir = os.path.dirname(sys.modules['__main__'].__file__)
+        led_config_dir = os.path.join(root_dir, 'video_params_config')
+        with open(os.path.join(led_config_dir, ".icled_current_gain_config"), "w") as f:
+            f.writelines(["red_current_gain:3", "green_current_gain:3", "blue_current_gain:3"])
+        f.close()
+
+    def get_current_gain_from_config(self):
+        root_dir = os.path.dirname(sys.modules['__main__'].__file__)
+        led_config_dir = os.path.join(root_dir, 'video_params_config')
+        if os.path.isfile(os.path.join(led_config_dir, ".icled_current_gain_config")) is False:
+            self.init_icled_current_gain_params()
+            # init_reboot_params()
+
+        with open(os.path.join(led_config_dir, ".icled_current_gain_config"), "r") as f:
+            lines = f.readlines()
+        f.close()
+        for line in lines:
+            if "red_current_gain" in line:
+                red_current_gain = line.split(":")[1]
+            elif "green_current_gain" in line:
+                green_current_gain = line.split(":")[1]
+            elif "blue_current_gain" in line:
+                blue_current_gain = line.split(":")[1]
+
+        # log.debug("sleep_start_time = %s", sleep_start_time)
+        return red_current_gain, green_current_gain, blue_current_gain
 

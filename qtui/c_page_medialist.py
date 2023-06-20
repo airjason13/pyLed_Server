@@ -14,6 +14,7 @@ import utils.log_utils
 import utils.ffmpy_utils
 import utils.file_utils
 import hashlib
+from str_define import *
 from astral_hashmap import *
 log = utils.log_utils.logging_init(__file__)
 
@@ -21,6 +22,7 @@ class media_page(QObject):
     signal_refresh_internal_medialist = pyqtSignal()
     media_btn_width = 180
     media_btn_height = 30
+    ICLED_CURRENT_GAIN_FUNCTION = False
 
     def __init__(self, mainwindow, **kwargs):
         super(media_page, self).__init__(**kwargs)
@@ -448,6 +450,58 @@ class media_page(QObject):
         self.video_params_crop_disable.setFont(QFont(qfont_style_default, qfont_style_size_medium))
         self.video_params_crop_disable.clicked.connect(self.video_crop_disable)
 
+        if self.ICLED_CURRENT_GAIN_FUNCTION:
+            '''For ICLed Type and Current Gain'''
+            self.client_icled_type_label = QLabel(self.mainwindow.right_frame)
+            self.client_icled_type_label.setText("ICLed Type:")
+            self.client_icled_type_label.setFont(QFont(qfont_style_default, qfont_style_size_medium))
+            self.client_icled_type_label.setFixedWidth(160)
+
+            self.client_icled_type_combobox = QComboBox(self.mainwindow.right_frame)
+            self.client_icled_type_combobox.addItems([ICLED_TYPE_AOS, ICLED_TYPE_ANAPEX])
+            self.client_icled_type_combobox.setCurrentText(ICLED_TYPE_ANAPEX)
+            self.client_icled_type_combobox.setFont(QFont(qfont_style_default, qfont_style_size_medium))
+            self.client_icled_type_combobox.setFixedWidth(320)
+
+            self.clent_icled_red_current_gain_label = QLabel(self.mainwindow.right_frame)
+            self.clent_icled_red_current_gain_label.setText("Red C Gain:")
+            self.clent_icled_red_current_gain_label.setFont(QFont(qfont_style_default, qfont_style_size_medium))
+            self.clent_icled_red_current_gain_label.setFixedWidth(160)
+            self.client_icled_red_current_gain_edit = QLineEdit(self.mainwindow.right_frame)
+            self.client_icled_red_current_gain_edit.setFont(QFont(qfont_style_default, qfont_style_size_medium))
+            self.client_icled_red_current_gain_edit.setText(utils.file_utils.get_red_current_gain_from_config())
+            self.client_icled_red_current_gain_edit.setFixedWidth(80)
+
+            self.clent_icled_green_current_gain_label = QLabel(self.mainwindow.right_frame)
+            self.clent_icled_green_current_gain_label.setText("Green C Gain:")
+            self.clent_icled_green_current_gain_label.setFont(QFont(qfont_style_default, qfont_style_size_medium))
+            self.clent_icled_green_current_gain_label.setFixedWidth(160)
+            self.client_icled_green_current_gain_edit = QLineEdit(self.mainwindow.right_frame)
+            self.client_icled_green_current_gain_edit.setFont(QFont(qfont_style_default, qfont_style_size_medium))
+            self.client_icled_green_current_gain_edit.setText(utils.file_utils.get_green_current_gain_from_config())
+            self.client_icled_green_current_gain_edit.setFixedWidth(80)
+
+            self.clent_icled_blue_current_gain_label = QLabel(self.mainwindow.right_frame)
+            self.clent_icled_blue_current_gain_label.setText("Blue C Gain:")
+            self.clent_icled_blue_current_gain_label.setFont(QFont(qfont_style_default, qfont_style_size_medium))
+            self.clent_icled_blue_current_gain_label.setFixedWidth(160)
+            self.client_icled_blue_current_gain_edit = QLineEdit(self.mainwindow.right_frame)
+            self.client_icled_blue_current_gain_edit.setFont(QFont(qfont_style_default, qfont_style_size_medium))
+            self.client_icled_blue_current_gain_edit.setText(utils.file_utils.get_green_current_gain_from_config())
+            self.client_icled_blue_current_gain_edit.setFixedWidth(80)
+
+            self.client_icled_type_check_btn = QPushButton(self.mainwindow.right_frame)
+            self.client_icled_type_check_btn.setText("Set ICLED TYPE")
+            self.client_icled_type_check_btn.setFixedWidth(260)
+            self.client_icled_type_check_btn.setFont(QFont(qfont_style_default, qfont_style_size_medium))
+            self.client_icled_type_check_btn.clicked.connect(self.client_set_icled_type)
+
+            self.client_icled_cgain_check_btn = QPushButton(self.mainwindow.right_frame)
+            self.client_icled_cgain_check_btn.setText("Set C-Gain")
+            self.client_icled_cgain_check_btn.setFixedWidth(160)
+            self.client_icled_cgain_check_btn.setFont(QFont(qfont_style_default, qfont_style_size_medium))
+            self.client_icled_cgain_check_btn.clicked.connect(self.client_set_icled_current_gain)
+
         video_params_layout.addWidget(self.redgain_label, 0, 0)
         video_params_layout.addWidget(self.redgain_edit, 0, 1)
         video_params_layout.addWidget(self.greengain_label, 0, 2)
@@ -495,6 +549,19 @@ class media_page(QObject):
         video_params_layout.addWidget(self.video_params_crop_h_edit, 16, 3)
         video_params_layout.addWidget(self.video_params_crop_enable, 16, 5)
         video_params_layout.addWidget(self.video_params_crop_disable, 16, 4)
+        if self.ICLED_CURRENT_GAIN_FUNCTION:
+            '''ICLED TYPE and Current Gain'''
+            video_params_layout.addWidget(self.client_icled_type_label, 17, 0)
+            video_params_layout.addWidget(self.client_icled_type_combobox, 17, 1)
+
+            video_params_layout.addWidget(self.client_icled_type_check_btn, 17, 3, 1, 4)
+            video_params_layout.addWidget(self.client_icled_cgain_check_btn, 17, 5)
+            video_params_layout.addWidget(self.clent_icled_red_current_gain_label, 18, 0)
+            video_params_layout.addWidget(self.client_icled_red_current_gain_edit, 18, 1)
+            video_params_layout.addWidget(self.clent_icled_green_current_gain_label, 18, 2)
+            video_params_layout.addWidget(self.client_icled_green_current_gain_edit, 18, 3)
+            video_params_layout.addWidget(self.clent_icled_blue_current_gain_label, 18, 4)
+            video_params_layout.addWidget(self.client_icled_blue_current_gain_edit, 18, 5)
 
         video_params_layout.addWidget(self.video_params_pinch_btn, 14, 4)
         video_params_layout.addWidget(self.video_params_confirm_btn, 14, 5)
@@ -850,3 +917,10 @@ class media_page(QObject):
         self.max_brightness_label.setText("Max Frame Brightness Value is " +
                                           str((256 * int(self.client_brightness_edit.text())) / (
                                                       int(self.client_br_divisor_edit.text()) * 100)))
+
+
+    def client_set_icled_type(self):
+        log.debug("Not Implement!\n")
+        
+    def client_set_icled_current_gain(self):
+        log.debug("Not Implement!\n")

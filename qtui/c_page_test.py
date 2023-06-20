@@ -101,6 +101,7 @@ class TestPage(QObject):
 		log.debug("self.reboot_client_count : %d", self.reboot_client_count)
 		if len(self.mainwindow.clients) == self.reboot_client_count:
 			log.debug("got target!")
+			time.sleep(20)
 			# add the reboot_test_count
 			self.reboot_test_count += 1
 			self.label_test_reboot_count.setText(str(self.reboot_test_count))

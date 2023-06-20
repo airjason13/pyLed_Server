@@ -30,6 +30,8 @@ multicast_group = "239.11.11.11"
 server_broadcast_port = 11334
 server_broadcast_message = "ABCDE;Server:192.168.0.3;Cmd_Port:11335;Alive_Port:11333"
 alive_report_port = 11333
+
+
 if "Server" in get_led_role():
     udp_sink = "udp://239.11.11.11:15000"
     if platform.machine() in ('arm', 'arm64', 'aarch64'):
@@ -191,3 +193,4 @@ fps_23="23/1"
 fps_15="15/1"
 target_fps=fps_23
 
+FUNCTION_DISABLE = False
