@@ -139,6 +139,8 @@ def get_text_period():
         text_font_period_config_file = open(internal_media_folder + SubtitleFolder + subtitle_period_file_name, 'r')
         text_font_period = text_font_period_config_file.readline()
         text_font_period_config_file.close()
+    log.debug("type(text_font_period) = %s", type(text_font_period))
+    log.debug("text_font_period = %s", text_font_period)
     return text_font_period
 
 

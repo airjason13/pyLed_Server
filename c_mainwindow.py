@@ -146,6 +146,9 @@ class MainUi(QMainWindow):
         # font_size = font_size_config_file.readline()
         font_size = utils.file_utils.get_text_size()
         routes.route_set_text_size(font_size)
+        font_period = utils.file_utils.get_text_period()
+
+        routes.route_set_text_period(font_period)
         # font_size_config_file.close()
         # config_file = open(internal_media_folder + SubtitleFolder + subtitle_file_name, 'r')
         # content_line = config_file.readline()
@@ -917,7 +920,8 @@ class MainUi(QMainWindow):
                 if platform.machine() in ('arm', 'arm64', 'aarch64'):
                     os.popen("ifconfig eth0 192.168.0.3")
                 else:
-                    os.popen("ifconfig eth0 192.168.0.2")
+                    pass
+                    #os.popen("ifconfig enp2s0 192.168.0.2")
 
             sleep(2)
         except Exception as e:

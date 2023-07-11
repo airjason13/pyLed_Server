@@ -230,16 +230,16 @@ def parser_cmd_from_qlocalserver(self, data):
 
 	elif data.get("set_brightness_algo"):
 		log.debug("recv : %s ", data.get("set_brightness_algo"))
-		if "fix_mode" == data.get("set_brightness_algo"):
+		if "Fix Mode" == data.get("set_brightness_algo"):
 			self.medialist_page.radiobutton_client_br_method_fix_mode_set()
 			self.hdmi_in_page.radiobutton_client_br_method_fix_mode_set()
-		elif "auto_time_mode" == data.get("set_brightness_algo"):
+		elif "Time Mode" == data.get("set_brightness_algo"):
 			self.medialist_page.radiobutton_client_br_method_time_mode_set()
 			self.hdmi_in_page.radiobutton_client_br_method_time_mode_set()
-		elif "auto_als_mode" == data.get("set_brightness_algo"):
+		elif "ALS Mode" == data.get("set_brightness_algo"):
 			self.medialist_page.radiobutton_client_br_method_als_mode_set()
 			self.hdmi_in_page.radiobutton_client_br_method_als_mode_set()
-		elif "test_mode" == data.get("set_brightness_algo"):
+		elif "TEST Mode" == data.get("set_brightness_algo"):
 			self.medialist_page.radiobutton_client_br_method_test_mode_set()
 			self.hdmi_in_page.radiobutton_client_br_method_test_mode_set()
 	elif data.get("set_frame_brightness_values_option"):

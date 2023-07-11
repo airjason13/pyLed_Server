@@ -33,6 +33,7 @@ class client(QObject):
         self.client_id = client_id
         self.client_brightness = -1
         self.client_br_divisor = -1
+        self.client_icled_type = self.get_icled_type_from_config()
         self.icled_red_current_gain, self.green_current_gain, self.blue_current_gain \
             = self.get_current_gain_from_config()
 
@@ -159,3 +160,23 @@ class client(QObject):
         # log.debug("sleep_start_time = %s", sleep_start_time)
         return red_current_gain, green_current_gain, blue_current_gain
 
+    def get_icled_type_from_config(self):
+        icled_type = ''
+        root_dir = os.path.dirname(sys.modules['__main__'].__file__)
+        led_config_dir = os.path.join(root_dir, 'video_params_config')
+        if os.path.isfile(os.path.join(led_config_dir, ".icled_type_config")) is False:
+            self.init_icled_current_gain_params()
+            # init_reboot_params()
+
+        with open(os.path.join(led_config_dir, ".icled_type_config"), "r") as f:
+            lines = f.readlines()
+        f.close()
+        for line in lines:
+            if "ANAPEX" in line:
+                icled_type = "ANAPEX"
+            elif "AOS" in line:
+                icled_type = "AOS"
+            else:
+                icled_type = "ANAPEX"
+
+        return icled_type

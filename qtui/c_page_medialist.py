@@ -22,7 +22,7 @@ class media_page(QObject):
     signal_refresh_internal_medialist = pyqtSignal()
     media_btn_width = 180
     media_btn_height = 30
-    ICLED_CURRENT_GAIN_FUNCTION = False
+    ICLED_CURRENT_GAIN_FUNCTION = True
 
     def __init__(self, mainwindow, **kwargs):
         super(media_page, self).__init__(**kwargs)

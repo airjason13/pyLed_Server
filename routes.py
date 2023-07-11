@@ -33,6 +33,8 @@ app.config['MAX_CONTENT_LENGTH'] = 1024 * 1024 * 1024  # 1024MB
 routes_repeat_option = ""
 route_text_size = 16
 route_text_content = ""
+route_text_period = 20
+
 
 def allowed_file(filename):
     return '.' in filename and \
@@ -46,6 +48,13 @@ def route_set_text_size(size):
         log.debug(e)
         route_text_size = 16
 
+def route_set_text_period(period):
+    global route_text_period
+    try:
+        route_text_period = int(period)
+    except Exception as e:
+        log.debug(e)
+        route_text_period = 20
 
 def route_set_text_content(content):
     log.debug("content:%s", content)
@@ -365,6 +374,8 @@ def configure_wifi(data):
 @app.route('/set_text_size/<size>', methods=['POST'])
 def set_text_size(size):
     log.debug("route set_text_size size : %s", str(size))
+    global route_text_size
+    route_text_size = int(size)
     send_message(set_text_size=str(size))
     status_code = Response(status=200)
     return status_code
@@ -389,6 +400,8 @@ def set_text_position(position):
 @app.route('/set_text_period/<period>', methods=['POST'])
 def set_text_period(period):
     log.debug("route set_text_period period : %s", str(period))
+    global route_text_period
+    route_text_period = int(period)
     send_message(set_text_period=str(period))
     status_code = Response(status=200)
     return status_code
@@ -403,8 +416,9 @@ def start_color_test(data):
 
 @app.route('/play_text/<data>', methods=['POST'])
 def play_text(data):
-    log.debug("route play_text data %s:", data)
-
+    log.debug("route play_text data %s", data)
+    global route_text_content
+    route_text_content = data
     send_message(play_text=data)
     status_code = Response(status=200)
     return status_code
@@ -498,13 +512,13 @@ def get_brightness_mode_default():
         if "frame_brightness_algorithm" in line:
             tmp = line.strip("\n").split("=")[1]
             if int(tmp) == 0:
-                str_ret = 'fix_mode'
+                str_ret = 'Fix Mode'
             elif int(tmp) == 1:
-                str_ret = 'auto_time_mode'
+                str_ret = 'Time Mode'
             elif int(tmp) == 2:
-                str_ret = 'auto_als_mode'
+                str_ret = 'ALS Mode'
             elif int(tmp) == 3:
-                str_ret = 'test_mode'
+                str_ret = 'TEXT Mode'
     f.close()
     return str_ret
 
@@ -738,10 +752,10 @@ class BrightnessAlgoForm(Form):
 
             label="Brightness Mode",
             id="brightness_mode_switcher",
-            choices=[('fix_mode', 'FIX MODE'),
-                     ('auto_time_mode', 'Time Mode'),
-                     ('auto_als_mode', 'ALS Mode'),
-                     ('test_mode', 'Test Mode')],
+            choices=[('Fix Mode', 'Fix Mode'),
+                     ('Time Mode', 'Time Mode'),
+                     ('ALS Mode', 'ALS Mode'),
+                     ('Test Mode', 'Test Mode')],
             default=get_brightness_mode_default(),
 
             render_kw=style,
@@ -957,7 +971,7 @@ def remove_playlist(data):
 def remove_file_from_playlist(data):
     log.debug("remove_file_from_playlist : %s", data)
     playlist_uri = internal_media_folder + PlaylistFolder + data.split(";")[0].split(":")[1]
-    file_uri = internal_media_folder + PlaylistFolder + data.split(";")[1].split(":")[1]
+    file_uri = internal_media_folder + "/"+ data.split(";")[1].split(":")[1]
     log.debug("playlist_uri : %s", playlist_uri)
     log.debug("file_uri : %s", file_uri)
     if os.path.isfile(playlist_uri):
@@ -966,11 +980,12 @@ def remove_file_from_playlist(data):
             fr.close()
         with open(playlist_uri, "w") as fw:
             for line in lines:
-                if line.strip("\n") != file_uri:
+                if line.strip("\n") != file_uri.strip("\n"):
+                    log.debug("write line :%s", line)
                     fw.write(line)
-                    fw.flush()
-                    fw.truncate()
-                    fw.close()
+            fw.flush()
+            fw.truncate()
+            fw.close()
     send_message(sync_playlist=data)
     return refresh_template()
 
@@ -1066,12 +1081,12 @@ def refresh_template():
     sleep_start_time = get_sleep_start_time_default()
     sleep_end_time = get_sleep_end_time_default()
     role = get_led_role()
-    # log.debug("role = %s", role)
+    log.debug("version = %s", version)
 
     return render_template("index.html", title="GIS TLED", ledrole=role, sw_version=version, files=maps,
                            playlist_nest_dict=playlist_nest_dict,
                            repeat_option=routes_repeat_option, text_size=route_text_size,
-                           text_content=route_text_content, text_period=20, form=brightnessAlgoform,
+                           text_content=route_text_content, text_period=route_text_period, form=brightnessAlgoform,
                            default_play_form=default_play_form,
                            brightnessvalues=brightnessvalues, reboot_time=reboot_time,
                            sleep_start_time=sleep_start_time, sleep_end_time=sleep_end_time)
