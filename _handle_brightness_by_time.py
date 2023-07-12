@@ -128,7 +128,7 @@ def check_brightness_by_date_timer(self):
 			           self.cmd_seq_id_increase(),
 			           str(self.media_engine.media_processor.video_params.get_frame_brightness()))
 		return
-	log.debug("work day")
+
 	if self.brightness_test_log is True:
 		log.debug("frame_brightness_algorithm = %d",
 		          self.media_engine.media_processor.video_params.frame_brightness_algorithm)

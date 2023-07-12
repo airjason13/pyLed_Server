@@ -169,6 +169,11 @@ class MainUi(QMainWindow):
 
         self.setMouseTracking(True)
         self.init_ui()
+
+        self.icled_type = utils.file_utils.get_led_type_config()
+        self.current_gain_cmd_params = utils.file_utils.get_cmd_params_current_gain_from_config()
+        log.debug("self.current_gain_cmd_params = %s", self.current_gain_cmd_params)
+
         self.page_status = self.statusBar()
         self.page_status.showMessage("Client Page")
 
@@ -307,12 +312,12 @@ class MainUi(QMainWindow):
             elif self.default_launch_type_int == play_type.play_playlist:
                 QTimer.singleShot(5000, self.demo_start_playlist)
             elif self.default_launch_type_int == play_type.play_hdmi_in:
-                if self.led_role is "AIO":
+                if self.led_role == "AIO":
                     pass
                 else:
                     QTimer.singleShot(5000, self.demo_start_hdmi_in)
             elif self.default_launch_type_int == play_type.play_cms:
-                if self.led_role is "AIO":
+                if self.led_role == "AIO":
                     pass
                 else:
                     QTimer.singleShot(5000, self.demo_start_cms)
@@ -828,6 +833,15 @@ class MainUi(QMainWindow):
                            self.cmd_seq_id_increase(),
                            str(c.client_id))
 
+
+                c.send_cmd(cmd_set_icled_type,
+                           self.cmd_seq_id_increase(),
+                           self.icled_type)
+
+                c.send_cmd(cmd_set_icled_current_gain,
+                           self.cmd_seq_id_increase(),
+                           self.current_gain_cmd_params)
+
                 self.sync_client_cabinet_params(c.client_ip, False)
                 self.client_page.refresh_clients(self.clients)
                 self.client_page.refresh_client_table()
@@ -839,7 +853,7 @@ class MainUi(QMainWindow):
                             client_file.write("ip:" + c.client_ip + ";id:" + str(c.client_id) + "\n")
                     client_file.close()
                 except Exception as e:
-                    log.debug(e)
+                    log.fatal(e)
 
 
             else:

@@ -459,7 +459,11 @@ class media_page(QObject):
 
             self.client_icled_type_combobox = QComboBox(self.mainwindow.right_frame)
             self.client_icled_type_combobox.addItems([ICLED_TYPE_AOS, ICLED_TYPE_ANAPEX])
-            self.client_icled_type_combobox.setCurrentText(ICLED_TYPE_ANAPEX)
+            icled_type = utils.file_utils.get_led_type_config()
+            if ICLED_TYPE_AOS in icled_type:
+                self.client_icled_type_combobox.setCurrentText(ICLED_TYPE_AOS)
+            else:
+                self.client_icled_type_combobox.setCurrentText(ICLED_TYPE_ANAPEX)
             self.client_icled_type_combobox.setFont(QFont(qfont_style_default, qfont_style_size_medium))
             self.client_icled_type_combobox.setFixedWidth(320)
 
@@ -919,8 +923,57 @@ class media_page(QObject):
                                                       int(self.client_br_divisor_edit.text()) * 100)))
 
 
+
     def client_set_icled_type(self):
-        log.debug("Not Implement!\n")
+        root_dir = os.path.dirname(sys.modules['__main__'].__file__)
+        led_config_dir = os.path.join(root_dir, 'video_params_config')
+
+        str_ret = self.client_icled_type_combobox.currentText()
+        log.debug(str_ret)
+        # log.debug("video_params file is %s: ", os.path.join(led_config_dir, ".video_params_config"))
+        if os.path.exists(os.path.join(led_config_dir, ".icled_type_config")) is False:
+            utils.file_utils.init_led_type_config()
+
+        utils.file_utils.set_led_type_config(self.client_icled_type_combobox.currentText())
+
+        # icled_type = self.client_icled_type_combobox.currentText()
+        self.mainwindow.icled_type = utils.file_utils.get_led_type_config()
+        # send command to client for sync
+        clients = self.mainwindow.clients
+        for c in clients:
+            #log.debug("c.client_ip = %s", c.client_ip)
+            c.send_cmd(cmd_set_frame_brightness,
+                       self.mainwindow.cmd_seq_id_increase(),
+                       self.mainwindow.icled_type)
+
         
     def client_set_icled_current_gain(self):
-        log.debug("Not Implement!\n")
+        root_dir = os.path.dirname(sys.modules['__main__'].__file__)
+        led_config_dir = os.path.join(root_dir, 'video_params_config')
+
+        str_ret = self.client_icled_type_combobox.currentText()
+        log.debug(str_ret)
+
+        if os.path.exists(os.path.join(led_config_dir, ".icled_current_gain_config")) is False:
+            utils.file_utils.init_icled_current_gain_params_config()
+
+        utils.file_utils.set_rgb_current_gain_to_config(self.client_icled_red_current_gain_edit.text(),
+                                                        self.client_icled_green_current_gain_edit.text(),
+                                                        self.client_icled_blue_current_gain_edit.text())
+
+        '''cmd_params = "rgain=" + utils.file_utils.get_red_current_gain_from_config() + "," + \
+                     "ggain=" + utils.file_utils.get_green_current_gain_from_config() + "," + \
+                     "bgain=" + utils.file_utils.get_blue_current_gain_from_config()'''
+
+        self.mainwindow.current_gain_cmd_params = \
+            "rgain=" + utils.file_utils.get_red_current_gain_from_config() + "," + \
+            "ggain=" + utils.file_utils.get_green_current_gain_from_config() + "," + \
+            "bgain=" + utils.file_utils.get_blue_current_gain_from_config()
+        log.debug("self.mainwindow.current_gain_cmd_params = %s", self.mainwindow.current_gain_cmd_params)
+        # send command to client for sync
+        clients = self.mainwindow.clients
+        for c in clients:
+            #log.debug("c.client_ip = %s", c.client_ip)
+            c.send_cmd(cmd_set_icled_current_gain,
+                       self.mainwindow.cmd_seq_id_increase(),
+                       self.mainwindow.current_gain_cmd_params)
