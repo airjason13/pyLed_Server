@@ -922,8 +922,6 @@ class media_page(QObject):
                                           str((256 * int(self.client_brightness_edit.text())) / (
                                                       int(self.client_br_divisor_edit.text()) * 100)))
 
-
-
     def client_set_icled_type(self):
         root_dir = os.path.dirname(sys.modules['__main__'].__file__)
         led_config_dir = os.path.join(root_dir, 'video_params_config')
@@ -941,8 +939,8 @@ class media_page(QObject):
         # send command to client for sync
         clients = self.mainwindow.clients
         for c in clients:
-            #log.debug("c.client_ip = %s", c.client_ip)
-            c.send_cmd(cmd_set_frame_brightness,
+            log.debug("c.client_ip = %s", c.client_ip)
+            c.send_cmd(cmd_set_icled_type,
                        self.mainwindow.cmd_seq_id_increase(),
                        self.mainwindow.icled_type)
 

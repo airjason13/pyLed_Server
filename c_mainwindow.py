@@ -833,14 +833,14 @@ class MainUi(QMainWindow):
                            self.cmd_seq_id_increase(),
                            str(c.client_id))
 
-
-                c.send_cmd(cmd_set_icled_type,
+                # marked for waiting function implemented
+                '''c.send_cmd(cmd_set_icled_type,
                            self.cmd_seq_id_increase(),
                            self.icled_type)
 
                 c.send_cmd(cmd_set_icled_current_gain,
                            self.cmd_seq_id_increase(),
-                           self.current_gain_cmd_params)
+                           self.current_gain_cmd_params)'''
 
                 self.sync_client_cabinet_params(c.client_ip, False)
                 self.client_page.refresh_clients(self.clients)

@@ -46,7 +46,6 @@ class client(QObject):
         else:
             self.num_of_cabinet = 8
 
-
         self.cabinets_setting = []
         for i in range(self.num_of_cabinet):
             '''client_ip, client_id, port_id, cabinet_width, cabinet_height, layout_type, start_x, start_y'''

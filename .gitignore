@@ -11,3 +11,5 @@ client_info.dat
 video_params_config/.video_params_config
 .reboot_config
 .sleep_time_config
+static/client_info.dat
+
