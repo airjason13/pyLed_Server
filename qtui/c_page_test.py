@@ -21,7 +21,7 @@ from str_define import *
 from subprocess import PIPE, Popen
 import hashlib
 
-log = utils.log_utils.logging_init(__file__)
+from global_def import *
 
 class TestPage(QObject):
 	def __init__(self, mainwindow, **kwargs):

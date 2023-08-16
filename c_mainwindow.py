@@ -32,7 +32,6 @@ import pytz
 from astral_hashmap import *
 from qlocalmessage import send_message
 from qt_web_comunication import *
-log = utils.log_utils.logging_init(__file__)
 
 from utils import jholiday
 

@@ -11,7 +11,7 @@ import asyncio
 import sys
 from commands_def import *
 
-log = utils.log_utils.logging_init(__file__)
+
 
 class client(QObject):
     alive_val_def = 2

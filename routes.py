@@ -18,7 +18,7 @@ import sys
 from qt_web_comunication import *
 from astral_hashmap import *
 from g_defs.c_client import client
-log = utils.log_utils.logging_init(__file__)
+from global_def import *
 
 
 SECRET_KEY = os.urandom(32)

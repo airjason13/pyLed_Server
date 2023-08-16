@@ -1,8 +1,6 @@
 import os
 import sys
 from global_def import *
-import utils.log_utils
-log = utils.log_utils.logging_init(__file__)
 from PyQt5.QtCore import pyqtSignal, QObject, QTimer
 root_dir = os.path.dirname(sys.modules['__main__'].__file__)
 led_config_dir = os.path.join(root_dir, 'led_config')

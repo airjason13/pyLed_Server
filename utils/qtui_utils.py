@@ -2,7 +2,7 @@ from PyQt5.QtGui import QPixmap, QPainter
 from PyQt5.QtCore import Qt, QPoint
 import utils.log_utils
 
-log = utils.log_utils.logging_init(__file__)
+from global_def import *
 
 def gen_led_layout_type_pixmap( led_w, led_h, margin, layout_type):
     '''margin is 20 pixel, left/right/up/bottom is 10 pixel'''

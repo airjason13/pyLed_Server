@@ -2,7 +2,7 @@ from PyQt5 import QtWidgets, QtCore, QtNetwork
 import json
 import utils.log_utils
 
-log = utils.log_utils.logging_init(__file__)
+from global_def import *
 
 SERVER = "hdmi_in_preview_server"
 

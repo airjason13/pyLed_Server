@@ -4,7 +4,7 @@ import asyncio
 import threading
 import utils.log_utils
 
-log = utils.log_utils.logging_init(__file__)
+from global_def import *
 
 
 def request_post_upload_file(ip, swu_file_url, cb):

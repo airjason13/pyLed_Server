@@ -7,8 +7,7 @@ from PyQt5 import QtCore
 from global_def import *
 import utils.log_utils
 from astral_hashmap import *
-from time import sleep
-log = utils.log_utils.logging_init(__file__)
+
 def test_qlocal_message(self):
 	log.debug("AAAAAA")
 

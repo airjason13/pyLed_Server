@@ -16,7 +16,7 @@ import utils.file_utils
 import hashlib
 from str_define import *
 from astral_hashmap import *
-log = utils.log_utils.logging_init(__file__)
+
 
 class media_page(QObject):
     signal_refresh_internal_medialist = pyqtSignal()

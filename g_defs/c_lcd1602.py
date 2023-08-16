@@ -8,7 +8,6 @@ import platform
 import sys
 import socket
 from global_def import *
-log = utils.log_utils.logging_init(__file__)
 
 class LCD1602(QObject):
 

@@ -2,9 +2,7 @@ from PyQt5 import QtWidgets, QtCore, QtGui
 from PyQt5.QtWidgets import QTreeWidget, QApplication, QLabel, QFrame
 from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtGui import QMouseEvent
-import utils.log_utils
-
-log = utils.log_utils.logging_init(__file__)
+from global_def import *
 
 class CTreeWidget(QTreeWidget):
     mouseMove = pyqtSignal(QMouseEvent)

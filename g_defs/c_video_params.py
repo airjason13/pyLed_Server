@@ -5,7 +5,6 @@ import sys
 from astral_hashmap import *
 from global_def import *
 
-log = utils.log_utils.logging_init(__file__)
 
 root_dir = os.path.dirname(sys.modules['__main__'].__file__)
 led_config_dir = os.path.join(root_dir, 'video_params_config')

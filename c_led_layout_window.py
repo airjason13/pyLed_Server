@@ -3,9 +3,7 @@ from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 import utils.qtui_utils
 from global_def import *
-import utils.log_utils
 
-log = utils.log_utils.logging_init(__file__)
 
 class LedLayoutWindow(QWidget):
     def __init__(self, led_wall_w, led_wall_h, cabinet_w, cabinet_h, margin):

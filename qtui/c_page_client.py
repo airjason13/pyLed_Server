@@ -3,8 +3,7 @@ from PyQt5.QtCore import QObject, Qt
 from PyQt5.QtGui import QFont
 from PyQt5.QtWidgets import QTreeWidget, QTableWidget, QWidget, QVBoxLayout, QTableWidgetItem
 from global_def import *
-import utils.log_utils
-log = utils.log_utils.logging_init(__file__)
+
 
 
 class clients_page(QObject):

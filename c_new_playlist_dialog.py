@@ -8,7 +8,7 @@ from g_defs.c_media_engine import *
 import utils.log_utils
 import qdarkstyle, requests, sys, time, random, json, datetime, re
 
-log = utils.log_utils.logging_init(__file__)
+
 
 
 class NewPlaylistDialog(QWidget):

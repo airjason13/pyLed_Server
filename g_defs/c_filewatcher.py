@@ -4,9 +4,7 @@ import time
 import threading
 from PyQt5.QtCore import QThread, pyqtSignal, QDateTime, QObject, QTimer, QFileSystemWatcher
 import pyinotify
-import utils.log_utils
-
-log = utils.log_utils.logging_init(__file__)
+from global_def import *
 
 class FileWatcher(QObject):
     signal_folder_changed = pyqtSignal(str)

@@ -2,6 +2,9 @@ import enum
 import platform
 import os
 from pathlib import Path
+import utils.log_utils
+log = utils.log_utils.logging_init(__file__)
+
 """Software version"""
 version = "LS230712001"
 

@@ -4,9 +4,9 @@ from PyQt5.QtGui import *
 import utils.qtui_utils
 from g_defs.c_cabinet_params import cabinet_params
 from global_def import *
-import utils.log_utils
 
-log = utils.log_utils.logging_init(__file__)
+
+
 
 class CabinetSettingWindow(QWidget):
     signal_set_cabinet_params = pyqtSignal(cabinet_params)

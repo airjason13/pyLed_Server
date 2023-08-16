@@ -6,7 +6,7 @@ import utils.net_utils
 import os
 import platform
 
-log = utils.log_utils.logging_init(__file__)
+from global_def import *
 
 
 class TC358743(QObject):

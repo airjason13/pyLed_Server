@@ -7,8 +7,7 @@ from astral_hashmap import *
 from _datetime import datetime
 import utils.log_utils
 
-
-log = utils.log_utils.logging_init(__file__)
+from global_def import *
 
 def get_sun_times(city):
 	target_city = None

@@ -6,8 +6,9 @@ from PyQt5 import QtCore
 from PyQt5.QtCore import QTimer, QMutex
 import utils.log_utils
 import ctypes
+from global_def import *
 import utils.file_utils
-log = utils.log_utils.logging_init(__file__)
+
 
 
 class CV2Camera(QtCore.QThread):  # 繼承 QtCore.QThread 來建立 Camera 類別

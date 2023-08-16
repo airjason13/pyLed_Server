@@ -11,8 +11,7 @@ from PyQt5.QtCore import QObject
 import utils.log_utils
 
 
-
-log = utils.log_utils.logging_init(__file__)
+from global_def import *
 
 def set_qstyle_dark(QObject):
     try:

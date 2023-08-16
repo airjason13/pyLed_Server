@@ -13,7 +13,7 @@ import hashlib
 import utils.file_utils
 import subprocess
 
-log = utils.log_utils.logging_init(__file__)
+from global_def import *
 
 still_image_loop_cnt = 1
 still_image_video_period = 600

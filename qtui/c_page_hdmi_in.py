@@ -21,7 +21,7 @@ from str_define import *
 from subprocess import PIPE, Popen
 import hashlib
 from astral_hashmap import *
-log = utils.log_utils.logging_init(__file__)
+
 
 
 class Hdmi_In_Page(QObject):

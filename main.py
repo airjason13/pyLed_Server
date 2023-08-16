@@ -29,7 +29,7 @@ def sighandler(signum, frame):
 
 
 if __name__ == '__main__':
-    log = utils.log_utils.logging_init(__file__)
+    # log = utils.log_utils.logging_init(__file__)
     log.info('Main')
 
     sys.setrecursionlimit(100000)

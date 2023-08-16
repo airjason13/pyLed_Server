@@ -11,7 +11,7 @@ from g_defs.c_video_params import *
 from g_defs.c_led_config import *
 import random
 
-log = utils.log_utils.logging_init(__file__)
+from global_def import *
 
 
 class media_engine(QObject):

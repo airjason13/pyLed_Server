@@ -2,9 +2,7 @@ import time
 from PyQt5.QtCore import QThread, pyqtSignal, QDateTime
 from global_def import *
 import socket
-import utils.log_utils
-
-log = utils.log_utils.logging_init(__file__)
+from global_def import *
 
 class alive_report_thread(QThread):
     check_client = pyqtSignal(str, str)

@@ -1,8 +1,6 @@
 from PyQt5 import QtCore
 from global_def import *
-import utils.log_utils
 
-log = utils.log_utils.logging_init(__file__)
 
 
 class ApplicationPlugin(QtCore.QThread):

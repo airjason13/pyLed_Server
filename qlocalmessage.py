@@ -4,9 +4,7 @@ import json
 import atexit
 import os
 from jqlocalserver import get_server_name
-import utils.log_utils
-
-log = utils.log_utils.logging_init(__file__)
+from global_def import *
 _tries = 0
 
 

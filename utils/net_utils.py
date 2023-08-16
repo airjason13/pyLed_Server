@@ -7,7 +7,7 @@ from global_def import *
 import platform
 import os
 
-log = utils.log_utils.logging_init(__file__)
+from global_def import *
 
 def get_ip_address():
     if platform.machine() in ('arm', 'arm64', 'aarch64'):

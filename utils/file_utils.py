@@ -8,7 +8,7 @@ from global_def import *
 from subprocess import Popen, PIPE
 from subprocess import check_output, CalledProcessError
 import sys
-log = utils.log_utils.logging_init(__file__)
+from global_def import *
 
 def get_media_file_list(dir, with_path=False):
     log.error("dir : %s", dir)

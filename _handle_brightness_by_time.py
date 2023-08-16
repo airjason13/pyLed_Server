@@ -2,8 +2,6 @@ import os
 from commands_def import *
 import utils.log_utils
 from astral_hashmap import *
-from time import sleep
-log = utils.log_utils.logging_init(__file__)
 from datetime import datetime, time
 from zoneinfo import ZoneInfo
 import platform
