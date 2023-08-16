@@ -942,6 +942,12 @@ class MainUi(QMainWindow):
         except Exception as e:
             log.debug(e)
 
+        # log get_throttled
+        try:
+            utils.file_utils.get_throttled_to_log()
+        except Exception as e:
+            log.debug(e)
+
     def clients_lock(self):
         self.clients_mutex.lock()
 

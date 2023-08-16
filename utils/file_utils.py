@@ -1,4 +1,6 @@
 import glob
+import subprocess
+
 import utils.log_utils
 import os
 import pyudev
@@ -10,11 +12,13 @@ from subprocess import check_output, CalledProcessError
 import sys
 from global_def import *
 
+
 def get_media_file_list(dir, with_path=False):
     log.error("dir : %s", dir)
     file_list = glob.glob(dir + "/*.mp4") + glob.glob(dir + "/*.jpg") + glob.glob(dir + "/*.jpeg") + glob.glob(dir + "/*.png")
 
     return file_list
+
 
 def get_playlist_file_list(dir, with_path=False):
     log.debug("dir : %s", dir)
@@ -500,6 +504,7 @@ def get_led_type_config():
     log.debug("icled_type : %s", icled_type)
     return icled_type
 
+
 def set_led_type_config(icled_type):
     root_dir = os.path.dirname(sys.modules['__main__'].__file__)
     led_config_dir = os.path.join(root_dir, 'video_params_config')
@@ -508,3 +513,17 @@ def set_led_type_config(icled_type):
     with open(os.path.join(led_config_dir, ".icled_type_config"), "w") as f:
         f.writelines(["icled_type:" + icled_type])
     f.close()
+
+
+def get_throttled_to_log():
+    if platform.machine() in ('arm', 'arm64', 'aarch64'):
+        try:
+            get_throttled = subprocess.Popen("vcgencmd get_throttled", shell=True, stdout=subprocess.PIPE,
+                                        stderr=subprocess.PIPE)
+            stdout, stderr = get_throttled.communicate()
+            log.debug("get_throttled : %s", stdout)
+            get_throttled.terminate()
+        except Exception as e:
+            log.debug("error!")
+    else:
+        pass
