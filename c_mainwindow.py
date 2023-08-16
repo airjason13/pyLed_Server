@@ -693,10 +693,12 @@ class MainUi(QMainWindow):
         # handle page_hdmi_in_content enter and exit
         if pre_idx != page_hdmi_in_content_idx and going_idx == page_hdmi_in_content_idx:
             log.debug("start hdmi-in preview")
+            self.medialist_page.play_option_repeat = repeat_option.repeat_none
             self.media_engine.resume_play()
             self.media_engine.stop_play()
             self.hdmi_in_page.start_hdmi_in_preview()
         if pre_idx == page_hdmi_in_content_idx and going_idx != page_hdmi_in_content_idx:
+            self.medialist_page.play_option_repeat = repeat_option.repeat_one
             log.debug("stop hdmi-in preview")
             self.hdmi_in_page.stop_send_to_led()
             self.hdmi_in_page.stop_hdmi_in_preview()
