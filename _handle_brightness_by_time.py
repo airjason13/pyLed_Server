@@ -7,6 +7,8 @@ from zoneinfo import ZoneInfo
 import platform
 from global_def import *
 from utils import jholiday
+import time
+
 
 def check_daymode_nightmode(self, sunrise_time, sunset_time, now):
 	if self.brightness_test_log is True:

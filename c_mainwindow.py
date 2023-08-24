@@ -183,7 +183,7 @@ class MainUi(QMainWindow):
         self.broadcast_thread = \
             Worker(method=self.server_broadcast, data=server_broadcast_message, port=server_broadcast_port)
         self.broadcast_thread.start()
-        self.refresh_clients_thread = Worker(method=self.refresh_clients_list, sleep_time=5)
+        self.refresh_clients_thread = Worker(method=self.refresh_clients_list, sleep_time=10)
         self.refresh_clients_thread.start()
 
         self.client_alive_report_thread = \
@@ -773,7 +773,6 @@ class MainUi(QMainWindow):
         self.medialist_page.client_brightness_edit.setText(str(i))
         self.medialist_page.video_params_confirm_btn_clicked()
 
-
     def check_client(self, ip, data):
         is_found = False
         tmp_client = None
@@ -790,7 +789,7 @@ class MainUi(QMainWindow):
                 if c.client_ip == ip:
                     is_found = True
                     ###
-                    if "fps" in data:
+                    '''if "fps" in data:
                         if int(c_fps) == 0:
                             c.fps_zero_count += 1
                             if c.fps_zero_count >= 20:
@@ -799,7 +798,7 @@ class MainUi(QMainWindow):
                                 c.fps_zero_count = 0
                                 log.debug("client ip %s zero fps counts >= 10", c.client_ip)
                         else:
-                            c.fps_zero_count = 0
+                            c.fps_zero_count = 0'''
                     ###
                     tmp_client = c
                     break
@@ -859,7 +858,8 @@ class MainUi(QMainWindow):
 
             else:
                 """ find this ip in clients list, set the alive report count"""
-                tmp_client.set_alive_count(3)
+                # log.debug("get_alive_count : %d", tmp_client.get_alive_count())
+                tmp_client.set_alive_count(8)
         except Exception as e:
             log.debug(e)
         finally:
@@ -938,7 +938,7 @@ class MainUi(QMainWindow):
                     pass
                     #os.popen("ifconfig enp2s0 192.168.0.2")
 
-            sleep(2)
+            sleep(5)
         except Exception as e:
             log.debug(e)
 
@@ -964,10 +964,11 @@ class MainUi(QMainWindow):
             for c in self.clients:
                 c.decrese_alive_count()
                 if c.get_alive_count() <= 0:
+                    log.debug("remove c.client_ip : %s", c.client_ip)
                     self.clients.remove(c)
 
-            """for c in self.clients:
-                log.debug("c.client_ip : %s ", c.client_ip)"""
+            '''for c in self.clients:
+                log.debug("c.client_ip : %s ", c.client_ip)'''
         except Exception as e:
             log.debug(e)
         finally:

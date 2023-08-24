@@ -19,7 +19,7 @@ class alive_report_thread(QThread):
     def run(self, *args, **kwargs):
         self.recv_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.recv_socket.bind(self.address)
-        self.recv_socket.settimeout(2)
+        self.recv_socket.settimeout(5)
         while True:
             try:
                 self.num += 1
