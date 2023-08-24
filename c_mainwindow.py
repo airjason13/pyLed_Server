@@ -183,7 +183,7 @@ class MainUi(QMainWindow):
         self.broadcast_thread = \
             Worker(method=self.server_broadcast, data=server_broadcast_message, port=server_broadcast_port)
         self.broadcast_thread.start()
-        self.refresh_clients_thread = Worker(method=self.refresh_clients_list, sleep_time=10)
+        self.refresh_clients_thread = Worker(method=self.refresh_clients_list, sleep_time=refresh_clients_thread_interval)
         self.refresh_clients_thread.start()
 
         self.client_alive_report_thread = \
@@ -291,8 +291,6 @@ class MainUi(QMainWindow):
 
         self.test_count = 0
 
-
-
     ''' Only useful with arm/arm64/aarch64'''
     def launch_default_type(self):
         # we do not care about x86
@@ -321,7 +319,6 @@ class MainUi(QMainWindow):
                 else:
                     QTimer.singleShot(5000, self.demo_start_cms)
 
-
     def check_num_of_clients(self):
         while True:
             log.debug("check client!")
@@ -331,7 +328,6 @@ class MainUi(QMainWindow):
             time.sleep(60)
 
         self.cms_page.start_play_cms()
-
 
     def demo_start_cms(self):
         self.func_cms_setting()
@@ -614,7 +610,6 @@ class MainUi(QMainWindow):
         self.led_client_layout_tree.setColumnWidth(0, 300)
         self.led_client_layout_tree.header().setFont(QFont(qfont_style_default, qfont_style_size_medium))
         self.led_client_layout_tree.headerItem().setText(0, "Client Layout")
-
 
         font = QFont()
         font.setPointSize(24)

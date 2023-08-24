@@ -28,7 +28,8 @@ def get_led_role():
     print("Bled_role = ", led_role)
     return led_role
 
-"""Network relative"""
+
+'''Network relative'''
 multicast_group = "239.11.11.11"
 server_broadcast_port = 11334
 server_broadcast_message = "ABCDE;Server:192.168.0.3;Cmd_Port:11335;Alive_Port:11333"
@@ -118,11 +119,9 @@ class frame_brightness_adjust(enum.IntEnum):
     test_mode = 3
 
 
-
 day_mode_brightness = 90
 night_mode_brightness = 60
 sleep_mode_brightness = 0
-
 
 
 """ UI relative"""
@@ -197,3 +196,5 @@ fps_15="15/1"
 target_fps=fps_23
 
 FUNCTION_DISABLE = False
+
+refresh_clients_thread_interval = 10

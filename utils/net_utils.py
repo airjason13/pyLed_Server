@@ -9,6 +9,7 @@ import os
 
 from global_def import *
 
+
 def get_ip_address():
     if platform.machine() in ('arm', 'arm64', 'aarch64'):
         ifname = 'eth0'
@@ -34,7 +35,6 @@ def get_ip_address_by_nic(ifname):
     print(ip)
 
 
-#def send_udp_cmd( server_ip, client_ip, client_port, cmd, cmd_seq_id, param, cb):
 def send_udp_cmd(*args, **kwargs):
     # log.debug("kwargs : %s", kwargs)
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
