@@ -275,7 +275,10 @@ class media_processor(QObject):
 
         self.check_play_status_timer = QTimer(self)
         self.check_play_status_timer.timeout.connect(self.check_play_status)  # 當時間到時會執行 run
-        self.check_play_status_timer.start(500)
+        try:
+            self.check_play_status_timer.start(500)
+        except Exception as e:
+            log.debug(e)
 
         self.play_single_file_worker = None
         self.play_single_file_thread = None

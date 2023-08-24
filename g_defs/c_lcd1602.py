@@ -35,11 +35,11 @@ class LCD1602(QObject):
         self.refresh_timer_0.timeout.connect(self.write_lcd_l0)
         self.server_address = lcd1602_server_address
 
-
-
     def start(self):
-        self.refresh_timer_0.start(self.refresh_interval_0)
-
+        try:
+            self.refresh_timer_0.start(self.refresh_interval_0)
+        except Exception as e:
+            log.debug(e)
 
     def write_lcd_l0(self):
         # pass data to lcd1602_server

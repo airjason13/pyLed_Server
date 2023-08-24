@@ -218,10 +218,9 @@ class LedLayoutWindow(QWidget):
         tmp_label.show()
 
     def remove_all_cabinet_label(self):
-        log.debug("")
         for i in range(len(self.single_cabinet_labels)):
+            log.debug("deleteLater")
             self.single_cabinet_labels[i].deleteLater()
-
         self.single_cabinet_labels.clear()
 
     ''' 依照 c_params 選定label來更新'''

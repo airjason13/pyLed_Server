@@ -89,7 +89,10 @@ class TestPage(QObject):
 		log.debug("start_test_reboot")
 		self.reboot_client_count = int(self.lineedit_test_reboot_client_count.text())
 		log.debug("self.reboot_client_count = %d", self.reboot_client_count)
-		self.reboot_check_timer.start(30*1000) # 30 secs
+		try:
+			self.reboot_check_timer.start(30*1000) # 30 secs
+		except Exception as e:
+			log.debug(e)
 
 	def stop_test_reboot(self):
 		log.debug("stop_test_reboot")

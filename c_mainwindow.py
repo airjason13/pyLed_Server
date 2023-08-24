@@ -183,7 +183,8 @@ class MainUi(QMainWindow):
         self.broadcast_thread = \
             Worker(method=self.server_broadcast, data=server_broadcast_message, port=server_broadcast_port)
         self.broadcast_thread.start()
-        self.refresh_clients_thread = Worker(method=self.refresh_clients_list, sleep_time=refresh_clients_thread_interval)
+        # self.refresh_clients_thread = Worker(method=self.refresh_clients_list, sleep_time=refresh_clients_thread_interval)
+        self.refresh_clients_thread = Worker(method=self.refresh_clients_list)
         self.refresh_clients_thread.start()
 
         self.client_alive_report_thread = \
@@ -259,7 +260,10 @@ class MainUi(QMainWindow):
         self.date_timer = QTimer(self)
         self.date_timer.timeout.connect(self.check_brightness_by_date_timer)
         # self.date_timer.start(1*60*1000)
-        self.date_timer.start(1 * 60 * 1000)
+        try:
+            self.date_timer.start(1 * 60 * 1000)
+        except Exception as e:
+            log.debug(e)
 
         # reboot flag
         self.reboot_mode = utils.file_utils.get_reboot_mode_default_from_file()
@@ -268,8 +272,11 @@ class MainUi(QMainWindow):
         log.debug("self.reboot_time = %s", self.reboot_time)
         self.client_check_reboot_timer = QTimer(self)
         self.client_check_reboot_timer.timeout.connect(self.client_reboot_timer)
-        # set one miniute timer
-        self.client_check_reboot_timer.start(1 * 60 * 1000)
+        try:
+            # set one miniute timer
+            self.client_check_reboot_timer.start(1 * 60 * 1000)
+        except Exception as e:
+            log.debug(e)
 
         # utils.astral_utils.get_sun_times("KK")
         self.city = City_Map[self.media_engine.media_processor.video_params.get_target_city_index()].get("City")
@@ -305,19 +312,31 @@ class MainUi(QMainWindow):
             except Exception as e:
                 log.debug(e)
             if self.default_launch_type_int == play_type.play_single:
-                QTimer.singleShot(5000, self.demo_start_play_single)
+                try:
+                    QTimer.singleShot(5000, self.demo_start_play_single)
+                except Exception as e:
+                    log.debug(e)
             elif self.default_launch_type_int == play_type.play_playlist:
-                QTimer.singleShot(5000, self.demo_start_playlist)
+                try:
+                    QTimer.singleShot(5000, self.demo_start_playlist)
+                except Exception as e:
+                    log.debug(e)
             elif self.default_launch_type_int == play_type.play_hdmi_in:
                 if self.led_role == "AIO":
                     pass
                 else:
-                    QTimer.singleShot(5000, self.demo_start_hdmi_in)
+                    try:
+                        QTimer.singleShot(5000, self.demo_start_hdmi_in)
+                    except Exception as e:
+                        log.debug(e)
             elif self.default_launch_type_int == play_type.play_cms:
                 if self.led_role == "AIO":
                     pass
                 else:
-                    QTimer.singleShot(5000, self.demo_start_cms)
+                    try:
+                        QTimer.singleShot(5000, self.demo_start_cms)
+                    except Exception as e:
+                        log.debug(e)
 
     def check_num_of_clients(self):
         while True:
@@ -608,6 +627,7 @@ class MainUi(QMainWindow):
 
         self.led_client_layout_tree.setColumnCount(1)
         self.led_client_layout_tree.setColumnWidth(0, 300)
+        self.led_client_layout_tree.setIconSize(QSize(64, 64))
         self.led_client_layout_tree.header().setFont(QFont(qfont_style_default, qfont_style_size_medium))
         self.led_client_layout_tree.headerItem().setText(0, "Client Layout")
 
@@ -950,44 +970,41 @@ class MainUi(QMainWindow):
         self.clients_mutex.unlock()
 
     def refresh_clients_list(self, arg):
+        # sleep_time = arg.get("sleep_time")
+
         # is_list_changed = False
         ori_len = len(self.clients)
         try:
             self.clients_lock()
             ori_len = len(self.clients)
-            sleep_time = arg.get("sleep_time")
+
             for c in self.clients:
                 c.decrese_alive_count()
                 if c.get_alive_count() <= 0:
                     log.debug("remove c.client_ip : %s", c.client_ip)
                     self.clients.remove(c)
-
-            '''for c in self.clients:
-                log.debug("c.client_ip : %s ", c.client_ip)'''
         except Exception as e:
             log.debug(e)
         finally:
             if ori_len != len(self.clients):
                 self.client_page.refresh_clients(self.clients)
                 self.client_page.refresh_client_table()
-                # self.refresh_client_table()
-            self.clients_unlock()
-        # test @1006 night
-        #if self.tmp_clients_count != len(self.clients):
-        #    self.tmp_clients_count = len(self.clients)
-        #    QTimer.singleShot(2000, self.kill_ffmpy_process)
 
-        sleep(sleep_time)
+            self.clients_unlock()
+
         self.sync_client_layout_params(False, True, False)
+        try:
+            sleep(refresh_clients_thread_interval)
+        except Exception as e:
+            log.debug(e)
+
 
     def sync_client_layout_params(self, force_refresh, fresh_layout_map, remove_all_cabinet_label):
         # led layout page tree widget show
+        # log.debug("Enter sync_client_layout_params force_refresh: %d, fresh_layout_map : %d", force_refresh, fresh_layout_map)
         if self.led_client_layout_tree.topLevelItemCount() != len(self.clients):
             force_refresh = True
             self.led_layout_window.remove_all_cabinet_label()
-
-        # if remove_all_cabinet_label is True:
-        #    self.led_layout_window.remove_all_cabinet_label()
 
         if force_refresh is True:
             self.client_led_layout.clear()
@@ -1000,7 +1017,6 @@ class MainUi(QMainWindow):
                     port_layout = QTreeWidgetItem(client_led_layout)
                     port_layout.setText(0, "port" + str(i) + ":")
 
-                    '''cabinet params test start '''
                     test_params = QTreeWidgetItem(port_layout)
                     test_params.setText(0, 'cabinet_width:' + str(c.cabinets_setting[i].cabinet_width))
                     test_params = QTreeWidgetItem(port_layout)
@@ -1015,14 +1031,16 @@ class MainUi(QMainWindow):
                                                                               c.cabinets_setting[i].layout_type)
                     qicon_type = QIcon(test_pixmap)
                     test_params.setIcon(0, qicon_type)
-                    '''cabinet params test end '''
+                    
                     # gen cabinet label in led_wall_layout_window
                     if fresh_layout_map is True:
-                        self.signal_add_cabinet_label.emit(c.cabinets_setting[i])
-                ''' set icon size'''
-                self.led_client_layout_tree.setIconSize(QSize(64, 64))
+                       self.signal_add_cabinet_label.emit(c.cabinets_setting[i])
+                
+                # self.led_client_layout_tree.setIconSize(QSize(64, 64))
                 if fresh_layout_map is True:
-                    self.client_led_layout.append(client_led_layout)
+                   self.client_led_layout.append(client_led_layout)
+
+        # log.debug("Out sync_client_layout_params")
 
     @pyqtSlot(QtWidgets.QTreeWidgetItem, int)
     def onFileTreeItemClicked(self, it, col):

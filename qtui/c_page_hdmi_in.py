@@ -483,7 +483,10 @@ class Hdmi_In_Page(QObject):
         self.check_tc358743_timer = QTimer(self)
         self.check_tc358743_timer.timeout.connect(self.check_tc358743_timer_event)
         # self.going_to_open_preview = False # 如果True則表示目前頁面處於hdmi-in, 因為一進來hdmi-in頁面就要開始preview
-        self.check_tc358743_timer.start(self.check_tc358743_interval)
+        try:
+            self.check_tc358743_timer.start(self.check_tc358743_interval)
+        except Exception as e:
+            log.debug(e)
 
         self.tc358743 = TC358743()
         self.tc358743.signal_refresh_tc358743_param.connect(self.refresh_tc358743_param)

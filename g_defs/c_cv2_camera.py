@@ -31,7 +31,10 @@ class CV2Camera(QtCore.QThread):  # 繼承 QtCore.QThread 來建立 Camera 類�
         self.fps_timer = QTimer(self)
         self.fps_timer.timeout.connect(self.fps_counter)
         self.fps = 0
-        self.fps_timer.start(1000)
+        try:
+            self.fps_timer.start(1000)
+        except Exception as e:
+            log.debug(e)
         # 建立 cv2 的攝影機物件
 
         # self.hdmi_in_cast = False
