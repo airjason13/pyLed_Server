@@ -65,11 +65,16 @@ def send_udp_cmd(*args, **kwargs):
         else:    
             cb( True, cmd, recvData=revcData.decode(), client_ip=remoteHost, client_reply_port=remotePort)
     except Exception as e:
-        #log.fatal("cmd_seq_id error")
+        # log.fatal("cmd_seq_id error")
         log.fatal("cmd_seq_id : %d", cmd_seq_id)
-        #log.fatal("int(recv_cmd_seq_id): %d", int(recv_cmd_seq_id))
+        # log.fatal("int(recv_cmd_seq_id): %d", int(recv_cmd_seq_id))
         log.fatal(e)
-        cb(False, cmd )
+        # for i in range(len(e.args)):
+        #     log.fatal(e.args[i])
+        if 'Cannot assign requested address' in e.args:
+            log.debug("Cannot assign requested address :%s", client_ip)
+        else:
+            cb(False, cmd)
     finally:
         sock.close()
 

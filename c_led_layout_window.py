@@ -219,7 +219,6 @@ class LedLayoutWindow(QWidget):
 
     def remove_all_cabinet_label(self):
         for i in range(len(self.single_cabinet_labels)):
-            log.debug("deleteLater")
             self.single_cabinet_labels[i].deleteLater()
         self.single_cabinet_labels.clear()
 

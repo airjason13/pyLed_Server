@@ -12,4 +12,6 @@ video_params_config/.video_params_config
 .reboot_config
 .sleep_time_config
 static/client_info.dat
+.icled_current_gain_config
+.icled_type_config
 

@@ -193,6 +193,8 @@ fps_30="30/1"
 fps_25="25/1"
 fps_23="23/1"
 fps_15="15/1"
+fps_10="10/1"
+fps_1="1/1"
 target_fps=fps_23
 
 FUNCTION_DISABLE = False
