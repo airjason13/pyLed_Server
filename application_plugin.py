@@ -2,7 +2,6 @@ from PyQt5 import QtCore
 from global_def import *
 
 
-
 class ApplicationPlugin(QtCore.QThread):
     def __init__(self, app_, port=flask_server_port):
         super(ApplicationPlugin, self).__init__()

@@ -643,12 +643,15 @@
                             }).then((result) => {
                                 if (result.isConfirmed) {
                                     remove_media_file(name);
+									deleteConfirm();
                                     // console.log("key = " + key);
+									/*
                                     Swal.fire(
                                         'Deleted!',
                                         'Your file has been deleted.',
                                         'success'
                                     )
+									*/
                                 }
                             })
                             break;
@@ -703,12 +706,8 @@
                             console.log("name = "+ name);
                             console.log("id = "+ id);
 							remove_file_from_playlist(name, id);
-                            Swal.fire(
-                                'Deleted!',
-                                'Your file has been deleted.',
-                                'success'
-                            )
-	             //location.reload();
+                            deleteConfirm();
+							//location.reload();
                         }
                     })
                 },
@@ -752,6 +751,18 @@
             $("#addToPlaylist").hide();
         }
         */
+		function deleteConfirm(){
+			Swal.fire({
+				icon: 'success',
+				title: 'Your file has been deleted.',
+				showConfirmButton: false,
+            })
+			setTimeout(function(){
+				Swal.close();
+				window.location.reload();
+			}, 1600);
+		}
+		
         function checkFile(){
             var fileInput = $("#inputFile").val().split('\\').pop();
             if(fileInput.endsWith("mp4") || fileInput.endsWith("jpg") || fileInput.endsWith("jpeg") || fileInput.endsWith("png")){//
@@ -794,20 +805,34 @@
         }
 
         function onchangePlaylist() {
+			document.getElementById("modalImgDiv").innerHTML = '';
             var input = $("#floatingPlaylistName").val();
+			input = input.replaceAll("'", "\"");
+			var obj = JSON.parse(input, function(key, value) {
+				if (value.toString().endsWith('webp')){
+					document.getElementById("modalImgDiv").innerHTML += '<img class="w-75 img-thumbnail playListContext" id="' + key + '" src="./get_thumbnail/' + value + '" />';
+					console.log("key = " + key);
+					console.log("value = " + value);
+				}
+			});
             // var inputPlaylist = $( "#floatingPlaylistName option:selected" ).text();
+			/* // 舊寫法
             input = input.replaceAll(":", ",");
             input = input.replaceAll(" ", "");
             input = input.replaceAll("'", "");
             input = input.replace("{", "");
             input = input.replace("}", "");
             var split_string = input.split(",");
-            // console.log("inputPlaylist = " + inputPlaylist); 
+            console.log("split_string = " + split_string);
+			
             document.getElementById("modalImgDiv").innerHTML = '';
             for(let i=1; i<split_string.length; i+=2){
                 // document.getElementById("modalImgDiv").innerHTML += '<img class="w-75 img-thumbnail playListContext" id="' + split_string[i-1] + '" src="./get_thumbnail/' + split_string[i] + '" onclick="play_playlist(\'' + inputPlaylist + '\')" />';
                 document.getElementById("modalImgDiv").innerHTML += '<img class="w-75 img-thumbnail playListContext" id="' + split_string[i-1] + '" src="./get_thumbnail/' + split_string[i] + '" />';
+				console.log("id = " + split_string[i-1]);
+				console.log("split_string = " + split_string[i]);
             }
+			*/
         }
 
         function checkValue0_100(value){
@@ -1065,11 +1090,14 @@
 						var url = "/remove_playlist/" + input;
 						console.log("playlist = " + input);
 						$.post(url, {});
+						deleteConfirm();
+						/*
 						Swal.fire(
 							'Deleted!',
 							'Your file has been deleted.',
 							'success'
 						)
+						*/
 					}
 	            })
             }
@@ -1230,9 +1258,18 @@
         }
 
         function add_to_playlist(file, playlist) {
-            var data = "playlist_name:"+playlist+";file_name:"+file;
+            var data = "playlist_name:" + playlist + ";file_name:" + file;
             var url = "/add_to_playlist/" + data;
             $.post(url, {});
+			Swal.fire({
+                icon: 'success',
+                title: 'Add to ' + playlist,
+                showConfirmButton: false
+            })
+			setTimeout(function(){
+				Swal.close();
+				window.location.reload();
+			}, 1600);
         }
 
         // Brightness Mode; value=0, 1, 2, 3...
@@ -1379,7 +1416,7 @@
                 Swal.fire({
                     icon: 'error',
                     title: 'Input cannot be empty',
-	     showConfirmButton: false,
+					showConfirmButton: false,
                     timer: 2000
                 })
                 // $("#reboot").show();
@@ -1389,7 +1426,7 @@
             Swal.fire({
                 icon: 'success',
                 title: 'Reboot Time : ' + data,
-	 showConfirmButton: false,
+				showConfirmButton: false,
                 timer: 2000
             })
             // alert("Reboot Time : " + data);
@@ -1443,9 +1480,12 @@
                 Swal.fire({
                     icon: 'success',
                     title: 'New playlist name : ' + playlistName,
-                    showConfirmButton: false,
-                    timer: 2000
+                    showConfirmButton: false
                 })
+				setTimeout(function(){
+					Swal.close();
+					window.location.reload();
+				}, 1600);
             }
         }
         
