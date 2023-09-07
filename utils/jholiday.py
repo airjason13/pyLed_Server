@@ -1,6 +1,7 @@
 # base on 2023
 from datetime import date
-#from global_def import *
+
+# from global_def import *
 
 holiday_mode = False
 
@@ -25,9 +26,10 @@ def today_is_holiday_or_not():
 	today_month = today.month
 	today_day = today.day
 	if today_day in holidays_dict[today_month]:
-		return True # holiday
+		return True  # holiday
 	else:
-		return False # work day
+		return False  # work day
+
 
 if __name__ == '__main__':
 	print(today_is_holiday_or_not())

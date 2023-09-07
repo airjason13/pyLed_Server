@@ -8,7 +8,7 @@ cmd_get_frame_gamma = 'get_frame_gamma'
 cmd_get_pixel_interval = 'get_pixel_interval'
 cmd_get_client_id = 'get_client_id'
 cmd_get_icled_type = 'get_icled_type'
-cmd_get_icled_current_gain = 'get_icled_current_gain' # return rgain, ggain, bgain
+cmd_get_icled_current_gain = 'get_icled_current_gain'  # return rgain, ggain, bgain
 
 cmd_set_led_size = 'set_led_size'
 cmd_set_cabinet_size = 'set_cabinet_size'
@@ -22,7 +22,7 @@ cmd_set_led_blank = 'set_led_blank'
 cmd_set_pixel_interval = 'set_pixel_interval'
 cmd_set_client_id = 'set_client_id'
 cmd_set_icled_type = 'set_icled_type'
-cmd_set_icled_current_gain = 'set_icled_current_gain' # rgain, ggain, bgain
+cmd_set_icled_current_gain = 'set_icled_current_gain'  # rgain, ggain, bgain
 '''test mode'''
 cmd_set_test_color = 'set_test_color'
 cmd_spec_test = 'spec_test'

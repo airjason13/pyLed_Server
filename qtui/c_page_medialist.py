@@ -940,11 +940,11 @@ class media_page(QObject):
         clients = self.mainwindow.clients
         for c in clients:
             log.debug("c.client_ip = %s", c.client_ip)
-            c.send_cmd(cmd_set_icled_type,
-                       self.mainwindow.cmd_seq_id_increase(),
-                       self.mainwindow.icled_type)
+            if 'G3' in c.client_version:
+                c.send_cmd(cmd_set_icled_type,
+                        self.mainwindow.cmd_seq_id_increase(),
+                        self.mainwindow.icled_type)
 
-        
     def client_set_icled_current_gain(self):
         root_dir = os.path.dirname(sys.modules['__main__'].__file__)
         led_config_dir = os.path.join(root_dir, 'video_params_config')
@@ -971,7 +971,8 @@ class media_page(QObject):
         # send command to client for sync
         clients = self.mainwindow.clients
         for c in clients:
-            #log.debug("c.client_ip = %s", c.client_ip)
-            c.send_cmd(cmd_set_icled_current_gain,
-                       self.mainwindow.cmd_seq_id_increase(),
-                       self.mainwindow.current_gain_cmd_params)
+            if 'G3' in c.client_version:
+                # log.debug("c.client_ip = %s", c.client_ip)
+                c.send_cmd(cmd_set_icled_current_gain,
+                        self.mainwindow.cmd_seq_id_increase(),
+                        self.mainwindow.current_gain_cmd_params)
