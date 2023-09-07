@@ -6,7 +6,7 @@ import utils.log_utils
 log = utils.log_utils.logging_init(__file__)
 
 """Software version"""
-version = "LS230907001"
+version = "LS230907002"
 
 
 def get_led_role():

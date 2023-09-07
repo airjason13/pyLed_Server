@@ -497,10 +497,21 @@ def get_led_type_config():
     if os.path.isfile(os.path.join(led_config_dir, ".icled_type_config")) is False:
         init_led_type_config()
 
-    with open(os.path.join(led_config_dir, ".icled_type_config"), "r") as f:
-        line = f.readline()
-        icled_type = line.split(":")[1]
-    f.close()
+    try:
+        with open(os.path.join(led_config_dir, ".icled_type_config"), "r") as f:
+            line = f.readline()
+            icled_type = line.split(":")[1]
+        f.close()
+    except Exception as e:
+        log.debug(e)
+        with open(os.path.join(led_config_dir, ".icled_type_config"), "w") as f:
+            f.writelines("icled_type:AOS")
+        f.close()
+        with open(os.path.join(led_config_dir, ".icled_type_config"), "r") as f:
+            line = f.readline()
+            icled_type = line.split(":")[1]
+        f.close()
+
     log.debug("icled_type : %s", icled_type)
     return icled_type
 
