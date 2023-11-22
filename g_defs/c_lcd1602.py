@@ -35,6 +35,8 @@ class LCD1602(QObject):
         self.refresh_timer_0.timeout.connect(self.write_lcd_l0)
         self.server_address = lcd1602_server_address
 
+
+
     def start(self):
         try:
             self.refresh_timer_0.start(self.refresh_interval_0)

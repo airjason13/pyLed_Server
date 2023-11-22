@@ -298,6 +298,8 @@ class MainUi(QMainWindow):
 
         self.test_count = 0
 
+
+
     ''' Only useful with arm/arm64/aarch64'''
     def launch_default_type(self):
         # we do not care about x86
@@ -347,6 +349,7 @@ class MainUi(QMainWindow):
             time.sleep(60)
 
         self.cms_page.start_play_cms()
+
 
     def demo_start_cms(self):
         self.func_cms_setting()
@@ -631,6 +634,7 @@ class MainUi(QMainWindow):
         self.led_client_layout_tree.header().setFont(QFont(qfont_style_default, qfont_style_size_medium))
         self.led_client_layout_tree.headerItem().setText(0, "Client Layout")
 
+
         font = QFont()
         font.setPointSize(24)
         self.led_client_layout_tree.setFont(font)
@@ -787,6 +791,7 @@ class MainUi(QMainWindow):
         utils.ffmpy_utils.ffmpy_draw_text(str(i))
         self.medialist_page.client_brightness_edit.setText(str(i))
         self.medialist_page.video_params_confirm_btn_clicked()
+
 
     def check_client(self, ip, data):
         is_found = False
@@ -1017,6 +1022,7 @@ class MainUi(QMainWindow):
                     port_layout = QTreeWidgetItem(client_led_layout)
                     port_layout.setText(0, "port" + str(i) + ":")
 
+                    '''cabinet params test start '''
                     test_params = QTreeWidgetItem(port_layout)
                     test_params.setText(0, 'cabinet_width:' + str(c.cabinets_setting[i].cabinet_width))
                     test_params = QTreeWidgetItem(port_layout)

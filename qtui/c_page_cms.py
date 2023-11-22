@@ -86,6 +86,7 @@ class CmsPage(QObject):
 
 	def start_play_cms(self):
 		subprocess.Popen("pkill chromium", shell=True)
+		time.sleep(5) # self.launch_chromium()
 		self.launch_chromium()
 		self.media_engine.resume_play()
 		self.media_engine.stop_play()
@@ -98,6 +99,7 @@ class CmsPage(QObject):
 
 	def stop_play_cms(self):
 		try:
+			subprocess.Popen("pkill chromium", shell=True)
 			if self.browser_process is not None:
 				os.kill(self.browser_process.pid, signal.SIGTERM)
 				self.browser_process = None
