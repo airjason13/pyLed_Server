@@ -43,6 +43,8 @@ class client(QObject):
         self.fps_zero_count = 0
         if 'G2' in self.client_version:
             self.num_of_cabinet = 16
+        elif 'G3' in self.client_version:
+            self.num_of_cabinet = 16
         else:
             self.num_of_cabinet = 8
 

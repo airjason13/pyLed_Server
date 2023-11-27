@@ -6,8 +6,9 @@ import utils.log_utils
 log = utils.log_utils.logging_init(__file__)
 
 """Software version"""
-version = "LS231122001"
+version = "LS231127001"
 
+X86_ETH_INTERFACE = 'enp55s0'
 
 def get_led_role():
     led_role = "Server"

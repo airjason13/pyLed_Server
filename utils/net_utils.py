@@ -14,7 +14,7 @@ def get_ip_address():
     if platform.machine() in ('arm', 'arm64', 'aarch64'):
         ifname = 'eth0'
     else:
-        ifname = 'enp2s0'
+        ifname = X86_ETH_INTERFACE
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     try:
         ip = socket.inet_ntoa(fcntl.ioctl(
