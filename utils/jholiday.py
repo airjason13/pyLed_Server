@@ -89,7 +89,7 @@ def today_is_holiday_or_not():
 
     today_month = today.month
     today_day = today.day
-    
+
     if today.year == 2024:
         if today_day in holidays_dict_2024[today_month]:
             return True
