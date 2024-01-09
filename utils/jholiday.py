@@ -89,31 +89,33 @@ def today_is_holiday_or_not():
 
     today_month = today.month
     today_day = today.day
-
-    if today.year == 2024:
-        if today_day in holidays_dict_2024[today_month]:
-            return True
-        else:
-            return False
-    elif today.year == 2025:
-        if today_day in holidays_dict_2025[today_month]:
-            return True
-        else:
-            return False
-    elif today.year == 2026:
-        if today_day in holidays_dict_2026[today_month]:
-            return True
-        else:
-            return False
-    elif today.year > 2025:
-        if today.weekday() == 5 or today.weekday() == 6:
-            return True
-        else:
-            if today.month == 10 and today.day == 10:
+    try:
+        if today.year == 2024:
+            if today_day in holidays_dict_2024[today_month]:
                 return True
-            elif today.month == 1 and today.day == 1:
+            else:
+                return False
+        elif today.year == 2025:
+            if today_day in holidays_dict_2025[today_month]:
                 return True
-            return False
+            else:
+                return False
+        elif today.year == 2026:
+            if today_day in holidays_dict_2026[today_month]:
+                return True
+            else:
+                return False
+        elif today.year > 2026:
+            if today.weekday() == 5 or today.weekday() == 6:
+                return True
+            else:
+                if today.month == 10 and today.day == 10:
+                    return True
+                elif today.month == 1 and today.day == 1:
+                    return True
+                return False
+    except Exception as e:
+        log.debug(e)
     return False
 
 
