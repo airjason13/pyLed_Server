@@ -28,6 +28,23 @@ def neo_ffmpy_execute(video_path, brightness, contrast, red_bias, green_bias, bl
     os.popen("pkill -f h264_v4l2m2m")
     os.popen("pkill -f h264_v4l2m2m")
     sleep(1)
+    got_audio = False
+    check_audio = ""
+    if 'mp4' in video_path:
+        check_audio = os.popen("ffprobe -hide_banner {}".format(video_path)).read()
+    log.debug("check_audio : %s",check_audio)
+    check_audio = "Test Audio"
+    if "Audio" in check_audio:
+        got_audio = True
+
+    if got_audio is True:
+        if platform.machine() in ('arm', 'arm64', 'aarch64'):
+            audio_sink = 'hw:1,0'
+        else:
+            audio_sink = 'hw:0,0'
+    else:
+        audio_sink = None
+
     global_opts = '-hide_banner -loglevel error'
     if width % 64 != 0:
         width_multiple_factor = int(width/64) + 1
@@ -119,7 +136,8 @@ def neo_ffmpy_execute(video_path, brightness, contrast, red_bias, green_bias, bl
                 },
                 outputs={
                     udp_sink: ["-vcodec", video_encoder, '-filter_complex', filter_params, "-b:v", "2000k",
-                               "-r", target_fps, "-f", "h264", "-pix_fmt", "yuv420p", "-localaddr", localaddr]
+                               "-r", target_fps, "-f", "h264", "-pix_fmt", "yuv420p", "-localaddr", localaddr],
+                    audio_sink: ["-f", "alsa"]
                 },
             )
         elif video_path.endswith("jpeg") or video_path.endswith("jpg") or video_path.endswith("png"):

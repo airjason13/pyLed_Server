@@ -1,5 +1,6 @@
 # coding=UTF-8
 import os
+import shutil
 from time import sleep
 import qthreads.c_alive_report_thread
 
@@ -56,7 +57,15 @@ class MainUi(QMainWindow):
         super().__init__()
         pg.setConfigOptions(antialias=True)
 
+        os.popen("kill -9 $(pgrep -f arecord)")
+        os.popen("kill -9 $(pgrep -f aplay)")
+        os.popen("pkill -f ffmpeg")
+        
         if platform.machine() in ('arm', 'arm64', 'aarch64'):
+            if os.path.exists("/usr/bin/play_hdmi_in_audio.sh") is False:
+                shutil.copy(root_dir + "/external_script/play_hdmi_in_audio.sh", "/usr/bin")
+                os.popen("sync")
+
             #keep the screen on for cms
             keep_screen_alive = os.popen("xset s off -dpms")
             keep_screen_alive.close()
@@ -66,8 +75,8 @@ class MainUi(QMainWindow):
             pulseaudio_with_root.close()
 
             # export DISPLAY
-            export_display = os.popen("pulseaudio -D")
-            export_display.close()
+            # export_display = os.popen("export DISPLAY=:0")
+            # export_display.close()
 
         self.center()
         self.setWindowOpacity(1.0)  # 窗口透明度

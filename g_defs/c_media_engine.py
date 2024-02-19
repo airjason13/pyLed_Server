@@ -1024,7 +1024,7 @@ class media_processor(QObject):
                                               self.media_processor.output_height)
 
                 self.media_processor.ffmpy_process = subprocess.Popen(ffmpeg_cmd, shell=True)
-
+                self.media_processor.hdmi_in_audio_process = subprocess.Popen("play_hdmi_in_audio.sh", shell=True)
                 if self.media_processor.ffmpy_process is None:
                     continue
 
@@ -1059,6 +1059,8 @@ class media_processor(QObject):
                             pass
 
                 if self.force_stop is True:
+                    os.popen("kill -9 $(pgrep -f arecord)")
+                    os.popen("kill -9 $(pgrep -f aplay)")
                     break
             log.debug("play hdmi-in ready to quit")
 

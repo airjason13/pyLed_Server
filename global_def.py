@@ -6,7 +6,7 @@ import utils.log_utils
 log = utils.log_utils.logging_init(__file__)
 
 """Software version"""
-version = "LS240109001"
+version = "LS240219001"
 
 X86_ETH_INTERFACE = 'enp55s0'
 
