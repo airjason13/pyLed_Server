@@ -60,7 +60,7 @@ class MainUi(QMainWindow):
         os.popen("kill -9 $(pgrep -f arecord)")
         os.popen("kill -9 $(pgrep -f aplay)")
         os.popen("pkill -f ffmpeg")
-        
+
         if platform.machine() in ('arm', 'arm64', 'aarch64'):
             if os.path.exists("/usr/bin/play_hdmi_in_audio.sh") is False:
                 shutil.copy(root_dir + "/external_script/play_hdmi_in_audio.sh", "/usr/bin")

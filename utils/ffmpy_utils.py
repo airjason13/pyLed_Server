@@ -217,23 +217,6 @@ def neo_ffmpy_execute(video_path, brightness, contrast, red_bias, green_bias, bl
             ff.cmd += " -acodec ac3 -f ac3 - | ffplay -vn -probesize 64 -"'''
     log.debug("%s", ff.cmd)
     return ff.cmd
-    try:
-        # thread_1 = threading.Thread(target=ff.run)
-        # thread_1.start()
-        # ff.process = os.popen(ff.cmd)
-        process = subprocess.Popen(ff.cmd, shell=True, close_fds=True)
-        # while not ff.process:
-        # while not process:
-        #    sleep(0.05)
-        #ff.run()
-    except RuntimeError as e:
-        log.error(e)
-
-    # log.debug("ff.process : %s", ff.process)
-    # log.debug("ff.process pid : %d", ff.process.pid)
-    
-    # return ff.process
-    return process
 
 
 ''' depreciated, not used now'''
@@ -333,7 +316,8 @@ def neo_ffmpy_cast_video_v4l2(video_path, cast_dst, brightness, contrast, red_bi
     ff = ffmpy.FFmpeg(
         global_options=global_opts,
         inputs={
-            video_path: ["-f", "v4l2", "-vsync", "2"]
+            # video_path: ["-f", "v4l2", "-vsync", "2"]
+            video_path: ["-f", "v4l2", "-r", "24"]
         },
         outputs=output,
     )
@@ -413,25 +397,6 @@ def neo_ffmpy_cast_video_h264(video_path, cast_dst, brightness, contrast, red_bi
     log.debug("%s", ff.cmd)
     return ff.cmd
 
-    '''try:
-        thread_1 = threading.Thread(target=ff.run)
-        thread_1.start()
-        while not ff.process:
-            sleep(0.05)
-    except RuntimeError as e:
-        log.error(e)
-
-    #log.debug("ff.process : %s", ff.process)
-    #log.debug("ff.process pid : %d", ff.process.pid)
-    try:
-        os.kill(ff.process.pid, 0)
-    except:
-        log.debug("ffmpy_hdmi_in_cast_process is gone")
-        ff.process = None
-    else:
-        pass
-        #log.debug("ffmpy_hdmi_in_cast_process is alive")
-    return ff.process'''
 
 def neo_ffmpy_cast_cms(video_path, cast_dst, window_width, window_height, window_x, window_y,
                        brightness, contrast, red_bias, green_bias, blue_bias, width=80, height=96):
