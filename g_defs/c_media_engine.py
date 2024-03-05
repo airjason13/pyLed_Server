@@ -311,6 +311,9 @@ class media_processor(QObject):
         self.play_mutex.lock()
         if True: #self.play_status != play_status.stop:
             try:
+                os.popen("pkill -f play_hdmi_in_audio.sh")
+                os.popen("pkill -f arecord")
+                os.popen("pkill -f aplay")
 
                 if self.play_single_file_worker is not None:
                     # self.play_single_file_thread.quit()
@@ -1059,8 +1062,9 @@ class media_processor(QObject):
                             pass
 
                 if self.force_stop is True:
-                    os.popen("kill -9 $(pgrep -f arecord)")
-                    os.popen("kill -9 $(pgrep -f aplay)")
+                    os.popen("pkill -f play_hdmi_in_audio.sh")
+                    os.popen("pkill -f arecord")
+                    os.popen("pkill -f aplay")
                     break
             log.debug("play hdmi-in ready to quit")
 

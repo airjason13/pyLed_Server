@@ -359,6 +359,15 @@ class MainUi(QMainWindow):
 
         self.cms_page.start_play_cms()
 
+    def check_num_of_clients_for_hdmi_in(self):
+        while True:
+            log.debug("check client!")
+            log.debug("client num : %d", len(self.clients))
+            if len(self.clients) == total_num_of_clients:
+                break
+            time.sleep(6)
+
+        self.hdmi_in_page.start_send_to_led()
 
     def demo_start_cms(self):
         self.func_cms_setting()
@@ -380,7 +389,9 @@ class MainUi(QMainWindow):
         log.debug("timer trigger demo_start play_hdmi_in")
         self.func_hdmi_in_contents()
         log.debug("demo_start play_hdmi_in")
-        self.hdmi_in_page.start_send_to_led()
+        thread_check_client = threading.Thread(target=self.check_num_of_clients_for_hdmi_in, args=( ))
+        thread_check_client.start()
+        # self.hdmi_in_page.start_send_to_led()
 
     def demo_start_play_single(self):
         self.func_file_contents()

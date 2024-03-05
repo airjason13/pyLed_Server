@@ -122,10 +122,6 @@ def neo_ffmpy_execute(video_path, brightness, contrast, red_bias, green_bias, bl
     video_encoder = "libx264"
 
     if platform.machine() in ('arm', 'arm64', 'aarch64'):
-        '''if width > 640 and height > 480:
-            video_encoder = "h264_v4l2m2m"
-        else:
-            video_encoder = "libx264"'''
         video_encoder = "h264_v4l2m2m"
         if video_path.endswith("mp4"):
             ff = ffmpy.FFmpeg(

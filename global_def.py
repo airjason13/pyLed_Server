@@ -6,7 +6,7 @@ import utils.log_utils
 log = utils.log_utils.logging_init(__file__)
 
 """Software version"""
-version = "LS240220001"
+version = "LS240305001"
 
 X86_ETH_INTERFACE = 'enp55s0'
 
@@ -187,8 +187,8 @@ qfont_style_size_medium = 18
 
 web_cmd_interval = 3
 
-'''for cms, waiting all clinet connected to trigger cms'''
-total_num_of_clients = 12
+'''for cms, waiting all clinet connected to trigger default launch type'''
+total_num_of_clients = 2
 
 fps_30="30/1"
 fps_25="25/1"
