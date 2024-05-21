@@ -9,8 +9,6 @@ import utils.log_utils
 import qdarkstyle, requests, sys, time, random, json, datetime, re
 
 
-
-
 class NewPlaylistDialog(QWidget):
     signal_new_playlist_generate = pyqtSignal(str)
 

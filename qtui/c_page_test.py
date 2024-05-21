@@ -23,6 +23,7 @@ import hashlib
 
 from global_def import *
 
+
 class TestPage(QObject):
 	def __init__(self, mainwindow, **kwargs):
 		super(TestPage, self).__init__(**kwargs)

@@ -323,6 +323,7 @@ class media_page(QObject):
         self.combobox_target_city.setCurrentIndex(
             self.mainwindow.media_engine.media_processor.video_params.target_city_index
         )
+
         self.combobox_target_city.currentIndexChanged.connect(self.combobox_target_city_changed)
 
         # client brightness adjust

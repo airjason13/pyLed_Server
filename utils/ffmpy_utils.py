@@ -33,7 +33,7 @@ def neo_ffmpy_execute(video_path, brightness, contrast, red_bias, green_bias, bl
     if 'mp4' in video_path:
         check_audio = os.popen("ffprobe -hide_banner {}".format(video_path)).read()
     log.debug("check_audio : %s",check_audio)
-    check_audio = "Test Audio"
+    # check_audio = "Test Audio"
     if "Audio" in check_audio:
         got_audio = True
 
