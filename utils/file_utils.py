@@ -181,7 +181,7 @@ def init_reboot_params():
     time = "04:30"
     reboot_time_params = "reboot_time=" + time + "\n"
     content_lines = [
-        "reboot_mode_enable=1\n",
+        "reboot_mode_enable=0\n",
         reboot_time_params,
     ]
     root_dir = os.path.dirname(sys.modules['__main__'].__file__)
@@ -235,7 +235,7 @@ def set_reboot_params(mode, time):
     reboot_time_params = "reboot_time=" + time + "\n"
     if mode is True:
         content_lines = [
-            "reboot_mode_enable=1\n",
+            "reboot_mode_enable=0\n",
             reboot_time_params,
         ]
     else:

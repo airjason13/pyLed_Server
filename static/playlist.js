@@ -1,1 +1,1 @@
-var jsonstr = {"k.playlist": {"Kokain.mp4": "d6f5de6ea0e5d55cbea8170f05e41de5.webp", "mustang.jpeg": "bee783ee2974595487357e195ef38ca2.webp"}}
+var jsonstr = {}
