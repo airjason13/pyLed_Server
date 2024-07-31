@@ -42,6 +42,17 @@ class media_page(QObject):
         self.right_clicked_select_file_uri = None
         self.NewPlaylistDialog = None
 
+        self.internal_media_root = QTreeWidgetItem(self.file_tree)
+
+        self.internal_media_root.setText(0, "Internal Media")
+        for f in self.mainwindow.media_engine.internal_medialist.filelist:
+            internal_file_item = QTreeWidgetItem()
+            internal_file_item.setText(0, os.path.basename(f))
+            # utils.ffmpy_utils.gen_webp_from_video(internal_media_folder, os.path.basename(f))  # need to remove later
+            utils.ffmpy_utils.gen_webp_from_video_threading(internal_media_folder, os.path.basename(f))
+            self.internal_media_root.addChild(internal_file_item)
+
+
         self.btn_play_select_file = None
         self.btn_play_playlist = None
         self.btn_stop = None
