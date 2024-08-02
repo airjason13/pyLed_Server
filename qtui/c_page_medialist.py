@@ -2,8 +2,8 @@ from PyQt5 import QtWidgets
 from PyQt5.QtCore import QObject, Qt
 from PyQt5.QtGui import QPalette, QColor, QBrush, QFont
 from PyQt5.QtWidgets import QTreeWidget, QTableWidget, QWidget, QVBoxLayout, QTableWidgetItem, QAbstractItemView, \
-                            QTreeWidgetItem, QPushButton, QHBoxLayout, QMenu, QAction, QGroupBox, QVBoxLayout, \
-                            QRadioButton, QComboBox
+    QTreeWidgetItem, QPushButton, QHBoxLayout, QMenu, QAction, QGroupBox, QVBoxLayout, \
+    QRadioButton, QComboBox
 from g_defs.c_TreeWidgetItemSP import CTreeWidget
 import os
 from global_def import *
@@ -52,6 +52,83 @@ class media_page(QObject):
             utils.ffmpy_utils.gen_webp_from_video_threading(internal_media_folder, os.path.basename(f))
             self.internal_media_root.addChild(internal_file_item)
 
+
+        self.btn_play_select_file = None
+        self.btn_play_playlist = None
+        self.btn_stop = None
+        self.btn_pause = None
+        self.btn_repeat = None
+        self.play_option_widget = None
+        self.brightness_label = None
+        self.brightness_edit = None
+        self.contrast_label = None
+        self.contrast_edit = None
+        self.image_period_label = None
+        self.image_period_edit = None
+        self.redgain_label = None
+        self.redgain_edit = None
+        self.greengain_label = None
+        self.greengain_edit = None
+        self.blugain_label = None
+        self.bluegain_edit = None
+
+        # client brightness mode adjust
+        self.groupbox_client_brightness_method = None
+        self.groupbox_led_role_vboxlayout = None
+        self.radiobutton_client_br_method_fix = None
+        self.radiobutton_client_br_method_time = None
+        self.radiobutton_client_br_method_als = None
+        self.radiobutton_client_br_method_test = None
+
+        self.internal_media_root = None
+
+        self.combobox_target_city = None
+        self.groupbox_sleep_mode = None
+        self.groupbox_sleep_mode_vboxlayout = None
+        self.radiobutton_sleep_mode_enable = None
+
+        self.client_brightness_label = None
+        self.client_brightness_edit = None
+        self.client_day_mode_brightness_label = None
+        self.client_day_mode_brightness_edit = None
+        self.client_night_mode_brightness_label = None
+        self.client_night_mode_brightness_edit = None
+        self.client_sleep_mode_brightness_label = None
+        self.client_sleep_mode_brightness_edit = None
+        self.client_br_divisor_label = None
+        self.client_br_divisor_edit = None
+        self.client_contrast_label = None
+        self.client_contrast_edit = None
+        self.client_gamma_label = None
+        self.client_gamma_edit = None
+        self.video_params_widget = None
+
+        self.video_params_confirm_btn = None
+        self.video_params_pinch_btn = None
+        self.video_params_crop_x_label = None
+        self.radiobutton_sleep_mode_disable = None
+        self.video_params_crop_x_edit = None
+        self.video_params_crop_y_label = None
+        self.video_params_crop_y_edit = None
+        self.video_params_crop_w_label = None
+        self.video_params_crop_w_edit = None
+        self.video_params_crop_h_label = None
+        self.video_params_crop_h_edit = None
+        self.video_params_crop_enable = None
+        self.video_params_crop_disable = None
+        self.client_icled_type_label = None
+        self.client_icled_type_combobox = None
+        self.clent_icled_red_current_gain_label = None
+        self.client_icled_red_current_gain_edit = None
+        self.clent_icled_green_current_gain_label = None
+        self.client_icled_green_current_gain_edit = None
+        self.clent_icled_blue_current_gain_label = None
+        self.client_icled_blue_current_gain_edit = None
+        self.client_icled_type_check_btn = None
+        self.client_icled_cgain_check_btn = None
+        self.max_brightness_label = None
+        self.right_clicked_pos = None
+
         self.file_tree.addTopLevelItem(self.internal_media_root)
 
         # Add External Media Folder in tree root
@@ -80,7 +157,7 @@ class media_page(QObject):
             playlist_root = QTreeWidgetItem(self.qtw_media_play_list)
             playlist_root.setText(0, playlist.name)
             for file_name in playlist.fileslist:
-                #log.debug("playlist.fileslist :%s", file_name)
+                # log.debug("playlist.fileslist :%s", file_name)
                 file_name_item = QTreeWidgetItem(playlist_root)
                 file_name_item.setText(0, os.path.basename(file_name))
                 playlist_root.addChild(file_name_item)
@@ -137,12 +214,10 @@ class media_page(QObject):
             playlist_root = QTreeWidgetItem(self.qtw_media_play_list)
             playlist_root.setText(0, playlist.name)
             for file_name in playlist.fileslist:
-                #log.debug("playlist.fileslist :%s", file_name)
+                # log.debug("playlist.fileslist :%s", file_name)
                 file_name_item = QTreeWidgetItem(playlist_root)
                 file_name_item.setText(0, os.path.basename(file_name))
                 playlist_root.addChild(file_name_item)
-
-
 
     def play_option_init(self):
         """play singal file btn"""
@@ -252,7 +327,7 @@ class media_page(QObject):
         self.bluegain_edit.setFixedWidth(100)
         self.bluegain_edit.setText(str(self.mainwindow.media_engine.media_processor.video_params.video_blue_bias))
 
-        #client brightness mode adjust
+        # client brightness mode adjust
         self.groupbox_client_brightness_method = QGroupBox("Client Brightness Method")
         # self.groupbox_client_brightness_method.setFont(QFont(qfont_style_default, qfont_style_size_medium))
         self.groupbox_led_role_vboxlayout = QHBoxLayout()
@@ -402,7 +477,7 @@ class media_page(QObject):
         self.video_params_pinch_btn.setFixedWidth(150)
         self.video_params_pinch_btn.clicked.connect(self.video_params_pinch_btn_clicked)
 
-        #crop params
+        # crop params
         self.video_params_crop_x_label = QLabel(self.mainwindow.right_frame)
         self.video_params_crop_x_label.setText("Crop_Start_X:")
         self.video_params_crop_x_label.setFont(QFont(qfont_style_default, qfont_style_size_medium))
@@ -459,12 +534,14 @@ class media_page(QObject):
             self.client_icled_type_label.setFixedWidth(160)
 
             self.client_icled_type_combobox = QComboBox(self.mainwindow.right_frame)
-            self.client_icled_type_combobox.addItems([ICLED_TYPE_AOS, ICLED_TYPE_ANAPEX])
+            self.client_icled_type_combobox.addItems([ICLED_TYPE_AOS, ICLED_TYPE_ANAPEXL, ICLED_TYPE_ANAPEXM])
             icled_type = utils.file_utils.get_led_type_config()
             if ICLED_TYPE_AOS in icled_type:
                 self.client_icled_type_combobox.setCurrentText(ICLED_TYPE_AOS)
+            elif ICLED_TYPE_ANAPEXL in icled_type:
+                self.client_icled_type_combobox.setCurrentText(ICLED_TYPE_ANAPEXL)
             else:
-                self.client_icled_type_combobox.setCurrentText(ICLED_TYPE_ANAPEX)
+                self.client_icled_type_combobox.setCurrentText(ICLED_TYPE_ANAPEXM)
             self.client_icled_type_combobox.setFont(QFont(qfont_style_default, qfont_style_size_medium))
             self.client_icled_type_combobox.setFixedWidth(320)
 
@@ -542,8 +619,7 @@ class media_page(QObject):
         video_params_layout.addWidget(self.client_contrast_label, 14, 0)
         video_params_layout.addWidget(self.client_contrast_edit, 14, 1)
 
-
-        #crop
+        # crop
         video_params_layout.addWidget(self.video_params_crop_x_label, 15, 0)
         video_params_layout.addWidget(self.video_params_crop_x_edit, 15, 1)
         video_params_layout.addWidget(self.video_params_crop_y_label, 15, 2)
@@ -573,8 +649,9 @@ class media_page(QObject):
 
         if self.mainwindow.engineer_mode is True:
             self.max_brightness_label = QLabel(self.mainwindow.right_frame)
-            self.max_brightness_label.setText( "Max Frame Brightness Value is " +
-                str((256*int(self.client_brightness_edit.text()))/(int(self.client_br_divisor_edit.text())*100)))
+            self.max_brightness_label.setText("Max Frame Brightness Value is " +
+                                              str((256 * int(self.client_brightness_edit.text())) / (
+                                                          int(self.client_br_divisor_edit.text()) * 100)))
             video_params_layout.addWidget(self.max_brightness_label, 4, 0, 1, 5)
 
     def combobox_target_city_changed(self, index):
@@ -705,6 +782,7 @@ class media_page(QObject):
         pop_menu.exec_(pos)
 
     '''處理playlist'''
+
     def show_playlist_pop_menu(self, pos):
         pop_menu = QMenu()
         set_qstyle_dark(pop_menu)
@@ -771,9 +849,11 @@ class media_page(QObject):
             file_ui = self.right_clicked_select_file_uri.replace(" ", "\ ")
             if os.path.exists(self.right_clicked_select_file_uri) is True:
                 os.remove(self.right_clicked_select_file_uri)
-            log.debug("self.right_clicked_select_file_uri.split(internal_media_folder)[1] = %s", self.right_clicked_select_file_uri.split(internal_media_folder +"/")[1]);
+            log.debug("self.right_clicked_select_file_uri.split(internal_media_folder)[1] = %s",
+                      self.right_clicked_select_file_uri.split(internal_media_folder + "/")[1]);
             thumbnail_file_name = hashlib.md5(
-                self.right_clicked_select_file_uri.split(internal_media_folder + "/")[1].split(".")[0].encode('utf-8')).hexdigest() + ".webp"
+                self.right_clicked_select_file_uri.split(internal_media_folder + "/")[1].split(".")[0].encode(
+                    'utf-8')).hexdigest() + ".webp"
 
             thumbnail_file = internal_media_folder + ThumbnailFileFolder + thumbnail_file_name
             log.debug("thumbnail_file = %s", thumbnail_file)
@@ -816,7 +896,7 @@ class media_page(QObject):
                 log.debug("c.client_ip = %s", c.client_ip)
                 c.send_cmd(cmd_set_frame_brightness,
                            self.mainwindow.cmd_seq_id_increase(),
-                            str(video_params.frame_brightness))
+                           str(video_params.frame_brightness))
 
         #day mode brightness
         if video_params.day_mode_frame_brightness != int(self.client_day_mode_brightness_edit.text()):
@@ -867,7 +947,7 @@ class media_page(QObject):
                 log.debug("c.client_ip = %s", c.client_ip)
                 c.send_cmd(cmd_set_pixel_interval,
                            self.mainwindow.cmd_seq_id_increase(),
-                            str(1))
+                           str(1))
         else:
             self.video_params_pinch_btn.setText("P5")
             for c in clients:
@@ -894,11 +974,11 @@ class media_page(QObject):
 
         if self.media_engine.media_processor.ffmpy_process is not None:
             utils.ffmpy_utils.ffmpy_crop_enable(self.video_params_crop_x_edit.text(),
-                                         self.video_params_crop_y_edit.text(),
-                                         self.video_params_crop_w_edit.text(),
-                                         self.video_params_crop_h_edit.text(),
-                                         self.mainwindow.led_wall_width,
-                                         self.mainwindow.led_wall_height)
+                                                self.video_params_crop_y_edit.text(),
+                                                self.video_params_crop_w_edit.text(),
+                                                self.video_params_crop_h_edit.text(),
+                                                self.mainwindow.led_wall_width,
+                                                self.mainwindow.led_wall_height)
 
     def video_crop_disable(self):
         log.debug("crop_disable")
@@ -914,14 +994,14 @@ class media_page(QObject):
 
         if self.media_engine.media_processor.ffmpy_process is not None:
             utils.ffmpy_utils.ffmpy_crop_disable(self.mainwindow.led_wall_width,
-                                        self.mainwindow.led_wall_height)
+                                                 self.mainwindow.led_wall_height)
 
     def refresh_max_brightness_label(self):
         if self.mainwindow.engineer_mode is False:
             return
         self.max_brightness_label.setText("Max Frame Brightness Value is " +
                                           str((256 * int(self.client_brightness_edit.text())) / (
-                                                      int(self.client_br_divisor_edit.text()) * 100)))
+                                                  int(self.client_br_divisor_edit.text()) * 100)))
 
     def client_set_icled_type(self):
         root_dir = os.path.dirname(sys.modules['__main__'].__file__)
@@ -943,8 +1023,8 @@ class media_page(QObject):
             log.debug("c.client_ip = %s", c.client_ip)
             if 'G3' in c.client_version:
                 c.send_cmd(cmd_set_icled_type,
-                        self.mainwindow.cmd_seq_id_increase(),
-                        self.mainwindow.icled_type)
+                           self.mainwindow.cmd_seq_id_increase(),
+                           self.mainwindow.icled_type)
 
     def client_set_icled_current_gain(self):
         root_dir = os.path.dirname(sys.modules['__main__'].__file__)
@@ -975,5 +1055,5 @@ class media_page(QObject):
             if 'G3' in c.client_version:
                 # log.debug("c.client_ip = %s", c.client_ip)
                 c.send_cmd(cmd_set_icled_current_gain,
-                        self.mainwindow.cmd_seq_id_increase(),
-                        self.mainwindow.current_gain_cmd_params)
+                           self.mainwindow.cmd_seq_id_increase(),
+                           self.mainwindow.current_gain_cmd_params)
