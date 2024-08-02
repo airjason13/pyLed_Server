@@ -735,7 +735,9 @@ class MainUi(QMainWindow):
             self.medialist_page.play_option_repeat = repeat_option.repeat_none
             self.media_engine.resume_play()
             self.media_engine.stop_play()
-            self.hdmi_in_page.start_hdmi_in_preview()
+            channel = self.hdmi_in_page.get_hdmi_channel()
+            device = self.hdmi_in_page.get_video_device(channel)
+            self.hdmi_in_page.start_hdmi_in_preview(device, channel)
         if pre_idx == page_hdmi_in_content_idx and going_idx != page_hdmi_in_content_idx:
             self.medialist_page.play_option_repeat = repeat_option.repeat_one
             log.debug("stop hdmi-in preview")

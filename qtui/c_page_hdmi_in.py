@@ -4,8 +4,8 @@ from PyQt5 import QtWidgets
 from PyQt5.QtCore import QObject, Qt, QThread, QMutex, QTimer
 from PyQt5.QtGui import QPalette, QColor, QBrush, QFont, QImage
 from PyQt5.QtWidgets import QTreeWidget, QTableWidget, QWidget, QVBoxLayout, QTableWidgetItem, QAbstractItemView, \
-                            QTreeWidgetItem, QPushButton, QHBoxLayout, QMenu, QAction, QRadioButton,\
-                            QGroupBox, QComboBox
+    QTreeWidgetItem, QPushButton, QHBoxLayout, QMenu, QAction, QRadioButton, \
+    QGroupBox, QComboBox
 from g_defs.c_TreeWidgetItemSP import CTreeWidget
 import os
 from global_def import *
@@ -17,6 +17,7 @@ import utils.ffmpy_utils
 from g_defs.c_cv2_camera import CV2Camera
 import signal
 from g_defs.c_tc358743 import TC358743
+from g_defs.c_usb_video import VideoCaptureCard
 from str_define import *
 from subprocess import PIPE, Popen
 import hashlib
@@ -40,6 +41,8 @@ class Hdmi_In_Page(QObject):
 
         self.play_hdmi_in_keep = False
         self.b_hdmi_in_crop_enable = False
+        self.last_hdmi_ch_switch = 0
+        self.trigger_hdmi_ch_switch = False
 
         Popen("v4l2-ctl -d /dev/video3 -c timeout=600", shell=True, stdout=PIPE)
         Popen("v4l2-ctl -d /dev/video4 -c timeout=600", shell=True, stdout=PIPE)
@@ -146,7 +149,6 @@ class Hdmi_In_Page(QObject):
         self.hdmi_in_crop_status_h_res_label.setText("NA")
         self.hdmi_in_crop_status_h_res_label.setFont(QFont(qfont_style_default, qfont_style_size_medium))
 
-
         self.info_widget_layout.addWidget(self.hdmi_in_info_width_label, 0, 0)
         self.info_widget_layout.addWidget(self.hdmi_in_info_width_res_label, 0, 1)
         self.info_widget_layout.addWidget(self.hdmi_in_info_height_label, 0, 2)
@@ -164,7 +166,6 @@ class Hdmi_In_Page(QObject):
         self.info_widget_layout.addWidget(self.hdmi_in_crop_status_w_res_label, 2, 3)
         self.info_widget_layout.addWidget(self.hdmi_in_crop_status_h_label, 2, 4)
         self.info_widget_layout.addWidget(self.hdmi_in_crop_status_h_res_label, 2, 5)
-
 
         # crop setting of hdmi in
         self.crop_setting_widget = QWidget(self.hdmi_in_widget)
@@ -254,6 +255,30 @@ class Hdmi_In_Page(QObject):
         self.contrast_edit.setFixedWidth(100)
         self.contrast_edit.setText(str(self.mainwindow.media_engine.media_processor.video_params.video_contrast))
         self.contrast_edit.setFont(QFont(qfont_style_default, qfont_style_size_medium))
+
+        # hdmi_ch_switch
+        self.groupbox_hdmi_channel_switch = QGroupBox("HDMI Channel Switch")
+        self.groupbox_hdmi_channel_vboxlayout = QHBoxLayout()
+        self.groupbox_hdmi_channel_switch.setLayout(self.groupbox_hdmi_channel_vboxlayout)
+
+        self.radiobutton_hdmi_channel_csi = QRadioButton("CSI")
+        self.radiobutton_hdmi_channel_usb = QRadioButton("USB")
+
+        self.radiobutton_hdmi_channel_csi.setFont(QFont(qfont_style_default, qfont_style_size_medium))
+        self.radiobutton_hdmi_channel_usb.setFont(QFont(qfont_style_default, qfont_style_size_medium))
+
+        self.groupbox_hdmi_channel_vboxlayout.addWidget(self.radiobutton_hdmi_channel_csi)
+        self.groupbox_hdmi_channel_vboxlayout.addWidget(self.radiobutton_hdmi_channel_usb)
+
+        self.radiobutton_hdmi_channel_csi.clicked.connect(self.on_hdmi_channel_csi_selected)
+        self.radiobutton_hdmi_channel_usb.clicked.connect(self.on_hdmi_channel_usb_selected)
+
+        hdmi_channel = self.get_hdmi_channel()
+        if hdmi_channel == hdmi_ch_switch_option.hdmi_csi.value:
+            self.radiobutton_hdmi_channel_csi.setChecked(True)
+        elif hdmi_channel == hdmi_ch_switch_option.hdmi_usb.value:
+            self.radiobutton_hdmi_channel_usb.setChecked(True)
+        self.last_hdmi_ch_switch = hdmi_channel
 
         # red gain
         self.redgain_label = QLabel(self.setting_widget)
@@ -448,8 +473,7 @@ class Hdmi_In_Page(QObject):
         self.setting_widget_layout.addWidget(self.groupbox_client_brightness_method, 4, 0, 2, 4)
         self.setting_widget_layout.addWidget(self.groupbox_sleep_mode, 7, 0, 2, 2)
         self.setting_widget_layout.addWidget(self.combobox_target_city, 7, 2, 0, 2)
-
-
+        self.setting_widget_layout.addWidget(self.groupbox_hdmi_channel_switch, 7, 4, 2, 2)
 
         self.setting_widget_layout.addWidget(self.client_day_mode_brightness_label, 9, 0)
         self.setting_widget_layout.addWidget(self.client_day_mode_brightness_edit, 9, 1)
@@ -489,13 +513,14 @@ class Hdmi_In_Page(QObject):
             log.debug(e)
 
         self.tc358743 = TC358743()
-        self.tc358743.signal_refresh_tc358743_param.connect(self.refresh_tc358743_param)
+        self.tc358743.signal_refresh_tc358743_param.connect(self.refresh_hdmi_param)
         self.tc358743.get_tc358743_dv_timing()
+
+        self.VideoCaptrueCard = VideoCaptureCard()
         self.media_engine.media_processor.signal_play_hdmi_in_start_ret.connect(
             self.play_hdmi_in_start_ret)
         self.media_engine.media_processor.signal_play_hdmi_in_finish_ret.connect(
             self.play_hdmi_in_finish_ret)
-
 
     def combobox_target_city_changed(self, index):
         log.debug("index = %d", index)
@@ -523,6 +548,7 @@ class Hdmi_In_Page(QObject):
         self.radiobutton_sleep_mode_enable.click()
 
     def check_tc358743_timer_event(self):
+
         # log.debug("enter check_tc358743_timer")
         self.preview_mutex.lock()
         if self.mainwindow.page_idx != page_hdmi_in_content_idx:
@@ -532,25 +558,39 @@ class Hdmi_In_Page(QObject):
         tmp_preview_status = self.preview_status
         self.preview_mutex.unlock()
         # log.debug("****tmp_preview_status : %d*********", tmp_preview_status)
+        channel = self.get_hdmi_channel()
+        device = self.get_video_device(channel)
+
         try:
-            if self.tc358743.get_tc358743_hdmi_connected_status() is True:
+            if self.trigger_hdmi_ch_switch:
+                if self.play_hdmi_in_keep is True:
+                    self.stop_hdmi_in_streaming()
+                self.refresh_hdmi_param(False, 0, 0, 0)
+                self.preview_label.setText("HDMI-in Channel Change")
+                self.trigger_hdmi_ch_switch = False
+
+            if self.get_hdmi_connected_status(channel):
+
                 if tmp_preview_status is False:
                     log.debug("re-init the preview")
-                    #if self.tc358743.set_tc358743_dv_bt_timing() is True:
+                    # if self.tc358743.set_tc358743_dv_bt_timing() is True:
                     #    self.tc358743.reinit_tc358743_dv_timing()
-                    self.start_hdmi_in_preview()
+                    self.start_hdmi_in_preview(device, channel)
 
                     if self.play_hdmi_in_keep is True:
                         self.start_hdmi_in_streaming()
                         log.debug("start_hdmi_in end")
             else:
-                log.debug("lost connect, play_hdmi_in_status : %d", self.play_hdmi_in_status)
+                log.debug("self.tc358743.set_tc358743_dv_bt_timing() ---> %s",
+                          self.tc358743.set_tc358743_dv_bt_timing())
                 if self.play_hdmi_in_keep is True:
                     self.stop_hdmi_in_streaming()
-                if self.tc358743.set_tc358743_dv_bt_timing() is True:
-                    self.tc358743.reinit_tc358743_dv_timing()
-                #self.tc358743.reinit_tc358743_dv_timing()
-                    
+
+                if channel == hdmi_ch_switch_option.hdmi_csi.value:
+                    if self.tc358743.set_tc358743_dv_bt_timing() is True:
+                        self.tc358743.reinit_tc358743_dv_timing()
+                    # self.tc358743.reinit_tc358743_dv_timing()
+
                 self.stop_hdmi_in_preview()
                 self.preview_label.setText("HDMI-in Signal Lost")
                 pass
@@ -558,7 +598,7 @@ class Hdmi_In_Page(QObject):
             log.debug(e)
         # log.debug("exit check_tc358743_timer")
 
-    def start_hdmi_in_preview(self):
+    def start_hdmi_in_preview(self, device, channel):
         self.preview_mutex.lock()
         if self.preview_status is True:
             log.debug("self.preview_status is True")
@@ -586,19 +626,24 @@ class Hdmi_In_Page(QObject):
                 k = os.popen("pkill ffmpeg")
                 k.close()
         # add for check again for save @20221013
-        self.tc358743.hdmi_connected = self.tc358743.get_tc358743_hdmi_connected_status()
+        hdmi_connected = self.get_hdmi_connected_status(channel)
 
-        if self.tc358743.hdmi_connected is False:
+        if self.get_video_device(channel) is False:
+            log.debug("Failed to get HDMI video device")
+            pass
+        elif hdmi_connected is False:
             log.debug("hdmi-in lost")
             pass
         else:
-            if self.tc358743.set_tc358743_dv_bt_timing() is True:
-                self.tc358743.reinit_tc358743_dv_timing()
+            if channel == hdmi_ch_switch_option.hdmi_csi.value:
+                if self.tc358743.set_tc358743_dv_bt_timing() is True:
+                    self.tc358743.reinit_tc358743_dv_timing()
+
             if self.ffmpy_hdmi_in_cast_process is None:
                 if self.hdmi_in_cast_type == "v4l2":
-                    self.ffmpy_hdmi_in_cast_process = self.start_hdmi_in_cast_v4l2()
+                    self.ffmpy_hdmi_in_cast_process = self.start_hdmi_in_cast_v4l2(device)
                 else:
-                    self.ffmpy_hdmi_in_cast_process = self.start_hdmi_in_cast_h264()
+                    self.ffmpy_hdmi_in_cast_process = self.start_hdmi_in_cast_h264(device)
 
             if self.ffmpy_hdmi_in_cast_process is not None:
                 preview_videosink_check_count = 0
@@ -685,10 +730,11 @@ class Hdmi_In_Page(QObject):
         ### 將 Qimage 物件設置到 viewData 上
         self.preview_label.setPixmap(QPixmap.fromImage(qimg))
 
-    def start_hdmi_in_cast_h264(self):
+    def start_hdmi_in_cast_h264(self, device_video):
+
         hdmi_in_cast_out = ["udp://127.0.0.1:10011"]
 
-        ffmpy_hdmi_in_cast_process = self.media_engine.start_hdmi_in_h264("/dev/video0", hdmi_in_cast_out)
+        ffmpy_hdmi_in_cast_process = self.media_engine.start_hdmi_in_h264(device_video, hdmi_in_cast_out)
         if ffmpy_hdmi_in_cast_process is None:
             log.debug("ffmpy_hdmi_in_cast_process is None")
             self.preview_label.setText("Please Check HDMI-in Dongle")
@@ -700,6 +746,7 @@ class Hdmi_In_Page(QObject):
     def select_preview_v4l2_device(self):
         num = self.preview_count % 3
         self.preview_count += 1
+
         if num == 0:
             self.cv2_preview_v4l2_sink = "/dev/video3"
             return ["/dev/video3", "/dev/video6"]
@@ -725,11 +772,12 @@ class Hdmi_In_Page(QObject):
 
         return v4l2_dev_node'''
 
-    def start_hdmi_in_cast_v4l2(self):
+    def start_hdmi_in_cast_v4l2(self, device_video):
+
         # choose a stable v4l2loopback device to be a sink
         hdmi_in_cast_out = self.select_preview_v4l2_device()
+        ffmpy_hdmi_in_cast_process = self.media_engine.start_hdmi_in_v4l2(device_video, hdmi_in_cast_out)
 
-        ffmpy_hdmi_in_cast_process = self.media_engine.start_hdmi_in_v4l2("/dev/video0", hdmi_in_cast_out)
         if ffmpy_hdmi_in_cast_process is None:
             log.debug("ffmpy_hdmi_in_cast_process is None")
             self.preview_label.setText("Please Check HDMI-in Dongle")
@@ -737,7 +785,6 @@ class Hdmi_In_Page(QObject):
             log.debug("ffmpy_hdmi_in_cast_process is alive")
             self.no_signal_count = 0
             self.preview_label.setText("Please Wait for signal")
-            
 
         return ffmpy_hdmi_in_cast_process
 
@@ -835,18 +882,21 @@ class Hdmi_In_Page(QObject):
     def send_to_led_depreciated(self):
         log.debug("")
         if self.media_engine.media_processor.play_single_file_worker is not None:
-            print("before play_single_file_worker.get_task_status() = ", self.media_engine.media_processor.play_single_file_worker.get_task_status())
+            print("before play_single_file_worker.get_task_status() = ",
+                  self.media_engine.media_processor.play_single_file_worker.get_task_status())
             log.debug("play single file stop")
             self.media_engine.resume_play()
             self.media_engine.stop_play()
 
         if self.media_engine.media_processor.play_playlist_worker is not None:
-            print("before play_playlist_worker.get_task_status() = ", self.media_engine.media_processor.play_playlist_worker.get_task_status())
+            print("before play_playlist_worker.get_task_status() = ",
+                  self.media_engine.media_processor.play_playlist_worker.get_task_status())
             log.debug("play playlist stop")
             self.media_engine.resume_play()
             self.media_engine.stop_play()
-        if self.media_engine.media_processor.play_hdmi_in_worker is not None: 
-            print("play_hdmi_in_worker.get_task_status() = ", self.media_engine.media_processor.play_hdmi_in_worker.get_task_status())
+        if self.media_engine.media_processor.play_hdmi_in_worker is not None:
+            print("play_hdmi_in_worker.get_task_status() = ",
+                  self.media_engine.media_processor.play_hdmi_in_worker.get_task_status())
 
         print("ffmpy_process=", self.media_engine.media_processor.ffmpy_process)
         # if self.media_engine.media_processor.ffmpy_process is None:
@@ -891,7 +941,7 @@ class Hdmi_In_Page(QObject):
         log.debug("check /dev/video6 status count : %d", video6_check_count)
         log.debug("max /dev/video6 status count : %d", self.video6_check_count)
         log.debug("v4l2loopback device open count: %d", self.v4l2loopback_dev_open_count)
-        if video_src_ok != 0: # /dev/video6 is not ok!
+        if video_src_ok != 0:  # /dev/video6 is not ok!
             log.fatal("video_src got some problems")
             # log.debug("try to show no signal jpg")
             # self.media_engine.play_single_file("/home/root/Videos/no_signal.jpg")
@@ -968,6 +1018,7 @@ class Hdmi_In_Page(QObject):
         self.hdmi_in_play_status_label.setText("Non-Streaming")
         self.ffmpy_pid_label.setText("ffmpy pid:None")
 
+    """
     # cv2_read_or_open_fail is not used anymore
     def cv2_read_or_open_fail(self):
         # handle re-init tc358743
@@ -998,8 +1049,9 @@ class Hdmi_In_Page(QObject):
                     log.debug("self.ffmpy_hdmi_in_cast_process is None")
             else:
                 log.debug("set_tc358743_dv_bt_timing is False")
+    """
 
-    def refresh_tc358743_param(self, connected, width, height, fps):
+    def refresh_hdmi_param(self, connected, width, height, fps):
         # log.debug("connected = %d", connected)
         media_processor = self.media_engine.media_processor
         video_params = media_processor.video_params
@@ -1066,11 +1118,11 @@ class Hdmi_In_Page(QObject):
         self.hdmi_in_crop_status_h_res_label.setText(self.hdmi_in_crop_h_lineedit.text())
         if self.media_engine.media_processor.play_hdmi_in_worker is not None:
             utils.ffmpy_utils.ffmpy_crop_enable(self.hdmi_in_crop_x_lineedit.text(),
-                                         self.hdmi_in_crop_y_lineedit.text(),
-                                         self.hdmi_in_crop_w_lineedit.text(),
-                                         self.hdmi_in_crop_h_lineedit.text(),
-                                         self.mainwindow.led_wall_width,
-                                         self.mainwindow.led_wall_height)
+                                                self.hdmi_in_crop_y_lineedit.text(),
+                                                self.hdmi_in_crop_w_lineedit.text(),
+                                                self.hdmi_in_crop_h_lineedit.text(),
+                                                self.mainwindow.led_wall_width,
+                                                self.mainwindow.led_wall_height)
 
     def video_crop_disable(self):
         log.debug("crop_disable")
@@ -1100,6 +1152,11 @@ class Hdmi_In_Page(QObject):
     def check_video_src_is_ok(self, video_src):
         res = -1
         cmd = "ffprobe -hide_banner" + " " + video_src
+
+        if video_src is None:
+            log.debug("Video source is None")
+            return res
+
         # ffprobe_res = os.popen(cmd).read()
         p = Popen(cmd, shell=True, stdout=PIPE, stderr=PIPE)
         ffprobe_stdout, ffprobe_stderr = p.communicate()
@@ -1117,6 +1174,46 @@ class Hdmi_In_Page(QObject):
             # log.debug("%s is not ready", video_src)
 
         return res
+
+    def on_hdmi_channel_csi_selected(self):
+        self.trigger_hdmi_ch_switch = True
+        self.set_hdmi_channel(hdmi_ch_switch_option.hdmi_csi.value)
+
+    def on_hdmi_channel_usb_selected(self):
+        self.trigger_hdmi_ch_switch = True
+        self.set_hdmi_channel(hdmi_ch_switch_option.hdmi_usb.value)
+
+    def set_hdmi_channel(self, channel):
+        if channel != self.last_hdmi_ch_switch:
+            log.debug("HDMI channel set to: %s", channel)
+            if channel == hdmi_ch_switch_option.hdmi_csi.value:
+                self.media_engine.media_processor.video_params.set_hdmi_ch_switch(hdmi_ch_switch_option.hdmi_csi.value)
+            elif channel == hdmi_ch_switch_option.hdmi_usb.value:
+                self.media_engine.media_processor.video_params.set_hdmi_ch_switch(hdmi_ch_switch_option.hdmi_usb.value)
+            self.last_hdmi_ch_switch = channel
+
+    def get_hdmi_channel(self):
+        return self.media_engine.media_processor.video_params.get_hdmi_ch_switch()
+
+    def get_video_device(self, channel):
+        video_device = False
+        if channel == hdmi_ch_switch_option.hdmi_csi.value:
+            video_device = self.tc358743.get_video_device()
+        elif channel == hdmi_ch_switch_option.hdmi_usb.value:
+            video_device = self.VideoCaptrueCard.get_video_device()
+
+        return video_device
+
+    def get_hdmi_connected_status(self, channel):
+        status = False
+        if channel == hdmi_ch_switch_option.hdmi_csi.value:
+            status = self.tc358743.get_tc358743_hdmi_connected_status()
+            self.tc358743.hdmi_connected = status
+        elif channel == hdmi_ch_switch_option.hdmi_usb.value:
+            status = self.VideoCaptrueCard.get_usb_hdmi_connected_status()
+            self.VideoCaptrueCard.hdmi_connected = status
+        return status
+
 
 '''
 class CheckVideoSrcThread(QThread):

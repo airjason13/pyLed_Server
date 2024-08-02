@@ -27,8 +27,8 @@ class video_params(QObject):
             self.video_green_bias = green_bias
             self.video_blue_bias = blue_bias
             self.sleep_mode_enable = 1
-            self.target_city_index = 0 #City_Map[0].get("City")
-
+            self.target_city_index = 0  #City_Map[0].get("City")
+            self.hdmi_ch_switch = default_hdmi_ch_switch
             # control by clients
 
             self.frame_brightness_algorithm = frame_brightness_adjust.auto_time_mode
@@ -53,6 +53,7 @@ class video_params(QObject):
             # still image encode peroid
             self.image_period = still_image_video_period
             log.debug("self.frame_brightness_algorithm :%d", self.frame_brightness_algorithm)
+
     def parse_init_config(self):
         # Using readlines()
         file_uri = self.video_params_file_uri  # internal_media_folder + init_config_file
@@ -60,16 +61,17 @@ class video_params(QObject):
         if os.path.isfile(file_uri) is False:
             log.debug("video_params config file_uri does not exist")
             content_lines = [
-                            "brightness=50\n", "contrast=50\n", "red_bias=0\n", "green_bias=0\n", "blue_bias=0\n",
-                            "sleep_mode_enable=1\n", "target_city_index=0\n",
-                            "frame_brightness_algorithm=0\n",
-                            "frame_brightness=50\n", "day_mode_frame_brightness=50\n",
-                            "night_mode_frame_brightness=30\n", "sleep_mode_frame_brightness=0\n",
-                            "frame_br_divisor=1\n", "frame_contrast=0\n", "frame_gamma=2.2\n",
-                            "image_period=60\n", "crop_start_x=0\n", "crop_start_y=0\n", "crop_w=0\n", "crop_h=0\n",
-                            "hdmi_in_crop_start_x=0\n", "hdmi_in_crop_start_y=0\n",
-                            "hdmi_in_crop_w=0\n", "hdmi_in_crop_h=0\n",
-                             ]
+                "brightness=50\n", "contrast=50\n", "red_bias=0\n", "green_bias=0\n", "blue_bias=0\n",
+                "sleep_mode_enable=1\n", "target_city_index=0\n",
+                "frame_brightness_algorithm=0\n",
+                "frame_brightness=50\n", "day_mode_frame_brightness=50\n",
+                "night_mode_frame_brightness=30\n", "sleep_mode_frame_brightness=0\n",
+                "frame_br_divisor=1\n", "frame_contrast=0\n", "frame_gamma=2.2\n",
+                "image_period=60\n", "crop_start_x=0\n", "crop_start_y=0\n", "crop_w=0\n", "crop_h=0\n",
+                "hdmi_in_crop_start_x=0\n", "hdmi_in_crop_start_y=0\n",
+                "hdmi_in_crop_w=0\n", "hdmi_in_crop_h=0\n",
+                "hdmi_ch_switch=0\n"
+            ]
             config_file = open(file_uri, 'w')
             config_file.writelines(content_lines)
             config_file.close()
@@ -90,6 +92,7 @@ class video_params(QObject):
                     "image_period=60\n", "crop_start_x=0\n", "crop_start_y=0\n", "crop_w=0\n", "crop_h=0\n",
                     "hdmi_in_crop_start_x=0\n", "hdmi_in_crop_start_y=0\n",
                     "hdmi_in_crop_w=0\n", "hdmi_in_crop_h=0\n",
+                    "hdmi_ch_switch=0\n"
                 ]
                 config_file = open(file_uri, 'w')
                 config_file.writelines(content_lines)
@@ -158,6 +161,8 @@ class video_params(QObject):
                 self.hdmi_in_crop_w = int(tmp[1])
             elif tmp[0] == 'hdmi_in_crop_h':
                 self.hdmi_in_crop_h = int(tmp[1])
+            elif tmp[0] == 'hdmi_ch_switch':
+                self.hdmi_ch_switch = int(tmp[1])
 
     def refresh_config_file(self):
         params_birghtness = "brightness=" + str(self.video_brightness) + '\n'
@@ -167,7 +172,8 @@ class video_params(QObject):
         params_blue_bias = 'blue_bias=' + str(self.video_blue_bias) + '\n'
         params_sleep_mode_enable = 'sleep_mode_enable=' + str(self.sleep_mode_enable) + '\n'
         params_target_city_index = 'target_city_index=' + str(self.target_city_index) + '\n'
-        params_frame_brightness_algorithm = 'frame_brightness_algorithm=' + str(int(self.frame_brightness_algorithm)) + '\n'
+        params_frame_brightness_algorithm = 'frame_brightness_algorithm=' + str(
+            int(self.frame_brightness_algorithm)) + '\n'
         day_mode_frame_brightness = 'day_mode_frame_brightness=' + str(self.day_mode_frame_brightness) + '\n'
         night_mode_frame_brightness = 'night_mode_frame_brightness=' + str(self.night_mode_frame_brightness) + '\n'
         sleep_mode_frame_brightness = 'sleep_mode_frame_brightness=' + str(self.sleep_mode_frame_brightness) + '\n'
@@ -184,6 +190,7 @@ class video_params(QObject):
         params_hdmi_in_crop_start_y = 'hdmi_in_crop_start_y=' + str(self.hdmi_in_crop_start_y) + '\n'
         params_hdmi_in_crop_w = 'hdmi_in_crop_w=' + str(self.hdmi_in_crop_w) + '\n'
         params_hdmi_in_crop_h = 'hdmi_in_crop_h=' + str(self.hdmi_in_crop_h) + '\n'
+        params_hdmi_ch_switch = 'hdmi_ch_switch=' + str(self.hdmi_ch_switch) + '\n'
 
         content_lines = [params_birghtness, params_contrast, params_red_bias, params_green_bias,
                          params_sleep_mode_enable, params_target_city_index,
@@ -192,10 +199,10 @@ class video_params(QObject):
                          params_frame_br_divisor, params_frame_contrast, params_frame_gamma, params_image_period,
                          params_crop_start_x, params_crop_start_y, params_crop_w, params_crop_h,
                          params_hdmi_in_crop_start_x, params_hdmi_in_crop_start_y,
-                         params_hdmi_in_crop_w, params_hdmi_in_crop_h]
+                         params_hdmi_in_crop_w, params_hdmi_in_crop_h, params_hdmi_ch_switch]
 
         log.debug("content_lines :%s", content_lines)
-        file_uri = self.video_params_file_uri   # internal_media_folder + init_config_file
+        file_uri = self.video_params_file_uri  # internal_media_folder + init_config_file
         config_file = open(file_uri, 'w')
         config_file.writelines(content_lines)
         config_file.close()
@@ -328,6 +335,10 @@ class video_params(QObject):
         self.hdmi_in_crop_h = hdmi_in_crop_h_value
         self.refresh_config_file()
 
+    def set_hdmi_ch_switch(self, hdmi_ch_switch_value):
+        self.hdmi_ch_switch = hdmi_ch_switch_value
+        self.refresh_config_file()
+
     '''get the brightness translated value'''
     '''0~100 mapping to -1~1'''
     def get_translated_brightness(self):
@@ -404,6 +415,9 @@ class video_params(QObject):
     def get_hdmi_in_crop_h(self):
         return self.hdmi_in_crop_h
 
+    def get_hdmi_ch_switch(self):
+        return self.hdmi_ch_switch
+
     def check_video_params_file_valid(self):
         log.debug("")
         file_uri = self.video_params_file_uri
@@ -420,7 +434,7 @@ class video_params(QObject):
             "frame_br_divisor", "frame_contrast", "frame_gamma",
             "image_period", "crop_start_x", "crop_start_y", "crop_w", "crop_h",
             "hdmi_in_crop_start_x", "hdmi_in_crop_start_y",
-            "hdmi_in_crop_w", "hdmi_in_crop_h",
+            "hdmi_in_crop_w", "hdmi_in_crop_h", "hdmi_ch_switch",
         ]
 
         for tag in content_tags:

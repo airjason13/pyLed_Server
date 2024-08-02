@@ -22,3 +22,4 @@ hdmi_in_crop_start_x=0
 hdmi_in_crop_start_y=0
 hdmi_in_crop_w=0
 hdmi_in_crop_h=0
+hdmi_ch_switch=0

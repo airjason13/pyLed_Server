@@ -120,6 +120,10 @@ class frame_brightness_adjust(enum.IntEnum):
     test_mode = 3
 
 
+class hdmi_ch_switch_option(enum.IntEnum):
+    hdmi_csi = 0,
+    hdmi_usb = 1
+
 day_mode_brightness = 90
 night_mode_brightness = 60
 sleep_mode_brightness = 0
@@ -201,3 +205,16 @@ target_fps=fps_23
 FUNCTION_DISABLE = False
 
 refresh_clients_thread_interval = 10
+
+"""default hdmi ch switch params"""
+default_hdmi_ch_switch = hdmi_ch_switch_option.hdmi_csi.value
+hdmi_not_find_device = False
+default_hdmi_csi_ch_device = hdmi_not_find_device
+default_hdmi_usb_ch_device = hdmi_not_find_device
+
+default_video_capture_card_id = "534d:2109"
+default_video_capture_card_width = 640
+default_video_capture_card_height = 480
+default_video_capture_card_fps = 30
+
+
