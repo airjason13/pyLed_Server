@@ -273,7 +273,11 @@ class Hdmi_In_Page(QObject):
         self.radiobutton_hdmi_channel_csi.clicked.connect(self.on_hdmi_channel_csi_selected)
         self.radiobutton_hdmi_channel_usb.clicked.connect(self.on_hdmi_channel_usb_selected)
 
+        if self.mainwindow.led_role == "AIO":
+            self.set_hdmi_channel(hdmi_ch_switch_option.hdmi_usb.value)
+
         hdmi_channel = self.get_hdmi_channel()
+
         if hdmi_channel == hdmi_ch_switch_option.hdmi_csi.value:
             self.radiobutton_hdmi_channel_csi.setChecked(True)
         elif hdmi_channel == hdmi_ch_switch_option.hdmi_usb.value:
@@ -521,6 +525,12 @@ class Hdmi_In_Page(QObject):
             self.play_hdmi_in_start_ret)
         self.media_engine.media_processor.signal_play_hdmi_in_finish_ret.connect(
             self.play_hdmi_in_finish_ret)
+
+    '''def set_radiobutton_hdmi_channel_csi_toggle(self):
+        self.radiobutton_hdmi_channel_csi.setChecked(True)
+
+    def set_radiobutton_hdmi_channel_usb_toggle(self):
+        self.radiobutton_hdmi_channel_usb.setChecked(True)'''
 
     def combobox_target_city_changed(self, index):
         log.debug("index = %d", index)

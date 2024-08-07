@@ -12,6 +12,7 @@ print("led_config_dir = ", led_config_dir)
 
 os.makedirs(led_config_dir, exist_ok=True)
 
+
 class video_params(QObject):
 
     def __init__(self, from_config, video_brightness, video_contrast, red_bias, green_bias, blue_bias, gamma, **kwargs):

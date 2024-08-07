@@ -482,7 +482,8 @@ def get_default_play_mode_default():
                 str_ret = "playlist_mode"
             elif default_launch_type_int == 3:
                 if "AIO" in get_led_role():
-                    str_ret = "none_mode"
+                    # str_ret = "none_mode"
+                    str_ret = "hdmi_in_mode"
                 else:
                     str_ret = "hdmi_in_mode"
             elif default_launch_type_int == 4:
@@ -595,15 +596,15 @@ def get_brightness_value_default():
             brightness_values_maps["frame_brightness"] = str_fr_br
         elif "day_mode_frame_brightness" == tag:
             str_fr_br_day_mode = line.strip("\n").split("=")[1]
-            if "Server" in led_role:
+            if "Server" in led_role or "AIO" in led_role:
                 brightness_values_maps["day_mode_frame_brightness"] = str_fr_br_day_mode
         elif "night_mode_frame_brightness" == tag:
             str_fr_br_night_mode = line.strip("\n").split("=")[1]
-            if "Server" in led_role:
+            if "Server" in led_role or "AIO" in led_role:
                 brightness_values_maps["night_mode_frame_brightness"] = str_fr_br_night_mode
         elif "sleep_mode_frame_brightness" == tag:
             str_fr_br_sleep_mode = line.strip("\n").split("=")[1]
-            if "Server" in led_role:
+            if "Server" in led_role or "AIO" in led_role:
                 brightness_values_maps["sleep_mode_frame_brightness"] = str_fr_br_sleep_mode
 
     f.close()
@@ -703,7 +704,8 @@ class LaunchTypeForm(Form):
             id="default_play_mode_switcher",
             choices=[('none_mode', 'None MODE'),
                      ('single_file_mode', 'Single File Mode'),
-                     ('playlist_mode', 'Playlist Mode')],
+                     ('playlist_mode', 'Playlist Mode'),
+                     ('hdmi_in_mode', 'HDMI-In Mode')],
             default=get_default_play_mode_default(),
             render_kw=style,
         )

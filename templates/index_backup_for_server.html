@@ -150,10 +150,6 @@
             <button value="btn_hdmi_in_start" class="item" style="background-color: #ECECFF;" onclick="submit_hdmi_in(value)">
               HDMI-In Start
             </button>
-            {% elif ledrole == "AIO" %}
-            <button value="btn_hdmi_in_start" class="item" style="background-color: #ECECFF;" onclick="submit_hdmi_in(value)">
-              HDMI-In Start
-            </button>
             {% else %}
             <button disabled>
               HDMI-In Start
@@ -161,19 +157,9 @@
             {% endif %}
           </td>
           <td>
-            {% if ledrole == "Server" %}
-                <button disabled>
-                    CMS Start
-                </button>
-            {% elif ledrole == "AIO" %}
-                <button disabled>
-                    CMS Start
-                </button>
-            {% else %}
-                <button value="cms_start" class="item" style="background-color: #ECECFF;" onclick="submit_cms_start(value)">
-                    CMS Start
-                </button>
-            {% endif %}
+            <button value="cms_start" class="item" style="background-color: #ECECFF;" onclick="submit_cms_start(value)">
+              CMS Start
+            </button>
           </td>
         </tr>
         <tr>
@@ -185,10 +171,6 @@
           </td>
           <td>
             {% if ledrole == "Server" %}
-            <button data-bs-toggle="modal" data-bs-target="#brightnessMode" class="item">
-              Brightness Mode
-            </button>
-            {% elif ledrole == "AIO" %}
             <button data-bs-toggle="modal" data-bs-target="#brightnessMode" class="item">
               Brightness Mode
             </button>
@@ -370,10 +352,8 @@
             <div class="modal-footer">
             {% if ledrole == "Server" %}
                 <button type="submit" class="btn btn-primary" onclick="submit_frame_brightness_values_option()">Submit</button>
-            {% elif ledrole == "AIO" %}
-                <button type="submit" class="btn btn-primary" onclick="submit_frame_brightness_values_option()">Submit</button>
-	        {% else %}
-	            <button type="submit" class="btn btn-primary" onclick="submit_aio_frame_brightness_values_option()">Submit</button>
+	 {% else %}
+	 <button type="submit" class="btn btn-primary" onclick="submit_aio_frame_brightness_values_option()">Submit</button>
             {% endif %}
             </div>
         </div>

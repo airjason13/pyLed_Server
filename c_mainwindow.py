@@ -78,6 +78,12 @@ class MainUi(QMainWindow):
             # export_display = os.popen("export DISPLAY=:0")
             # export_display.close()
 
+        if "AIO" in get_led_role():
+            self.led_role = "AIO"
+            aio_set_total_num_of_clients()
+        else:
+            self.led_role = "Server"
+
         self.center()
         self.setWindowOpacity(1.0)  # 窗口透明度
         self.setStyleSheet(qdarkstyle.load_stylesheet_pyqt5())
@@ -292,10 +298,7 @@ class MainUi(QMainWindow):
         # for test
         self.brightness_test_log = False
 
-        if "AIO" in get_led_role():
-            self.led_role = "AIO"
-        else:
-            self.led_role = "Server"
+
 
         self.default_launch_type_int = 0
         self.default_launch_params_str = ""
@@ -334,7 +337,12 @@ class MainUi(QMainWindow):
                     log.debug(e)
             elif self.default_launch_type_int == play_type.play_hdmi_in:
                 if self.led_role == "AIO":
-                    pass
+                    log.debug("AIO start hdmi-in")
+
+                    try:
+                        QTimer.singleShot(5000, self.demo_start_hdmi_in)
+                    except Exception as e:
+                        log.debug(e)
                 else:
                     try:
                         QTimer.singleShot(5000, self.demo_start_hdmi_in)
@@ -362,8 +370,9 @@ class MainUi(QMainWindow):
     def check_num_of_clients_for_hdmi_in(self):
         while True:
             log.debug("check client!")
-            log.debug("client num : %d", len(self.clients))
-            if len(self.clients) == total_num_of_clients:
+            log.debug("client num : %d, get_total_num_of_clients() : %d", len(self.clients), get_total_num_of_clients())
+            # if len(self.clients) == total_num_of_clients:
+            if len(self.clients) == get_total_num_of_clients() :
                 break
             time.sleep(6)
 

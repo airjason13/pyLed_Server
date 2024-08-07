@@ -6,7 +6,7 @@ import utils.log_utils
 log = utils.log_utils.logging_init(__file__)
 
 """Software version"""
-version = "LS240802001"
+version = "LS240807001"
 
 X86_ETH_INTERFACE = 'enp55s0'
 
@@ -193,6 +193,16 @@ web_cmd_interval = 3
 
 '''for cms, waiting all clinet connected to trigger default launch type'''
 total_num_of_clients = 2
+
+
+def aio_set_total_num_of_clients():
+    global total_num_of_clients
+    total_num_of_clients = 1
+
+
+def get_total_num_of_clients():
+    global total_num_of_clients
+    return total_num_of_clients
 
 fps_30="30/1"
 fps_25="25/1"
