@@ -59,11 +59,11 @@ class CmsPage(QObject):
 		self.y_padding = 29
 		self.chromium_pos_x = 10
 		self.chromium_pos_y = 10
-		self.chromium_width = 480 # 640
-		self.chromium_height = 336 # 480
+		self.chromium_width = 640
+		self.chromium_height = 480
+
 
 	def launch_chromium(self):
-
 		try:
 			#subprocess.Popen("ifconfig enp1s0u1u4 up", shell=True)
 			#time.sleep(5)
@@ -86,13 +86,13 @@ class CmsPage(QObject):
 
 	def start_play_cms(self):
 		subprocess.Popen("pkill chromium", shell=True)
+
 		time.sleep(5) # self.launch_chromium()
 		self.launch_chromium()
 		self.media_engine.resume_play()
 		self.media_engine.stop_play()
 		if self.media_engine.media_processor.play_cms_worker is None:
 			log.debug("Start streaming to led")
-
 			self.media_engine.media_processor.cms_play(self.chromium_width, self.chromium_height,
 			                                           self.chromium_pos_x + self.x_padding + 1,
 			                                           self.chromium_pos_y + self.y_padding, udp_sink)

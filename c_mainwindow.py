@@ -984,7 +984,8 @@ class MainUi(QMainWindow):
                 sock.close()
             else:
                 if platform.machine() in ('arm', 'arm64', 'aarch64'):
-                    os.popen("ifconfig eth0 192.168.0.3")
+                    # os.popen("ifconfig eth0 192.168.0.3")
+                    log.debug("eth0 should be got a nm connection profile")
                 else:
                     pass
                     #os.popen("ifconfig enp2s0 192.168.0.2")

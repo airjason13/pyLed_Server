@@ -1,6 +1,5 @@
 # base on 2023
 from datetime import date
-
 from global_def import *
 
 holiday_mode: bool = False
@@ -18,6 +17,7 @@ holidays_dict_old = {
     11: {4, 5, 11, 12, 18, 19, 25, 26},
     12: {2, 3, 9, 10, 11, 16, 17, 23, 24, 30, 31}
 }
+
 ''' 2023 '''
 holidays_dict_2023 = {
     3: {4, 5, 11, 12, 18, 19, 25, 26},

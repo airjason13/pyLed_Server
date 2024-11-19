@@ -50,6 +50,8 @@ if __name__ == '__main__':
     flask_app = ApplicationPlugin(app_=app)
     flask_app.start()
 
+
+
     # detect focus on windows or not
     qt_app.focusChanged.connect(gui.focus_on_window_changed)
 
