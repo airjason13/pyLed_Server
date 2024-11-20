@@ -70,7 +70,9 @@ class media_engine(QObject):
     # hdmi_in_src : string
     # cast_dst : array of string
     def start_hdmi_in_v4l2(self, hdmi_in_src, cast_dst):
+
         log.debug("")
+        os.popen("add_multicast_route.sh &")
         if os.path.exists(hdmi_in_src) is False:
             log.error("%s is not exist", hdmi_in_src)
             return None
@@ -78,6 +80,7 @@ class media_engine(QObject):
 
     def start_hdmi_in_h264(self, hdmi_in_src, cast_dst):
         log.debug("")
+        os.popen("add_multicast_route.sh &")
         if os.path.exists(hdmi_in_src) is False:
             log.error("%s is not exist", hdmi_in_src)
             return None
@@ -86,6 +89,7 @@ class media_engine(QObject):
     def play_single_file(self, file_uri):
         log.debug("")
         self.stop_play()
+        os.popen("add_multicast_route.sh &")
         if os.path.exists(file_uri) is False:
             log.error("%s is not exist", file_uri)
         self.media_processor.single_play(file_uri)
@@ -93,6 +97,7 @@ class media_engine(QObject):
     def play_playlist(self, playlist_name):
         log.debug("playlist_name = %s", playlist_name)
         self.stop_play()
+        os.popen("add_multicast_route.sh &")
         for pl in self.playlist:
             if pl.name == playlist_name:
                 log.debug("find playlist with playlist_name = %s", playlist_name)
@@ -777,6 +782,9 @@ class media_processor(QObject):
                                       self.media_processor.video_params.image_period,
                                       self.media_processor.output_width,
                                       self.media_processor.output_height)
+
+                os.popen("add_multicast_route.sh &")
+
                 self.media_processor.ffmpy_process = subprocess.Popen(ffmpeg_cmd, shell=True)
 
                 if self.media_processor.ffmpy_process.pid > 0:
@@ -894,9 +902,11 @@ class media_processor(QObject):
                        self.media_processor.video_params.image_period,
                        self.media_processor.output_width,
                        self.media_processor.output_height)
-                # log.debug("AAAAAAAAAAAAAAAAAAAAAAAA")
+
+                os.popen("add_multicast_route.sh &")
+
                 self.media_processor.ffmpy_process = subprocess.Popen(ffmpeg_cmd, shell=True)
-                # log.debug("BBBBBBBBBBBBBBBBBBBBBBBBB")
+
                 log.debug("self.media_processor.ffmpy_process.pid = %d", self.media_processor.ffmpy_process.pid)
                 if self.media_processor.ffmpy_process.pid > 0:
                     log.debug("self.media_processor.ffmpy_process.pid = %d", self.media_processor.ffmpy_process.pid)
@@ -1026,6 +1036,8 @@ class media_processor(QObject):
                                               self.media_processor.output_width,
                                               self.media_processor.output_height)
 
+                os.popen("add_multicast_route.sh &")
+
                 self.media_processor.ffmpy_process = subprocess.Popen(ffmpeg_cmd, shell=True)
                 self.media_processor.hdmi_in_audio_process = subprocess.Popen("play_hdmi_in_audio.sh", shell=True)
                 if self.media_processor.ffmpy_process is None:
@@ -1136,6 +1148,9 @@ class media_processor(QObject):
                                        self.media_processor.video_params.get_translated_bluegain(),
                                        self.media_processor.output_width,
                                        self.media_processor.output_height)
+
+                os.popen("add_multicast_route.sh &")
+
                 self.media_processor.ffmpy_process = subprocess.Popen(ffmpeg_cmd, shell=True)
 
                 if self.media_processor.ffmpy_process is not None:

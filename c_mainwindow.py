@@ -368,13 +368,13 @@ class MainUi(QMainWindow):
         self.cms_page.start_play_cms()
 
     def check_num_of_clients_for_hdmi_in(self):
-        while True:
+        ''' while True:
             log.debug("check client!")
             log.debug("client num : %d, get_total_num_of_clients() : %d", len(self.clients), get_total_num_of_clients())
             # if len(self.clients) == total_num_of_clients:
             if len(self.clients) == get_total_num_of_clients() :
                 break
-            time.sleep(6)
+            time.sleep(6) '''
 
         self.hdmi_in_page.start_send_to_led()
 
